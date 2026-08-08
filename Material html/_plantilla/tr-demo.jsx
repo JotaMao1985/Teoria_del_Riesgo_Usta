@@ -752,6 +752,20 @@ var <- mu + 1.6449 * sd`,
                 if (cont) cont.scrollTo({ top: 0, behavior: 'smooth' });
             }, [safeIndex]);
 
+            // El `<head>` NO lo estampa `migrar.py`, así que un capítulo nacido
+            // de copiar `tr-base.html` arrastra su título y su descripción sin
+            // que nada avise: la pestaña del navegador dice «Plantilla base» y
+            // eso es lo que ve quien tiene quince capítulos abiertos, y lo que
+            // indexa GitHub Pages. Se derivan de `CONFIG`, que sí es lo primero
+            // que cambia todo capítulo, para que ninguno pueda olvidarlo.
+            useEffect(() => {
+                document.title = `Cap. ${CONFIG.numero} · ${CONFIG.titulo} — Teoría del Riesgo`;
+                const meta = document.querySelector('meta[name="description"]');
+                if (meta) meta.setAttribute('content',
+                    `${CONFIG.titulo}. ${CONFIG.subtitulo} · ${CONFIG.unidad} · `
+                    + `Teoría del Riesgo, Universidad Santo Tomás.`);
+            }, []);
+
             const irA = (idx) => {
                 setActiveLessonIndex(idx);
                 if (window.innerWidth < 1024) setSidebarOpen(false);

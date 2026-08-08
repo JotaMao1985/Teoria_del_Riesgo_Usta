@@ -208,6 +208,23 @@ pedirá ajustar un GARCH a…») y marcarla haría que el verificador mintiera.
 | `Laboratorio` | **R9** deslizadores que recalculan una gráfica |
 | `MCQ` · `Quiz` · `Reto` | **R2/R7/R8** y cuestionario integrador |
 
+### Los iconos del `curriculum` son una lista cerrada
+
+Cada entrada del `curriculum` lleva un `icon:`, y ese nombre tiene que estar en el objeto
+`Icons` de la librería. Si no está **no falla nada**: `renderIcon` devuelve `null` y
+`SectionHeader` lo tolera, así que el icono no se dibuja y queda un hueco que solo se ve
+mirando. Los disponibles son:
+
+`BookOpen` · `Binary` · `Cpu` · `Calculator` · `Award` · `HelpCircle` · `TrendingUp` ·
+`BarChart` · `Activity` · `Layers` · `Table` · `Clock` · `Bug` · `Scale` · `Sliders` ·
+`ChevronLeft` · `ChevronRight`
+
+Para añadir uno, se edita `tr-core-base.jsx`, se regenera y se estampa. Dentro del contenido
+—no en el `curriculum`— los iconos son de Font Awesome (`icon="fa-clock"` en `Motivacion`,
+por ejemplo) y ahí la lista es la de la librería completa.
+
+---
+
 `TIPOS_ERROR_RIESGO` es la taxonomía de siete errores que usa R3. Se define **una vez** en
 la librería y los capítulos la reutilizan con `IDX_ERROR`: si cada ejercicio trajera sus
 propias opciones, la que «suena» al tema del capítulo sería casi siempre la correcta y el
