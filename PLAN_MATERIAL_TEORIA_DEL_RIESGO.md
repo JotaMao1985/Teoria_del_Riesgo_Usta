@@ -6,7 +6,8 @@
 **Espacio académico:** Pregrado profesional, Estadística · Periodo 8 · Obligatorio · Teórico-práctico
 **Créditos:** 2 · **Horas:** 64 acompañadas + 32 autónomas = 96
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
-**Estado:** aprobado en estructura — listo para ejecutar la fase 0
+**Estado:** fase 0 completada (punto de control A aprobado) · fase 1 completada —
+**en el punto de control B, a la espera de revisión**
 
 ---
 
@@ -787,28 +788,45 @@ todo lo que estima C2.
 
 ### Fase 1 — Piloto vertical
 
-#### Tarea 6 · Capítulo 4 completo (VaR) — rebanada de referencia
+#### Tarea 6 · Capítulo 4 completo (VaR) — rebanada de referencia · **COMPLETADA 2026-08-08**
 **Descripción:** Escribir el capítulo 4 entero: seis secciones con motivación, código en
 Python y R ejecutado, tres gráficas, catorce ejercicios cubriendo los nueve tipos, quiz de
 diez preguntas y el cuaderno Quarto del taller.
 
 **Criterios de aceptación:**
-- [ ] Las doce reglas del verificador pasan, incluida `--con-salidas`
-- [ ] Los nueve tipos R1–R9 están presentes y son contables
-- [ ] Todas las salidas `#>` coinciden con la ejecución real
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] Los nueve tipos R1–R9 están presentes y son contables — `R1:2 R2:3 R3:2 R4:1 R5:1
+      R6:1 R7:2 R8:1 R9:2`, 15 ejercicios, la cuota exacta
+- [x] Todas las salidas `#>` coinciden con la ejecución real — 14 bloques ejecutados y
+      comparados en los dos lenguajes, 0 discrepancias
 
 **Verificación:** `python3 verificar.py --con-salidas` devuelve 0 · recorrido manual
 respondiendo cada ejercicio
 **Depende de:** Punto de control A · **Alcance: L (dos sesiones)**
 
+**Entregado:** `Material html/04_TDR_Valor_en_riesgo.html` (299 KB, 8 secciones, 7 bloques
+de código, 5 gráficas + 2 laboratorios, 15 ejercicios, cuestionario de 10) y
+`talleres/TDR-04.qmd` + `talleres/_quarto.yml`.
+
 ### ✅ Punto de control B — Piloto · **revisión obligatoria con el usuario**
-- [ ] El capítulo se lee de principio a fin sin fricción
-- [ ] La densidad de fórmulas es la adecuada: ni un formulario ni prosa sin matemáticas
-- [ ] Los ejercicios R3 «Audita a la IA» funcionan como se espera y su taxonomía de errores es la correcta
-- [ ] El `Laboratorio` aporta y no distrae
-- [ ] La convención terminológica de D9 se lee bien en prosa real
-- [ ] El archivo pesa menos de 400 KB
-- [ ] **Se ajusta la plantilla aquí, antes de escribir catorce capítulos sobre ella**
+- [x] El capítulo se lee de principio a fin sin fricción — recorrido en el navegador, las
+      ocho secciones renderizan y las siete gráficas traen datos; sin errores de consola
+- [x] La densidad de fórmulas es la adecuada: ni un formulario ni prosa sin matemáticas —
+      seis `Eq` y una `Derivacion` de cuatro pasos en 8 secciones; toda fórmula va seguida
+      de la cifra que produce
+- [x] Los ejercicios R3 «Audita a la IA» funcionan como se espera y su taxonomía de errores
+      es la correcta — comprobado que `lineaCorrecta` apunta a la línea del fallo en los dos
+      lenguajes (Python 8 / R 6 y Python 7 / R 5); tipos `medida` y `supuesto`
+- [x] El `Laboratorio` aporta y no distrae — el de la sección 3 reproduce exactamente las
+      cifras del bloque (4,08 % y 32 617 millones con la muestra completa); el de la 6 va en
+      `modo="malla"`
+- [x] La convención terminológica de D9 se lee bien en prosa real
+- [x] El archivo pesa menos de 400 KB — **299 KB**, de los cuales ~30 KB son datos embebidos
+- [x] **Se ajusta la plantilla aquí, antes de escribir catorce capítulos sobre ella** — tres
+      defectos corregidos, detallados en el registro de la fase 1
+
+**Falta que el usuario revise**, que es lo que este punto de control significa: la prosa,
+los ganchos, el criterio de los distractores y la decisión sobre las anomalías del panel.
 
 ---
 
@@ -985,6 +1003,59 @@ precios no es byte-estable entre descargas. Todo detallado en D3 y D5.
 **Lo que queda bloqueado:** `curva_tes.csv`. El Banco de la República publica la curva cero
 cupón de los TES pero no por un extremo que un guion pueda invocar. Hay que bajarla a mano.
 Los capítulos 9 y 10 dependen de ella; los otros trece, no.
+
+---
+
+### Fase 1 — Piloto: capítulo 4 (VaR) · 2026-08-08
+
+Tarea 6 completada. Doce reglas en verde a la primera pasada de `--con-salidas`, que era la
+apuesta del método: **los siete bloques se escribieron y se ejecutaron fuera del capítulo
+antes de entrar en él**, comparando la salida de Python con la de R línea a línea. Escribir
+primero y verificar después habría significado catorce ciclos de corrección de cifras.
+
+**Los datos tienen dos defectos, y no se corrigen: se enseñan.** Al construir la sección 3
+apareció que `bvc_diario.csv` trae 101 ruedas de 1 916 en las que ninguno de los cuatro
+precios se mueve, y un par de ruedas —19 y 20 de febrero de 2025— en las que los cuatro
+emisores caen entre 10 % y 20 % y recuperan lo mismo al día siguiente **mientras el ETF que
+los replica sube**. Lo segundo es una cotización defectuosa de la fuente, y el propio
+contraste con el índice es el diagnóstico que lo demuestra.
+
+La decisión fue conservar el panel y declararlo, por dos razones. La primera es que limpiar
+en silencio enseña que los datos llegan limpios, que es la creencia que más dinero cuesta en
+riesgo. La segunda es que el episodio resultó ser el mejor material del capítulo: el mismo
+dato malo mueve el VaR histórico de la muestra completa cuatro centésimas de punto, la
+volatilidad un 5 % y el VaR de la ventana de 250 ruedas un 10 %. Tres estimadores, tres
+sensibilidades, un solo defecto. Queda anotado en `datos/MANIFIESTO.md` y en la plantilla de
+`datos/descargar.py`, para que sobreviva a la próxima descarga.
+
+**Tres defectos de la plantilla, corregidos aquí y no en el capítulo 15.**
+
+- **Faltaban diez de los iconos de la barra lateral.** `tr-demo.jsx` ya usaba `Layers`,
+  `Bug` y `Table`, que no existían en `Icons`. No fallaba nada: `renderIcon` devuelve `null`
+  y `SectionHeader` lo tolera, así que el icono simplemente no se dibujaba. Añadidos diez
+  que cubren los quince capítulos.
+- **El `<head>` no lo estampa `migrar.py`.** Un capítulo nacido de copiar `tr-base.html`
+  arrastraba su `<title>` y su descripción: la pestaña del navegador decía «Plantilla base»
+  y eso es lo que habría indexado GitHub Pages. Ahora el `App` los deriva de `CONFIG`, que
+  sí es lo primero que cambia cada capítulo, así que ninguno puede olvidarlo.
+- **Las gráficas se desbordaban por la derecha.** Plotly fija el ancho al crear la figura y
+  su `responsive: true` solo escucha el `resize` de la ventana. Dentro de la tarjeta de un
+  `Laboratorio` la figura salía 44 px más ancha que su contenedor, sin ningún error.
+  `ChartFrame` observa ahora su contenedor con un `ResizeObserver`.
+
+**Lo que la sección 4 hace a propósito y hay que saber antes de copiarla.** Es el único
+bloque del material cuyas dos pestañas declaran cifras distintas —3,626 % en Python y
+3,642 % en R— porque simula de verdad y los generadores no son el mismo. La regla 9 lo
+admite sin problema, porque compara cada lenguaje contra su propia salida; lo que no admite
+el material es que eso ocurra sin decirlo. Aquí la distancia entre las dos pestañas **es** el
+contenido: mide el error de Montecarlo y justifica el tipo de error «resultado sin
+incertidumbre» de la taxonomía R3.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-04.qmd`. Quarto no está
+instalado en esta máquina. Los dos bloques que el cuaderno ejecuta sí se corrieron a mano con
+`Rscript` desde `talleres/` y dan las cifras del capítulo; el resto son andamios con
+`#| eval: false`. La pasada de `quarto render` sigue siendo criterio de aceptación de la
+tarea 22.
 
 ---
 

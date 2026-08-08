@@ -1,0 +1,33 @@
+project:
+  type: default
+  output-dir: _salida
+
+lang: es
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: true
+    # Autocontenido, igual que los capítulos: el estudiante entrega UN archivo
+    # y el docente lo abre con doble clic, sin carpeta de recursos al lado.
+    embed-resources: true
+    df-print: kable
+
+# El motor por omisión es knitr. Es una decisión, no un accidente: knitr y
+# rmarkdown vienen con la instalación de R del curso (`entorno/instalar.R`),
+# mientras que el motor de Jupyter exige además el núcleo de Python
+# registrado, que es donde se atasca la mitad del salón la primera semana.
+# Quien prefiera trabajar en Python cambia el encabezado de su cuaderno a
+# `jupyter: python3`; cada parte del taller trae los dos andamios.
+engine: knitr
+
+execute:
+  warning: false
+  message: false
+
+author: "Universidad Santo Tomás · Teoría del Riesgo"
+date-format: "D [de] MMMM [de] YYYY"

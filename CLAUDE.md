@@ -15,8 +15,13 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Fase | Estado |
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
-| 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ⬅️ **siguiente** |
+| 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · ⬅️ **en el punto de control B, pendiente de revisión** |
 | 2–5 · Los otros catorce capítulos, portal, Quarto | pendientes |
+
+El capítulo 4 es la **rebanada de referencia**: lo que allí quedó decidido se repite catorce
+veces. Antes de escribir otro capítulo, léalo — sobre todo la sección 3, que es donde el
+material trata las anomalías del panel, y la 4, que es el único bloque cuyas dos pestañas
+declaran cifras distintas a propósito.
 
 ## Ciclo de trabajo
 
@@ -64,6 +69,14 @@ la regla 9 no puede existir. `datos/MANIFIESTO.md` guarda fuente, fecha y SHA-25
 ⚠️ Volver a ejecutar `datos/descargar.py` produce una instantánea **equivalente pero no
 idéntica** —Yahoo reajusta los precios hacia atrás con cada dividendo—. Si lo hace, mire el
 `git diff` y vuelva a correr `verificar.py --con-salidas`.
+
+⚠️ **`bvc_diario.csv` tiene dos defectos conocidos y NO se corrigen**: 101 ruedas de 1 916
+sin variación en ningún precio, y el par 19–20 de febrero de 2025, que es una cotización
+defectuosa (los cuatro emisores caen 10–20 % y el ETF que los replica sube). Están
+declarados en `datos/MANIFIESTO.md` y la sección 3 del capítulo 4 los diagnostica con
+código. Si escribe un capítulo que estime volatilidad, sepa que excluir ese par la baja un
+5 %. Limpiar el panel en silencio rompería las cifras del capítulo 4 y el argumento del
+material.
 
 ⚠️ **`curva_tes.csv` está pendiente** y bloquea los capítulos 9 y 10. Hay que bajarla a mano
 del Banco de la República. Ningún otro capítulo depende de ella.

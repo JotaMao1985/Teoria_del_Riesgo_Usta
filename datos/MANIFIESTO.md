@@ -52,3 +52,27 @@ No se descarga desde aquí porque el Banco de la República no expone la serie
 por un extremo estable que un guion pueda invocar. Hay que bajarla a mano de
 las estadísticas del emisor y anotar en este archivo la fecha, la ruta exacta
 y el SHA-256 resultante.
+
+---
+
+## Anomalías conocidas de `bvc_diario.csv`
+
+Encontradas al escribir el capítulo 4 (2026-08-08). **No se corrigen en el
+archivo**: se declaran aquí y el capítulo 4 las convierte en material —la
+sección 3 las diagnostica con código y un ejercicio pide decidir qué hacer con
+ellas—. Limpiar el panel en silencio enseñaría que los datos llegan limpios.
+
+- **101 ruedas de 1 916 (5,3 %) sin variación en ninguno de los cuatro
+  precios.** El panel se cruza por fechas comunes con el ETF `ICOLCAP.CL`, que
+  cotiza días en que las acciones no registran negociación efectiva y Yahoo
+  arrastra el cierre anterior. Se concentran en 2018-2019 y 2022. Diluyen la
+  volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria.
+- **19 y 20 de febrero de 2025: cotización defectuosa.** Los cuatro emisores
+  caen entre 10 % y 20 % el 19 y recuperan lo mismo el 20, mientras el ETF que
+  los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF.
+  Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 %, el VaR histórico
+  al 99 % de la muestra completa de 4,077 % a 4,037 %, y el de la ventana de
+  250 ruedas de 4,294 % a 3,858 %.
+
+El diagnóstico que las delata —comparar el rendimiento del portafolio con el
+del índice que lo replica— está implementado en la sección 3 del capítulo 4.

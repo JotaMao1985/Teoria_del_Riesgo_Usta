@@ -1,0 +1,264 @@
+---
+title: "Taller 4 · Valor en Riesgo de un portafolio de pensiones"
+subtitle: "Teoría del Riesgo · Unidad 1 · RA1"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la sección 7. Un
+taller sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es*
+uno de los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-04-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use el
+andamio de Python de cada parte. El taller está escrito para las dos rutas y se
+califica igual por cualquiera de ellas.
+:::
+
+**Los datos van del archivo congelado.** Este cuaderno lee
+`../datos/bvc_diario.csv` y nada más. No descargue precios: una serie bajada hoy
+no coincide con la del material —Yahoo reajusta los precios hacia atrás con cada
+dividendo— y sus cifras dejarían de ser comparables con las de nadie.
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Cargue el panel y construya el rendimiento diario del portafolio del fondo con
+los pesos del capítulo: Ecopetrol 30 %, Banco de Bogotá 20 %, Grupo Sura 25 %,
+ISA 25 %, sobre 800 000 millones de pesos.
+
+```{r}
+#| label: parte1-carga
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w <- c(0.30, 0.20, 0.25, 0.25)
+W <- 800000
+
+r  <- diff(log(as.matrix(precios[, acciones])))
+rp <- as.vector(r %*% w)
+
+cat(sprintf("Sesiones: %d   ·   sigma diaria: %.4f %%\n", length(rp), sd(rp) * 100))
+```
+
+::: {.callout-tip collapse="true"}
+## El mismo paso en Python
+
+```python
+import numpy as np, pandas as pd
+precios  = pd.read_csv("../datos/bvc_diario.csv", parse_dates=["fecha"], index_col="fecha")
+acciones = ["ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL"]
+w, W = np.array([0.30, 0.20, 0.25, 0.25]), 800_000
+r  = np.log(precios[acciones]).diff().dropna()
+rp = r.values @ w
+```
+:::
+
+**1.1** Calcule el VaR al 99 % a un día por los tres métodos —paramétrico
+normal, paramétrico t y histórico— sobre la muestra completa, y verifique que le
+dan 3,637 %, 4,132 % y 4,077 %. Si no coinciden, el resto del taller estará mal
+y no lo sabrá.
+
+```{r}
+#| label: parte1-tres-metodos
+#| eval: false
+# Complete. Los grados de libertad de la t salen del metodo de los momentos:
+# exceso <- mean((rp - mean(rp))^4) / mean((rp - mean(rp))^2)^2 - 3
+# nu     <- 6 / exceso + 4
+```
+
+**1.2** En una tabla de tres filas reporte, para cada método, el VaR en
+porcentaje, el VaR en millones de pesos y **el supuesto que lo sostiene**. La
+tercera columna es la que se califica.
+
+---
+
+## Parte 2 · Su propio portafolio
+
+Los pesos del capítulo son los del material. Los suyos salen de su documento de
+identidad, de modo que ningún par de estudiantes trabaje sobre las mismas
+cifras.
+
+```{r}
+#| label: parte2-pesos
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d <- as.integer(strsplit(substr(documento, nchar(documento) - 3, nchar(documento)), "")[[1]])
+w_propio <- (1 + d) / sum(1 + d)   # cuatro pesos positivos que suman uno
+names(w_propio) <- acciones
+round(w_propio, 4)
+```
+
+**2.1** Recalcule los tres VaR con `w_propio` y compárelos con los del capítulo.
+
+**2.2** ¿Su portafolio es más o menos riesgoso que el del material, y **por
+qué**? La respuesta «porque pesa más el activo más volátil» solo es correcta si
+lo comprueba: mire también las covarianzas. Un peso mayor en un activo volátil
+pero poco correlacionado puede bajar el VaR total.
+
+**2.3** Calcule el VaR componente de las cuatro posiciones de *su* portafolio y
+compruebe que suman el VaR total. Diga qué posición recortaría primero si le
+pidieran bajar el VaR un 10 %, y con cuál de las dos medidas —componente o
+marginal— tomó la decisión.
+
+---
+
+## Parte 3 · La ventana es una decisión, no un detalle
+
+**3.1** Calcule el VaR histórico al 99 % de su portafolio con ventanas de 250,
+500, 1 000 y 1 916 sesiones. Grafique el VaR frente al tamaño de la ventana.
+
+**3.2** Calcule el VaR histórico rodante de 250 sesiones a lo largo de toda la
+muestra y grafíquelo contra el tiempo. Señale al menos un **efecto fantasma**:
+una caída brusca que no corresponde a nada que pasara ese día en el mercado, y
+diga qué observación salió de la ventana.
+
+```{r}
+#| label: parte3-rodante
+#| eval: false
+# Pista: sapply sobre los indices, o zoo::rollapply(rp, 250, function(x) -quantile(x, 0.01))
+```
+
+**3.3** Fije una política de ventana para el fondo y **justifíquela en cinco
+líneas**, antes de mirar cuál de las cuatro le conviene. Diga explícitamente qué
+haría si el resultado no le gustara.
+
+---
+
+## Parte 4 · Higiene del panel
+
+El capítulo muestra que el 19 y el 20 de febrero de 2025 no son ruedas de
+mercado sino una cotización defectuosa y su corrección.
+
+**4.1** Reproduzca el diagnóstico: compare el rendimiento del portafolio con el
+del ETF `ICOLCAP.CL` y liste las cinco mayores brechas.
+
+**4.2** Documente el efecto de excluir ese par sobre (a) la volatilidad, (b) el
+VaR histórico de la muestra completa y (c) el VaR histórico de las últimas 250
+ruedas. Explique por qué los tres efectos son de magnitud tan distinta.
+
+**4.3** Decida si corrige o no, y **escriba el párrafo del papel de trabajo** que
+acompañaría a esa decisión. Debe ser un párrafo que usted pueda defender ante un
+supervisor que también tiene el archivo.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia. Pedirle a un modelo que revise a
+otro modelo deja intacto el punto ciego, que es lo que este apartado entrena.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que calcule *«el VaR al 99 % a diez días
+de un portafolio de cuatro acciones colombianas a partir de sus rendimientos
+diarios»*. Pegue aquí el prompt exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | La diferencia en millones de pesos sobre un portafolio de 800 000 |
+| **Cómo se arregla** | El cálculo correcto, ejecutado |
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo: ejecute
+su código sobre estos datos y compare con el suyo. Que un modelo acierte no es
+un problema del taller; afirmarlo sin comprobarlo, sí.
+
+---
+
+## Parte 6 · Contar las excepciones
+
+Un VaR que nadie contrasta es una afirmación sin verificar. El contraste formal
+—Kupiec, Christoffersen— es el capítulo 6; aquí basta con contar.
+
+**6.1** Parta la muestra: estime con las primeras 1 000 sesiones y evalúe sobre
+el resto. Para cada día del periodo de evaluación, pronostique el VaR al 99 %
+con la ventana rodante de 250 días anteriores y marque las **excepciones**: los
+días en que la pérdida superó su propio pronóstico.
+
+**6.2** ¿Cuántas excepciones esperaba y cuántas hubo? Con α = 99 %, la
+expectativa es el 1 % de los días evaluados.
+
+**6.3** Mire **cuándo** ocurrieron. ¿Están repartidas o vienen agrupadas? Un
+modelo con el número correcto de excepciones pero todas en la misma semana falla
+de una manera que el conteo no ve, y esa es exactamente la puerta de entrada al
+capítulo 6.
+
+---
+
+## Parte 7 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+La última columna es la que se lee con más atención. «Lo copié» es una respuesta
+válida y se califica como tal; «lo verifiqué contra el bloque de la parte 1 y
+corregí el signo» es otra cosa.
+
+---
+
+## Parte 8 · Memorando al comité
+
+Una página, sin fórmulas, sin código y sin gráficas. Dirigida al comité de
+riesgos del fondo. Debe contener:
+
+1. el VaR que usted recomienda reportar y con qué método y ventana;
+2. qué significa ese número **y qué no significa**;
+3. qué decisión concreta cambiaría si el número fuera un 20 % mayor;
+4. la salvedad sobre los datos de febrero de 2025.
+
+Si el memorando necesita una fórmula para entenderse, todavía no está terminado.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1 reproduce las cifras del capítulo y el cuaderno renderiza sin errores | 15 % |
+| Partes 2 y 3: cálculo correcto sobre el portafolio propio y política de ventana justificada *ex ante* | 25 % |
+| Parte 4: diagnóstico de datos y papel de trabajo defendible | 15 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 20 % |
+| Parte 6: excepciones contadas y leídas | 10 % |
+| Parte 7: bitácora completa y honesta | 5 % |
+| Parte 8: memorando correcto y legible para quien no sabe estadística | 10 % |
+
+Se descuenta: presentar un número simulado sin su error estándar; escalar al
+horizonte sin comprobar la independencia; y llamar «pérdida máxima» al VaR en
+cualquier parte del documento.
