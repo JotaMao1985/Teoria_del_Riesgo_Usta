@@ -21,12 +21,17 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 ## Ciclo de trabajo
 
 ```bash
+conda activate teoria-riesgo
 python3 "Material html/_plantilla/ensamblar.py"                    # fuentes → tr-base.html
 python3 "Material html/_plantilla/migrar.py"                       # plantilla → capítulos
 python3 "Material html/_plantilla/verificar.py" --con-salidas      # las doce reglas
 ```
 
-Entorno: `conda activate teoria-riesgo` · `python3 entorno/humo.py` comprueba que esté todo.
+⚠️ **La regla 9 ejecuta los bloques de Python con el mismo intérprete que corre el
+verificador** (`sys.executable`). Si lo lanza desde el Python del sistema, todo capítulo que
+importe `arch`, `QuantLib`, `cvxpy`, `xgboost` o `pyextremes` fallará con un
+`ModuleNotFoundError` que parece un error del material y no lo es. Active el entorno
+primero. `python3 entorno/humo.py` comprueba que esté todo.
 
 Un capítulo nuevo nace copiando `_plantilla/tr-base.html`, cambiando `CONFIG` y
 reemplazando las secciones. **El bloque entre `TR-CORE INICIO` y `TR-CORE FIN` no se edita
