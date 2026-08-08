@@ -15,19 +15,30 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Fase | Estado |
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
-| 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · ⬅️ **en el punto de control B, pendiente de revisión** |
-| 2–5 · Los otros catorce capítulos, portal, Quarto | pendientes |
+| 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
+| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 capítulo 1 completada 2026-08-08** · siguen T8 (cap. 2), T9, T10, T11 |
+| 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
-El capítulo 4 es la **rebanada de referencia**: lo que allí quedó decidido se repite catorce
-veces. Antes de escribir otro capítulo, léalo — sobre todo la sección 3, que es donde el
-material trata las anomalías del panel, y la 4, que es el único bloque cuyas dos pestañas
-declaran cifras distintas a propósito.
+Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
+lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
+del 4, sobre todo la sección 3, donde el material trata las anomalías del panel, y la 4, el
+único bloque cuyas dos pestañas declaran cifras distintas a propósito; del 1, la sección 3,
+que es donde se cuantifica y se declara la convención de rendimientos que usan los quince.
 
-⚠️ **Hay tres decisiones abiertas y hay que resolverlas antes del capítulo 1.** Están en el
-plan, en «Tres decisiones abiertas antes de empezar la fase 2»: los pesos del portafolio son
-una invención de la fase 1 y cambiarlos obliga a recalcular el capítulo 4 entero; `arch` y
-`rugarch` no dan el mismo GARCH y el capítulo 2 tiene que decidir cómo lo cuenta; y el punto
-de control B sigue formalmente abierto. **No empiece a escribir sin preguntarlas.**
+**Las tres decisiones abiertas están resueltas** (2026-08-08, detalle en el plan):
+
+- **D-A · pesos del portafolio:** se mantienen 30/20/25/25 sobre 800 000 millones. El
+  capítulo 1 los presenta como decisión declarada del curso, con tres criterios explícitos.
+- **D-B · `arch` contra `rugarch`:** se declara la discrepancia, como la sección 4 del
+  capítulo 4. El capítulo 2 lo cuenta; el 1 ya lo anuncia.
+- **D-C · punto de control B:** aprobado tal cual. Mismas convenciones para lo que queda.
+
+⚠️ **El verificador no parsea JavaScript.** Un error de sintaxis en el JSX del capítulo
+—`-a ** 2`, por ejemplo, que es ilegal— deja la página **en blanco** y `verificar.py`
+devuelve OK igual: las doce reglas son análisis estático de texto. **Abra el capítulo en el
+navegador y mire la consola antes de darlo por terminado**; en el capítulo 1 esa pasada
+cazó exactamente eso, y también un pie de gráfica que afirmaba lo contrario de lo que se
+veía.
 
 ## Ciclo de trabajo
 

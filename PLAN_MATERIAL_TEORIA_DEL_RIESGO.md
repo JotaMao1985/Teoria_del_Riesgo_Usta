@@ -6,8 +6,8 @@
 **Espacio académico:** Pregrado profesional, Estadística · Periodo 8 · Obligatorio · Teórico-práctico
 **Créditos:** 2 · **Horas:** 64 acompañadas + 32 autónomas = 96
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
-**Estado:** fase 0 completada (punto de control A aprobado) · fase 1 completada —
-**en el punto de control B, a la espera de revisión**
+**Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
+D-A, D-B y D-C resueltas · fase 2 en curso: **tarea 7 (capítulo 1) completada**
 
 ---
 
@@ -808,7 +808,7 @@ respondiendo cada ejercicio
 de código, 5 gráficas + 2 laboratorios, 15 ejercicios, cuestionario de 10) y
 `talleres/TDR-04.qmd` + `talleres/_quarto.yml`.
 
-### ✅ Punto de control B — Piloto · **revisión obligatoria con el usuario**
+### ✅ Punto de control B — Piloto · **APROBADO 2026-08-08**
 - [x] El capítulo se lee de principio a fin sin fricción — recorrido en el navegador, las
       ocho secciones renderizan y las siete gráficas traen datos; sin errores de consola
 - [x] La densidad de fórmulas es la adecuada: ni un formulario ni prosa sin matemáticas —
@@ -825,13 +825,21 @@ de código, 5 gráficas + 2 laboratorios, 15 ejercicios, cuestionario de 10) y
 - [x] **Se ajusta la plantilla aquí, antes de escribir catorce capítulos sobre ella** — tres
       defectos corregidos, detallados en el registro de la fase 1
 
-**Falta que el usuario revise**, que es lo que este punto de control significa: la prosa,
-los ganchos, el criterio de los distractores y la decisión sobre las anomalías del panel.
+**Revisado y aprobado por el usuario el 2026-08-08**, junto con las tres decisiones de
+abajo. La prosa, los ganchos, el criterio de los distractores y la decisión de enseñar las
+anomalías del panel en vez de corregirlas quedan como convención de los catorce capítulos
+restantes.
 
-### ⏸️ Tres decisiones abiertas antes de empezar la fase 2
+### ✅ Tres decisiones resueltas · 2026-08-08
 
-Anotadas el 2026-08-08. **Léalas antes de escribir el capítulo 1**: las tres afectan a lo
-que ya está escrito, y una de ellas obliga a recalcular el capítulo 4 entero si cambia.
+Anotadas y resueltas el mismo día, antes de escribir el capítulo 1. Ninguna de las tres
+obligó a recalcular el capítulo 4.
+
+| | Decisión | Resuelta |
+|---|---|---|
+| **D-A** | Pesos y tamaño del portafolio | **Se mantienen** 30/20/25/25 sobre 800 000 millones. El capítulo 1 los presenta como decisión declarada del curso, con tres criterios explícitos —cuatro sectores separados, tope de concentración del 30 % por emisor, tamaño redondo— y dice que son discutibles y que el capítulo 7 los discute. Cero recálculo |
+| **D-B** | `arch` contra `rugarch` | **Opción (a): se declara.** Cada pestaña muestra lo suyo y el capítulo 2 explica que estimar por máxima verosimilitud es un problema numérico. El capítulo 1 ya lo anuncia en la sección 5, junto a la excepción de la simulación |
+| **D-C** | Punto de control B | **Aprobado tal cual.** Mismas convenciones para los catorce capítulos restantes |
 
 #### D-A · Los pesos del portafolio son una invención de la fase 1
 
@@ -895,13 +903,26 @@ un `04-cuerpo.jsx` no lo va a encontrar, y no es que se haya perdido.
 
 ### Fase 2 — Unidad 1 · RA1–RA3
 
-| Tarea | Capítulo | Alcance | Sesiones |
-|---|---|---|---|
-| 7 | C1 Riesgo, rendimiento y entorno | M | 1 |
-| 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 |
-| 9 | C3 CAPM | M | 1 |
-| 10 | C5 Expected Shortfall | M | 1 |
-| 11 | C6 Backtesting y marco regulatorio | M | 1 |
+| Tarea | Capítulo | Alcance | Sesiones | Estado |
+|---|---|---|---|---|
+| 7 | C1 Riesgo, rendimiento y entorno | M | 1 | ✅ **2026-08-08** |
+| 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | pendiente |
+| 9 | C3 CAPM | M | 1 | pendiente |
+| 10 | C5 Expected Shortfall | M | 1 | pendiente |
+| 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
+
+#### Tarea 7 · Capítulo 1 completo — **COMPLETADA 2026-08-08**
+
+**Criterios de aceptación:**
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] La cuota es exacta — `R1:2 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:2`, 15 ejercicios
+- [x] Las salidas `#>` coinciden con la ejecución real — 7 bloques en los dos lenguajes,
+      0 discrepancias
+- [x] Recorrido en el navegador: siete secciones, tres gráficas, dos laboratorios y el
+      cuestionario, sin errores de consola
+
+**Entregado:** `Material html/01_TDR_Riesgo_y_rendimiento.html` (311 KB) y
+`talleres/TDR-01.qmd`.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1119,6 +1140,56 @@ instalado en esta máquina. Los dos bloques que el cuaderno ejecuta sí se corri
 `Rscript` desde `talleres/` y dan las cifras del capítulo; el resto son andamios con
 `#| eval: false`. La pasada de `quarto render` sigue siendo criterio de aceptación de la
 tarea 22.
+
+---
+
+### Fase 2 — Tarea 7: capítulo 1 · 2026-08-08
+
+Doce reglas en verde a la primera pasada de `--con-salidas`, con el mismo método de la
+fase 1: los siete bloques se escribieron y se ejecutaron fuera del capítulo antes de entrar
+en él, comparando Python contra R línea a línea. Las tres decisiones se resolvieron antes
+de escribir nada, así que el capítulo 4 no hubo que tocarlo.
+
+**El hallazgo del capítulo: los pesos suman aritméticos y el tiempo suma logarítmicos.**
+El capítulo 1 es el de la agregación, así que no podía esconder que el resto del curso
+construye el rendimiento del portafolio como `w'r_log`, que **no** es el rendimiento
+logarítmico del portafolio —ese es `ln(1 + w'R_arit)`—. Las dos propiedades no caben en la
+misma magnitud: la aditividad temporal es de los logarítmicos y la linealidad en los pesos
+es de los aritméticos. Se midió el costo de la convención sobre el panel y se declaró en
+una `TablaResultados`: brecha media −1,643 pb, brecha máxima de una rueda 103,95 pb,
+volatilidad 1,5739 % contra 1,5764 %, y **cuantil al 1 % de −3,9553 % contra −4,0771 %**.
+Esa última línea es el 4,077 % con el que abre el capítulo 4: ahora se sabe de dónde sale
+y qué contiene. La convención se conserva porque yerra por el lado conservador y porque
+sin ella no hay escalamiento temporal, pero queda cuantificada en vez de tácita.
+
+**Un defecto que el verificador no puede ver, y que dejó el capítulo en blanco.** La
+librería nueva del capítulo traía `Math.exp(-((x - mu) / sd) ** 2 / 2)`, que es un error de
+sintaxis de JavaScript —`-a ** 2` es ilegal, hay que parentizar—. Babel abortó el script
+entero, la página quedó en blanco y **`verificar.py` devolvió OK**: las doce reglas son
+análisis estático de texto, no un parser de JSX. Se cazó al abrir el capítulo en el
+navegador, que por eso es parte del ciclo y no un extra. Conviene decidir si la regla 13
+—pasar el JSX por un parser— compensa la dependencia de Node que exige; entretanto, **el
+paso por el navegador es obligatorio antes de dar un capítulo por terminado**.
+
+**Una corrección que solo se ve mirando la gráfica.** El pie del histograma decía que la
+normal es más alta en el centro. Es al revés: las barras observadas llegan a 208 y la
+normal a 80. El patrón completo son tres cosas a la vez —pico, hombros delgados (74 ruedas
+por encima de 2σ donde se esperaban 87) y colas gruesas—, y así quedó redactado.
+
+**Dos laboratorios, los dos sin una sola cifra precomputada.** El de la sección 3 dibuja
+la nube de ventanas de h ruedas —acumulado real contra suma de aritméticos— y el de la 4,
+la curtosis rodante. Los dos calculan en el navegador sobre la misma serie `RP` que embebe
+el capítulo 4, y sus lecturas se contrastaron contra Python: −47,58 % / −61,04 % / 13,45 pp
+a h = 20, y mínimo −0,08 / máximo 48,33 / último 39,64 con ventana de 250. Coinciden.
+
+**Una dependencia nueva, declarada:** `digest`, para que el bloque de la sección 5 compruebe
+el SHA-256 de las instantáneas contra el manifiesto. R base no trae SHA-256. Añadida a
+`entorno/instalar.R` con su motivo.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-01.qmd`. Quarto sigue
+sin estar instalado en esta máquina. El bloque ejecutable de la parte 1 se corrió a mano
+con `Rscript` desde `talleres/` y da las cifras del capítulo; el resto son andamios con
+`#| eval: false`.
 
 ---
 

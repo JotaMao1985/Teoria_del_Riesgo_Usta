@@ -13,6 +13,12 @@ paquetes <- c(
   # Núcleo
   "tidyverse",   # manipulación y gráficas; el puente desde pandas
   "zoo",         # series con índice de fecha
+  # El capítulo 1 comprueba la huella SHA-256 de cada instantánea contra
+  # `datos/MANIFIESTO.md`, y R base no trae SHA-256 —`tools::md5sum` es lo único
+  # que hay—. Suele venir instalado como dependencia de tidyverse, pero se
+  # declara explícito: un paquete del que depende un bloque del material no
+  # puede estar ahí por accidente.
+  "digest",      # SHA-256 de los archivos congelados
 
   # Unidad 1 — volatilidad, VaR, ES y backtesting
   "rugarch",     # GARCH y familia; el equivalente de `arch`
