@@ -1,0 +1,53 @@
+# ---------------------------------------------------------------------------
+# Teoría del Riesgo · Universidad Santo Tomás · 2026-II
+# ---------------------------------------------------------------------------
+
+# Documento institucional de la USTA, con datos de contacto y la rúbrica. El
+# material ya cita textualmente lo que necesita (RA, contenidos, horas).
+Syllabus*.xlsx
+
+# Instrumentos de evaluación con clave. Hoy no existen —el banco de preguntas
+# quedó fuera del alcance del plan—, pero la regla se deja puesta para que
+# nadie los suba por descuido si más adelante se escriben. El material HTML es
+# otra cosa: es de estudio autónomo y revela sus soluciones a propósito.
+Banco Moodle/
+
+# ---------------------------------------------------------------------------
+# Lo que SÍ se versiona, y por qué se dice aquí
+#
+# `datos/*.csv` NO se ignora. Es deliberado y es el centro de la decisión D3
+# del plan: las instantáneas congeladas son las que hacen que la salida
+# declarada tras `#>` sea reproducible y que la comprobación 9 pueda existir.
+# Un `datos/` ignorado convierte todo el material en no verificable.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Generados y temporales
+# ---------------------------------------------------------------------------
+
+# Copia de seguridad que deja `migrar.py` antes de estampar. Es local: el
+# historial de git cumple esa función mucho mejor.
+*.bak
+
+# Entorno de conda materializado y cachés de las librerías pesadas.
+.conda/
+.venv/
+entorno/.conda-lock*
+
+# Quarto
+talleres/_site/
+talleres/.quarto/
+/.quarto/
+*_files/
+*_cache/
+
+__pycache__/
+*.pyc
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+
+# Configuración local del servidor de vista previa: suele llevar rutas
+# absolutas del equipo de cada quien. Se versiona la plantilla.
+.claude/launch.json
