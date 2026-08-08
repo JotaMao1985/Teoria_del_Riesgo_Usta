@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Plantilla base y catálogo de componentes del material de Teoría del Riesgo. Universidad Santo Tomás.">
+    <title>Teoría del Riesgo — Plantilla base</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+
+    <!-- Prism.js — resaltado de sintaxis con gramáticas oficiales.
+         `Prism.manual = true` DEBE ir antes de cargar el núcleo: si no, Prism
+         recorre el documento al cargar y aquí el contenido lo pinta React
+         después, de modo que ese recorrido solo gasta tiempo.
+         Este curso usa dos lenguajes, Python y R, y Prism trae gramática
+         oficial de los dos: no hace falta registrar ninguna a mano. -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script>window.Prism = window.Prism || {}; window.Prism.manual = true;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' },
+            startup: { typeset: false }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3D008D',
+                        secondary: '#ED1E79',
+                        navy: '#001A4D',
+                        gold: '#FDB913',
+                        teal: '#0E7490',
+                        bg: '#F8FAFC',
+                        surface: '#FFFFFF',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            scroll-behavior: smooth;
+        }
+
+        code,
+        pre {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .tr-gradient {
+            background: linear-gradient(140deg, #3D008D 0%, #ED1E79 100%);
+        }
+
+        .tr-header {
+            background: linear-gradient(180deg, #001A4D 0%, #002868 100%);
+        }
+
+        .tr-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .tr-card:hover {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3D008D, #ED1E79);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #4A00A8, #FF2D8A);
+        }
+
+        .code-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-scroll::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3D008D, #ED1E79);
+            border-radius: 4px;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid #ED1E79;
+            outline-offset: 2px;
+        }
+
+        .inline-code {
+            background: #F1F5F9;
+            color: #0F172A;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.88em;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .chart-h-320 {
+            height: 320px;
+        }
+
+        .chart-h-360 {
+            height: 360px;
+        }
+
+        .chart-h-420 {
+            height: 420px;
+        }
+
+        .prose-lp p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .prose-lp h3 {
+            color: #ED1E79;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin: 1.8rem 0 0.6rem;
+        }
+
+        .prose-lp h4 {
+            color: #001A4D;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin: 1.4rem 0 0.4rem;
+        }
+
+        .prose-lp ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose-lp ol {
+            list-style: decimal;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose-lp li {
+            margin-bottom: 0.35rem;
+            line-height: 1.65;
+        }
+
+        .prose-lp strong {
+            color: #0F172A;
+        }
+
+        .prose-lp table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .prose-lp th {
+            background: #F5F0FA;
+            color: #001A4D;
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #E2E8F0;
+        }
+
+        .prose-lp td {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #E2E8F0;
+            vertical-align: top;
+        }
+
+        .eq-block {
+            background: #FAF8FF;
+            border: 1px solid rgba(61, 0, 141, 0.12);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            overflow-x: auto;
+        }
+
+        .tr-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: #EADCF8;
+            outline: none;
+        }
+
+        .tr-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ED1E79;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+            cursor: pointer;
+        }
+
+        mjx-container svg {
+            display: inline-block;
+        }
+
+        /* ============================================================
+           BLOQUES DE CÓDIGO — patrón tomado del material de Diseño de
+           Experimentos (cap. 1, «El diseño, escrito en código»).
+        ============================================================ */
+        .tr-code-wrapper {
+            position: relative;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+        }
+
+        /* La pestaña activa se apoya sobre el bloque: sin esquina superior
+           izquierda, para que se lea como una carpeta y no como dos cajas. */
+        .tr-code-wrapper.con-pestanas {
+            border-top-left-radius: 0;
+        }
+
+        .tr-code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border-bottom: 1px solid #334155;
+        }
+
+        .tr-code-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tr-code-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #CBD5E1;
+            padding: 0.35rem 0.7rem;
+            border-radius: 0.375rem;
+            font-size: 0.72rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tr-code-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .tr-code-btn.copiado {
+            background: rgba(34, 197, 94, 0.3);
+            color: #4ADE80;
+        }
+
+        .tr-code-pre {
+            background: #1E293B;
+            color: #F3F4F6;
+            padding: 1.5rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            line-height: 1.625;
+            max-height: 30rem;
+            overflow-y: auto;
+            transition: max-height 0.3s ease;
+        }
+
+        .tr-code-pre.plegado {
+            max-height: 9.5rem;
+            overflow: hidden;
+        }
+
+        .tr-code-pre.plegado::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3.75rem;
+            background: linear-gradient(transparent, #1E293B);
+            pointer-events: none;
+        }
+
+        /* Pestañas de lenguaje, en forma de carpeta. */
+        .tr-tab {
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.45rem 1.1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            background: #E2E8F0;
+            color: #64748B;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tr-tab:hover {
+            background: #CBD5E1;
+            color: #0F172A;
+        }
+
+        .tr-tab.activa {
+            background: linear-gradient(135deg, #3D008D 0%, #ED1E79 100%);
+            color: #fff;
+        }
+
+        /* Líneas de SALIDA dentro del bloque (`//>`, `#>`, `'>`).
+           Prism las tokeniza como comentario; aquí se les da color propio
+           para distinguir lo que escribió el docente de lo que respondió
+           la máquina. */
+        .tr-salida,
+        .tr-salida .token {
+            color: #7DD3FC !important;
+            font-style: normal !important;
+        }
+
+        .tr-salida {
+            display: inline-block;
+            width: 100%;
+            background: rgba(125, 211, 252, 0.07);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
