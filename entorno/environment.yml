@@ -1,0 +1,54 @@
+# Entorno reproducible de Teoría del Riesgo · Universidad Santo Tomás 2026-II
+#
+#   conda env create -f entorno/environment.yml
+#   conda activate teoria-riesgo
+#
+# Se usa conda-forge y NO pip por un motivo concreto: QuantLib-Python no compila
+# de forma fiable con pip en Apple Silicon —hay que tener la librería de C++
+# compilada y coincidente—, y conda-forge publica binarios para las tres
+# plataformas. Los estudiantes con Mac son mayoría y ese fallo se lleva la
+# primera sesión entera del capítulo 10.
+#
+# Las restricciones son de mínimo, no exactas. Un `=` estricto envejece mal:
+# a los seis meses la versión ya no está en el canal y el entorno deja de
+# crearse. Para congelar un entorno concreto —el del aula, por ejemplo— basta
+# con `conda env export --no-builds > entorno/lock.yml` y usar ese archivo.
+
+name: teoria-riesgo
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12
+
+  # Núcleo numérico
+  - numpy>=2.0
+  - pandas>=2.2
+  - scipy>=1.13
+  - matplotlib>=3.8
+
+  # Unidad 1 — volatilidad, VaR, ES y backtesting
+  - statsmodels>=0.14
+  - arch-py>=7.0            # ojo: en conda-forge se llama `arch-py`; se importa
+                            # como `arch`. Con el nombre a secas el entorno no
+                            # resuelve, y el mensaje no dice por qué.
+
+  # Unidad 2 — optimización de portafolio y renta fija
+  - cvxpy>=1.5
+  # OJO con el nombre: `quantlib` a secas es la librería de C++ y NO trae el
+  # módulo de Python. El entorno se crea sin error, y el fallo aparece más
+  # tarde, en un `import QuantLib` del capítulo 10. Las ataduras están en
+  # `quantlib-python`, que arrastra la de C++ como dependencia.
+  - quantlib-python>=1.34   # se importa como `QuantLib`
+
+  # Unidad 3 — derivados, riesgo de crédito y valores extremos
+  - scikit-learn>=1.5
+  - xgboost>=2.0
+  - shap>=0.45
+  - pyextremes>=2.3
+
+  # Datos y cuadernos
+  - yfinance>=0.2           # solo para reponer las instantáneas de datos/
+  - jupyterlab>=4.0
+  - ipykernel

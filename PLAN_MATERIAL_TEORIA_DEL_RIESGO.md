@@ -97,17 +97,35 @@ poder ejecutar todo.
 
 | Archivo | Contenido | Uso |
 |---|---|---|
-| `bvc_diario.csv` | Ecopetrol, Bancolombia, Grupo Sura e ISA + índice COLCAP, cierre diario ajustado, 2018-01 → 2025-12 | C1–C8 |
+| `bvc_diario.csv` | Ecopetrol, **Banco de Bogotá**, Grupo Sura e ISA + **ETF ICOLCAP**, cierre diario ajustado en pesos enteros, 2018-01 → 2025-12 (1917 filas) | C1–C8 |
 | `sp500_diario.csv` | Índice diario, mismo periodo | Contraste de colas: C1, C15 |
-| `curva_tes.csv` | Curva cero cupón TES por plazo, cortes mensuales | C9, C10 |
+| `curva_tes.csv` | Curva cero cupón TES por plazo, cortes mensuales — **PENDIENTE, bloquea C9 y C10** | C9, C10 |
 | `german_credit.csv` | UCI German Credit, 1000 observaciones | C13, C14 |
 | `perdidas_operativas.csv` | Incendios daneses (`CASdatasets::danishuni`), 2167 siniestros 1980–1990, en millones de coronas de 1985 | C15 |
 
-**Portafolio del hilo conductor** (aprobado 2026-08-07): los cuatro emisores de la BVC más
-el COLCAP como referencia de mercado. Ecopetrol y Bancolombia dan sectores distintos
-—petróleo y banca—, Grupo Sura aporta una holding e ISA un regulado de infraestructura:
-cuatro betas separadas, que es lo que C3 necesita para que la descomposición sistemático /
-no sistemático se vea. En C9 se le añade el tramo de TES y en C11 la opción de cobertura.
+**Portafolio del hilo conductor** (aprobado 2026-08-07, ajustado al descargar): cuatro
+emisores de la BVC más una referencia de mercado. Ecopetrol y un banco comercial dan
+sectores distintos —petróleo y banca—, Grupo Sura aporta una holding e ISA un regulado de
+infraestructura: cuatro betas separadas, que es lo que C3 necesita para que la
+descomposición sistemático / no sistemático se vea. En C9 se le añade el tramo de TES y en
+C11 la opción de cobertura.
+
+⚠️ **Dos sustituciones que impuso la realidad de los datos** (comprobado el 2026-08-07, y
+anotado en `datos/descargar.py` para que nadie repita el descubrimiento):
+
+- **Bancolombia no existe en Yahoo**, ni como `BCOLOMBIA.CL` ni como `PFBCOLOM.CL`: las dos
+  devuelven vacío. Ocupa su lugar **Banco de Bogotá** (`BOGOTA.CL`), que cumple el mismo
+  papel —un banco comercial puro— y sí tiene historia completa desde 2018.
+- **El índice COLCAP tampoco existe** como `^COLCAP`. Se usa **`ICOLCAP.CL`**, el ETF que
+  lo replica y que sí cotiza. Es el que impone las 1917 filas del panel: tiene menos
+  ruedas que las acciones y el cruce se hace por fechas comunes.
+
+⚠️ **La instantánea la congela git, no `descargar.py`.** Yahoo recalcula los precios
+ajustados hacia atrás con cada dividendo, así que volver a descargar produce un archivo
+*equivalente* pero no *idéntico*. Con cuatro decimales cambiaban **6757 de 9585 celdas**
+entre dos ejecuciones seguidas; redondeando a pesos enteros —la precisión con la que cotiza
+la BVC— quedan 24, de un peso cada una. Quien reponga datos tiene que mirar el `git diff` y
+volver a correr `verificar.py --con-salidas`.
 
 **Serie de cola pesada para EVT** (aprobada 2026-08-07): la de incendios daneses. No hay
 serie colombiana de pérdidas operativas pública con el detalle que EVT necesita, y esta es
@@ -128,10 +146,22 @@ capítulos hacen Montecarlo.
 
 ### D5 · Entorno reproducible
 
-`environment.yml` de conda-forge con versiones ancladas. Se usa conda y no pip porque
-**QuantLib-Python no compila de forma fiable con pip en Apple Silicon**; conda-forge publica
-binarios. Para R, `instalar.R` con las versiones de `rugarch`, `quadprog`, `extRemes` y
-`tidyverse`.
+`environment.yml` de conda-forge. Se usa conda y no pip porque **QuantLib-Python no compila
+de forma fiable con pip en Apple Silicon**; conda-forge publica binarios. Para R,
+`instalar.R`, que además comprueba que cada paquete **cargue** y no solo que esté instalado.
+
+Tres nombres que hay que acertar y que no son los evidentes (los tres se descubrieron
+fallando, el 2026-08-07):
+
+| Se espera | Es | Qué pasa si se pone el evidente |
+|---|---|---|
+| `arch` | **`arch-py`** | El entorno no resuelve: «PackagesNotFoundError» |
+| `quantlib` | **`quantlib-python`** | El entorno se crea **sin error** y falla más tarde, en un `import QuantLib` del capítulo 10: `quantlib` a secas es solo la librería de C++ |
+| `Rglpk` | **`lpSolve`** | Rglpk enlaza contra la GLPK del sistema y no compila en un Mac limpio; el error habla de una cabecera, no de lo que falta instalar |
+
+El segundo es el peligroso: no falla al crear el entorno, sino en clase. Por eso existe
+`entorno/humo.py`, que importa las doce librerías y contrasta el SHA-256 de cada CSV contra
+el manifiesto — fue quien lo cazó.
 
 ### D6 · Peso de los archivos
 
@@ -742,10 +772,15 @@ todo lo que estima C2.
 
 **Depende de:** T1 · **Alcance: M**
 
-### ✅ Punto de control A — Fundación
-- [ ] `verificar.py` devuelve 0 sobre la plantilla
-- [ ] El entorno se crea desde cero en una máquina limpia
-- [ ] `tr-base.html` abre con doble clic, sin errores en consola
+### ✅ Punto de control A — Fundación · **COMPLETADO 2026-08-07**
+- [x] `verificar.py` devuelve 0 sobre la plantilla (con `--sin-cuota`: la plantilla es un
+      catálogo con uno de cada tipo, no un capítulo)
+- [x] Las doce reglas probadas con inyección de fallos, una a una
+- [x] El entorno se crea desde cero: 12 librerías de Python y 9 paquetes de R
+- [x] `tr-base.html` abre con doble clic, sin errores en consola
+- [x] Cuatro de los cinco conjuntos de datos congelados y con manifiesto
+- [ ] `curva_tes.csv` — **pendiente**, bloquea C9 y C10
+- [ ] Publicación en Pages — **sin verificar**: no hay remoto en GitHub todavía
 - [ ] **Revisión con el usuario antes de seguir**
 
 ---
@@ -915,6 +950,43 @@ capítulos marcados **L** llevan dos.
 ---
 
 ## 13. Registro de ejecución
+
+### Fase 0 — Fundación · 2026-08-07
+
+Las cinco tareas completadas. Lo que se descubrió por el camino y no estaba previsto:
+
+**T2 · La plantilla ya no depende de un capítulo.** El `ensamblar.py` de Lógica de
+Programación extraía el `head` y media librería del capítulo 1 de su propio curso, así que
+no se podía generar la plantilla sin tener antes un capítulo escrito. Aquí las cuatro
+piezas son archivos fuente con nombre propio y la plantilla se regenera desde cero.
+
+**T3 · Dos defectos heredados, corregidos.**
+
+- `.prose-lp` no se aplicaba en ninguna parte: los `h3` y `h4` de los capítulos salían sin
+  estilo y nadie lo había notado. Ahora se llama `.prose-tr` y se aplica **una vez en el
+  `App`**, para que ninguna sección pueda olvidarlo. Sus reglas de tabla se acotaron con
+  `:not(.tabla-componente)` — sin eso pintaban de lila la cabecera navy de
+  `TablaResultados`, cuyo texto es blanco: blanco sobre casi blanco, y sin ningún error.
+- **`np.random.default_rng(2026)` y `set.seed(2026)` no dan la misma muestra.** Un bloque
+  que simule muestra una cifra en la pestaña de Python y otra en la de R para el mismo
+  cálculo. Queda como convención del curso: los datos van literales o del CSV congelado, y
+  donde el capítulo simule de verdad —Montecarlo en el 4 y en el 12— hay que decirlo.
+
+**T4 · Dos huecos del verificador heredado.** La regla de CodeTabs solo miraba constantes
+con nombre, así que un objeto escrito en el sitio se saltaba la comprobación entera. Y la
+regla de la motivación solo reconocía `() => (`; una sección con gráfica necesita `() => {`
+para llamar a `usePlotly` antes del `return`, es decir, casi todas las de este curso se
+habrían reportado como «no se encontró su definición».
+
+**T5 · Los datos obligaron a tres cambios.** Bancolombia y el índice COLCAP no existen en
+Yahoo; `arch`, `quantlib` y `Rglpk` no son los nombres de los paquetes; y la instantánea de
+precios no es byte-estable entre descargas. Todo detallado en D3 y D5.
+
+**Lo que queda bloqueado:** `curva_tes.csv`. El Banco de la República publica la curva cero
+cupón de los TES pero no por un extremo que un guion pueda invocar. Hay que bajarla a mano.
+Los capítulos 9 y 10 dependen de ella; los otros trece, no.
+
+---
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.
