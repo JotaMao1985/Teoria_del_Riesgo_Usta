@@ -828,6 +828,69 @@ de código, 5 gráficas + 2 laboratorios, 15 ejercicios, cuestionario de 10) y
 **Falta que el usuario revise**, que es lo que este punto de control significa: la prosa,
 los ganchos, el criterio de los distractores y la decisión sobre las anomalías del panel.
 
+### ⏸️ Tres decisiones abiertas antes de empezar la fase 2
+
+Anotadas el 2026-08-08. **Léalas antes de escribir el capítulo 1**: las tres afectan a lo
+que ya está escrito, y una de ellas obliga a recalcular el capítulo 4 entero si cambia.
+
+#### D-A · Los pesos del portafolio son una invención de la fase 1
+
+El plan fija los cuatro emisores (D3) pero **no los pesos ni el tamaño del portafolio**. Al
+escribir el capítulo 4 se adoptaron **Ecopetrol 30 %, Banco de Bogotá 20 %, Grupo Sura 25 %,
+ISA 25 %, sobre 800 000 millones de pesos**, y con eso quedaron calculadas todas sus cifras.
+
+El capítulo 1 es donde esos números se presentan y se justifican ante el estudiante, así que
+conviene que salgan de algo —el régimen de inversión de los fondos de pensiones, un fondo
+real, o una decisión declarada del docente— y no de la fase 1. **Si cambian, hay que
+recalcular el capítulo 4 completo**: es mecánico —los siete bloques se vuelven a ejecutar y
+se copian las salidas— pero son las cifras de la prosa, las gráficas, los ejercicios y el
+cuestionario, así que hay que hacerlo antes de escribir nada nuevo encima.
+
+#### D-B · `arch` y `rugarch` no dan el mismo GARCH, y el capítulo 2 tiene que contarlo
+
+Medido el 2026-08-08 sobre las 1 916 sesiones del portafolio, GARCH(1,1) con innovaciones t:
+
+| | `arch` (Python) | `rugarch` (R) |
+|---|---|---|
+| α | 0,114614 | 0,112637 |
+| β | 0,810171 | 0,813622 |
+| **α + β** | **0,9248** | **0,9263** |
+| ν | 3,9768 | 3,9747 |
+| log-verosimilitud | −3150,7748 | −3150,4906 |
+
+No es un defecto: son dos optimizadores que paran en puntos distintos de la misma superficie
+de verosimilitud, y el de R encuentra un máximo marginalmente mejor. El problema es de
+presentación: **la persistencia —el número que más se cita de un GARCH— redondea a 0,92 en
+una pestaña y a 0,93 en la otra**. A dos decimales α y β sí coinciden; a tres no coincide
+nada. El ajuste tarda 0,0 s en Python y 0,1 s en R, muy por debajo del límite de 90 s de la
+regla 9, así que el tiempo no es el problema.
+
+| Opción | Qué implica |
+|---|---|
+| **(a) Declararlo**, como la sección 4 del capítulo 4 | Cada pestaña muestra lo suyo y el texto explica que estimar por máxima verosimilitud es un problema numérico y no una lectura de tabla. Es la verdad, y da material para un R3 y para el RA de defender supuestos. **Recomendada.** |
+| (b) Reportar a dos decimales | Funciona si se evita imprimir α+β con esa precisión. Esconde algo real. |
+| (c) Ajustar en Python y que R lea los coeficientes | Rompe la regla de los dos lenguajes. Descartada. |
+
+Con (a) el material tendría **dos** excepciones declaradas a «las dos pestañas coinciden», y
+las dos donde corresponde: simulación (C4 §4) y estimación numérica (C2).
+
+#### D-C · Lo que se cambie del capítulo 4 se repite catorce veces
+
+El punto de control B sigue formalmente abierto. El tono de las motivaciones, la dureza de
+los distractores y —sobre todo— la decisión de **enseñar los defectos del panel en vez de
+corregirlos** afectan directamente al capítulo 1, que es donde los datos se presentan por
+primera vez, y al capítulo 2, que es el más sensible a ellos: excluir el par de febrero de
+2025 baja la volatilidad un 5 % y mueve todo el capítulo de volatilidad.
+
+Cambiarlo ahora cuesta una sesión; cambiarlo en el capítulo 8 cuesta cuatro.
+
+#### Nota de mecánica: el HTML del capítulo 4 es su propia fuente
+
+Se ensambló con un guion de un solo uso a partir de piezas JSX temporales que **no están en
+el repositorio**, y no hacen falta: la convención del curso es que un capítulo se edita
+directamente en su HTML, y `migrar.py` mantiene al día la librería y el `App`. Quien busque
+un `04-cuerpo.jsx` no lo va a encontrar, y no es que se haya perdido.
+
 ---
 
 ### Fase 2 — Unidad 1 · RA1–RA3

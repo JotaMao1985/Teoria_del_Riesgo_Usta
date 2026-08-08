@@ -23,6 +23,12 @@ veces. Antes de escribir otro capítulo, léalo — sobre todo la sección 3, qu
 material trata las anomalías del panel, y la 4, que es el único bloque cuyas dos pestañas
 declaran cifras distintas a propósito.
 
+⚠️ **Hay tres decisiones abiertas y hay que resolverlas antes del capítulo 1.** Están en el
+plan, en «Tres decisiones abiertas antes de empezar la fase 2»: los pesos del portafolio son
+una invención de la fase 1 y cambiarlos obliga a recalcular el capítulo 4 entero; `arch` y
+`rugarch` no dan el mismo GARCH y el capítulo 2 tiene que decidir cómo lo cuenta; y el punto
+de control B sigue formalmente abierto. **No empiece a escribir sin preguntarlas.**
+
 ## Ciclo de trabajo
 
 ```bash
