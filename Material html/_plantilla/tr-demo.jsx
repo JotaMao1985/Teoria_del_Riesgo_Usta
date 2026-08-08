@@ -7,722 +7,711 @@
             numero: '00',
             titulo: 'Plantilla base',
             subtitulo: 'Catálogo de componentes y guía de autoría del material',
+            unidad: 'Referencia técnica',
             horas: 0,
             ra: 'RA— (plantilla)',
             contenidoSyllabus: 'No aplica — archivo de referencia técnica',
-            temas: ['Componentes', 'Ejercicios E1–E8', 'Guía de autoría'],
+            temas: ['Componentes', 'Ejercicios R1–R9', 'Guía de autoría'],
+            nivelIA: 1,
             storageKey: 'tdr_cap00_plantilla',
             docente: 'Javier Mauricio Sierra',
         };
 
         /* ============================================================
-           EJEMPLOS DE CÓDIGO — hilo financiero del curso:
-           crédito de libre inversión de un banco colombiano
+           DATOS DEL HILO CONDUCTOR
+           Todo el material gira alrededor del mismo portafolio: un fondo
+           de pensiones colombiano. Aquí van literales para que la
+           plantilla no dependa de `datos/`; en los capítulos reales
+           salen del CSV congelado.
+
+           ⚠️ Los datos van LITERALES o del CSV, nunca simulados dentro
+           del bloque cuando las dos pestañas deben coincidir:
+           `np.random.default_rng(2026)` y `set.seed(2026)` NO producen la
+           misma muestra, así que un bloque que simula muestra dos cifras
+           distintas para el mismo cálculo y el material afirma dos cosas
+           a la vez. Donde el capítulo simule de verdad —Montecarlo en el
+           4 y en el 12— hay que decirlo en el texto.
         ============================================================ */
-        const EJ_INTERES = {
-            pseudo: `Inicio
-    // Interés simple de un crédito de libre inversión
-    Leer capital, tasa, plazo
+        const PERDIDAS = [1.42, 1.51, 1.63, 1.70, 1.88, 1.94, 2.05, 2.19, 2.31, 2.47,
+            2.55, 2.68, 2.83, 3.04, 3.29, 3.61, 4.02, 4.77, 5.93, 8.14];
 
-    interes <- capital * tasa * plazo
-    total   <- capital + interes
-
-    Escribir "Interes: ", interes
-    //> Interes: 2160000
-    Escribir "Total a pagar: ", total
-    //> Total a pagar: 12160000
-Fin`,
-            python: `# Interés simple de un crédito de libre inversión
-capital = 10_000_000      # COP
-tasa    = 0.018           # 1,8 % mensual
-plazo   = 12              # meses
-
-interes = capital * tasa * plazo
-total   = capital + interes
-
-print(f"Interes: {interes:,.0f}")
-#> Interes: 2,160,000
-print(f"Total a pagar: {total:,.0f}")
-#> Total a pagar: 12,160,000`,
-            r: `# Interés simple de un crédito de libre inversión
-capital <- 10000000    # COP
-tasa    <- 0.018       # 1,8 % mensual
-plazo   <- 12          # meses
-
-interes <- capital * tasa * plazo
-total   <- capital + interes
-
-cat(sprintf("Interes: %.0f\\n", interes))
-#> Interes: 2160000
-cat(sprintf("Total a pagar: %.0f\\n", total))
-#> Total a pagar: 12160000`,
-            vba: `Option Explicit
-
-Sub InteresSimple()
-    ' Interés simple de un crédito de libre inversión
-    Dim capital As Currency, tasa As Double, plazo As Integer
-    Dim interes As Currency, total As Currency
-
-    capital = 10000000      ' COP
-    tasa = 0.018            ' 1,8 % mensual
-    plazo = 12              ' meses
-
-    interes = capital * tasa * plazo
-    total = capital + interes
-
-    Debug.Print "Interes: " & interes
-    '> Interes: 2160000
-    Debug.Print "Total a pagar: " & total
-    '> Total a pagar: 12160000
-End Sub`,
+        /* Cuantil de tipo 7 — el mismo que usan `np.quantile` y `quantile()`
+           de R por omisión. Se escribe aquí porque el `Laboratorio` calcula
+           en el navegador y una discrepancia con el bloque de código sería
+           justo el defecto que el material enseña a cazar. */
+        const cuantil = (xs, p) => {
+            const s = [...xs].sort((a, b) => a - b);
+            const h = (s.length - 1) * p;
+            const lo = Math.floor(h), hi = Math.ceil(h);
+            return s[lo] + (h - lo) * (s[hi] - s[lo]);
         };
 
+        /* Coma decimal. `toFixed` produce punto, que es la convención de los
+           dos lenguajes y por eso está bien DENTRO de un bloque de código;
+           en la prosa y en las gráficas la convención es la del español, y
+           mezclarlas en la misma pantalla se lee como un descuido. */
+        const dec = (x, n = 2) => x.toFixed(n).replace('.', ',');
 
-        const EJ_ACUMULADOR = {
-            pseudo: `// Ahorro programado: 200.000 al mes durante 3 meses
-saldo <- 0
+        /* ============================================================
+           BLOQUES DE CÓDIGO
+           Toda salida declarada tras `#>` está ejecutada: la comprobación
+           9 de verificar.py corre estos bloques y compara.
+        ============================================================ */
+        const EJ_RENDIMIENTOS = {
+            python: `import numpy as np
 
-Para mes <- 1 Hasta 3 Hacer
-    saldo <- saldo + 200000
-FinPara
+precios = np.array([2450, 2478, 2431, 2465, 2502])   # cierre diario, COP
+r = np.diff(np.log(precios))                          # rendimiento logarítmico
 
-Escribir saldo
-//> 600000`,
-            python: `# Ahorro programado: 200.000 al mes durante 3 meses
-saldo = 0
+print(np.round(r * 100, 3))
+#> [ 1.136 -1.915  1.389  1.49 ]
+print(f"Volatilidad diaria: {r.std(ddof=1) * 100:.3f} %")
+#> Volatilidad diaria: 1.633 %
+print(f"Anualizada (252 d):  {r.std(ddof=1) * np.sqrt(252) * 100:.2f} %")
+#> Anualizada (252 d):  25.93 %`,
+            r: `precios <- c(2450, 2478, 2431, 2465, 2502)   # cierre diario, COP
+r       <- diff(log(precios))                # rendimiento logarítmico
 
-for mes in range(1, 4):
-    saldo += 200_000
+print(round(r * 100, 3))
+#> [1]  1.136 -1.915  1.389  1.490
+cat(sprintf("Volatilidad diaria: %.3f %%\\n", sd(r) * 100))
+#> Volatilidad diaria: 1.633 %
+cat(sprintf("Anualizada (252 d):  %.2f %%\\n", sd(r) * sqrt(252) * 100))
+#> Anualizada (252 d):  25.93 %`,
+        };
 
-print(saldo)
-#> 600000`,
-            r: `# Ahorro programado: 200.000 al mes durante 3 meses
-saldo <- 0
+        const EJ_VAR_ES = {
+            python: `import numpy as np
 
-for (mes in 1:3) {
-  saldo <- saldo + 200000
+# Veinte pérdidas diarias del portafolio, en %, ya ordenadas.
+perdidas = np.array([1.42, 1.51, 1.63, 1.70, 1.88, 1.94, 2.05, 2.19, 2.31, 2.47,
+                     2.55, 2.68, 2.83, 3.04, 3.29, 3.61, 4.02, 4.77, 5.93, 8.14])
+
+var = np.quantile(perdidas, 0.90)          # el corte que deja fuera el 10 % peor
+es = perdidas[perdidas > var].mean()       # la MEDIA de lo que hay más allá
+
+print(f"VaR : {var:.3f} %")
+#> VaR : 4.886 %
+print(f"ES  : {es:.3f} %")
+#> ES  : 7.035 %
+print(f"El ES supera al VaR en {es - var:.3f} puntos porcentuales")
+#> El ES supera al VaR en 2.149 puntos porcentuales`,
+            r: `# Veinte pérdidas diarias del portafolio, en %, ya ordenadas.
+perdidas <- c(1.42, 1.51, 1.63, 1.70, 1.88, 1.94, 2.05, 2.19, 2.31, 2.47,
+              2.55, 2.68, 2.83, 3.04, 3.29, 3.61, 4.02, 4.77, 5.93, 8.14)
+
+var <- quantile(perdidas, 0.90, names = FALSE)   # el corte que deja fuera el 10 % peor
+es  <- mean(perdidas[perdidas > var])            # la MEDIA de lo que hay más allá
+
+cat(sprintf("VaR : %.3f %%\\n", var))
+#> VaR : 4.886 %
+cat(sprintf("ES  : %.3f %%\\n", es))
+#> ES  : 7.035 %
+cat(sprintf("El ES supera al VaR en %.3f puntos porcentuales\\n", es - var))
+#> El ES supera al VaR en 2.149 puntos porcentuales`,
+        };
+
+        const EJ_EWMA = {
+            python: `lam = 0.94                    # lambda de RiskMetrics para datos diarios
+var_t = 0.000260              # varianza del día anterior
+
+for r in [-0.0191, 0.0139, 0.0149]:
+    var_t = lam * var_t + (1 - lam) * r ** 2
+    print(f"sigma = {100 * var_t ** 0.5:.4f} %")
+#> sigma = 1.6318 %
+#> sigma = 1.6183 %
+#> sigma = 1.6109 %`,
+            r: `lam   <- 0.94        # lambda de RiskMetrics para datos diarios
+var_t <- 0.000260    # varianza del día anterior
+
+for (r in c(-0.0191, 0.0139, 0.0149)) {
+  var_t <- lam * var_t + (1 - lam) * r^2
+  cat(sprintf("sigma = %.4f %%\\n", 100 * sqrt(var_t)))
 }
-
-# print(saldo) mostraria 6e+05: R usa notacion cientifica por defecto.
-cat(sprintf("%.0f\\n", saldo))
-#> 600000`,
-            vba: `Sub AhorroProgramado()
-    ' Ahorro programado: 200.000 al mes durante 3 meses
-    Dim saldo As Currency, mes As Integer
-    saldo = 0
-
-    For mes = 1 To 3
-        saldo = saldo + 200000
-    Next mes
-
-    Debug.Print saldo
-    '> 600000
-End Sub`,
+#> sigma = 1.6318 %
+#> sigma = 1.6183 %
+#> sigma = 1.6109 %`,
         };
 
+        /* El bloque que audita el ejercicio R3: lo «escribió» un modelo de
+           lenguaje y trae un error plantado. No lleva salida `#>` a
+           propósito —afirmar una salida de código roto sería mentir— y la
+           comprobación 9 lo deja fuera por eso mismo. */
+        const IA_ES_MAL = {
+            python: [
+                'import numpy as np',
+                '',
+                'perdidas = np.loadtxt("perdidas.csv")',
+                'alfa = 0.975',
+                '',
+                'var = np.quantile(perdidas, alfa)',
+                'es  = np.quantile(perdidas, alfa)',
+                '',
+                'print(f"VaR {var:.2f} %  ·  ES {es:.2f} %")',
+            ],
+            r: [
+                'perdidas <- scan("perdidas.csv")',
+                'alfa     <- 0.975',
+                '',
+                'var <- quantile(perdidas, alfa, names = FALSE)',
+                'es  <- quantile(perdidas, alfa, names = FALSE)',
+                '',
+                'cat(sprintf("VaR %.2f %%  ·  ES %.2f %%\\n", var, es))',
+            ],
+        };
 
         /* ============================================================
            PORTADA
         ============================================================ */
         const PortadaSection = () => (
-            <div className="prose-lp">
+            <>
                 <Motivacion icon="fa-money-bill-trend-up"
-                    gancho="La diferencia entre las dos personas no es saber más Excel: es saber descomponer el problema en pasos. Eso es lo que se aprende aquí.">
-                    Son las 8 de la mañana y a dos analistas les entregan el mismo archivo: 40 000 desembolsos
-                    y una pregunta —cuánta cartera está vencida— para antes del mediodía. Uno abre la hoja y
-                    empieza a filtrar y contar a mano. El otro escribe veinte líneas que responden en segundos
-                    y que el próximo mes volverán a servir sin tocar nada.
+                    gancho="Este archivo no se estudia: se copia. Es el molde de los quince capítulos, y lo que aquí quede mal se repite quince veces.">
+                    El informe decía que la pérdida diaria máxima esperada era 1,8 %. Ayer el
+                    portafolio perdió 6,3 %. Nadie mintió y nadie se equivocó al sumar: el modelo
+                    suponía una distribución normal y el mercado no la leyó. Todo el curso trata
+                    de esa distancia —entre lo que un modelo afirma y lo que el mundo hace— y de
+                    cómo medirla, validarla y defenderla ante un comité.
                 </Motivacion>
 
-                <Box type="tip" label="Cómo estudiar este material">
-                    Este material es <strong>autónomo</strong>: permite avanzar a ritmo propio con los botones <em>Anterior / Siguiente</em>.
-                    Cada capítulo combina teoría breve, casos del sector financiero, diagramas, código en cuatro lenguajes y ejercicios
-                    de interpretación. El navegador <strong>recuerda la última lección</strong>, de modo que es posible pausar y retomar.
-                    Conviene intentar cada ejercicio <em>antes</em> de ver la retroalimentación.
+                <NivelIA nivel={CONFIG.nivelIA}
+                    nota="El nivel se declara por capítulo y, dentro de él, por tipo de ejercicio. Esta plantilla lo muestra en el nivel 1 porque su contenido es de referencia." />
+
+                <CalloutPro tema="tip" titulo="Cómo se usa esta plantilla"
+                    subtitulo="Copiar, cambiar CONFIG, reemplazar las secciones">
+                    <p>
+                        Un capítulo nuevo nace copiando <span className="inline-code">tr-base.html</span>,
+                        cambiando el objeto <span className="inline-code">CONFIG</span> de arriba y
+                        reemplazando estas secciones por el contenido real. El bloque delimitado por
+                        <span className="inline-code">/* === TR-CORE INICIO === */</span> …
+                        <span className="inline-code">/* === TR-CORE FIN === */</span> <strong>no se
+                        toca</strong>: se genera con <span className="inline-code">ensamblar.py</span> y
+                        se estampa con <span className="inline-code">migrar.py</span>. La comprobación 1
+                        del verificador compara ese bloque byte a byte y existe justamente para cazar
+                        una edición manual.
+                    </p>
+                </CalloutPro>
+
+                <Box type="warn" label="Los dos lenguajes van en paralelo, siempre">
+                    Cada bloque de código trae Python y R. No es adorno: los estudiantes llegan del
+                    programa de Estadística con R como lengua materna y el syllabus promete un puente
+                    hacia Python. La pestaña abre en Python para empujar al lenguaje nuevo, y R queda
+                    a un clic. La comprobación 4 falla si un bloque trae uno solo.
                 </Box>
 
-                <h3>Identificación</h3>
-                <div className="overflow-x-auto">
-                    <table>
-                        <tbody>
-                            <tr><th>Asignatura</th><td>Lógica de Programación Financiera</td></tr>
-                            <tr><th>Capítulo</th><td>{CONFIG.numero} — {CONFIG.titulo}</td></tr>
-                            <tr><th>Contenido del syllabus</th><td>{CONFIG.contenidoSyllabus}</td></tr>
-                            <tr><th>Resultado de aprendizaje</th><td>{CONFIG.ra}</td></tr>
-                            <tr><th>Tiempo estimado</th><td>{CONFIG.horas} horas</td></tr>
-                            <tr><th>Naturaleza</th><td>Teórico-práctico</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Los cuatro lenguajes del curso</h3>
-                <p>
-                    Todo algoritmo del material se presenta en cuatro versiones. Cada bloque
-                    <strong> tiene su propia pestaña</strong>, de modo que es posible dejar dos lenguajes
-                    abiertos a la vez y compararlos. El material <strong>recuerda la última elección</strong>
-                    —también entre visitas— y con ella abre los bloques que todavía no se han tocado.
-                </p>
-                <div className="grid md:grid-cols-2 gap-3 not-prose">
-                    {[
-                        { l: 'Pseudocódigo', d: 'Lenguaje normativo del curso. Es lo que se evalúa: expresa la lógica sin atarla a ninguna herramienta.', i: 'fas fa-project-diagram', c: '#3D008D' },
-                        { l: 'Python', d: 'Lectura moderna y compacta. Sirve para comprobar rápidamente que el algoritmo hace lo que se espera.', i: 'fab fa-python', c: '#0E7490' },
-                        { l: 'R', d: 'El lenguaje del análisis cuantitativo y estadístico, cercano al perfil del programa.', i: 'fas fa-chart-line', c: '#001A4D' },
-                        { l: 'VBA (Excel)', d: 'El lenguaje que efectivamente se usa en las áreas financieras. Es el objetivo de los capítulos 6 a 8.', i: 'fas fa-file-excel', c: '#ED1E79' },
-                    ].map((x, i) => (
-                        <div key={i} className="tr-card p-4 flex gap-3">
-                            <span className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-white" style={{ background: x.c }}>
-                                <i className={x.i}></i>
-                            </span>
-                            <span><strong className="text-navy block text-sm">{x.l}</strong><span className="text-sm text-gray-600">{x.d}</span></span>
-                        </div>
-                    ))}
-                </div>
-
-                <h3>Ruta del capítulo</h3>
-                <Pipeline steps={[
-                    { num: 1, title: 'Contenido', desc: 'Callouts, código, tablas y diagramas' },
-                    { num: 2, title: 'Ejercicios', desc: 'Los ocho tipos: E1 a E8' },
-                    { num: 3, title: 'Datos', desc: 'Gráficas, fórmulas y glosario' },
+                <Timeline eventos={[
+                    { year: '1994', text: 'J. P. Morgan publica RiskMetrics y el VaR se vuelve el lenguaje común del riesgo de mercado.' },
+                    { year: '1999', text: 'Artzner y coautores formalizan las medidas coherentes. El VaR no cumple: no es subaditivo.' },
+                    { year: '2016', text: 'Basilea publica el FRTB y sustituye el VaR al 99 % por el Expected Shortfall al 97,5 %.' },
+                    { year: '2026', text: 'La cuestión ya no es solo calcular: es auditar lo que calcula un modelo de lenguaje.' },
                 ]} />
-
-                <CalloutPro tema="info" titulo="Sobre los ejercicios de este material" subtitulo="Interpretar, analizar y apropiar — no transcribir" icon="fa-brain">
-                    Los ejercicios <strong>no piden escribir programas desde cero</strong>: eso corresponde a los talleres evaluables.
-                    Aquí se ejercita otra cosa, más difícil y más útil: <strong>leer</strong> un algoritmo ajeno, <strong>trazarlo</strong> a mano,
-                    <strong> diagnosticar</strong> por qué falla, <strong>comparar</strong> dos soluciones e <strong>interpretar</strong> qué
-                    significa el resultado para el negocio.
-                </CalloutPro>
-            </div>
+            </>
         );
 
         /* ============================================================
            SECCIÓN 1 — COMPONENTES DE CONTENIDO
         ============================================================ */
-        const Seccion1 = () => (
-            <div className="prose-lp">
-                <Motivacion icon="fa-layer-group"
-                    gancho="La pregunta no es qué componentes hay, sino cuál merece cada momento del texto.">
-                    Un capítulo mal construido se reconoce en diez segundos: párrafos que no terminan, código
-                    sin decir de dónde sale, y todo resaltado en amarillo. El estudiante lo abandona en la
-                    tercera pantalla, y no porque el tema fuera difícil.
-                </Motivacion>
-
-                <p>
-                    Esta sección muestra los componentes disponibles para exponer contenido. Un <Termino def="Bloque de texto destacado que interrumpe la lectura para advertir, sugerir o contextualizar. Se usa con moderación: si todo está destacado, nada lo está.">callout</Termino> bien puesto vale más que tres párrafos.
-                </p>
-
-                <h3>Avisos y destacados</h3>
-                <Box type="info" label="Información">Contexto adicional que ayuda pero no es indispensable.</Box>
-                <Box type="tip" label="Recomendación">Una buena práctica o un atajo que conviene adoptar.</Box>
-                <Box type="warn" label="Atención">Un punto donde suele cometerse un error.</Box>
-                <Box type="danger" label="Riesgo financiero">Una equivocación con consecuencias monetarias reales.</Box>
-
-                <CalloutPro tema="warn" titulo="Callout destacado" subtitulo="Para ideas que estructuran el capítulo" icon="fa-triangle-exclamation">
-                    Se reserva para dos o tres ideas por capítulo, aquellas que el estudiante debe recordar aunque olvide el resto.
-                </CalloutPro>
-
-                <h3>Código en cuatro lenguajes</h3>
-                <p>Este es el componente central del material. Cada bloque cambia de lenguaje <strong>por separado</strong>: la pestaña que se elija aquí no mueve la de los demás.</p>
-                <CodeTabs
-                    titulo="Interés simple sobre un crédito de libre inversión"
-                    bloques={EJ_INTERES}
-                    nota={<>Las líneas resaltadas que empiezan por <span className="inline-code">#&gt;</span> son la <strong>salida</strong>, no comentarios del autor. Las de Python y R están verificadas por ejecución; las de VBA, pendientes de correr en Excel.</>}
-                />
-
-                <p>
-                    Este segundo bloque existe para hacer visible la independencia: al cambiar la pestaña en
-                    cualquiera de los dos, <strong>el otro se queda como está</strong>. Es lo que permite leer el
-                    pseudocódigo arriba y su traducción a VBA abajo, en la misma pantalla. Como un capítulo real
-                    tiene hasta diez de estos bloques y cinco ejercicios, la última pestaña elegida queda
-                    guardada y es con la que abren los bloques que aún no se han tocado: se elige el lenguaje
-                    una vez, no quince.
-                </p>
-                <CodeTabs
-                    titulo="Acumulador: ahorro programado de tres meses"
-                    bloques={EJ_ACUMULADOR}
-                />
-
-                <h3>Bloque de un solo lenguaje</h3>
-                <p>Cuando el ejemplo solo tiene sentido en un lenguaje (por ejemplo, algo propio del entorno de Excel):</p>
-                <CodeBlock lang="vba" title="Propio del entorno de Excel" code={`Sub LeerCelda()
-    ' Lo que sigue no tiene equivalente en pseudocódigo:
-    ' depende del modelo de objetos de Excel.
-    Dim saldo As Currency
-    saldo = ThisWorkbook.Worksheets("Cartera").Range("B2").Value
-    Debug.Print saldo
-    '> 1250000
-End Sub`} />
-
-                <h3>Pestañas, acordeón y línea de tiempo</h3>
-                <Tabs tabs={[
-                    { label: 'Definición', content: <p style={{ margin: 0 }}>Un <strong>algoritmo</strong> es una secuencia finita, precisa y ordenada de pasos que resuelve un problema.</p> },
-                    { label: 'Propiedades', content: <ul style={{ margin: 0 }}><li>Precisión</li><li>Finitud</li><li>Definición</li><li>Entrada y salida</li></ul> },
-                    { label: 'En finanzas', content: <p style={{ margin: 0 }}>La liquidación de una cuota, la clasificación de un deudor o el cierre contable diario son algoritmos ejecutados millones de veces.</p> },
-                ]} />
-
-                <Accordion items={[
-                    { titulo: '¿Cuándo usar un acordeón?', contenido: <p style={{ margin: 0 }}>Para contenido de consulta que no todos los estudiantes necesitan: profundizaciones, bibliografía, notas históricas.</p> },
-                    { titulo: '¿Y cuándo NO?', contenido: <p style={{ margin: 0 }}>Cuando el contenido es indispensable. Si es necesario para entender lo que sigue, no debe estar escondido.</p> },
-                ]} />
-
-                <Timeline eventos={[
-                    { year: '1936', text: 'Alan Turing formaliza la noción de cómputo mecánico.' },
-                    { year: '1945', text: 'Von Neumann describe la arquitectura de programa almacenado que aún usan los computadores.' },
-                    { year: '1993', text: 'Microsoft incorpora VBA a Excel: el cálculo financiero se vuelve programable por el propio analista.' },
-                ]} />
-            </div>
-        );
-
-        /* ============================================================
-           SECCIÓN 2 — LOS OCHO TIPOS DE EJERCICIO
-
-           Los ejercicios siguen la MISMA pestaña que la exposición. Cada
-           propiedad que contenga código admite un objeto {pseudo, python,
-           r, vba}; las que no dependen del lenguaje —los valores de las
-           variables, los significados a emparejar— se dejan como valor único.
-        ============================================================ */
-
-        // --- E1: el algoritmo a trazar, en los cuatro lenguajes -----------
-        const TRAZA_CODIGO = {
-            pseudo: `1  capital <- 1000000
-2  tasa    <- 0.02
-3  interes <- capital * tasa
-4  total   <- capital + interes
-5  Escribir total`,
-            python: `1  capital = 1000000
-2  tasa    = 0.02
-3  interes = capital * tasa
-4  total   = capital + interes
-5  print(total)`,
-            r: `1  capital <- 1000000
-2  tasa    <- 0.02
-3  interes <- capital * tasa
-4  total   <- capital + interes
-5  cat(total)`,
-            vba: `1  capital = 1000000
-2  tasa = 0.02
-3  interes = capital * tasa
-4  total = capital + interes
-5  Debug.Print total`,
-        };
-
-        const ins = (pseudo, python, r, vba) => ({ pseudo, python, r, vba });
-
-        // --- E3: el mismo fallo, y OJO: en distinta línea en cada lenguaje --
-        const ERROR_LINEAS = {
-            pseudo: [
-                'Inicio',
-                '    // Interes mensual de un credito',
-                '    Leer capital',
-                '    tasa <- 18                  // tasa en PORCENTAJE',
-                '    interes <- capital * tasa',
-                '    Escribir "Interes: ", interes',
-                'Fin',
-            ],
-            python: [
-                '# Interes mensual de un credito',
-                'capital = float(input("Capital: "))',
-                'tasa = 18                  # tasa en PORCENTAJE',
-                'interes = capital * tasa',
-                'print("Interes:", interes)',
-            ],
-            r: [
-                '# Interes mensual de un credito',
-                'capital <- as.numeric(readline("Capital: "))',
-                'tasa <- 18                 # tasa en PORCENTAJE',
-                'interes <- capital * tasa',
-                'cat("Interes:", interes)',
-            ],
-            vba: [
-                'Sub InteresMensual()',
-                "    ' Interes mensual de un credito",
-                '    Dim capital As Currency, tasa As Double',
-                '    Dim interes As Currency',
-                '    capital = Range("B2").Value',
-                "    tasa = 18                   ' tasa en PORCENTAJE",
-                '    interes = capital * tasa',
-                '    MsgBox "Interes: " & interes',
-                'End Sub',
-            ],
-        };
-        // El fallo está en la línea 5, 4, 4 y 7 respectivamente: por eso
-        // `lineaCorrecta` NO puede ser un número único.
-        const ERROR_LINEA_OK = { pseudo: 5, python: 4, r: 4, vba: 7 };
-
-        // ...y por la misma razón la EXPLICACIÓN tampoco: cita el número de
-        // línea y escribe la corrección, y la asignación no se escribe igual
-        // en los cuatro (`<-` en pseudocódigo y R, `=` en Python y VBA).
-        // El ENUNCIADO, en cambio, se redacta sin citar ninguna línea: así no
-        // envejece si mañana se retoca el código. Comprobación 8 de
-        // verificar.py.
-        const ERROR_EXPLICACION = {
-            pseudo: <>La <strong>línea 4</strong> es correcta: guarda lo que el usuario digitó, y el comentario advierte que está en porcentaje. El error está en la <strong>línea 5</strong>, que multiplica por <span className="inline-code">18</span> en lugar de por <span className="inline-code">0.18</span>. Debe ser <span className="inline-code">interes &lt;- capital * (tasa / 100)</span>.</>,
-            python: <>La <strong>línea 3</strong> es correcta: guarda lo que el usuario digitó, y el comentario advierte que está en porcentaje. El error está en la <strong>línea 4</strong>, que multiplica por <span className="inline-code">18</span> en lugar de por <span className="inline-code">0.18</span>. Debe ser <span className="inline-code">interes = capital * (tasa / 100)</span>.</>,
-            r: <>La <strong>línea 3</strong> es correcta: guarda lo que el usuario digitó, y el comentario advierte que está en porcentaje. El error está en la <strong>línea 4</strong>, que multiplica por <span className="inline-code">18</span> en lugar de por <span className="inline-code">0.18</span>. Debe ser <span className="inline-code">interes &lt;- capital * (tasa / 100)</span>.</>,
-            vba: <>La <strong>línea 6</strong> es correcta: guarda lo que el usuario digitó, y el comentario advierte que está en porcentaje. El error está en la <strong>línea 7</strong>, que multiplica por <span className="inline-code">18</span> en lugar de por <span className="inline-code">0.18</span>. Debe ser <span className="inline-code">interes = capital * (tasa / 100)</span>.</>,
-        };
-
-        // --- E4: acumulador con contador definido vs. condición ------------
-        const CMP_PARA = {
-            pseudo: `saldo <- 0
-Para mes <- 1 Hasta 12 Hacer
-    saldo <- saldo + 200000
-FinPara
-Escribir saldo`,
-            python: `saldo = 0
-for mes in range(1, 13):
-    saldo += 200_000
-print(saldo)`,
-            r: `saldo <- 0
-for (mes in 1:12) {
-  saldo <- saldo + 200000
-}
-cat(saldo)`,
-            vba: `saldo = 0
-For mes = 1 To 12
-    saldo = saldo + 200000
-Next mes
-Debug.Print saldo`,
-        };
-        const CMP_MIENTRAS = {
-            pseudo: `saldo <- 0
-mes <- 1
-Mientras mes <= 12 Hacer
-    saldo <- saldo + 200000
-    mes <- mes + 1
-FinMientras
-Escribir saldo`,
-            python: `saldo = 0
-mes = 1
-while mes <= 12:
-    saldo += 200_000
-    mes += 1
-print(saldo)`,
-            r: `saldo <- 0
-mes <- 1
-while (mes <= 12) {
-  saldo <- saldo + 200000
-  mes <- mes + 1
-}
-cat(saldo)`,
-            vba: `saldo = 0
-mes = 1
-Do While mes <= 12
-    saldo = saldo + 200000
-    mes = mes + 1
-Loop
-Debug.Print saldo`,
-        };
-
-        // --- E5 y E6 -------------------------------------------------------
-        const ORDENA_PASOS = {
-            pseudo: ['Inicio', 'Leer capital, tasa, plazo', 'interes <- capital * tasa * plazo',
-                'total <- capital + interes', 'Escribir total', 'Fin'],
-            python: ['capital = float(input("Capital: "))', 'tasa = float(input("Tasa: "))',
-                'plazo = int(input("Plazo: "))', 'interes = capital * tasa * plazo',
-                'total = capital + interes', 'print(total)'],
-            r: ['capital <- as.numeric(readline("Capital: "))', 'tasa <- as.numeric(readline("Tasa: "))',
-                'plazo <- as.integer(readline("Plazo: "))', 'interes <- capital * tasa * plazo',
-                'total <- capital + interes', 'cat(total)'],
-            vba: ['Sub Liquidar()', 'Dim interes As Currency, total As Currency',
-                'interes = capital * tasa * plazo', 'total = capital + interes',
-                'MsgBox total', 'End Sub'],
-        };
-
-        const EMPAREJA_IZQ = {
-            pseudo: ['Leer capital', 'saldo <- saldo + cuota', 'Si mora > 90 Entonces', 'Mientras saldo > 0 Hacer'],
-            python: ['capital = float(input())', 'saldo += cuota', 'if mora > 90:', 'while saldo > 0:'],
-            r: ['capital <- as.numeric(readline())', 'saldo <- saldo + cuota', 'if (mora > 90) {', 'while (saldo > 0) {'],
-            vba: ['capital = Range("B2").Value', 'saldo = saldo + cuota', 'If mora > 90 Then', 'Do While saldo > 0'],
-        };
-
-
-        const Seccion2 = () => (
-            <div className="prose-lp">
-                <Motivacion icon="fa-magnifying-glass-chart"
-                    gancho="¿Cómo se entrena esa segunda habilidad, si escribir código desde cero no la desarrolla?">
-                    Copiar un algoritmo de un libro y hacerlo correr está al alcance de cualquiera. Mirar el
-                    código que escribió otro, decir qué va a hacer <em>antes</em> de ejecutarlo y explicar por
-                    qué la cuota salió mal, no. En una entidad financiera lo primero se automatiza; lo segundo
-                    es lo que se paga.
-                </Motivacion>
-
-                <p>
-                    La taxonomía del curso tiene ocho tipos. Cada capítulo debe incluir al menos un <strong>E1</strong>,
-                    un <strong>E3</strong> y un <strong>E7</strong>: son los que más empujan hacia la interpretación y la apropiación.
-                </p>
-
-                <h3>E1 · Prueba de escritorio</h3>
-                <TablaTraza
-                    titulo="Traza del interés simple"
-                    enunciado={<>Complete el estado de las variables después de ejecutar cada instrucción. Escriba <span className="inline-code">—</span> donde la variable todavía no tenga valor.</>}
-                    codigo={TRAZA_CODIGO}
-                    columnas={[
-                        { clave: 'paso', titulo: 'Paso' },
-                        { clave: 'instruccion', titulo: 'Instrucción' },
-                        { clave: 'capital', titulo: 'capital' },
-                        { clave: 'tasa', titulo: 'tasa' },
-                        { clave: 'interes', titulo: 'interes' },
-                        { clave: 'total', titulo: 'total' },
-                        { clave: 'salida', titulo: 'Salida' },
-                    ]}
-                    ocultas={['interes', 'total', 'salida']}
-                    filas={[
-                        { paso: 1, instruccion: ins('capital <- 1000000', 'capital = 1000000', 'capital <- 1000000', 'capital = 1000000'), capital: '1000000', tasa: '—', interes: '—', total: '—', salida: '—' },
-                        { paso: 2, instruccion: ins('tasa <- 0.02', 'tasa = 0.02', 'tasa <- 0.02', 'tasa = 0.02'), capital: '1000000', tasa: '0.02', interes: '—', total: '—', salida: '—' },
-                        { paso: 3, instruccion: ins('interes <- capital * tasa', 'interes = capital * tasa', 'interes <- capital * tasa', 'interes = capital * tasa'), capital: '1000000', tasa: '0.02', interes: '20000', total: '—', salida: '—' },
-                        { paso: 4, instruccion: ins('total <- capital + interes', 'total = capital + interes', 'total <- capital + interes', 'total = capital + interes'), capital: '1000000', tasa: '0.02', interes: '20000', total: '1020000', salida: '—' },
-                        { paso: 5, instruccion: ins('Escribir total', 'print(total)', 'cat(total)', 'Debug.Print total'), capital: '1000000', tasa: '0.02', interes: '20000', total: '1020000', salida: '1020000' },
-                    ]}
-                    pista="Una asignación solo modifica la variable de la izquierda. Las demás conservan el valor de la fila anterior."
-                />
-
-                <h3>E2 · Predice la salida</h3>
-                <Ejercicio tipo="E2"><MCQ
-                    pregunta="Si en el algoritmo anterior se intercambian las líneas 3 y 4, ¿qué imprime la línea 5?"
-                    opciones={[
-                        { texto: '1 020 000, igual que antes.', correcta: false },
-                        { texto: '1 000 000, porque en la línea 4 la variable interes aún no tiene valor.', correcta: true, justificacion: 'Al ejecutarse total <- capital + interes antes de calcular interes, esa variable vale cero (o está indefinida). El total queda igual al capital: el interés se pierde. Es el error de orden más común en liquidaciones.' },
-                        { texto: '20 000, el valor del interés.', correcta: false },
-                        { texto: 'Un error de sintaxis: el programa no compila.', correcta: false },
-                    ]}
-                /></Ejercicio>
-
-                <h3>E3 · Detecta y diagnostica</h3>
-                <DetectaError
-                    enunciado={<>El siguiente algoritmo debe calcular el interés mensual de un crédito. La tasa se digita <strong>en porcentaje</strong>, así lo advierte el comentario que acompaña a la asignación de <span className="inline-code">tasa</span>. <strong>¿En qué línea se realiza la operación incorrecta?</strong></>}
-                    lineas={ERROR_LINEAS}
-                    lineaCorrecta={ERROR_LINEA_OK}
-                    tipos={[
-                        'Error de sintaxis: falta una palabra clave o un delimitador.',
-                        'Error de unidades: se opera con un porcentaje sin convertirlo a tasa decimal.',
-                        'Error de tipo: se asigna una cadena a una variable numérica.',
-                        'Error de alcance: la variable se usa fuera del bloque donde fue declarada.',
-                    ]}
-                    tipoCorrecto={1}
-                    explicacion={ERROR_EXPLICACION}
-                    impacto={<>Sobre un capital de $10 000 000 el algoritmo reporta un interés de <strong>$180 000 000</strong> en vez de <strong>$1 800 000</strong>: cien veces más. Si esa cifra alimenta una liquidación o un reporte de cartera, el error es inmediato y visible; si alimenta una provisión contable promediada entre miles de créditos, puede pasar inadvertido durante meses.</>}
-                />
-
-                <h3>E4 · Equivalencia y comparación</h3>
-                <Comparador
-                    enunciado="Ambas versiones acumulan el saldo de un ahorro programado durante 12 meses."
-                    a={{ etiqueta: 'Versión A · Para', codigo: CMP_PARA }}
-                    b={{ etiqueta: 'Versión B · Mientras', codigo: CMP_MIENTRAS }}
-                    pregunta="¿Las dos versiones producen el mismo resultado?"
-                    opciones={[
-                        { texto: 'Sí: ambas ejecutan 12 iteraciones y escriben 2 400 000.', correcta: true, justificacion: 'Toda estructura Para puede reescribirse como Mientras. La diferencia es de legibilidad y de riesgo: en la versión B el incremento del contador es responsabilidad del programador, y omitirlo produce un ciclo infinito. Se prefiere Para cuando el número de repeticiones se conoce de antemano.' },
-                        { texto: 'No: la versión B ejecuta 13 iteraciones.', correcta: false },
-                        { texto: 'No: la versión A no permite acumular.', correcta: false },
-                        { texto: 'Solo coinciden si el número de meses es par.', correcta: false },
-                    ]}
-                />
-
-                <h3>E5 · Ordena los pasos</h3>
-                <OrdenaPasos
-                    enunciado="Reconstruya el algoritmo que liquida el total a pagar de un crédito con interés simple."
-                    pasos={ORDENA_PASOS}
-                    pista="Una variable no puede usarse antes de que se le haya asignado un valor."
-                />
-
-                <h3>E6 · Emparejamiento entre representaciones</h3>
-                <Emparejamiento
-                    enunciado="Relacione cada elemento del pseudocódigo con lo que representa en el flujo del programa."
-                    etiquetaIzq="Elemento"
-                    etiquetaDer="Significado"
-                    izquierda={EMPAREJA_IZQ}
-                    derecha={[
-                        'Repite un bloque mientras se cumpla una condición.',
-                        'Toma un dato del exterior y lo guarda en una variable.',
-                        'Bifurca el flujo según se cumpla o no una condición.',
-                        'Acumula: el nuevo valor depende del valor anterior.',
-                    ]}
-                    solucion={[1, 3, 2, 0]}
-                />
-
-                <h3>E7 · Interpretación financiera</h3>
-                <Ejercicio tipo="E7"><MCQ
-                    pregunta="Un algoritmo liquida un crédito de $10 000 000 a 12 meses y arroja un total a pagar de $12 160 000. ¿Qué se puede afirmar?"
-                    opciones={[
-                        { texto: 'El cliente pagará $2 160 000 por el uso del dinero, es decir un 21,6 % del capital durante el año.', correcta: true, justificacion: 'Interpretar no es recalcular: es traducir el número a una afirmación con sentido para el cliente o para el negocio. El costo del crédito es la diferencia entre lo que se recibe y lo que se devuelve, y expresarlo como porcentaje del capital lo hace comparable con otras alternativas.' },
-                        { texto: 'La tasa mensual del crédito es del 21,6 %.', correcta: false },
-                        { texto: 'El banco perdió dinero en la operación.', correcta: false },
-                        { texto: 'No puede afirmarse nada sin conocer la inflación.', correcta: false },
-                    ]}
-                /></Ejercicio>
-
-                <h3>E8 · Justifica la decisión de diseño</h3>
-                <Ejercicio tipo="E8"><Reto
-                    titulo="¿Por qué Para y no Mientras?"
-                    solucion={<Box type="tip" label="Criterio profesional">
-                        Se usa <strong>Para</strong> cuando el número de repeticiones se conoce antes de entrar al ciclo (las 12 cuotas de un
-                        crédito, las 24 celdas de una fila). Se usa <strong>Mientras</strong> cuando la repetición depende de una condición que
-                        cambia dentro del ciclo y no se sabe de antemano cuántas vueltas dará (amortizar hasta que el saldo llegue a cero,
-                        iterar hasta que la TIR converja). El criterio no es estético: con <strong>Para</strong>, el compilador administra el
-                        contador y el ciclo infinito es imposible; con <strong>Mientras</strong>, esa responsabilidad es del programador.
-                    </Box>}>
-                    Un analista debe recorrer las 12 cuotas de un crédito. Otro debe amortizar un saldo hasta que llegue a cero,
-                    sin saber cuántas cuotas tomará. ¿Qué estructura repetitiva conviene a cada uno y por qué?
-                </Reto></Ejercicio>
-            </div>
-        );
-
-        /* ============================================================
-           SECCIÓN 3 — GRÁFICAS, MATEMÁTICAS Y DATOS
-        ============================================================ */
-        const SaldoChart = () => {
-            const [cuota, setCuota] = useState(900000);
-            usePlotly('chart-demo-saldo', () => {
-                const capital = 10000000, i = 0.018;
-                const meses = [], saldos = [];
-                let s = capital;
-                for (let m = 0; m <= 12; m++) {
-                    meses.push(m); saldos.push(Math.max(0, s));
-                    s = s * (1 + i) - cuota;
-                }
-                return [{
-                    x: meses, y: saldos, type: 'scatter', mode: 'lines+markers',
-                    line: { color: '#3D008D', width: 3 }, marker: { color: '#ED1E79', size: 7 },
-                    fill: 'tozeroy', fillcolor: 'rgba(61,0,141,0.07)',
-                    hovertemplate: 'Mes %{x}: %{y:,.0f} COP<extra>Saldo</extra>',
-                }];
-            }, () => ({
-                margin: { t: 10, r: 10, b: 40, l: 70 },
-                xaxis: { title: 'Mes', gridcolor: '#eee', dtick: 1 },
-                yaxis: { title: 'Saldo (COP)', gridcolor: '#eee', rangemode: 'tozero' },
-                paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            }), [cuota]);
+        const Seccion1 = () => {
+            usePlotly('demo-cola',
+                () => {
+                    const orden = [...PERDIDAS].sort((a, b) => a - b);
+                    const v = cuantil(orden, 0.90);
+                    return [{
+                        x: orden, y: orden.map(() => 1), type: 'bar',
+                        marker: { color: orden.map(p => p > v ? '#B91C1C' : '#3D008D') },
+                        width: 0.12, hoverinfo: 'x', name: 'Pérdida diaria',
+                    }];
+                },
+                () => ({
+                    margin: { t: 30, r: 20, b: 45, l: 30 },
+                    xaxis: { title: 'Pérdida diaria (%)', zeroline: false },
+                    yaxis: { visible: false },
+                    showlegend: false,
+                    shapes: [
+                        { type: 'line', x0: 4.886, x1: 4.886, y0: 0, y1: 1.15, line: { color: '#ED1E79', width: 2, dash: 'dash' } },
+                        { type: 'line', x0: 7.035, x1: 7.035, y0: 0, y1: 1.15, line: { color: '#B91C1C', width: 2 } },
+                    ],
+                    annotations: [
+                        { x: 4.886, y: 1.22, text: 'VaR 4,89 %', showarrow: false, font: { size: 11, color: '#ED1E79' } },
+                        { x: 7.035, y: 1.22, text: 'ES 7,04 %', showarrow: false, font: { size: 11, color: '#B91C1C' } },
+                    ],
+                }), []);
 
             return (
-                <div className="my-4">
-                    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-2">
-                        <label className="block text-sm font-semibold text-navy mb-1">
-                            Cuota mensual: <span className="text-secondary font-mono">${cuota.toLocaleString('es-CO')}</span>
-                        </label>
-                        <input type="range" min="500000" max="1500000" step="50000" value={cuota}
-                            onChange={e => setCuota(Number(e.target.value))} className="tr-range"
-                            aria-label="Cuota mensual del crédito" />
-                    </div>
-                    <ChartFrame id="chart-demo-saldo" height="chart-h-360"
-                        caption="Saldo de un crédito de $10 000 000 al 1,8 % mensual. Con una cuota baja el saldo casi no baja: los intereses se comen el abono." />
-                </div>
+                <>
+                    <Motivacion icon="fa-layer-group"
+                        gancho="Un componente mal elegido no rompe nada: solo hace que el estudiante lea peor, y eso no sale en ningún error de consola.">
+                        Dos capítulos explican lo mismo. En uno, la fórmula del Expected Shortfall
+                        aparece suelta en medio de un párrafo; en el otro, destacada, con su término
+                        definido al pasar el cursor y su derivación plegable al lado. El contenido es
+                        idéntico. La diferencia la nota el estudiante a las once de la noche, cuando
+                        ya no tiene a quién preguntarle.
+                    </Motivacion>
+
+                    <h3>Fórmulas y términos</h3>
+                    <p>
+                        El <Termino def="Media de las pérdidas que superan el VaR. A diferencia del VaR, sí es una medida coherente: dice cuánto se pierde cuando se pierde, no solo con qué frecuencia.">Expected Shortfall</Termino> (déficit
+                        esperado) responde la pregunta que el VaR deja abierta:
+                    </p>
+                    <Eq>{'$$\\mathrm{ES}_\\alpha = \\mathbb{E}\\left[L \\mid L > \\mathrm{VaR}_\\alpha\\right]$$'}</Eq>
+                    <p>
+                        Nótese la convención terminológica del curso: el término va en inglés con la
+                        traducción entre paréntesis <strong>la primera vez de cada capítulo</strong>, y
+                        después solo en inglés. Es como aparece en Basilea, en la Superfinanciera y en
+                        el nombre de las funciones de las librerías; quien lea «déficit esperado»
+                        durante quince capítulos no reconoce <span className="inline-code">expected_shortfall</span> al
+                        abrir la documentación.
+                    </p>
+
+                    <h3>Código en Python y en R</h3>
+                    <p>
+                        La salida no va en un panel aparte: se escribe <strong>dentro</strong> del
+                        bloque, con el prefijo <span className="inline-code">#&gt;</span>, pegada a la
+                        instrucción que la produce. Así se lee sin saltar la vista y copiar el bloque
+                        entrega un guion ejecutable.
+                    </p>
+                    <CodeTabs titulo="De precios a rendimientos y volatilidad" bloques={EJ_RENDIMIENTOS}
+                        nota="Los dos lenguajes dan la misma cifra porque los datos son literales. Un bloque que simule no puede prometer eso." />
+
+                    <Box type="danger" label="Toda salida declarada debe haberse ejecutado">
+                        La comprobación 9 extrae estos bloques, los corre en Python y en R, y compara
+                        su salida real con la declarada. Es la única defensa contra una cifra que
+                        envejece mal: un número equivocado no se ve en pantalla, se lee como cualquier
+                        otro. Aquí se ejecutan <strong>los dos</strong> lenguajes del curso, así que el
+                        material queda auditado por completo.
+                    </Box>
+
+                    <h3>Gráficas</h3>
+                    <p>
+                        Las series se embeben decimadas —máximo 1500 puntos— y un capítulo que pase de
+                        400 KB se parte. Lo comprueba la regla 12. Una gráfica y el bloque que la
+                        produce van juntos y con las <strong>mismas cifras</strong>: si la línea del
+                        VaR de la figura no coincide con el número que imprime el código, el material
+                        contiene el error que enseña a cazar.
+                    </p>
+                    <CodeTabs titulo="El VaR y el ES de la muestra" bloques={EJ_VAR_ES}
+                        nota="Son las cifras que marcan las dos líneas verticales de la figura de abajo." />
+                    <ChartFrame id="demo-cola" height="chart-h-320"
+                        caption="Las veinte pérdidas de la muestra. En rojo, las que superan el VaR: el ES es su promedio." />
+
+                    <h3>Estructuras de contenido</h3>
+                    <Pipeline steps={[
+                        { title: 'Datos', desc: 'Precios congelados del CSV' },
+                        { title: 'Rendimientos', desc: 'Logarítmicos, para poder agregar' },
+                        { title: 'Volatilidad', desc: 'EWMA o GARCH' },
+                        { title: 'VaR y ES', desc: 'Con su supuesto de cola declarado' },
+                        { title: 'Backtesting', desc: 'Kupiec, Christoffersen, Acerbi-Székely' },
+                    ]} />
+
+                    <Accordion items={[
+                        {
+                            title: '¿Por qué rendimientos logarítmicos y no aritméticos?',
+                            content: 'Porque se suman en el tiempo: el rendimiento de cinco días es la suma de los cinco diarios. Los aritméticos no lo hacen, y esa es la razón de que agregarlos sumándolos sea uno de los errores que el material planta a propósito.',
+                        },
+                        {
+                            title: '¿Por qué 252 días para anualizar?',
+                            content: 'Es el número aproximado de ruedas bursátiles al año. Anualizar con 365 mezcla días en que el mercado no se movió porque estaba cerrado con días en que no se movió porque nadie operó, y solo lo segundo es información.',
+                        },
+                    ]} />
+                </>
             );
         };
 
-        const Seccion3 = () => (
-            <div className="prose-lp">
-                <Motivacion icon="fa-chart-line"
-                    gancho="Un número solo no significa nada: significa algo cuando se puede comparar.">
-                    «$12 160 000» no es bueno ni malo. Puesto al lado de lo que el cliente recibió, se vuelve
-                    un costo; puesto sobre la curva del saldo mes a mes, muestra si la cuota alcanza a bajar
-                    la deuda o apenas paga intereses; puesto junto a otro crédito, se vuelve una decisión.
+        /* ============================================================
+           SECCIÓN 2 — LOS NUEVE TIPOS DE EJERCICIO
+        ============================================================ */
+        const Seccion2 = () => (
+            <>
+                <Motivacion icon="fa-clipboard-question"
+                    gancho="Un ejercicio que se puede resolver leyendo la sección anterior en diagonal no mide nada: mide que el estudiante sabe buscar.">
+                    En la evaluación de 2025, el 80 % de los estudiantes calculó bien el VaR y el 30 %
+                    supo decir qué significaba para el capital del banco. El cálculo no era el
+                    problema. Por eso aquí no se pide escribir programas —eso es de los talleres—:
+                    se traza, se audita, se compara y se justifica.
                 </Motivacion>
 
-                <h3>Fórmulas con MathJax</h3>
-                <p>El interés compuesto se escribe en línea como \\( M = C(1+i)^n \\), y de forma destacada:</p>
-                <Eq>{'$$ M = C\\,(1+i)^{n} \\qquad\\text{y}\\qquad i_{ea} = \\left(1 + \\frac{j}{m}\\right)^{m} - 1 $$'}</Eq>
+                <TablaTraza
+                    titulo="R1 · Traza la recursión EWMA a mano"
+                    enunciado={<>Complete la varianza y la volatilidad de cada día. La recursión es <span className="inline-code">σ²ₜ = λ·σ²ₜ₋₁ + (1−λ)·r²ₜ₋₁</span> con λ = 0,94. Los valores son los mismos en los dos lenguajes: esa es justamente la idea.</>}
+                    codigo={EJ_EWMA}
+                    columnas={[
+                        { clave: 'paso', titulo: 'Día' },
+                        { clave: 'instruccion', titulo: 'Instrucción' },
+                        { clave: 'r', titulo: 'rₜ' },
+                        { clave: 'var', titulo: 'σ²ₜ × 10⁴' },
+                        { clave: 'sigma', titulo: 'σₜ (%)' },
+                    ]}
+                    filas={[
+                        { paso: '0', instruccion: ins('var_t = 0.000260', 'var_t <- 0.000260'), r: '—', var: '2.600', sigma: '1.6125' },
+                        { paso: '1', instruccion: ins('var_t = lam*var_t + (1-lam)*r**2', 'var_t <- lam*var_t + (1-lam)*r^2'), r: '−0.0191', var: '2.663', sigma: '1.6318' },
+                        { paso: '2', instruccion: ins('var_t = lam*var_t + (1-lam)*r**2', 'var_t <- lam*var_t + (1-lam)*r^2'), r: '0.0139', var: '2.619', sigma: '1.6183' },
+                        { paso: '3', instruccion: ins('var_t = lam*var_t + (1-lam)*r**2', 'var_t <- lam*var_t + (1-lam)*r^2'), r: '0.0149', var: '2.595', sigma: '1.6109' },
+                    ]}
+                    ocultas={['var', 'sigma']}
+                    pista="Eleve el rendimiento al cuadrado ANTES de multiplicar por (1−λ). Y recuerde que la tabla pide σ² multiplicada por diez mil."
+                />
 
-                <h3>Gráfica interactiva (Plotly)</h3>
-                <p>Las gráficas se reservan para los capítulos donde aportan; en el resto se prefiere SVG propio, más liviano.</p>
-                <SaldoChart />
+                <Ejercicio tipo="R2">
+                    <MCQ
+                        pregunta="Si el nivel de confianza pasa del 95 % al 99 % sobre la misma muestra, ¿qué le ocurre a la diferencia entre el ES y el VaR?"
+                        opciones={[
+                            { texto: 'Tiende a reducirse: quedan menos observaciones en la cola sobre las que promediar, y el promedio se acerca al propio corte.', correcta: true },
+                            { texto: 'Crece siempre, porque el ES crece más rápido que el VaR.', correcta: false },
+                            { texto: 'No cambia: la diferencia depende de la muestra, no del nivel.', correcta: false },
+                            { texto: 'Se vuelve negativa a partir del 99 %.', correcta: false },
+                        ]}
+                    />
+                </Ejercicio>
 
-                <h3>Tablas</h3>
-                <div className="overflow-x-auto">
-                    <table>
-                        <thead><tr><th>Tipo</th><th>Nombre</th><th>Componente</th><th>Obligatorio</th></tr></thead>
-                        <tbody>
-                            <tr><td>E1</td><td>Prueba de escritorio</td><td><span className="inline-code">TablaTraza</span></td><td>Sí</td></tr>
-                            <tr><td>E2</td><td>Predice la salida</td><td><span className="inline-code">MCQ</span></td><td>No</td></tr>
-                            <tr><td>E3</td><td>Detecta y diagnostica</td><td><span className="inline-code">DetectaError</span></td><td>Sí</td></tr>
-                            <tr><td>E4</td><td>Equivalencia</td><td><span className="inline-code">Comparador</span></td><td>No</td></tr>
-                            <tr><td>E5</td><td>Ordena los pasos</td><td><span className="inline-code">OrdenaPasos</span></td><td>No</td></tr>
-                            <tr><td>E6</td><td>Emparejamiento</td><td><span className="inline-code">Emparejamiento</span></td><td>No</td></tr>
-                            <tr><td>E7</td><td>Interpretación financiera</td><td><span className="inline-code">MCQ</span> / <span className="inline-code">Reto</span></td><td>Sí</td></tr>
-                            <tr><td>E8</td><td>Justifica el diseño</td><td><span className="inline-code">Reto</span></td><td>No</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <DetectaError
+                    titulo="R3 · Audita a la IA"
+                    enunciado="Se le pidió a un modelo de lenguaje que calculara el VaR y el Expected Shortfall al 97,5 % de una serie de pérdidas. El código corre y no lanza ningún error. Señale la línea defectuosa y clasifique el error."
+                    lineas={IA_ES_MAL}
+                    lineaCorrecta={{ python: 7, r: 5 }}
+                    tipos={TIPOS_ERROR_RIESGO}
+                    tipoCorrecto={IDX_ERROR.medida}
+                    explicacion="El ES no es un cuantil: es la MEDIA de las pérdidas que superan el cuantil. Calculado así, el ES sale idéntico al VaR y el informe declara que la pérdida esperada en la cola es la misma que el corte de la cola, que es precisamente lo que el ES vino a corregir. Lo correcto es promediar las observaciones que exceden el VaR."
+                    impacto="Con la muestra del capítulo, el ES verdadero supera al VaR en 2,15 puntos porcentuales. Sobre un portafolio de 800 000 millones de pesos, el código de la IA subestima la pérdida esperada en la cola en unos 17 200 millones — y el requerimiento de capital que se deriva de ella."
+                />
+
+                <Comparador
+                    titulo="R4 · Dos formas de estimar la misma cola"
+                    enunciado={<>Ambas versiones estiman el riesgo de la cola sobre la misma muestra de pérdidas. Una supone una forma para la distribución; la otra no.</>}
+                    a={{
+                        etiqueta: 'A · Paramétrico normal',
+                        codigo: {
+                            python: `mu, sd = perdidas.mean(), perdidas.std(ddof=1)
+var = mu + 1.6449 * sd`,
+                            r: `mu <- mean(perdidas); sd <- sd(perdidas)
+var <- mu + 1.6449 * sd`,
+                        },
+                        nota: 'Usa toda la muestra, incluso el centro.',
+                    }}
+                    b={{
+                        etiqueta: 'B · Histórico',
+                        codigo: {
+                            python: `var = np.quantile(perdidas, 0.95)`,
+                            r: `var <- quantile(perdidas, 0.95, names = FALSE)`,
+                        },
+                        nota: 'Usa solo el orden de los datos.',
+                    }}
+                    pregunta="Con una muestra de colas pesadas como la de este capítulo, ¿cuál es la afirmación correcta?"
+                    opciones={[
+                        { texto: 'La versión A subestima el riesgo, porque la normal asigna a la cola menos probabilidad de la que los datos muestran.', correcta: true },
+                        { texto: 'Las dos coinciden, porque estiman el mismo cuantil.', correcta: false },
+                        { texto: 'La versión B es siempre preferible, sin condiciones.', correcta: false },
+                    ]}
+                />
+
+                <OrdenaPasos
+                    titulo="R5 · Ordene el procedimiento de backtesting"
+                    enunciado="Reconstruya el orden en que se valida un modelo de VaR. El orden importa: hay pasos que no se pueden hacer antes que otros sin invalidar la prueba."
+                    pasos={[
+                        'Fijar el nivel α y el horizonte ANTES de mirar los datos de prueba',
+                        'Estimar el modelo solo con la ventana de entrenamiento',
+                        'Pronosticar el VaR de cada día del periodo de prueba',
+                        'Marcar las excepciones: los días en que la pérdida superó su VaR',
+                        'Contrastar el número de excepciones con Kupiec (cobertura incondicional)',
+                        'Contrastar su independencia con Christoffersen (¿vienen agrupadas?)',
+                        'Ubicar el resultado en la zona semáforo y derivar el multiplicador de capital',
+                    ]}
+                    pista="Todo lo que se decida después de ver el resultado deja de ser una prueba y pasa a ser una justificación."
+                />
+
+                <Emparejamiento
+                    titulo="R6 · Cada medida con la norma que la exige"
+                    enunciado="Relacione cada medida o práctica con el marco normativo que la impone."
+                    etiquetaIzq="Medida o práctica"
+                    etiquetaDer="Marco que la exige"
+                    izquierda={[
+                        'Expected Shortfall al 97,5 %',
+                        'Horizonte de liquidez por clase de riesgo',
+                        'Sistema de administración de riesgo de mercado',
+                        'Colchón de activos líquidos a 30 días',
+                    ]}
+                    derecha={[
+                        'FRTB · Basilea (revisión del libro de negociación)',
+                        'FRTB · horizontes diferenciados de liquidación',
+                        'SARM · Superintendencia Financiera de Colombia',
+                        'LCR · Liquidity Coverage Ratio, Basilea III',
+                    ]}
+                    solucion={[0, 1, 2, 3]}
+                />
+
+                <Ejercicio tipo="R7">
+                    <Reto titulo="R7 · Qué significa este número para el comité">
+                        <p>
+                            El ES al 97,5 % a diez días del portafolio del fondo es de 4,2 %. El
+                            portafolio vale 800 000 millones de pesos. En el comité de riesgos alguien
+                            pregunta: «¿entonces cuánto podemos perder?».
+                        </p>
+                        <p>
+                            Redacte la respuesta en dos frases, sin fórmulas, de modo que sea
+                            <strong> correcta</strong> y no invite a leer el número como un máximo.
+                        </p>
+                    </Reto>
+                </Ejercicio>
+
+                <Ejercicio tipo="R8">
+                    <Reto titulo="R8 · Justifique el supuesto"
+                        solucion={<>
+                            <p>
+                                Porque son medidas distintas y el cambio no fue de nivel sino de
+                                <strong> objeto</strong>. El VaR al 99 % dice con qué frecuencia se
+                                rompe el umbral y nada sobre cuánto se pierde al romperlo; el ES al
+                                97,5 % promedia la cola entera. Basilea eligió 97,5 % y no 99 % para
+                                que el requerimiento de capital resultante fuera comparable en
+                                magnitud al del régimen anterior bajo una normal, de modo que el
+                                cambio corrigiera la medida sin producir un salto de capital que
+                                ninguna entidad podía absorber de golpe.
+                            </p>
+                            <p>
+                                Una respuesta que diga «porque el 97,5 % es más conservador» está mal:
+                                un nivel más bajo, por sí solo, es menos exigente. Lo que compensa es
+                                promediar la cola.
+                            </p>
+                        </>}>
+                        <p>
+                            El FRTB sustituyó el VaR al 99 % por el ES al 97,5 %. Un colega observa que
+                            97,5 % es <em>menos</em> exigente que 99 % y concluye que Basilea relajó el
+                            requerimiento. ¿Tiene razón? Justifique.
+                        </p>
+                    </Reto>
+                </Ejercicio>
+
+                <Laboratorio
+                    titulo="R9 · Mueva el nivel de confianza y mire la cola"
+                    id="demo-lab"
+                    enunciado="Las veinte pérdidas de la muestra, ordenadas. La línea rosada es el VaR y la roja el ES. Mueva α y observe qué le pasa a la distancia entre las dos."
+                    controles={[
+                        { id: 'alfa', etiqueta: 'Nivel de confianza α', min: 0.50, max: 0.95, paso: 0.05, valor: 0.90, formato: v => `${(v * 100).toFixed(0)} %` },
+                    ]}
+                    calcular={(p) => {
+                        const orden = [...PERDIDAS].sort((a, b) => a - b);
+                        const v = cuantil(orden, p.alfa);
+                        const cola = orden.filter(x => x > v);
+                        const es = cola.length ? cola.reduce((a, b) => a + b, 0) / cola.length : v;
+                        return {
+                            traces: [{
+                                x: orden, y: orden.map(() => 1), type: 'bar', width: 0.12,
+                                marker: { color: orden.map(x => x > v ? '#B91C1C' : '#3D008D') },
+                                hoverinfo: 'x', name: 'Pérdida',
+                            }],
+                            layout: {
+                                margin: { t: 34, r: 20, b: 45, l: 30 },
+                                xaxis: { title: 'Pérdida diaria (%)', range: [0.8, 8.8], zeroline: false },
+                                yaxis: { visible: false, range: [0, 1.35] },
+                                showlegend: false,
+                                shapes: [
+                                    { type: 'line', x0: v, x1: v, y0: 0, y1: 1.15, line: { color: '#ED1E79', width: 2, dash: 'dash' } },
+                                    { type: 'line', x0: es, x1: es, y0: 0, y1: 1.15, line: { color: '#B91C1C', width: 2 } },
+                                ],
+                                annotations: [
+                                    { x: v, y: 1.26, text: `VaR ${dec(v)} %`, showarrow: false, font: { size: 11, color: '#ED1E79' } },
+                                    { x: es, y: 1.26, text: `ES ${dec(es)} %`, showarrow: false, font: { size: 11, color: '#B91C1C' } },
+                                ],
+                            },
+                        };
+                    }}
+                    lectura={(p) => {
+                        const orden = [...PERDIDAS].sort((a, b) => a - b);
+                        const v = cuantil(orden, p.alfa);
+                        const cola = orden.filter(x => x > v);
+                        const es = cola.length ? cola.reduce((a, b) => a + b, 0) / cola.length : v;
+                        const n = cola.length;
+                        return `Al ${(p.alfa * 100).toFixed(0)} %, el VaR es ${dec(v)} % y el ES ${dec(es)} %: `
+                            + `una diferencia de ${dec(es - v)} puntos, promediando `
+                            + `${n} ${n === 1 ? 'observación' : 'observaciones'} de la cola.`;
+                    }}
+                    pregunta="Al llegar a α = 0,95 solo queda una observación en la cola. ¿Qué le pasa a la fiabilidad del ES estimado cuando el promedio se calcula sobre un solo dato?"
+                    nota="El cuantil se calcula aquí con el mismo método (tipo 7) que np.quantile y quantile() de R: si difiriera, la gráfica contradiría al bloque de código."
+                />
+            </>
         );
 
         /* ============================================================
-           EVALUACIÓN Y GLOSARIO
+           SECCIÓN 3 — COMPONENTES PROPIOS DEL CURSO
         ============================================================ */
-        const GLOSARIO = [
-            ['Algoritmo', 'Secuencia finita, precisa y ordenada de pasos que resuelve un problema.'],
-            ['Pseudocódigo', 'Notación intermedia entre el lenguaje natural y un lenguaje de programación. Es el lenguaje normativo del curso.'],
-            ['Prueba de escritorio', 'Ejecución manual de un algoritmo, anotando el valor de cada variable paso a paso.'],
-            ['Variable', 'Espacio de memoria con nombre cuyo contenido puede cambiar durante la ejecución.'],
-            ['Asignación', 'Operación que guarda un valor en una variable. No es una igualdad matemática: x <- x + 1 es válido.'],
-            ['Acumulador', 'Variable que conserva un total parcial y se actualiza en cada iteración.'],
-        ];
-
-        const EvaluacionSection = () => (
-            <div className="prose-lp">
-                <Motivacion icon="fa-flag-checkered" etiqueta="Antes de responder"
-                    gancho="Equivocarse aquí es barato. En el parcial cuesta una nota; en producción, dinero de alguien.">
-                    La tentación es mirar la respuesta, reconocerla y seguir: «claro, eso ya lo sabía». Es
-                    también la manera más rápida de salir del capítulo creyendo que se entendió algo que no.
-                    Un error propio, cometido antes de ver la clave, enseña más que diez respuestas correctas leídas.
+        const Seccion3 = () => (
+            <>
+                <Motivacion icon="fa-scale-balanced"
+                    gancho="Una norma citada sin decir qué cálculo la satisface se lee como contexto decorativo, y así es como se olvida.">
+                    Un analista sabe calcular el Expected Shortfall y sabe que existe el FRTB. Lo que
+                    no sabe —y lo que le preguntan en la entrevista— es cuál de los dos números que
+                    produjo es el que el supervisor va a pedirle, y por qué. Estos cuatro componentes
+                    existen para que esa unión no quede a cargo de la memoria del estudiante.
                 </Motivacion>
 
-                <Box type="info" label="Cómo aprovechar esta evaluación">
-                    Integra todo el capítulo. Conviene responder <em>antes</em> de ver las soluciones: el cuestionario
-                    tiene puntuación automática y admite reintentos.
-                </Box>
+                <h3>Derivación paso a paso</h3>
+                <Derivacion
+                    titulo="Del VaR al ES bajo normalidad"
+                    pasos={[
+                        {
+                            eq: <Eq>{'$$\\mathrm{VaR}_\\alpha = \\mu + z_\\alpha\\,\\sigma$$'}</Eq>,
+                            porque: 'Bajo normalidad el cuantil de la pérdida es una transformación afín del cuantil estándar. Todo lo que sigue hereda este supuesto, que es exactamente el que el capítulo 5 se dedica a poner en duda.',
+                        },
+                        {
+                            eq: <Eq>{'$$\\mathrm{ES}_\\alpha = \\mathbb{E}\\left[L \\mid L > \\mathrm{VaR}_\\alpha\\right]$$'}</Eq>,
+                            porque: 'La definición: no es un cuantil más alto, es la media condicional de la cola. Confundir las dos cosas es el error más frecuente del dominio y el que audita el ejercicio R3 de la sección anterior.',
+                        },
+                        {
+                            eq: <Eq>{'$$\\mathrm{ES}_\\alpha = \\mu + \\sigma\\,\\frac{\\phi(z_\\alpha)}{1-\\alpha}$$'}</Eq>,
+                            porque: 'Al integrar la densidad normal por encima del cuantil aparece φ(z), la densidad evaluada en el corte, dividida por la masa que queda en la cola. El cociente φ(z)/(1−α) es siempre mayor que z, y de ahí que el ES supere siempre al VaR.',
+                        },
+                    ]}
+                    cierre="Toda la cadena depende del primer paso. Si la distribución no es normal —y en el capítulo 1 se muestra que no lo es— la última fórmula sigue siendo aritmética correcta sobre un supuesto falso, que es la forma más difícil de detectar un error."
+                />
 
-                <h3>Cuestionario integrador</h3>
-                <Quiz titulo="Evaluación · Plantilla base" preguntas={[
-                    {
-                        pregunta: 'En el material, ¿cuál es el lenguaje normativo, es decir, el que se evalúa?',
-                        opciones: [
-                            { texto: 'VBA, porque es el que usa el sector financiero.', correcta: false },
-                            { texto: 'El pseudocódigo, porque expresa la lógica sin atarla a una herramienta.', correcta: true },
-                            { texto: 'Python, por ser el más legible.', correcta: false },
-                            { texto: 'R, por el perfil cuantitativo del programa.', correcta: false },
-                        ],
-                        justificacion: 'El RA1 del syllabus evalúa la construcción de algoritmos, no el dominio de un lenguaje. Los otros tres son traducciones que muestran que la lógica es invariante.',
-                    },
-                    {
-                        pregunta: 'La instrucción saldo <- saldo + cuota es incorrecta porque una variable no puede aparecer a ambos lados. (Verdadero/Falso)',
-                        opciones: [{ texto: 'Verdadero', correcta: false }, { texto: 'Falso', correcta: true }],
-                        justificacion: 'Falso. La asignación no es una ecuación: primero se evalúa la expresión de la derecha con el valor actual de saldo y luego el resultado se guarda en saldo. Es el patrón del acumulador.',
-                    },
-                    {
-                        pregunta: '¿Qué tipos de ejercicio son obligatorios en cada capítulo? (selección múltiple)',
-                        multiple: true,
-                        opciones: [
-                            { texto: 'E1 · Prueba de escritorio', correcta: true },
-                            { texto: 'E3 · Detecta y diagnostica', correcta: true },
-                            { texto: 'E5 · Ordena los pasos', correcta: false },
-                            { texto: 'E7 · Interpretación financiera', correcta: true },
-                        ],
-                        justificacion: 'E1, E3 y E7 son los que más empujan hacia la interpretación y la apropiación: ejecutar mentalmente, diagnosticar y traducir el resultado al negocio.',
-                    },
-                ]} />
+                <h3>Fichas normativas</h3>
+                <FichaNorma
+                    norma="Basilea III · FRTB"
+                    emisor="Comité de Supervisión Bancaria de Basilea"
+                    referencia="BCBS d457 (2019)"
+                    exige="Sustituir el VaR al 99 % por el Expected Shortfall al 97,5 % como medida de riesgo de mercado, calculado con horizontes de liquidez diferenciados por clase de factor de riesgo."
+                    enElCapitulo="El ES estimado por los tres métodos en el capítulo 5, y su escalamiento por horizonte de liquidez de la sección 5 de ese mismo capítulo."
+                    enlace="https://www.bis.org/bcbs/publ/d457.htm"
+                />
 
-                <h3>Glosario</h3>
-                <div className="grid md:grid-cols-2 gap-2">
-                    {GLOSARIO.map(([t, d], i) => (
-                        <div key={i} className="border border-gray-200 rounded-lg p-3 bg-white">
-                            <span className="font-bold text-primary text-sm">{t}</span>
-                            <p className="text-xs text-gray-600 mt-0.5" style={{ margin: '2px 0 0' }}>{d}</p>
-                        </div>
-                    ))}
+                <h3>Tablas de resultados de un modelo</h3>
+                <p>
+                    La salida de un <span className="inline-code">arch_model</span> no es decoración:
+                    es el objeto de estudio. Las cifras subrayadas traen su lectura.
+                </p>
+                <TablaResultados
+                    titulo="GARCH(1,1) con innovaciones t de Student"
+                    subtitulo="Rendimientos diarios del portafolio, 2018–2025"
+                    columnas={['Parámetro', 'Estimación', 'Error estándar', 'Estadístico t']}
+                    filas={[
+                        { celdas: ['ω (constante)', { v: '0.0000041', lee: 'La constante fija el nivel de largo plazo. Dividida por (1 − α − β) da la varianza incondicional: es a lo que el pronóstico converge cuando el horizonte crece.' }, '0.0000012', '3.42'] },
+                        { celdas: ['α (reacción)', { v: '0.089', lee: 'Cuánto pesa la sorpresa de ayer. Un α alto produce una volatilidad nerviosa, que salta con cada movimiento fuerte.' }, '0.021', '4.24'] },
+                        { celdas: ['β (persistencia)', { v: '0.897', lee: 'Cuánto pesa la volatilidad de ayer. Un β alto produce memoria larga: el susto tarda semanas en disiparse.' }, '0.024', '37.4'] },
+                        { celdas: ['α + β', { v: '0.986', lee: 'La persistencia total. Muy cerca de 1 significa que los choques casi no se olvidan; por encima de 1 el modelo carece de varianza de largo plazo y NO debe reportarse sin comentarlo. Ese es uno de los errores que audita el capítulo 2.' }, '—', '—'] },
+                        { celdas: ['ν (grados de libertad)', { v: '5.8', lee: 'Una t con menos de 30 grados de libertad tiene colas visiblemente más pesadas que la normal. Con 5,8 el supuesto de normalidad queda descartado por los propios datos.' }, '0.9', '—'] },
+                    ]}
+                    nota="Los valores son ilustrativos: la plantilla no depende de datos/."
+                />
+
+                <h3>Nivel de uso de IA</h3>
+                <p>
+                    El syllabus se compromete con niveles declarados por instrumento. Como el material
+                    de estudio no es un instrumento calificado, el nivel se declara por
+                    <strong> tipo de ejercicio</strong>, que es donde la distinción tiene consecuencias:
+                </p>
+                <div className="grid gap-2 my-4" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))' }}>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
+                        <NivelIA nivel={1} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R1, R2, R3, R5, R6, R9 y el cuestionario</span>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
+                        <NivelIA nivel={2} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R4 y R7</span>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
+                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R8 y los talleres Quarto</span>
+                    </div>
                 </div>
+                <Box type="info" label="Por qué casi todo está en nivel 1">
+                    No es rigidez. El material de estudio existe para construir el criterio que después
+                    se usa <strong>con</strong> la IA en los talleres y <strong>sin</strong> ella en la
+                    defensa oral. Si se delega el andamio, no queda nada sobre lo que colaborar. El caso
+                    extremo es R3: pedirle a la IA que audite a la IA es circular.
+                </Box>
+            </>
+        );
 
-                <h3>Recursos</h3>
-                <Accordion items={[
+        /* ============================================================
+           EVALUACIÓN Y GUÍA DE AUTORÍA
+        ============================================================ */
+        const EvaluacionSection = () => (
+            <>
+                <Motivacion icon="fa-award"
+                    gancho="Si el capítulo se escribió bien, el cuestionario no enseña nada nuevo: solo confirma.">
+                    El cuestionario final no es un examen. Es el punto en que el estudiante descubre,
+                    a solas y sin costo, cuál de las cosas que creía entendidas no lo estaba. Cuanto
+                    antes ocurra ese descubrimiento, más barato sale.
+                </Motivacion>
+
+                <Quiz titulo="Cuestionario integrador de la plantilla" preguntas={[
                     {
-                        titulo: 'Bibliografía base del syllabus', contenido: <ul className="text-sm">
-                            <li>Joyanes Aguilar, L. (2003). <em>Fundamentos de programación: algoritmos, estructuras de datos y objetos</em>. McGraw-Hill.</li>
-                            <li>Cairo, O. (2008). <em>Metodología de la programación: algoritmos, diagramas de flujo y programas</em>. Alfaomega.</li>
-                            <li>Oviedo, E. (2005). <em>Lógica de programación</em>. ECOE Ediciones.</li>
-                            <li>Walkenbach, J. <em>Excel Power Programming with VBA</em>. Wiley.</li>
-                            <li>Roman, S. (2002). <em>Writing Excel Macros with VBA</em>. O'Reilly.</li>
-                        </ul>
+                        pregunta: '¿Cuál es el bloque que NUNCA se edita a mano en un capítulo?',
+                        opciones: [
+                            { texto: 'El delimitado por TR-CORE INICIO y TR-CORE FIN', correcta: true },
+                            { texto: 'El objeto CONFIG', correcta: false },
+                            { texto: 'El arreglo curriculum', correcta: false },
+                        ],
+                    },
+                    {
+                        pregunta: '¿Por qué todo bloque de código debe ir dentro de un CodeTabs?',
+                        opciones: [
+                            { texto: 'Porque Python y R comparten el prefijo #>, y fuera del CodeTabs nada dice con qué intérprete ejecutar la salida declarada', correcta: true },
+                            { texto: 'Por consistencia visual, únicamente', correcta: false },
+                            { texto: 'Porque Prism no resalta bloques sueltos', correcta: false },
+                        ],
+                    },
+                    {
+                        pregunta: '¿Qué NO se puede calcular dentro de un componente Laboratorio?',
+                        opciones: [
+                            { texto: 'Un GARCH ajustado por máxima verosimilitud', correcta: true },
+                            { texto: 'Un cuantil empírico', correcta: false },
+                            { texto: 'La recursión EWMA', correcta: false },
+                            { texto: 'La fórmula cerrada de Black-Scholes', correcta: false },
+                        ],
+                    },
+                    {
+                        pregunta: 'Un bloque simula con semilla 2026 en Python y en R. ¿Qué ocurre?',
+                        opciones: [
+                            { texto: 'Las dos pestañas muestran cifras distintas: son generadores diferentes, y el material afirmaría dos cosas a la vez', correcta: true },
+                            { texto: 'Coinciden, porque la semilla es la misma', correcta: false },
+                            { texto: 'Coinciden si además se fija el número de decimales', correcta: false },
+                        ],
                     },
                 ]} />
-            </div>
+
+                <h3>Las reglas que comprueba el verificador</h3>
+                <Tabs tabs={[
+                    {
+                        label: 'Estructura',
+                        content: (
+                            <ul>
+                                <li><strong>1 · Deriva.</strong> El bloque TR-CORE coincide byte a byte con la plantilla.</li>
+                                <li><strong>3 · Componentes.</strong> Todo componente usado existe.</li>
+                                <li><strong>5 · Motivación.</strong> Cada sección del curriculum abre con <span className="inline-code">&lt;Motivacion&gt;</span>.</li>
+                                <li><strong>12 · Peso.</strong> Ningún capítulo pasa de 400 KB.</li>
+                            </ul>
+                        ),
+                    },
+                    {
+                        label: 'Código',
+                        content: (
+                            <ul>
+                                <li><strong>4 · CodeTabs.</strong> Cada bloque trae Python y R.</li>
+                                <li><strong>7 · Salida.</strong> Dentro del bloque, con el prefijo <span className="inline-code">#&gt;</span>.</li>
+                                <li><strong>9 · Salidas ejecutadas.</strong> Lo declarado es lo que el código produce.</li>
+                            </ul>
+                        ),
+                    },
+                    {
+                        label: 'Ejercicios',
+                        content: (
+                            <ul>
+                                <li><strong>2 · Cuota.</strong> La taxonomía R1–R9; R1, R3, R7 y R9 son obligatorios.</li>
+                                <li><strong>6 · Multilingües.</strong> Si un ejercicio se presenta en varios lenguajes, los trae los dos, y <span className="inline-code">lineaCorrecta</span> va por lenguaje.</li>
+                                <li><strong>8 · Texto por lenguaje.</strong> Un enunciado fijo no puede citar «la línea N».</li>
+                                <li><strong>11 · Enunciados.</strong> Ningún ejercicio pide escribir un programa desde cero.</li>
+                            </ul>
+                        ),
+                    },
+                ]} />
+
+                <CalloutPro tema="warn" titulo="El gold nunca va como texto sobre fondo claro"
+                    subtitulo="1,66:1 de contraste, muy por debajo del mínimo WCAG AA">
+                    <p>
+                        Su lugar es la barra lateral navy y los iconos. La comprobación 10 avisa de cada
+                        uso por debajo de 3,0:1 y sale como <strong>aviso</strong>, no como falla: el
+                        mismo color puede ser correcto o incorrecto según lo que lo envuelva, y un
+                        veredicto automático daría confianza falsa. Un uso ya revisado se calla
+                        escribiendo <span className="inline-code">contraste-ok</span> con el motivo.
+                    </p>
+                </CalloutPro>
+            </>
         );
 
         /* ============================================================
@@ -731,9 +720,9 @@ Debug.Print saldo`,
         const curriculum = [
             { id: 'portada', title: 'Portada y objetivos', icon: 'BookOpen', component: PortadaSection },
             { id: 'sec1', title: '1. Componentes de contenido', icon: 'Layers', component: Seccion1 },
-            { id: 'sec2', title: '2. Los ocho tipos de ejercicio', icon: 'Bug', component: Seccion2 },
-            { id: 'sec3', title: '3. Gráficas, fórmulas y datos', icon: 'Table', component: Seccion3 },
-            { id: 'eval', title: 'Evaluación y glosario', icon: 'Award', component: EvaluacionSection },
+            { id: 'sec2', title: '2. Los nueve tipos de ejercicio', icon: 'Bug', component: Seccion2 },
+            { id: 'sec3', title: '3. Componentes propios del curso', icon: 'Table', component: Seccion3 },
+            { id: 'eval', title: 'Evaluación y guía de autoría', icon: 'Award', component: EvaluacionSection },
         ];
 
         /* ============================================================
@@ -788,7 +777,7 @@ Debug.Print saldo`,
                             {/* contraste-ok: el gold va sobre el navy de `tr-header`, no sobre el fondo claro */}
                             <p className="text-[0.65rem] uppercase tracking-widest text-gold font-bold">Universidad Santo Tomás</p>
                             <h1 className="text-white font-bold text-lg tracking-tight mt-1">
-                                Lógica de Programación Financiera
+                                Teoría del Riesgo
                             </h1>
                             <p className="text-xs text-white/60 mt-1">
                                 Capítulo {CONFIG.numero} · <span className="text-secondary font-semibold">{CONFIG.titulo}</span>
@@ -806,8 +795,9 @@ Debug.Print saldo`,
                         </nav>
 
                         <div className="p-4 text-[10px] text-white/40 border-t border-white/10">
+                            <p>{CONFIG.unidad}</p>
                             <p>{CONFIG.ra} · {CONFIG.horas} horas</p>
-                            <p>Pseudocódigo · Python · R · VBA</p>
+                            <p>Python · R</p>
                         </div>
                     </aside>
 
@@ -851,7 +841,7 @@ Debug.Print saldo`,
                                     </div>
                                 )}
 
-                                <div className="animate-fade-in" key={activeLesson.id}>
+                                <div className="prose-tr animate-fade-in" key={activeLesson.id}>
                                     <ActiveComponent />
                                 </div>
 
@@ -876,16 +866,16 @@ Debug.Print saldo`,
                                             <strong>Capítulo {CONFIG.numero} · {CONFIG.titulo}</strong>
                                         </p>
                                         <p className="text-xs mt-1 text-white/80 italic">
-                                            La lógica es la misma; el lenguaje solo cambia de acento.
+                                            Medir es fácil; defender el supuesto es el oficio.
                                         </p>
                                         <p className="text-xs mt-2 text-white/70">
-                                            Universidad Santo Tomás · Lógica de Programación Financiera
+                                            Universidad Santo Tomás · Teoría del Riesgo
                                         </p>
                                         <p className="text-xs text-white/70">
                                             Docente y diseño del material: {CONFIG.docente}
                                         </p>
                                         <p className="text-[10px] mt-2 text-white/50">
-                                            Material de aprendizaje autónomo. Casos contextualizados al sector financiero colombiano.
+                                            Material de aprendizaje autónomo. Casos contextualizados al mercado financiero colombiano.
                                         </p>
                                     </div>
                                 </footer>

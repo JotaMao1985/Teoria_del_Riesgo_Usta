@@ -174,54 +174,60 @@
             height: 420px;
         }
 
-        .prose-lp p {
+        .prose-tr p {
             margin-bottom: 1rem;
             line-height: 1.75;
         }
 
-        .prose-lp h3 {
+        .prose-tr h3 {
             color: #ED1E79;
             font-weight: 600;
             font-size: 1.2rem;
             margin: 1.8rem 0 0.6rem;
         }
 
-        .prose-lp h4 {
+        .prose-tr h4 {
             color: #001A4D;
             font-weight: 600;
             font-size: 1.05rem;
             margin: 1.4rem 0 0.4rem;
         }
 
-        .prose-lp ul {
+        .prose-tr ul {
             list-style: disc;
             padding-left: 1.5rem;
             margin-bottom: 1rem;
         }
 
-        .prose-lp ol {
+        .prose-tr ol {
             list-style: decimal;
             padding-left: 1.5rem;
             margin-bottom: 1rem;
         }
 
-        .prose-lp li {
+        .prose-tr li {
             margin-bottom: 0.35rem;
             line-height: 1.65;
         }
 
-        .prose-lp strong {
+        .prose-tr strong {
             color: #0F172A;
         }
 
-        .prose-lp table {
+        /* Las tablas escritas a mano en la prosa de un capítulo reciben este
+           estilo por omisión. Las de los COMPONENTES no: llevan la clase
+           `tabla-componente` y se excluyen aquí. Sin esa exclusión, la regla
+           de `th` pintaría de lila claro la cabecera navy de
+           `TablaResultados`, cuyo texto es blanco — y el resultado sería
+           blanco sobre casi blanco, ilegible y sin ningún error visible. */
+        .prose-tr table:not(.tabla-componente) {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9rem;
             margin: 1rem 0;
         }
 
-        .prose-lp th {
+        .prose-tr table:not(.tabla-componente) th {
             background: #F5F0FA;
             color: #001A4D;
             text-align: left;
@@ -229,7 +235,7 @@
             border: 1px solid #E2E8F0;
         }
 
-        .prose-lp td {
+        .prose-tr table:not(.tabla-componente) td {
             padding: 0.6rem 0.8rem;
             border: 1px solid #E2E8F0;
             vertical-align: top;

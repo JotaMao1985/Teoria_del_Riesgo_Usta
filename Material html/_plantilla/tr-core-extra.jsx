@@ -276,6 +276,11 @@
 
         const lenguajesDe = (v) => esMapaDeLenguajes(v) ? LANG_ORDEN.filter(l => l in v) : [];
 
+        /* Atajo para las instrucciones cortas de una traza o de un ejercicio:
+           `ins('r = np.diff(...)', 'r <- diff(...)')` en vez de escribir el
+           objeto entero. El orden de los argumentos es el de las pestañas. */
+        const ins = (python, r) => ({ python, r });
+
         const useLenguajeActivo = (disponibles, defecto = LANG_DEFECTO) => {
             const clave = disponibles.join('|');
             const elegir = () => {
@@ -464,7 +469,7 @@
                     </p>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm border-collapse">
+                        <table className="tabla-componente w-full text-sm border-collapse">
                             <thead>
                                 <tr>
                                     {columnas.map(c => (
@@ -972,6 +977,362 @@
                             </Box>
                         </div>
                     )}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           TAXONOMÍA DE ERRORES DEL DOMINIO — la clave de R3
+           Se define UNA vez aquí y los capítulos la reutilizan, en vez de
+           inventar una lista por ejercicio. Dos motivos: el estudiante
+           aprende a clasificar con el mismo vocabulario en los quince
+           capítulos, y los distractores dejan de delatar la respuesta —si
+           cada ejercicio trae sus propias opciones, la que «suena» al tema
+           del capítulo es casi siempre la correcta—.
+
+           Un ejercicio pasa `tipos={TIPOS_ERROR_RIESGO}` y `tipoCorrecto`
+           con el índice; usar `IDX_ERROR` en vez del número hace el JSX
+           legible y sobrevive a un reordenamiento de la lista.
+        ============================================================ */
+        const TIPOS_ERROR_RIESGO = [
+            'Supuesto no verificado — se aplica una fórmula cuya condición nadie comprobó',
+            'Confusión de medida — se calcula una magnitud y se reporta como si fuera otra',
+            'Fuga de información — el cálculo usa datos que en el momento de decidir no existían',
+            'Convención equivocada — base de conteo, calendario, periodicidad o unidad que no es la del instrumento',
+            'Estimador inconsistente — el estadístico no corresponde al parámetro que el modelo necesita',
+            'Resultado sin incertidumbre — se reporta un número simulado o estimado sin su error',
+            'Interpretación indebida — el número está bien y la conclusión que se saca de él no',
+        ];
+
+        const IDX_ERROR = {
+            supuesto: 0, medida: 1, fuga: 2, convencion: 3,
+            estimador: 4, incertidumbre: 5, interpretacion: 6,
+        };
+
+        /* ============================================================
+           NIVEL DE USO DE IA (AI Assessment Scale)
+           El syllabus se compromete con niveles declarados. El material de
+           estudio no es un instrumento calificado, así que el nivel se
+           declara por TIPO DE EJERCICIO —donde la distinción tiene
+           consecuencias— y el capítulo muestra además el del instrumento
+           que prepara.
+        ============================================================ */
+        const AIAS = {
+            1: { nombre: 'No AI', color: '#B91C1C', icon: 'fa-ban', que: 'Se resuelve sin asistencia de IA.' },
+            2: { nombre: 'AI Planning', color: '#B45309', icon: 'fa-lightbulb', que: 'La IA ayuda a explorar y planear; el resultado y su defensa son suyos.' },
+            3: { nombre: 'AI Collaboration', color: '#0E7490', icon: 'fa-handshake-angle', que: 'La IA participa en el desarrollo y usted la verifica, con bitácora de prompts.' },
+            4: { nombre: 'Full AI', color: '#15803D', icon: 'fa-robot', que: 'La IA ejecuta y usted dirige y evalúa el resultado.' },
+            5: { nombre: 'AI Exploration', color: '#7C3AED', icon: 'fa-flask', que: 'Uso creativo y exploratorio de la IA como coautora.' },
+        };
+
+        const NivelIA = ({ nivel = 1, nota, compacto = false }) => {
+            const a = AIAS[nivel] || AIAS[1];
+            if (compacto) {
+                return (
+                    <span className="inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wider font-bold text-white rounded px-2 py-0.5 align-middle"
+                        style={{ background: a.color }} title={a.que}>
+                        <i className={`fas ${a.icon} text-[0.6rem]`}></i>{`IA ${nivel} · ${a.nombre}`}
+                    </span>
+                );
+            }
+            return (
+                <div className="my-4 flex items-start gap-3 rounded-xl border p-3 bg-white" style={{ borderColor: a.color + '55' }}>
+                    <span className="flex-shrink-0 text-white rounded-lg px-2.5 py-2 text-center" style={{ background: a.color }}>
+                        <i className={`fas ${a.icon}`}></i>
+                        <span className="block text-[0.6rem] font-bold mt-0.5">{`NIVEL ${nivel}`}</span>
+                    </span>
+                    <div className="min-w-0">
+                        <p className="text-sm font-bold text-navy" style={{ margin: 0 }}>
+                            {`Uso de IA · ${a.nombre}`}
+                            <span className="ml-2 text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider">AI Assessment Scale</span>
+                        </p>
+                        <p className="text-[0.85rem] text-gray-600 mt-0.5" style={{ margin: '0.15rem 0 0' }}>{a.que}</p>
+                        {nota && <p className="text-xs text-gray-500 italic mt-1" style={{ margin: '0.35rem 0 0' }}>{nota}</p>}
+                    </div>
+                </div>
+            );
+        };
+
+        /* ============================================================
+           FICHA NORMATIVA
+           Basilea III, FRTB y los cuatro sistemas de la Superfinanciera
+           aparecen en las tres unidades. Un `Box` genérico no deja ver lo
+           que aquí importa: qué exige la norma y QUÉ CÁLCULO DEL CAPÍTULO
+           la satisface. Sin esa segunda línea la regulación se lee como
+           contexto decorativo, que es justo como se olvida.
+        ============================================================ */
+        const FichaNorma = ({ norma, emisor, referencia, exige, enElCapitulo, enlace, children }) => (
+            <div className="my-5 rounded-2xl border-2 overflow-hidden shadow-sm" style={{ borderColor: '#001A4D22' }}>
+                <div className="px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1" style={{ background: '#001A4D' }}>
+                    {/* contraste-ok: el gold va sobre el navy de la cabecera, no sobre el fondo claro */}
+                    <i className="fas fa-scale-balanced text-gold"></i>
+                    <span className="text-white font-bold text-[0.95rem]">{norma}</span>
+                    {emisor && <span className="text-[0.65rem] uppercase tracking-widest text-gray-300 font-semibold">{emisor}</span>}
+                    {referencia && <span className="ml-auto text-[0.7rem] text-gray-300 font-mono">{referencia}</span>}
+                </div>
+                <div className="bg-white px-4 py-3 space-y-2.5">
+                    <div>
+                        <p className="text-[0.65rem] uppercase tracking-wider font-bold text-gray-400" style={{ margin: 0 }}>Qué exige</p>
+                        <p className="text-[0.9rem] text-gray-700" style={{ margin: '0.15rem 0 0' }}>{exige}</p>
+                    </div>
+                    <div className="rounded-lg px-3 py-2" style={{ background: '#F5F0FB' }}>
+                        <p className="text-[0.65rem] uppercase tracking-wider font-bold text-primary" style={{ margin: 0 }}>
+                            <i className="fas fa-link mr-1"></i>Qué cálculo de este capítulo la satisface
+                        </p>
+                        <p className="text-[0.9rem] text-gray-700" style={{ margin: '0.15rem 0 0' }}>{enElCapitulo}</p>
+                    </div>
+                    {children}
+                    {enlace && (
+                        <p className="text-xs" style={{ margin: '0.5rem 0 0' }}>
+                            <a href={enlace} target="_blank" rel="noopener noreferrer" className="text-teal font-semibold hover:underline">
+                                <i className="fas fa-arrow-up-right-from-square mr-1"></i>Texto de la norma
+                            </a>
+                        </p>
+                    )}
+                </div>
+            </div>
+        );
+
+        /* ============================================================
+           DERIVACIÓN PASO A PASO
+           `Eq` muestra una fórmula terminada. Este curso vive de las
+           derivaciones —de la binomial a Black-Scholes hay ocho pasos y
+           cada uno tiene un porqué—, y una cadena de fórmulas sin
+           justificación se lee como un acto de fe.
+
+           El paso siempre se ve; el porqué se pliega. Así quien ya lo sabe
+           recorre la cadena de un vistazo y quien no, la abre.
+        ============================================================ */
+        const Derivacion = ({ titulo = 'Derivación', pasos, cierre }) => {
+            const [abiertos, setAbiertos] = useState(() => new Set());
+            const ref = useRef(null);
+            useTypeset(ref, [pasos, abiertos]);
+
+            const alternar = (i) => setAbiertos(prev => {
+                const s = new Set(prev);
+                s.has(i) ? s.delete(i) : s.add(i);
+                return s;
+            });
+            const todos = () => setAbiertos(prev => prev.size === pasos.length ? new Set() : new Set(pasos.map((_, i) => i)));
+
+            return (
+                <div ref={ref} className="my-6 rounded-2xl border p-4 bg-white shadow-sm" style={{ borderColor: '#3D008D22' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="text-white p-2 rounded-lg tr-gradient"><i className="fas fa-square-root-variable"></i></span>
+                        <h4 className="text-base font-bold text-navy" style={{ margin: 0 }}>{titulo}</h4>
+                        <button onClick={todos}
+                            className="ml-auto text-[0.7rem] font-semibold text-primary hover:text-secondary transition-colors">
+                            {abiertos.size === pasos.length ? 'Plegar los porqués' : 'Ver todos los porqués'}
+                        </button>
+                    </div>
+                    <ol className="space-y-2" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {pasos.map((p, i) => {
+                            const abierto = abiertos.has(i);
+                            return (
+                                <li key={i} className="rounded-xl border" style={{ borderColor: abierto ? '#ED1E7955' : '#E5E7EB' }}>
+                                    <div className="flex items-start gap-3 px-3 py-2">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold text-white tr-gradient mt-1">
+                                            {i + 1}
+                                        </span>
+                                        <div className="flex-1 min-w-0 overflow-x-auto">
+                                            <div className="text-center py-1">{p.eq}</div>
+                                        </div>
+                                        <button onClick={() => alternar(i)} aria-expanded={abierto}
+                                            className="flex-shrink-0 mt-1 text-[0.7rem] font-semibold px-2 py-1 rounded-lg border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/40 transition-colors">
+                                            <i className={`fas fa-chevron-down mr-1 transition-transform duration-200 ${abierto ? 'rotate-180' : ''}`}></i>
+                                            porqué
+                                        </button>
+                                    </div>
+                                    {abierto && (
+                                        <div className="px-3 pb-3 pl-12 animate-fade-in">
+                                            <p className="text-[0.88rem] text-gray-600 border-l-2 pl-3" style={{ borderColor: '#ED1E79', margin: 0 }}>
+                                                {p.porque}
+                                            </p>
+                                        </div>
+                                    )}
+                                </li>
+                            );
+                        })}
+                    </ol>
+                    {cierre && (
+                        <p className="text-[0.88rem] text-gray-700 mt-3 rounded-lg px-3 py-2" style={{ background: '#F5F0FB', margin: '0.75rem 0 0' }}>
+                            <i className="fas fa-flag-checkered text-primary mr-2"></i>{cierre}
+                        </p>
+                    )}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           TABLA DE RESULTADOS DE UN MODELO
+           La salida de un `arch_model` o las métricas de un scorecard son
+           el OBJETO DE ESTUDIO, no decoración. Una celda puede traer su
+           lectura: `{ v: '0.089', lee: 'Reacción a la sorpresa de ayer…' }`.
+           Las celdas con lectura se subrayan y, al pulsarlas, la muestran
+           debajo. Se eligió un panel y no un tooltip porque las lecturas
+           son de dos o tres líneas y un tooltip de ese tamaño es
+           inutilizable en un teléfono.
+        ============================================================ */
+        const TablaResultados = ({ titulo, subtitulo, columnas, filas, nota }) => {
+            const [activa, setActiva] = useState(null);
+            const leeDe = (c) => (c && typeof c === 'object' && !React.isValidElement(c)) ? c : null;
+            const valorDe = (c) => { const o = leeDe(c); return o ? o.v : c; };
+
+            const sel = activa && filas[activa[0]] ? leeDe(filas[activa[0]].celdas[activa[1]]) : null;
+
+            return (
+                <div className="my-5">
+                    {titulo && (
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <i className="fas fa-table-list text-secondary"></i>
+                            <span className="text-sm font-bold text-navy">{titulo}</span>
+                            {subtitulo && <span className="text-xs text-gray-500 italic">{subtitulo}</span>}
+                        </div>
+                    )}
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                        <table className="tabla-componente w-full text-sm bg-white" style={{ borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: '#001A4D' }}>
+                                    {columnas.map((c, i) => (
+                                        <th key={i} className="text-white text-left px-3 py-2 text-[0.78rem] font-semibold whitespace-nowrap">{c}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filas.map((f, i) => (
+                                    <tr key={i} className={i % 2 ? 'bg-gray-50/60' : ''}>
+                                        {f.celdas.map((c, j) => {
+                                            const o = leeDe(c);
+                                            const esta = activa && activa[0] === i && activa[1] === j;
+                                            return (
+                                                <td key={j} className="px-3 py-1.5 border-t border-gray-100 whitespace-nowrap"
+                                                    style={{ fontFamily: j ? "'Fira Code', monospace" : undefined }}>
+                                                    {o ? (
+                                                        <button onClick={() => setActiva(esta ? null : [i, j])}
+                                                            className={`text-left rounded px-1 -mx-1 transition-colors ${esta ? 'tr-gradient text-white' : 'text-primary hover:bg-primary/10'}`}
+                                                            style={{ textDecoration: esta ? 'none' : 'underline dotted', textUnderlineOffset: '3px' }}>
+                                                            {o.v}
+                                                        </button>
+                                                    ) : <span className="text-gray-700">{valorDe(c)}</span>}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    {sel ? (
+                        <div className="mt-2 rounded-xl border-l-4 px-3 py-2 animate-fade-in" style={{ borderColor: '#ED1E79', background: '#FDF2F8' }}>
+                            <p className="text-[0.88rem] text-gray-700" style={{ margin: 0 }}>
+                                <i className="fas fa-magnifying-glass-chart text-secondary mr-2"></i>{sel.lee}
+                            </p>
+                        </div>
+                    ) : (
+                        <p className="text-xs text-gray-400 italic mt-1.5" style={{ margin: '0.35rem 0 0' }}>
+                            <i className="fas fa-hand-pointer mr-1"></i>Las cifras subrayadas explican qué dicen.
+                        </p>
+                    )}
+                    {nota && <p className="text-xs text-gray-500 italic mt-1">{nota}</p>}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           R9 · LABORATORIO PARAMETRIZADO
+           Deslizadores que recalculan la gráfica en el navegador. Es lo que
+           justifica que el material sea HTML y no un PDF: mover α y ver
+           moverse la cola enseña en tres segundos lo que un párrafo no.
+
+           RESTRICCIÓN, y hay que respetarla: el cálculo ocurre aquí, en el
+           navegador, así que `calcular` solo puede hacer ARITMÉTICA —un
+           cuantil empírico, la recursión EWMA, la frontera de dos activos,
+           la fórmula de Black-Scholes—. Ajustar un GARCH o resolver un
+           programa cuadrático no cabe: eso se precomputa en Python sobre
+           una malla de parámetros, se embebe, y el deslizador interpola.
+           `modo` declara cuál de los dos es, para que quien lea el código
+           del capítulo no tenga que deducirlo.
+        ============================================================ */
+        const Laboratorio = ({ titulo = 'Laboratorio', enunciado, id, controles, calcular, lectura,
+            altura = 'chart-h-360', modo = 'directo', nota, pregunta }) => {
+            const inicial = () => Object.fromEntries(controles.map(c => [c.id, c.valor !== undefined ? c.valor : c.min]));
+            const [p, setP] = useState(inicial);
+            const [movido, setMovido] = useState(false);
+
+            // La dependencia es el ESTADO SERIALIZADO, no `calcular`: el
+            // capítulo la escribe como función en línea, así que su
+            // identidad cambia en cada render y usarla como dependencia
+            // redibujaría la gráfica sin parar.
+            const firma = JSON.stringify(p);
+            useEffect(() => {
+                const el = document.getElementById(id);
+                if (!el || !window.Plotly) return;
+                const { traces, layout } = calcular(p);
+                window.Plotly.react(id, traces, layout, { responsive: true, displayModeBar: false });
+            }, [id, firma]);
+
+            useEffect(() => () => {
+                if (window.Plotly) { try { window.Plotly.purge(id); } catch (e) { } }
+            }, [id]);
+
+            const fijar = (cid, v) => { setMovido(true); setP(prev => ({ ...prev, [cid]: v })); };
+            const reiniciar = () => { setMovido(false); setP(inicial()); };
+
+            return (
+                <div className="my-6 rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor: '#DDD6FE', background: '#FBFAFF' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-white p-2 rounded-lg" style={{ background: 'linear-gradient(135deg,#7C3AED 0%,#3D008D 100%)' }}>
+                            <i className="fas fa-sliders"></i>
+                        </span>
+                        <h4 className="text-base font-bold text-navy" style={{ margin: 0 }}>{titulo}</h4>
+                        <span className="ml-auto text-[0.65rem] uppercase tracking-wider font-bold text-white rounded px-2 py-0.5" style={{ background: '#7C3AED' }}>R9 · Laboratorio</span>
+                    </div>
+                    {enunciado && <p className="text-[0.9rem] text-gray-700 mb-3" style={{ margin: '0 0 0.75rem' }}>{enunciado}</p>}
+
+                    <div className="grid gap-3 mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(210px,1fr))' }}>
+                        {controles.map(c => (
+                            <label key={c.id} className="block">
+                                <span className="flex items-baseline justify-between text-[0.78rem] font-semibold text-navy mb-1">
+                                    <span>{c.etiqueta}</span>
+                                    <span className="text-secondary" style={{ fontFamily: "'Fira Code', monospace" }}>
+                                        {c.formato ? c.formato(p[c.id]) : p[c.id]}
+                                    </span>
+                                </span>
+                                <input type="range" className="tr-range" min={c.min} max={c.max} step={c.paso}
+                                    value={p[c.id]} aria-label={c.etiqueta}
+                                    onChange={e => fijar(c.id, parseFloat(e.target.value))} />
+                            </label>
+                        ))}
+                    </div>
+
+                    <ChartFrame id={id} height={altura} />
+
+                    {lectura && (
+                        <div className="rounded-xl px-3 py-2 border-l-4" style={{ borderColor: '#7C3AED', background: '#F5F3FF' }}>
+                            <p className="text-[0.88rem] text-gray-700" style={{ margin: 0 }}>
+                                <i className="fas fa-eye text-purple-600 mr-2"></i>{lectura(p)}
+                            </p>
+                        </div>
+                    )}
+
+                    {pregunta && (
+                        <p className="text-[0.88rem] text-gray-700 mt-3 font-medium" style={{ margin: '0.75rem 0 0' }}>
+                            <i className="fas fa-circle-question text-secondary mr-2"></i>{pregunta}
+                        </p>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-3 mt-3">
+                        <button onClick={reiniciar} disabled={!movido}
+                            className={`text-[0.72rem] font-semibold px-2.5 py-1 rounded-lg border transition-colors ${movido ? 'text-primary border-primary/40 hover:bg-primary/10' : 'text-gray-300 border-gray-200 cursor-default'}`}>
+                            <i className="fas fa-rotate-left mr-1"></i>Valores iniciales
+                        </button>
+                        <span className="text-[0.68rem] text-gray-400 italic">
+                            {modo === 'malla'
+                                ? 'Los valores vienen de una malla precomputada en Python; el deslizador interpola.'
+                                : 'El cálculo se hace en el navegador con los mismos datos del capítulo.'}
+                        </span>
+                    </div>
+                    {nota && <p className="text-xs text-gray-500 italic mt-2">{nota}</p>}
                 </div>
             );
         };
