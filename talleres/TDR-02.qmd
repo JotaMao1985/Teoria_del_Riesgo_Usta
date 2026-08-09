@@ -1,0 +1,240 @@
+---
+title: "Taller 2 · Volatilidad del portafolio: EWMA, ARCH y GARCH"
+subtitle: "Teoría del Riesgo · Unidad 1 · RA1"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la sección 6. Un
+taller sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es*
+uno de los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-02-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use
+`arch` donde el andamio use `rugarch`. El taller está escrito para las dos rutas
+y se califica igual por cualquiera de ellas — con una salvedad que la parte 4
+convierte en ejercicio.
+:::
+
+::: {.callout-warning}
+## La escala importa
+
+Los rendimientos van **en porcentaje** y no en tanto por uno. Con la serie sin
+escalar, la verosimilitud del GARCH se aplana y los optimizadores de los dos
+lenguajes fallan o devuelven coeficientes absurdos. Es la causa más frecuente de
+que un GARCH «no converja», y no aparece en ningún mensaje de error.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+```{r}
+#| label: parte1-carga
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w  <- c(0.30, 0.20, 0.25, 0.25)
+rp <- as.vector(diff(log(as.matrix(precios[, acciones]))) %*% w) * 100
+fechas <- precios$fecha[-1]
+
+cat(sprintf("Sesiones: %d   ·   sigma diaria: %.4f %%\n", length(rp), sd(rp)))
+```
+
+**1.1** Reproduzca la evidencia del agrupamiento: la autocorrelación de `r`, de
+`|r|` y de `r^2` hasta el rezago 5, y el estadístico de Ljung-Box a 10 rezagos de
+las tres series. Debe obtener **30,9 · 561,6 · 567,5**. Si no coinciden, el resto
+del taller estará mal y no lo sabrá.
+
+**1.2** Ajuste el GARCH(1,1) con innovaciones t y reporte ω, α, β, ν, la
+persistencia y la volatilidad de largo plazo anualizada. Diga con qué paquete y
+con qué versión lo hizo — `packageVersion("rugarch")` o `arch.__version__`—,
+porque la parte 4 va sobre eso.
+
+```{r}
+#| label: parte1-garch
+#| eval: false
+# Complete.
+# esp <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+#                   mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
+#                   distribution.model = "std")
+```
+
+**1.3** Verifique la condición de estacionariedad **antes** de calcular la
+volatilidad de largo plazo, y escriba la comprobación en el código, no en el
+texto. Si α + β resultara mayor o igual que uno, el cuaderno debe pararse con un
+mensaje y no seguir calculando.
+
+---
+
+## Parte 2 · Su propio activo
+
+```{r}
+#| label: parte2-activo
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d <- as.integer(substr(documento, nchar(documento), nchar(documento)))
+serie <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL",
+           "ICOLCAP.CL")[(d %% 5) + 1]
+serie
+```
+
+**2.1** Sobre *su* serie, estime la volatilidad por los tres caminos del
+capítulo: ventana móvil de 250, EWMA con λ = 0,94 y GARCH(1,1)-t. Grafique las
+tres en el mismo eje, con el nivel de largo plazo del GARCH marcado.
+
+**2.2** Localice en su serie **un efecto fantasma**: una caída de la ventana
+móvil que no corresponda a nada que pasara ese día. Reporte la fecha, la magnitud
+de la caída, qué observación salió de la ventana y cuánto se movió el mercado ese
+día. Si no encuentra ninguno, demuéstrelo: liste las cinco mayores caídas y
+explique qué las produjo.
+
+**2.3** Compare la persistencia de su activo con la del portafolio del capítulo
+(0,9248). ¿Los choques de volatilidad de su emisor duran más o menos que los de
+la cartera que lo contiene, y por qué era esperable esa dirección?
+
+---
+
+## Parte 3 · Validar, no convergir
+
+**3.1** Calcule los residuos estandarizados de su GARCH y aplique Ljung-Box a
+`z` y a `z^2` con 10 rezagos. Reporte los dos estadísticos junto a los de la
+serie cruda, en una tabla de cuatro filas.
+
+**3.2** Reporte la curtosis de exceso antes y después de estandarizar. Diga qué
+parte de las colas pesadas explicó el modelo y qué parte quedó, y relacione la
+cifra que quedó con el ν que devolvió el ajuste.
+
+**3.3** Un compañero le dice que su modelo es bueno «porque la log-verosimilitud
+es alta». Explique en cuatro líneas por qué esa frase no significa nada por sí
+sola, y qué comparación sí tendría sentido hacer con ese número.
+
+---
+
+## Parte 4 · El mismo modelo en los dos lenguajes
+
+Esta parte solo se puede hacer usando **los dos**. Es el único apartado del curso
+que lo exige, y la razón está en la sección 5 del capítulo.
+
+**4.1** Ajuste el mismo GARCH(1,1)-t sobre su serie con `rugarch` y con `arch`.
+Ponga los coeficientes de los dos en una sola tabla, con la log-verosimilitud.
+
+**4.2** Cuantifique la discrepancia en tres niveles: (a) en los coeficientes, (b)
+en la serie de σ condicional —diferencia media, máxima y correlación— y (c) en la
+σ de la última rueda, que es la que se reportaría.
+
+**4.3** Mire las **primeras veinte ruedas** de las dos series de σ por separado.
+Es probable que ahí la diferencia sea mucho mayor que en el resto. Explique por
+qué, y diga si esa diferencia tiene el mismo origen que la de los coeficientes.
+
+**4.4** Escriba la casilla «persistencia» de la ficha del modelo. Una línea, y
+después un párrafo justificando qué información la acompaña obligatoriamente.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que *«ajuste un GARCH(1,1) a una serie de
+rendimientos diarios y compruebe si el modelo captura el agrupamiento de
+volatilidad»*. Pegue aquí el prompt exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención dos cosas, que son los dos R3 del capítulo: si el
+diagnóstico se hizo sobre residuos **estandarizados** o crudos, y si alguien
+comprobó que la persistencia fuera menor que uno antes de usar la fórmula de la
+varianza de largo plazo.
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 7 · Pronóstico y memorando
+
+**7.1** Pronostique la σ de su activo a veinte ruedas y grafique el abanico con
+el nivel de largo plazo marcado. Reporte la σ a 1, 5, 10 y 20 ruedas y la
+**varianza acumulada** a diez días, que es la que hace falta para el VaR.
+
+**7.2** Compare esa varianza acumulada con lo que daría escalar el día 1 por la
+raíz de diez. Diga en qué dirección se equivoca la raíz del tiempo **hoy**, y por
+qué el signo del error depende de dónde esté la σ condicional respecto a su nivel
+de reposo.
+
+**7.3** Una página, sin fórmulas y sin código, para el comité de riesgos del
+fondo, que le pidió una nota sobre «si el límite de volatilidad del portafolio
+debe seguir fijándose con la ventana de 250 ruedas». Debe contener la
+recomendación en la primera frase, la evidencia en cifras que un lector sin
+estadística pueda seguir, qué se pierde al cambiar de estimador, y la salvedad
+sobre marzo de 2021.
+
+Si el memorando necesita la palabra «persistencia» para entenderse, todavía no
+está terminado.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1 reproduce las cifras del capítulo, incluida la verificación de estacionariedad en código | 15 % |
+| Parte 2: los tres estimadores sobre el activo propio y un efecto fantasma localizado y explicado | 20 % |
+| Parte 3: diagnóstico sobre residuos estandarizados y lectura de la curtosis restante | 15 % |
+| Parte 4: discrepancia entre paquetes cuantificada en los tres niveles y ficha del modelo redactada | 20 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: pronóstico correcto y memorando legible para quien no sabe estadística | 10 % |
+
+Se descuenta: diagnosticar sobre residuos crudos; usar la fórmula de la varianza
+de largo plazo sin comprobar la persistencia; presentar los coeficientes de un
+GARCH sin decir con qué paquete se obtuvieron; y ajustar con la serie en tanto
+por uno y reportar que «el modelo no converge».

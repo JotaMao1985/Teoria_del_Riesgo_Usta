@@ -906,7 +906,7 @@ un `04-cuerpo.jsx` no lo va a encontrar, y no es que se haya perdido.
 | Tarea | Capítulo | Alcance | Sesiones | Estado |
 |---|---|---|---|---|
 | 7 | C1 Riesgo, rendimiento y entorno | M | 1 | ✅ **2026-08-08** |
-| 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | pendiente |
+| 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | ✅ **2026-08-09** |
 | 9 | C3 CAPM | M | 1 | pendiente |
 | 10 | C5 Expected Shortfall | M | 1 | pendiente |
 | 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
@@ -923,6 +923,20 @@ un `04-cuerpo.jsx` no lo va a encontrar, y no es que se haya perdido.
 
 **Entregado:** `Material html/01_TDR_Riesgo_y_rendimiento.html` (311 KB) y
 `talleres/TDR-01.qmd`.
+
+#### Tarea 8 · Capítulo 2 completo (volatilidad) — **COMPLETADA 2026-08-09**
+
+**Criterios de aceptación:**
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] La cuota es exacta — `R1:2 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:2`, 15 ejercicios
+- [x] Las salidas `#>` coinciden con la ejecución real — 7 bloques en los dos lenguajes.
+      **Tres de ellos declaran cifras distintas en cada pestaña a propósito** (D-B), y la
+      regla 9 los admite porque compara cada lenguaje contra su propia salida
+- [x] Recorrido en el navegador: nueve secciones, cuatro gráficas, dos laboratorios y el
+      cuestionario, sin errores de consola
+- [x] Los dos laboratorios reproducen las cifras de los bloques de su sección
+
+**Entregado:** `Material html/02_TDR_Volatilidad.html` (315 KB) y `talleres/TDR-02.qmd`.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1190,6 +1204,58 @@ el SHA-256 de las instantáneas contra el manifiesto. R base no trae SHA-256. A�
 sin estar instalado en esta máquina. El bloque ejecutable de la parte 1 se corrió a mano
 con `Rscript` desde `talleres/` y da las cifras del capítulo; el resto son andamios con
 `#| eval: false`.
+
+---
+
+### Fase 2 — Tarea 8: capítulo 2 · 2026-08-09
+
+Nueve secciones, siete bloques ejecutados en los dos lenguajes, cuatro gráficas y dos
+laboratorios. Doce reglas en verde a la primera pasada de `--con-salidas`.
+
+**D-B aplicada, y midió más de lo que el plan anotaba.** La discrepancia entre `arch` y
+`rugarch` se reprodujo exacta —α 0,114614 contra 0,112637, persistencia 0,9248 contra
+0,9263, log-verosimilitud −3150,7748 contra −3150,4906— y al escribir la sección aparecieron
+**dos fuentes distintas de diferencia, no una**:
+
+- **El optimizador.** Sobre la serie de σ condicional, la diferencia media es de 0,0035
+  puntos porcentuales, la correlación es 0,9998 y en la última rueda —la que se reporta— una
+  dice 1,2922 % y la otra 1,2923 %. Los parámetros difieren en la tercera cifra; lo que se
+  decide con el modelo, no.
+- **La inicialización, que el plan no tenía anotada y es mucho mayor.** En la primera rueda
+  las dos σ difieren un 21 % —1,3048 % contra 1,5761 %— porque los dos paquetes arrancan la
+  recursión con convenciones distintas. La diferencia se apaga en unas veinte ruedas. Quien
+  compare paquetes sobre una muestra corta que empiece ahí estará midiendo sobre todo eso.
+
+Las dos cosas están en el capítulo, y el R8 de la sección 7 pide separarlas: la pregunta
+«¿qué persistencia lleva a la ficha?» está mal planteada a propósito, y darse cuenta es
+media respuesta.
+
+**Los dos laboratorios se cazaron mutuamente con los bloques, y uno estaba mal.** El de la
+sección 7 arrancaba la recursión del pronóstico en la σ condicional de la última rueda
+(1,2922 %) en vez de en el pronóstico a un día (1,3751 %), que es el que usa el rendimiento
+observado. Devolvía 1,4057 % a diez ruedas donde el bloque declara 1,4370 %, y su propia
+`nota` afirmaba que coincidían. Corregido: ahora devuelve 1,4369 %, a una diezmilésima, y la
+nota explica que el resto es el redondeo del deslizador.
+
+**Un desempate de redondeo, declarado en vez de escondido.** El laboratorio de EWMA muestra
+1,3326 % donde el bloque declara 1,3325 %. Los dos calculan 1,33255: la serie embebida está
+redondeada a cuatro decimales y el quinto decide hacia qué lado cae. Queda dicho en la nota
+del laboratorio, porque perseguir esa discrepancia cuesta una tarde.
+
+**Lo que el navegador volvió a cazar y el verificador no.** Nada de sintaxis esta vez —la
+lección del capítulo 1 sirvió— pero sí el laboratorio del pronóstico, que pasaba las doce
+reglas con una cifra que contradecía a su propio bloque. **La regla 9 audita los bloques de
+código, no los laboratorios**, y esa es una segunda zona ciega del verificador que conviene
+tener presente: lo que calcula el navegador solo lo comprueba quien lo abra.
+
+**Una decisión de peso que valió la pena.** EWMA y ventana móvil son aritmética, así que no
+se precomputan: los laboratorios las rehacen en el navegador desde `RP`. Solo la σ del GARCH
+llega precomputada, y decimada de dos en dos. El capítulo pesa 315 KB con cuatro gráficas y
+dos laboratorios, cómodamente por debajo del límite de 400 KB.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-02.qmd`. Quarto sigue
+sin estar instalado. El bloque ejecutable de la parte 1 se corrió a mano con `Rscript` y da
+las cifras del capítulo.
 
 ---
 

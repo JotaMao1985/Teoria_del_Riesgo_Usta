@@ -16,7 +16,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 capítulo 1 completada 2026-08-08** · siguen T8 (cap. 2), T9, T10, T11 |
+| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1) y T8 (cap. 2) completadas** · siguen T9 (cap. 3), T10 (cap. 5), T11 (cap. 6) |
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
@@ -33,12 +33,19 @@ que es donde se cuantifica y se declara la convención de rendimientos que usan 
   capítulo 4. El capítulo 2 lo cuenta; el 1 ya lo anuncia.
 - **D-C · punto de control B:** aprobado tal cual. Mismas convenciones para lo que queda.
 
-⚠️ **El verificador no parsea JavaScript.** Un error de sintaxis en el JSX del capítulo
-—`-a ** 2`, por ejemplo, que es ilegal— deja la página **en blanco** y `verificar.py`
-devuelve OK igual: las doce reglas son análisis estático de texto. **Abra el capítulo en el
-navegador y mire la consola antes de darlo por terminado**; en el capítulo 1 esa pasada
-cazó exactamente eso, y también un pie de gráfica que afirmaba lo contrario de lo que se
-veía.
+⚠️ **El verificador tiene dos zonas ciegas, y las dos se cierran abriendo el capítulo.**
+
+1. **No parsea JavaScript.** Un error de sintaxis en el JSX —`-a ** 2`, que es ilegal— deja
+   la página **en blanco** y `verificar.py` devuelve OK igual: las doce reglas son análisis
+   estático de texto. En el capítulo 1 esa pasada cazó exactamente eso.
+2. **La regla 9 audita los bloques de código, no los laboratorios.** Lo que calcula el
+   navegador solo lo comprueba quien lo abra. En el capítulo 2, el laboratorio del
+   pronóstico pasaba las doce reglas devolviendo 1,4057 % donde su propio bloque declara
+   1,4370 %, y su nota afirmaba que coincidían.
+
+Y una tercera cosa que solo se ve mirando: en el capítulo 1, un pie de gráfica afirmaba lo
+contrario de lo que la gráfica mostraba. **Abra el capítulo, recorra las secciones, mueva
+los deslizadores y mire la consola antes de darlo por terminado.**
 
 ## Ciclo de trabajo
 
