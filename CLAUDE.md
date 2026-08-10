@@ -16,14 +16,27 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2) y T9 (cap. 3) completadas** · siguen T10 (cap. 5) y T11 (cap. 6) |
+| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2), T9 (cap. 3) y T10 (cap. 5) completadas** · siguen **T10-bis (saneamiento)** y T11 (cap. 6) |
+
+⚠️ **Antes de escribir el capítulo 6 va la tarea 10-bis**, que arregla cuatro defectos
+que el verificador no ve y que cada capítulo nuevo hereda: el barajado de opciones
+—se toca el componente, así que hay que re-estampar y re-verificar los cinco—, el
+`Accordion` del capítulo 4, la clase `chart-h-400` y los `<title>` estáticos. El
+encargo completo, con criterios de aceptación, está en el plan.
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
 del 4, sobre todo la sección 3, donde el material trata las anomalías del panel, y la 4, el
-único bloque cuyas dos pestañas declaran cifras distintas a propósito; del 1, la sección 3,
+primer bloque cuyas dos pestañas declaran cifras distintas a propósito; del 1, la sección 3,
 que es donde se cuantifica y se declara la convención de rendimientos que usan los quince.
+
+El **capítulo 5** añade la segunda excepción de las dos pestañas —su bloque de Montecarlo— y
+la segunda convención de estimación declarada del curso: el **ES es el promedio simple de las
+ruedas que exceden el VaR**, no el ES exacto de la muestra. La brecha está medida y escrita
+(30 millones al 97,5 %, **884 al 99 %**), como la de agregación del capítulo 1. Cualquier
+capítulo que vuelva a calcular un ES —el 8, el 15— usa esa misma convención o declara por qué
+no.
 
 **Las tres decisiones abiertas están resueltas** (2026-08-08, detalle en el plan):
 
@@ -64,6 +77,24 @@ El capítulo 3 añadió dos zonas ciegas más, y ninguna es JavaScript:
    redondeados y el resultado sale del cálculo exacto, el estudiante multiplica lo que ve y
    la tabla le dice que está mal. Calcule cada casilla **desde los valores redondeados que
    se muestran**.
+
+El capítulo 5 añadió dos más, y la segunda afecta a todo lo escrito hasta ahora:
+
+5. **Ninguna regla valida los NOMBRES de las propiedades de un componente.** `Accordion`
+   recibe `titulo` y `contenido`; escribirle `title` y `content` —que es lo que usa el resto
+   del mundo React— deja el acordeón con las filas **vacías**, sin un error. Las doce reglas
+   pasan. ⚠️ **El capítulo 4 lo tiene sin corregir** en su sección 1. Antes de usar un
+   componente, mire su firma en `_plantilla/tr-core-extra.jsx` o `tr-core-base.jsx`.
+6. **`MCQ` y `Quiz` NO barajan las opciones.** En los capítulos 1 a 4 la respuesta correcta
+   es **siempre la primera**, 15 de 15 en cada uno: se saca 10 sobre 10 sin leer. El
+   capítulo 5 reparte la posición correcta entre las cuatro. Al escribir un capítulo nuevo,
+   repártalas; y decida si conviene barajar en el componente, que arregla los cuatro
+   anteriores de una vez pero obliga a re-estampar TR-CORE y re-verificar los cinco.
+
+Y una advertencia de estilo que el verificador tampoco ve: `chart-h-400` **no está definida**
+en el CSS y se usa trece veces en los capítulos 1 a 4. Plotly cae en su altura por omisión y
+la gráfica sale más alta de lo que el autor escribió. Las clases que existen son
+`chart-h-320`, `chart-h-360` y `chart-h-420`; el capítulo 5 solo usa esas.
 
 ## Ciclo de trabajo
 

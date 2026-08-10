@@ -8,7 +8,8 @@
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
 **Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
 D-A, D-B y D-C resueltas · **D-D declarada el 2026-08-09** (tasa libre de riesgo, pendiente
-de ratificar) · fase 2 en curso: **tareas 7, 8 y 9 completadas** — quedan T10 (C5) y T11 (C6)
+de ratificar) · fase 2 en curso: **tareas 7, 8, 9 y 10 completadas** — queda T11 (C6) para
+cerrar la unidad 1 y llegar al punto de control C
 
 ---
 
@@ -916,7 +917,8 @@ corrección de cifras por bloque.
 | 7 | C1 Riesgo, rendimiento y entorno | M | 1 | ✅ **2026-08-08** |
 | 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | ✅ **2026-08-09** |
 | 9 | C3 CAPM | M | 1 | ✅ **2026-08-09** |
-| 10 | C5 Expected Shortfall | M | 1 | pendiente |
+| 10 | C5 Expected Shortfall | M | 1 | ✅ **2026-08-09** |
+| **10-bis** | **Saneamiento de los capítulos 1–5** (4 defectos que el verificador no ve) | S | 1 | **pendiente — va antes de T11** |
 | 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
 
 #### Tarea 7 · Capítulo 1 completo — **COMPLETADA 2026-08-08**
@@ -960,6 +962,82 @@ corrección de cifras por bloque.
 - [x] Los dos laboratorios reproducen las cifras de los bloques de su sección
 
 **Entregado:** `Material html/03_TDR_CAPM.html` (331 KB) y `talleres/TDR-03.qmd`.
+
+#### Tarea 10 · Capítulo 5 completo (Expected Shortfall) — **COMPLETADA 2026-08-09**
+
+**Criterios de aceptación:**
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] La cuota es exacta — `R1:2 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:2`, 15 ejercicios
+- [x] Las salidas `#>` coinciden con la ejecución real — **ocho** bloques en los dos
+      lenguajes, 16 ejecutados y comparados. Siete coinciden dígito a dígito; el de
+      Montecarlo declara cifras distintas por pestaña a propósito, como el del
+      capítulo 4
+- [x] Recorrido en el navegador: siete secciones, tres gráficas, dos laboratorios y
+      el cuestionario, sin errores de consola
+- [x] Los dos laboratorios reproducen las cifras de los bloques de su sección
+- [x] Los dos R3 respondidos en pantalla **en los dos lenguajes**, y las dos
+      `TablaTraza` completadas: 8/8 celdas cada una
+
+**Entregado:** `Material html/05_TDR_Expected_shortfall.html` (301 KB) y
+`talleres/TDR-05.qmd`.
+
+#### Tarea 10-bis · Saneamiento de los capítulos 1–5 — **PENDIENTE**
+
+Cuatro defectos que la tarea 10 destapó al recorrer el capítulo 5 en el navegador y
+que **ninguna de las doce reglas puede ver**. Los cuatro están en material ya dado
+por terminado, así que se arreglan aparte y antes de escribir el capítulo 6: si se
+dejan para después, cada capítulo nuevo los hereda.
+
+**Decidido el 2026-08-09:** los cuatro entran, y el barajado se arregla **en el
+componente**, no repartiendo las opciones a mano en cada capítulo. Cuesta una
+re-estampada y una re-verificación de los cinco, y a cambio deja el problema
+cerrado para los diez capítulos que faltan.
+
+**1 · `MCQ` y `Quiz` no barajan las opciones.** En los cinco capítulos la respuesta
+correcta se declaró siempre en primer lugar —15 de 15 en cada uno—, de modo que se
+saca 10 sobre 10 sin leer el enunciado. El capítulo 5 ya reparte las suyas entre las
+cuatro posiciones, pero eso es una precaución del autor y no una garantía.
+
+- Se toca **`MCQ`** (`tr-core-base.jsx`, cerca de la línea 294) y **`Quiz`** (misma
+  fuente, cerca de la 362). `Comparador` delega en `MCQ` y no hay que tocarlo.
+- La permutación tiene que ser **estable**: derivada de un hash del texto de la
+  pregunta, no de `Math.random()`. Con azar por carga, el orden salta al recargar y
+  el docente no puede decir «la opción b» en clase; con el hash, cada pregunta tiene
+  su orden fijo y distinto.
+- `correcta` va en el objeto de la opción, así que barajar el arreglo no rompe la
+  calificación. Ojo con `justificacion`, que también viaja en el objeto.
+
+**2 · `Accordion` recibe `titulo` y `contenido`.** El capítulo 4 le pasa `title` y
+`content` en su sección 1: las tres filas de «las tres preguntas que el VaR no
+responde» están **vacías**. React no avisa de una propiedad que no existe.
+
+**3 · `chart-h-400` no está definida en ninguna parte** y se usa **13 veces**
+(C1 ×4, C2 ×3, C3 ×2, C4 ×4). Plotly cae en su altura por omisión y la gráfica sale
+más alta de lo que el autor escribió. La clase va en el `<style>` de la cabecera,
+que **`migrar.py` no estampa**: hay que añadirla en `_plantilla/tr-head.html` (junto
+a `.chart-h-420`, línea 173) **y a mano en los cinco capítulos**, que la tienen en la
+misma línea 173. El capítulo 5 no la usa, pero conviene que su cabecera quede igual.
+
+**4 · Los `<title>` estáticos están mal en dos capítulos.** El del 3 es el del 1
+—se copió el archivo y no se cambió— y el del 4 sigue diciendo «Plantilla base». El
+`App` los deriva de `CONFIG` al abrir, así que en pantalla no se nota; lo que ve mal
+es un rastreador, un marcador del navegador o una página guardada. Lo mismo con la
+`<meta name="description">`.
+
+**Criterios de aceptación:**
+- [ ] `ensamblar.py` → `migrar.py` → `verificar.py --con-salidas` en verde sobre los
+      **cinco** capítulos, con el SHA de TR-CORE nuevo y el mismo en los cinco
+- [ ] En un capítulo cualquiera, responder el cuestionario eligiendo siempre la
+      primera opción da **menos de 10 sobre 10**
+- [ ] El orden de las opciones **no cambia** al recargar la página ni al navegar
+      entre secciones y volver
+- [ ] El acordeón de la sección 1 del capítulo 4 muestra sus tres títulos
+- [ ] Las trece gráficas con `chart-h-400` miden 400 px de alto en el navegador
+- [ ] Los cinco `<title>` y las cinco descripciones corresponden a su capítulo
+
+⚠️ **La regla 1 compara el SHA-256 de TR-CORE contra la plantilla.** Tocar
+`tr-core-base.jsx` obliga a regenerar y re-estampar; un capítulo sin re-estampar
+falla la comprobación 1, que es exactamente para lo que existe.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1372,6 +1450,81 @@ fórmulas se dice «volatilidad media» y «correlación media» con todas las l
 **Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-03.qmd`. Quarto sigue
 sin estar instalado. El bloque ejecutable de la parte 1 se corrió a mano con `Rscript` desde
 `talleres/` y da las cifras del capítulo: 1 916 sesiones, beta 0,6779, R² 0,3167.
+
+---
+
+### Fase 2 — Tarea 10: capítulo 5 · 2026-08-09
+
+Siete secciones, **ocho** bloques ejecutados en los dos lenguajes, tres gráficas y
+dos laboratorios. Doce reglas en verde, y `--con-salidas` con cero discrepancias:
+los dieciséis bloques se escribieron y se ejecutaron fuera del capítulo antes de
+entrar en él, con el mismo método de las cuatro tareas anteriores.
+
+**El hallazgo del capítulo: la calibración del 97,5 % es exacta, y por eso mide.**
+El Comité de Basilea eligió ese nivel para que el ES coincidiera con el VaR al
+99 % **bajo normalidad**, de modo que cambiar de medida no fuera de paso una
+subida encubierta de capital. Sobre este portafolio la coincidencia se reproduce
+con una precisión que no se esperaba: 3,655 % contra 3,637 %, medio punto de
+diferencia relativa. La consecuencia es que **toda la distancia entre las dos
+medidas sobre una cartera real es exactamente la parte de la cola que la normal no
+ve**: con una t de 4,23 grados de libertad el cambio cuesta un 6,1 % y con la
+distribución empírica un 16,0 %, 5 203 millones. El cambio de medida funciona como
+un detector de colas pesadas incorporado a la norma, y esa lectura —que no estaba
+en el plan— es la tesis de la sección 4.
+
+**Un segundo contraste que el capítulo aprovecha: el ES delata la curtosis siete
+puntos antes que el VaR.** Dibujadas las cuatro curvas frente a α, el ES histórico
+supera al normal desde el **91 %** y el VaR histórico no lo hace hasta el **98 %**.
+Promediar la cola acumula el exceso de masa; leer su borde tiene que esperar a que
+el borde entre en la zona gruesa. Es la misma diferencia que explica por qué el
+ES/VaR de este panel es 1,60 y el de una normal, 1,15.
+
+**Una convención de estimación, declarada y cifrada — del mismo tipo que la de
+agregación del capítulo 1.** El curso usa el promedio simple de las ruedas que
+exceden el VaR, que es lo que se escribe en la industria. No es el ES exacto de la
+muestra: la cola pedida mide n(1−α) y casi nunca es entera. La brecha está medida
+en el propio bloque —**30 millones al 97,5 % y 884 al 99 %**— y crece con el nivel
+porque cada rueda de la cola pesa más. Es una razón, independiente de Basilea, para
+preferir el 97,5 %: allí el estimador se apoya en 48 observaciones y no en 20.
+
+**El horizonte de liquidez conecta con el capítulo 3, y no por analogía.** El FRTB
+asigna horizontes por una tabla de categorías; el capítulo los ordena por **cuántas
+ruedas no cambió el precio de cada emisor** —Ecopetrol 9,86 %, ISA 11,48 %, Grupo
+Sura 15,14 %, Banco de Bogotá 16,23 %—, que es la medida de iliquidez que la
+sección 5 del capítulo 3 ya había contado y que allí se llevaba un tercio de la
+beta. El mismo defecto del panel que sesga una covarianza decide aquí un horizonte.
+Agregado con la fórmula del marco, el ES sube de 14,9495 % a 23,1126 %: **65 305
+millones, un 54,6 %**, sin que cambie ningún precio.
+
+**Lo que el navegador volvió a cazar y el verificador no.** Tres cosas, y ninguna
+era sintaxis:
+
+- **`Accordion` recibía `title` y `content` y sus propiedades son `titulo` y
+  `contenido`.** Los cuatro axiomas de coherencia salían como cuatro filas
+  plegables **vacías**, sin una letra. React no se queja de una propiedad que no
+  existe y el verificador no valida nombres de propiedad. ⚠️ **El capítulo 4 tiene
+  el mismo defecto sin corregir**, en el `Accordion` de «las tres preguntas que el
+  VaR no responde» de su sección 1.
+- **Un eje logarítmico rotulaba «5» y «2» donde quería decir 0,5 y 0,2.** Son las
+  marcas menores que Plotly pone por omisión, y en una gráfica de probabilidades se
+  leen como valores del eje. Se tabularon las cuatro décadas en porcentaje.
+- **Dos cifras de prosa mal contadas**: un factor a 120 días aporta en los **cinco**
+  sumandos del FRTB, no en cuatro; y el VaR al 99 % lo fijan la 20.ª y la 21.ª
+  peores ruedas interpoladas, no «la posición 19,15».
+
+**Y un defecto del curso entero, que este capítulo destapó al responder su propio
+cuestionario.** Ni `MCQ` ni `Quiz` barajan las opciones, y en los cinco capítulos
+escritos **la respuesta correcta era siempre la primera**: 15 de 15 en cada uno.
+Un estudiante que lo note saca 10 sobre 10 sin leer. En el capítulo 5 se repartió
+la posición correcta entre las cuatro (3 · 4 · 4 · 4), pero **los capítulos 1 a 4
+siguen con la correcta en primer lugar**: o se barajan al escribirlos, o se baraja
+en el componente —que es una línea en `tr-core-base.jsx`, con la salvedad de que
+tocar TR-CORE obliga a re-estampar y re-verificar los cinco—.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-05.qmd`.
+Quarto sigue sin estar instalado. El bloque ejecutable de la parte 1 se corrió a
+mano con `Rscript` desde `talleres/` y da las cifras del capítulo: VaR 2,958 % y
+ES 4,727 % al 97,5 %, con una cola de 48 ruedas.
 
 ---
 
