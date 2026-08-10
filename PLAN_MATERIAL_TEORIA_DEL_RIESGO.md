@@ -8,8 +8,8 @@
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
 **Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
 D-A, D-B y D-C resueltas · **D-D declarada el 2026-08-09** (tasa libre de riesgo, pendiente
-de ratificar) · fase 2 en curso: **tareas 7, 8, 9 y 10 completadas** — queda T11 (C6) para
-cerrar la unidad 1 y llegar al punto de control C
+de ratificar) · fase 2 en curso: **tareas 7, 8, 9, 10 y 10-bis completadas** — queda T11 (C6)
+para cerrar la unidad 1 y llegar al punto de control C
 
 ---
 
@@ -918,7 +918,7 @@ corrección de cifras por bloque.
 | 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | ✅ **2026-08-09** |
 | 9 | C3 CAPM | M | 1 | ✅ **2026-08-09** |
 | 10 | C5 Expected Shortfall | M | 1 | ✅ **2026-08-09** |
-| **10-bis** | **Saneamiento de los capítulos 1–5** (4 defectos que el verificador no ve) | S | 1 | **pendiente — va antes de T11** |
+| **10-bis** | **Saneamiento de los capítulos 1–5** (4 defectos que el verificador no ve, y un quinto que apareció al hacerlo) | S | 1 | ✅ **completada 2026-08-10** |
 | 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
 
 #### Tarea 7 · Capítulo 1 completo — **COMPLETADA 2026-08-08**
@@ -981,7 +981,7 @@ corrección de cifras por bloque.
 **Entregado:** `Material html/05_TDR_Expected_shortfall.html` (301 KB) y
 `talleres/TDR-05.qmd`.
 
-#### Tarea 10-bis · Saneamiento de los capítulos 1–5 — **PENDIENTE**
+#### Tarea 10-bis · Saneamiento de los capítulos 1–5 — **COMPLETADA 2026-08-10**
 
 Cuatro defectos que la tarea 10 destapó al recorrer el capítulo 5 en el navegador y
 que **ninguna de las doce reglas puede ver**. Los cuatro están en material ya dado
@@ -1024,20 +1024,39 @@ misma línea 173. El capítulo 5 no la usa, pero conviene que su cabecera quede 
 es un rastreador, un marcador del navegador o una página guardada. Lo mismo con la
 `<meta name="description">`.
 
+**5 · Ningún `MCQ` de los cinco capítulos define `justificacion`** —el defecto
+apareció al recorrer el capítulo 5 después de arreglar los cuatro anteriores—, y
+el componente pintaba el recuadro igual: rótulo «**Explicación:**» en negrita y
+nada detrás. Son 25 sitios (cuatro `MCQ` sueltos y el del `Comparador`, por cinco
+capítulos). El `Quiz` ya guardaba su equivalente con `q.justificacion &&`; el
+`MCQ` no. Entra en la tarea porque es exactamente el mismo tipo de defecto: se ve
+abriendo el capítulo y ninguna regla lo mira.
+
 **Criterios de aceptación:**
-- [ ] `ensamblar.py` → `migrar.py` → `verificar.py --con-salidas` en verde sobre los
-      **cinco** capítulos, con el SHA de TR-CORE nuevo y el mismo en los cinco
-- [ ] En un capítulo cualquiera, responder el cuestionario eligiendo siempre la
-      primera opción da **menos de 10 sobre 10**
-- [ ] El orden de las opciones **no cambia** al recargar la página ni al navegar
+- [x] `ensamblar.py` → `migrar.py` → `verificar.py --con-salidas` en verde sobre los
+      **cinco** capítulos, con el SHA de TR-CORE nuevo y el mismo en los cinco —
+      `1782905c90e0a6b8…`
+- [x] En un capítulo cualquiera, responder el cuestionario eligiendo siempre la
+      primera opción da **menos de 10 sobre 10** — comprobado en los cinco:
+      C1 **1/10**, C2 **0/10**, C3 **0/10**, C4 **1/10**, C5 **2/10**
+- [x] El orden de las opciones **no cambia** al recargar la página ni al navegar
       entre secciones y volver
-- [ ] El acordeón de la sección 1 del capítulo 4 muestra sus tres títulos
-- [ ] Las trece gráficas con `chart-h-400` miden 400 px de alto en el navegador
-- [ ] Los cinco `<title>` y las cinco descripciones corresponden a su capítulo
+- [x] El acordeón de la sección 1 del capítulo 4 muestra sus tres títulos — y el
+      **capítulo 1 tenía el mismo defecto**, en las tres filas de su sección 5
+- [x] Las trece gráficas con `chart-h-400` miden 400 px de alto en el navegador —
+      13/13, con el SVG de Plotly siguiendo a 400
+- [x] Los cinco `<title>` y las cinco descripciones corresponden a su capítulo
+- [x] Ningún `MCQ` muestra el rótulo «Explicación:» vacío
 
 ⚠️ **La regla 1 compara el SHA-256 de TR-CORE contra la plantilla.** Tocar
 `tr-core-base.jsx` obliga a regenerar y re-estampar; un capítulo sin re-estampar
 falla la comprobación 1, que es exactamente para lo que existe.
+
+⚠️ **Consecuencia para los diez capítulos que faltan:** al escribir un `MCQ` hay
+que darle `justificacion` a la opción correcta. Los cinco primeros no la tienen y
+ahora, con la guarda, simplemente no muestran explicación; era eso o un recuadro
+vacío. Rellenarlas en los cinco es trabajo de autoría, no de saneamiento, y queda
+como pendiente separado.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1525,6 +1544,61 @@ tocar TR-CORE obliga a re-estampar y re-verificar los cinco—.
 Quarto sigue sin estar instalado. El bloque ejecutable de la parte 1 se corrió a
 mano con `Rscript` desde `talleres/` y da las cifras del capítulo: VaR 2,958 % y
 ES 4,727 % al 97,5 %, con una cola de 48 ruedas.
+
+---
+
+### Fase 2 — Tarea 10-bis: saneamiento de los capítulos 1–5 · 2026-08-10
+
+Los cuatro defectos del encargo, más un quinto que apareció al comprobar los
+cuatro. TR-CORE pasó de `8baa48efee845d09…` a **`1782905c90e0a6b8…`**, estampado
+en los cinco, y las doce reglas con `--con-salidas` siguen en verde.
+
+**El barajado se resolvió en el componente, y la medida del defecto es la que
+justifica el gasto.** `MCQ` y `Quiz` permutan ahora las opciones con una
+permutación derivada de un **FNV-1a de 32 bits del enunciado**, no de
+`Math.random()`: el orden es propio de cada pregunta y siempre el mismo, que es
+lo que permite decir «la opción b» en clase. Respondiendo siempre la primera
+opción, los cuestionarios pasan de **10 sobre 10 en los cuatro primeros
+capítulos** a 1, 0, 0, 1 y 2 sobre 10. Se comprobó además que el generador no
+tiene sesgo de posición —24,96 / 24,88 / 25,10 / 25,07 % sobre 200 000 semillas
+sintéticas—: la escasez de correctas en primera posición que se observa en los
+cinco capítulos es ruido de cuarenta tiradas.
+
+`correcta` y `justificacion` viajan dentro del objeto de la opción, de modo que
+permutar el arreglo no toca la calificación. Queda un escape, `barajar={false}`
+en el `MCQ` y `barajar: false` en una pregunta del `Quiz`, para las opciones con
+orden propio —una escala creciente, una cronología—; ninguno de los cinco
+capítulos lo necesita.
+
+**El `Accordion` roto estaba en dos capítulos, no en uno.** El plan señalaba la
+sección 1 del capítulo 4; el **capítulo 1 tenía el mismo defecto** en las tres
+filas de «los dos defectos del panel» de su sección 5, y salían igual de vacías.
+Seis propiedades renombradas en cada uno. La lección se repite: `grep` por
+`title:`/`content:` encuentra en dos minutos lo que el verificador no ve nunca,
+y hay que hacerlo en todos los capítulos, no solo en el que se acaba de escribir.
+
+**`chart-h-400` ya existe**, en `_plantilla/tr-head.html` y a mano en los cinco
+capítulos —la cabecera no la estampa `migrar.py`—. Las trece gráficas miden 400 px
+medidos en el navegador, y el SVG de Plotly las sigue: antes caía en su altura por
+omisión, 450.
+
+**Los cinco `<title>` y las cinco descripciones** corresponden a su capítulo. El
+del 3 era el del 1 y el del 4 seguía diciendo «Plantilla base».
+
+**El quinto defecto, que solo se ve después de arreglar los otros cuatro.**
+Ningún `MCQ` de los cinco capítulos define `justificacion`, y el componente
+pintaba de todos modos el recuadro de explicación con el rótulo en negrita y nada
+detrás — 25 sitios. El `Quiz` ya guardaba su equivalente. Se añadió la guarda en
+el `MCQ`. **Consecuencia para lo que falta: un `MCQ` nuevo lleva `justificacion`
+en su opción correcta**; rellenar las de los cinco primeros es autoría y queda
+como pendiente separado.
+
+**Lo que esta tarea deja como método.** Los cinco defectos comparten forma: son
+propiedades o clases que no existen, y ni React ni el verificador se quejan de lo
+que no existe. Antes de dar un capítulo por terminado conviene, además del
+recorrido: `grep` de los nombres de propiedad contra la firma del componente en
+`_plantilla/tr-core-*.jsx`, y `grep` de las clases `chart-h-*` contra las cuatro
+que el CSS define.
 
 ---
 

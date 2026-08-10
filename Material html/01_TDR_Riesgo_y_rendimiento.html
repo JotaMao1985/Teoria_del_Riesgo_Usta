@@ -170,6 +170,10 @@
             height: 360px;
         }
 
+        .chart-h-400 {
+            height: 400px;
+        }
+
         .chart-h-420 {
             height: 420px;
         }
@@ -709,9 +713,74 @@
             );
         };
 
-        const MCQ = ({ pregunta, opciones, multiple = false }) => {
+        /* ============================================================
+           BARAJADO DE OPCIONES — MCQ y Quiz
+           Un cuestionario cuya respuesta correcta cae siempre en el
+           mismo lugar se responde sin leerlo. Barajar aquí, y no
+           repartiendo las opciones a mano en cada capítulo, deja el
+           problema cerrado para los quince.
+
+           El orden es DETERMINISTA, como el de `OrdenaPasos`: sale de
+           un hash del enunciado y NO de Math.random(). Con azar por
+           carga el orden salta al recargar y el docente no puede
+           decir «la opción b» en clase; con el hash, cada pregunta
+           tiene su orden propio y siempre el mismo.
+
+           `correcta` y `justificacion` viajan dentro del objeto de la
+           opción, así que permutar el arreglo no toca la calificación.
+
+           Escape: `barajar={false}` en el MCQ, o `barajar: false` en
+           una pregunta del Quiz, para las pocas opciones que tienen
+           orden propio —una escala creciente, una cronología—.
+        ============================================================ */
+        const textoPlano = (n) => {
+            if (n === null || n === undefined || typeof n === 'boolean') return '';
+            if (typeof n === 'string' || typeof n === 'number') return String(n);
+            if (Array.isArray(n)) return n.map(textoPlano).join('');
+            if (n.props) return textoPlano(n.props.children);
+            return '';
+        };
+
+        const hashTexto = (s) => {
+            // FNV-1a de 32 bits. No necesita ser criptográfico: basta con
+            // que la misma pregunta dé siempre lo mismo y dos preguntas
+            // distintas casi nunca coincidan.
+            let h = 0x811c9dc5;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 0x01000193) >>> 0;
+            }
+            return h >>> 0;
+        };
+
+        const barajarOpciones = (opciones, enunciado) => {
+            if (!Array.isArray(opciones) || opciones.length < 2) return opciones;
+            // Si el enunciado no deja texto —un nodo JSX sin cadenas—, se
+            // siembra con los textos de las opciones: cualquier cosa antes
+            // que sembrar todas las preguntas con la misma semilla.
+            const semilla = textoPlano(enunciado) ||
+                opciones.map(o => textoPlano(o.texto)).join('|');
+            let s = hashTexto(semilla) || 1;
+            const siguiente = () => {
+                s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+                return s / 4294967296;
+            };
+            const out = opciones.slice();
+            for (let i = out.length - 1; i > 0; i--) {
+                const j = Math.floor(siguiente() * (i + 1));
+                [out[i], out[j]] = [out[j], out[i]];
+            }
+            return out;
+        };
+
+        const MCQ = ({ pregunta, opciones, multiple = false, barajar = true }) => {
             const [sel, setSel] = useState([]);
             const [checked, setChecked] = useState(false);
+
+            // Se recalcula en cada render y no pasa nada: es determinista,
+            // así que los índices que guarda `sel` siguen apuntando a la
+            // misma opción.
+            const ops = barajar ? barajarOpciones(opciones, pregunta) : opciones;
 
             const toggle = (i) => {
                 if (checked) return;
@@ -719,8 +788,10 @@
                 else setSel([i]);
             };
 
-            const correctSet = opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
-            const acierto = sel.length === correctSet.length && sel.every(i => opciones[i].correcta);
+            const correctSet = ops.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
+            const acierto = sel.length === correctSet.length && sel.every(i => ops[i].correcta);
+            const explicacion = ops.filter(o => o.correcta)
+                .map(o => o.justificacion).filter(Boolean).join(' ');
             const ref = useRef(null);
             useTypeset(ref, [checked]);
 
@@ -732,7 +803,7 @@
                     </div>
                     {multiple && <p className="text-xs text-gray-400 mb-2 ml-6">Selección múltiple</p>}
                     <div className="space-y-2 mt-3">
-                        {opciones.map((o, i) => {
+                        {ops.map((o, i) => {
                             const isSel = sel.includes(i);
                             let cls = 'border-gray-200 hover:border-primary/50';
                             if (checked) {
@@ -766,11 +837,14 @@
                             </span>
                         )}
                     </div>
-                    {checked && (
+                    {/* La explicación solo aparece si hay algo que explicar.
+                        Sin esta guarda —y `justificacion` es opcional— el
+                        recuadro salía con el rótulo «Explicación:» en negrita y
+                        nada detrás: los cinco primeros capítulos no la usan y
+                        los cinco lo mostraban vacío. El Quiz ya se guardaba así. */}
+                    {checked && explicacion && (
                         <div className="mt-3 text-[0.9rem] text-gray-700 bg-bg rounded-lg p-3 border-l-4 animate-fade-in" style={{ borderColor: '#ED1E79' }}>
-                            <strong>Explicación: </strong>
-                            {opciones.find(o => o.correcta)?.justificacion ||
-                                opciones.filter(o => o.correcta).map(o => o.justificacion).filter(Boolean).join(' ')}
+                            <strong>Explicación: </strong>{explicacion}
                         </div>
                     )}
                 </div>
@@ -780,6 +854,13 @@
         const Quiz = ({ titulo = 'Mini-cuestionario', preguntas }) => {
             const [resp, setResp] = useState({});
             const [enviado, setEnviado] = useState(false);
+
+            // Mismo barajado estable que el MCQ, pregunta por pregunta. A
+            // partir de aquí se trabaja con `qs`: mezclar las dos listas
+            // calificaría contra el orden que el estudiante no ve.
+            const qs = preguntas.map(q => (q.barajar === false)
+                ? q
+                : { ...q, opciones: barajarOpciones(q.opciones, q.pregunta) });
 
             const toggle = (qi, oi, multiple) => {
                 if (enviado) return;
@@ -793,15 +874,15 @@
             };
 
             const esCorrecta = (qi) => {
-                const correctSet = preguntas[qi].opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
+                const correctSet = qs[qi].opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
                 const sel = resp[qi] || [];
-                return sel.length === correctSet.length && sel.every(i => preguntas[qi].opciones[i].correcta);
+                return sel.length === correctSet.length && sel.every(i => qs[qi].opciones[i].correcta);
             };
 
-            const score = preguntas.reduce((acc, _, qi) => acc + (esCorrecta(qi) ? 1 : 0), 0);
-            const total = preguntas.length;
+            const score = qs.reduce((acc, _, qi) => acc + (esCorrecta(qi) ? 1 : 0), 0);
+            const total = qs.length;
             const pct = Math.round((score / total) * 100);
-            const todasResp = preguntas.every((_, qi) => (resp[qi] || []).length > 0);
+            const todasResp = qs.every((_, qi) => (resp[qi] || []).length > 0);
 
             const color = pct >= 80 ? '#15803D' : pct >= 50 ? '#B45309' : '#B91C1C';
             const mensaje = pct >= 80 ? '¡Excelente dominio del tema!' : pct >= 50 ? 'Bien, repasa los puntos fallados.' : 'Conviene releer la lección antes de continuar.';
@@ -815,7 +896,7 @@
                         <h3 className="text-lg font-bold text-primary" style={{ margin: 0 }}>{titulo}</h3>
                     </div>
 
-                    {preguntas.map((q, qi) => (
+                    {qs.map((q, qi) => (
                         <div key={qi} className="mb-5">
                             <div className="font-semibold text-navy text-[0.95rem] mb-2">
                                 {qi + 1}. {q.pregunta}
@@ -3772,16 +3853,16 @@ curtosis <- mean(z^4) - 3`,
                 </p>
                 <Accordion items={[
                     {
-                        title: '1. Ciento una ruedas de 1 916 en las que ningún precio se mueve',
-                        content: 'El panel se cruza por fechas comunes con el ETF ICOLCAP, que cotiza días en los que las acciones no registran negociación efectiva; Yahoo arrastra entonces el cierre anterior. Se concentran en 2018-2019 y en 2022. No son un error de la fuente sino una propiedad del mercado local, y diluyen la volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria. Aparecen en el ejercicio R1 de la sección 3, en la rueda que da rendimiento cero.',
+                        titulo: '1. Ciento una ruedas de 1 916 en las que ningún precio se mueve',
+                        contenido: 'El panel se cruza por fechas comunes con el ETF ICOLCAP, que cotiza días en los que las acciones no registran negociación efectiva; Yahoo arrastra entonces el cierre anterior. Se concentran en 2018-2019 y en 2022. No son un error de la fuente sino una propiedad del mercado local, y diluyen la volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria. Aparecen en el ejercicio R1 de la sección 3, en la rueda que da rendimiento cero.',
                     },
                     {
-                        title: '2. El 19 y el 20 de febrero de 2025: una cotización defectuosa',
-                        content: 'Los cuatro emisores caen entre 10 % y 20 % el 19 y recuperan lo mismo el 20, mientras el ETF que los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF, y el contraste con el índice es el diagnóstico que lo demuestra; está implementado en la sección 3 del capítulo 4. Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 % —un 5 %— y el VaR histórico de la ventana de 250 ruedas un 10 %. Son las dos ruedas del ejercicio R1 de la sección 4 de este capítulo.',
+                        titulo: '2. El 19 y el 20 de febrero de 2025: una cotización defectuosa',
+                        contenido: 'Los cuatro emisores caen entre 10 % y 20 % el 19 y recuperan lo mismo el 20, mientras el ETF que los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF, y el contraste con el índice es el diagnóstico que lo demuestra; está implementado en la sección 3 del capítulo 4. Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 % —un 5 %— y el VaR histórico de la ventana de 250 ruedas un 10 %. Son las dos ruedas del ejercicio R1 de la sección 4 de este capítulo.',
                     },
                     {
-                        title: '¿Por qué no se limpian, entonces?',
-                        content: 'Por dos razones. La primera es que limpiar en silencio enseña que los datos llegan limpios, que es la creencia que más dinero cuesta en esta profesión: el trabajo real empieza con un panel sucio y la decisión de qué hacer con él es del analista, con nombre y firma. La segunda es que el episodio resultó ser buen material: el mismo dato malo mueve el VaR histórico de la muestra completa cuatro centésimas de punto, la volatilidad un 5 % y el VaR de la ventana corta un 10 %. Tres estimadores, tres sensibilidades, un solo defecto. Lo que el curso sí hace, y es lo que la regulación pide, es declararlo en el manifiesto y volver a nombrarlo en cada capítulo que lo toque.',
+                        titulo: '¿Por qué no se limpian, entonces?',
+                        contenido: 'Por dos razones. La primera es que limpiar en silencio enseña que los datos llegan limpios, que es la creencia que más dinero cuesta en esta profesión: el trabajo real empieza con un panel sucio y la decisión de qué hacer con él es del analista, con nombre y firma. La segunda es que el episodio resultó ser buen material: el mismo dato malo mueve el VaR histórico de la muestra completa cuatro centésimas de punto, la volatilidad un 5 % y el VaR de la ventana corta un 10 %. Tres estimadores, tres sensibilidades, un solo defecto. Lo que el curso sí hace, y es lo que la regulación pide, es declararlo en el manifiesto y volver a nombrarlo en cada capítulo que lo toque.',
                     },
                 ]} />
 

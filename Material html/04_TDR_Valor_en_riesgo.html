@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Plantilla base y catálogo de componentes del material de Teoría del Riesgo. Universidad Santo Tomás.">
-    <title>Teoría del Riesgo — Plantilla base</title>
+        content="Valor en Riesgo (VaR). Un número, un porcentaje y un plazo: qué promete el VaR y qué no promete · U1 · Riesgo de mercado · Teoría del Riesgo, Universidad Santo Tomás.">
+    <title>Cap. 04 · Valor en Riesgo (VaR) — Teoría del Riesgo</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,6 +168,10 @@
 
         .chart-h-360 {
             height: 360px;
+        }
+
+        .chart-h-400 {
+            height: 400px;
         }
 
         .chart-h-420 {
@@ -709,9 +713,74 @@
             );
         };
 
-        const MCQ = ({ pregunta, opciones, multiple = false }) => {
+        /* ============================================================
+           BARAJADO DE OPCIONES — MCQ y Quiz
+           Un cuestionario cuya respuesta correcta cae siempre en el
+           mismo lugar se responde sin leerlo. Barajar aquí, y no
+           repartiendo las opciones a mano en cada capítulo, deja el
+           problema cerrado para los quince.
+
+           El orden es DETERMINISTA, como el de `OrdenaPasos`: sale de
+           un hash del enunciado y NO de Math.random(). Con azar por
+           carga el orden salta al recargar y el docente no puede
+           decir «la opción b» en clase; con el hash, cada pregunta
+           tiene su orden propio y siempre el mismo.
+
+           `correcta` y `justificacion` viajan dentro del objeto de la
+           opción, así que permutar el arreglo no toca la calificación.
+
+           Escape: `barajar={false}` en el MCQ, o `barajar: false` en
+           una pregunta del Quiz, para las pocas opciones que tienen
+           orden propio —una escala creciente, una cronología—.
+        ============================================================ */
+        const textoPlano = (n) => {
+            if (n === null || n === undefined || typeof n === 'boolean') return '';
+            if (typeof n === 'string' || typeof n === 'number') return String(n);
+            if (Array.isArray(n)) return n.map(textoPlano).join('');
+            if (n.props) return textoPlano(n.props.children);
+            return '';
+        };
+
+        const hashTexto = (s) => {
+            // FNV-1a de 32 bits. No necesita ser criptográfico: basta con
+            // que la misma pregunta dé siempre lo mismo y dos preguntas
+            // distintas casi nunca coincidan.
+            let h = 0x811c9dc5;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 0x01000193) >>> 0;
+            }
+            return h >>> 0;
+        };
+
+        const barajarOpciones = (opciones, enunciado) => {
+            if (!Array.isArray(opciones) || opciones.length < 2) return opciones;
+            // Si el enunciado no deja texto —un nodo JSX sin cadenas—, se
+            // siembra con los textos de las opciones: cualquier cosa antes
+            // que sembrar todas las preguntas con la misma semilla.
+            const semilla = textoPlano(enunciado) ||
+                opciones.map(o => textoPlano(o.texto)).join('|');
+            let s = hashTexto(semilla) || 1;
+            const siguiente = () => {
+                s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+                return s / 4294967296;
+            };
+            const out = opciones.slice();
+            for (let i = out.length - 1; i > 0; i--) {
+                const j = Math.floor(siguiente() * (i + 1));
+                [out[i], out[j]] = [out[j], out[i]];
+            }
+            return out;
+        };
+
+        const MCQ = ({ pregunta, opciones, multiple = false, barajar = true }) => {
             const [sel, setSel] = useState([]);
             const [checked, setChecked] = useState(false);
+
+            // Se recalcula en cada render y no pasa nada: es determinista,
+            // así que los índices que guarda `sel` siguen apuntando a la
+            // misma opción.
+            const ops = barajar ? barajarOpciones(opciones, pregunta) : opciones;
 
             const toggle = (i) => {
                 if (checked) return;
@@ -719,8 +788,10 @@
                 else setSel([i]);
             };
 
-            const correctSet = opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
-            const acierto = sel.length === correctSet.length && sel.every(i => opciones[i].correcta);
+            const correctSet = ops.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
+            const acierto = sel.length === correctSet.length && sel.every(i => ops[i].correcta);
+            const explicacion = ops.filter(o => o.correcta)
+                .map(o => o.justificacion).filter(Boolean).join(' ');
             const ref = useRef(null);
             useTypeset(ref, [checked]);
 
@@ -732,7 +803,7 @@
                     </div>
                     {multiple && <p className="text-xs text-gray-400 mb-2 ml-6">Selección múltiple</p>}
                     <div className="space-y-2 mt-3">
-                        {opciones.map((o, i) => {
+                        {ops.map((o, i) => {
                             const isSel = sel.includes(i);
                             let cls = 'border-gray-200 hover:border-primary/50';
                             if (checked) {
@@ -766,11 +837,14 @@
                             </span>
                         )}
                     </div>
-                    {checked && (
+                    {/* La explicación solo aparece si hay algo que explicar.
+                        Sin esta guarda —y `justificacion` es opcional— el
+                        recuadro salía con el rótulo «Explicación:» en negrita y
+                        nada detrás: los cinco primeros capítulos no la usan y
+                        los cinco lo mostraban vacío. El Quiz ya se guardaba así. */}
+                    {checked && explicacion && (
                         <div className="mt-3 text-[0.9rem] text-gray-700 bg-bg rounded-lg p-3 border-l-4 animate-fade-in" style={{ borderColor: '#ED1E79' }}>
-                            <strong>Explicación: </strong>
-                            {opciones.find(o => o.correcta)?.justificacion ||
-                                opciones.filter(o => o.correcta).map(o => o.justificacion).filter(Boolean).join(' ')}
+                            <strong>Explicación: </strong>{explicacion}
                         </div>
                     )}
                 </div>
@@ -780,6 +854,13 @@
         const Quiz = ({ titulo = 'Mini-cuestionario', preguntas }) => {
             const [resp, setResp] = useState({});
             const [enviado, setEnviado] = useState(false);
+
+            // Mismo barajado estable que el MCQ, pregunta por pregunta. A
+            // partir de aquí se trabaja con `qs`: mezclar las dos listas
+            // calificaría contra el orden que el estudiante no ve.
+            const qs = preguntas.map(q => (q.barajar === false)
+                ? q
+                : { ...q, opciones: barajarOpciones(q.opciones, q.pregunta) });
 
             const toggle = (qi, oi, multiple) => {
                 if (enviado) return;
@@ -793,15 +874,15 @@
             };
 
             const esCorrecta = (qi) => {
-                const correctSet = preguntas[qi].opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
+                const correctSet = qs[qi].opciones.map((o, i) => o.correcta ? i : -1).filter(i => i >= 0);
                 const sel = resp[qi] || [];
-                return sel.length === correctSet.length && sel.every(i => preguntas[qi].opciones[i].correcta);
+                return sel.length === correctSet.length && sel.every(i => qs[qi].opciones[i].correcta);
             };
 
-            const score = preguntas.reduce((acc, _, qi) => acc + (esCorrecta(qi) ? 1 : 0), 0);
-            const total = preguntas.length;
+            const score = qs.reduce((acc, _, qi) => acc + (esCorrecta(qi) ? 1 : 0), 0);
+            const total = qs.length;
             const pct = Math.round((score / total) * 100);
-            const todasResp = preguntas.every((_, qi) => (resp[qi] || []).length > 0);
+            const todasResp = qs.every((_, qi) => (resp[qi] || []).length > 0);
 
             const color = pct >= 80 ? '#15803D' : pct >= 50 ? '#B45309' : '#B91C1C';
             const mensaje = pct >= 80 ? '¡Excelente dominio del tema!' : pct >= 50 ? 'Bien, repasa los puntos fallados.' : 'Conviene releer la lección antes de continuar.';
@@ -815,7 +896,7 @@
                         <h3 className="text-lg font-bold text-primary" style={{ margin: 0 }}>{titulo}</h3>
                     </div>
 
-                    {preguntas.map((q, qi) => (
+                    {qs.map((q, qi) => (
                         <div key={qi} className="mb-5">
                             <div className="font-semibold text-navy text-[0.95rem] mb-2">
                                 {qi + 1}. {q.pregunta}
@@ -3011,16 +3092,16 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 <h3>Las tres preguntas que el VaR no responde</h3>
                 <Accordion items={[
                     {
-                        title: '1. ¿Cuánto se pierde el día en que se rompe el umbral?',
-                        content: 'El VaR marca dónde empieza la cola y calla sobre lo que hay dentro. Dos portafolios con el mismo VaR pueden perder, el día malo, cifras que difieren en un orden de magnitud. Responder esa pregunta exige promediar la cola, y esa medida —el Expected Shortfall— es el capítulo 5 entero.',
+                        titulo: '1. ¿Cuánto se pierde el día en que se rompe el umbral?',
+                        contenido: 'El VaR marca dónde empieza la cola y calla sobre lo que hay dentro. Dos portafolios con el mismo VaR pueden perder, el día malo, cifras que difieren en un orden de magnitud. Responder esa pregunta exige promediar la cola, y esa medida —el Expected Shortfall— es el capítulo 5 entero.',
                     },
                     {
-                        title: '2. ¿Con qué frecuencia se rompe de verdad?',
-                        content: 'El modelo promete una excepción cada cien ruedas. Si en el último año hubo nueve en vez de dos y media, el modelo está mal calibrado o el año fue excepcional, y distinguir las dos cosas exige una prueba estadística. Ese es el capítulo 6: sin backtesting, el VaR es una afirmación sin verificar.',
+                        titulo: '2. ¿Con qué frecuencia se rompe de verdad?',
+                        contenido: 'El modelo promete una excepción cada cien ruedas. Si en el último año hubo nueve en vez de dos y media, el modelo está mal calibrado o el año fue excepcional, y distinguir las dos cosas exige una prueba estadística. Ese es el capítulo 6: sin backtesting, el VaR es una afirmación sin verificar.',
                     },
                     {
-                        title: '3. ¿Es este el peor escenario posible?',
-                        content: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es exactamente donde viven las quiebras. Presentarlo como pérdida máxima es el error de comunicación más caro del oficio, y el que la sección 6 del capítulo 15 aborda con la teoría de valores extremos.',
+                        titulo: '3. ¿Es este el peor escenario posible?',
+                        contenido: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es exactamente donde viven las quiebras. Presentarlo como pérdida máxima es el error de comunicación más caro del oficio, y el que la sección 6 del capítulo 15 aborda con la teoría de valores extremos.',
                     },
                 ]} />
 

@@ -16,13 +16,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2), T9 (cap. 3) y T10 (cap. 5) completadas** · siguen **T10-bis (saneamiento)** y T11 (cap. 6) |
-
-⚠️ **Antes de escribir el capítulo 6 va la tarea 10-bis**, que arregla cuatro defectos
-que el verificador no ve y que cada capítulo nuevo hereda: el barajado de opciones
-—se toca el componente, así que hay que re-estampar y re-verificar los cinco—, el
-`Accordion` del capítulo 4, la clase `chart-h-400` y los `<title>` estáticos. El
-encargo completo, con criterios de aceptación, está en el plan.
+| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2), T9 (cap. 3), T10 (cap. 5) y T10-bis (saneamiento) completadas** · sigue **T11 (cap. 6)** |
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
@@ -78,23 +72,31 @@ El capítulo 3 añadió dos zonas ciegas más, y ninguna es JavaScript:
    la tabla le dice que está mal. Calcule cada casilla **desde los valores redondeados que
    se muestran**.
 
-El capítulo 5 añadió dos más, y la segunda afecta a todo lo escrito hasta ahora:
+El capítulo 5 añadió una quinta, y es la que más veces se ha repetido:
 
 5. **Ninguna regla valida los NOMBRES de las propiedades de un componente.** `Accordion`
    recibe `titulo` y `contenido`; escribirle `title` y `content` —que es lo que usa el resto
    del mundo React— deja el acordeón con las filas **vacías**, sin un error. Las doce reglas
-   pasan. ⚠️ **El capítulo 4 lo tiene sin corregir** en su sección 1. Antes de usar un
-   componente, mire su firma en `_plantilla/tr-core-extra.jsx` o `tr-core-base.jsx`.
-6. **`MCQ` y `Quiz` NO barajan las opciones.** En los capítulos 1 a 4 la respuesta correcta
-   es **siempre la primera**, 15 de 15 en cada uno: se saca 10 sobre 10 sin leer. El
-   capítulo 5 reparte la posición correcta entre las cuatro. Al escribir un capítulo nuevo,
-   repártalas; y decida si conviene barajar en el componente, que arregla los cuatro
-   anteriores de una vez pero obliga a re-estampar TR-CORE y re-verificar los cinco.
+   pasan. Estaba en los capítulos 1 y 4, y la tarea 10-bis lo corrigió en los dos. Antes de
+   usar un componente, mire su firma en `_plantilla/tr-core-extra.jsx` o `tr-core-base.jsx`.
 
-Y una advertencia de estilo que el verificador tampoco ve: `chart-h-400` **no está definida**
-en el CSS y se usa trece veces en los capítulos 1 a 4. Plotly cae en su altura por omisión y
-la gráfica sale más alta de lo que el autor escribió. Las clases que existen son
-`chart-h-320`, `chart-h-360` y `chart-h-420`; el capítulo 5 solo usa esas.
+**La tarea 10-bis (2026-08-10) cerró cuatro defectos de este tipo. Lo que dejó dicho:**
+
+- **`MCQ` y `Quiz` ya barajan**, con una permutación estable derivada de un FNV-1a del
+  enunciado. No hay que repartir las opciones a mano al escribir un capítulo. Escape:
+  `barajar={false}` en el `MCQ`, `barajar: false` en una pregunta del `Quiz`, solo para las
+  opciones con orden propio —una escala creciente, una cronología—.
+- **`chart-h-400` ya existe.** Las cuatro clases definidas son `chart-h-320`, `-360`, `-400`
+  y `-420`. Van en el `<style>` de la cabecera, que **`migrar.py` no estampa**: una clase
+  nueva hay que añadirla en `_plantilla/tr-head.html` **y a mano en cada capítulo**.
+- ⚠️ **Un `MCQ` nuevo lleva `justificacion` en su opción correcta.** Ninguno de los cinco
+  primeros la tiene, y el componente pintaba igual el rótulo «Explicación:» vacío; ahora hay
+  guarda, así que sin `justificacion` no se muestra explicación ninguna. Rellenar las de los
+  cinco primeros es pendiente de autoría.
+- **El método que estos cinco defectos dejan:** todos son propiedades o clases que no
+  existen, y ni React ni el verificador se quejan de lo que no existe. Antes de cerrar un
+  capítulo, además del recorrido: `grep` de los nombres de propiedad contra la firma del
+  componente, y `grep` de las clases `chart-h-*` contra las cuatro que el CSS define.
 
 ## Ciclo de trabajo
 
