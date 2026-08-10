@@ -892,12 +892,19 @@ primera vez, y al capítulo 2, que es el más sensible a ellos: excluir el par d
 
 Cambiarlo ahora cuesta una sesión; cambiarlo en el capítulo 8 cuesta cuatro.
 
-#### Nota de mecánica: el HTML del capítulo 4 es su propia fuente
+#### Nota de mecánica: el HTML de cada capítulo es su propia fuente
 
-Se ensambló con un guion de un solo uso a partir de piezas JSX temporales que **no están en
-el repositorio**, y no hacen falta: la convención del curso es que un capítulo se edita
-directamente en su HTML, y `migrar.py` mantiene al día la librería y el `App`. Quien busque
-un `04-cuerpo.jsx` no lo va a encontrar, y no es que se haya perdido.
+Los capítulos 4, 1 y 2 se ensamblaron con guiones de un solo uso a partir de piezas JSX
+temporales que **no están en el repositorio**, y no hacen falta: la convención del curso es
+que un capítulo se edita directamente en su HTML, y `migrar.py` mantiene al día la librería
+y el `App`. Quien busque un `04-cuerpo.jsx` o un `02-cuerpo.jsx` no los va a encontrar, y no
+es que se hayan perdido.
+
+Lo que sí conviene repetir de esos guiones es **el método**, que es lo que ha hecho que los
+tres capítulos pasen `--con-salidas` a la primera: los bloques de código se escriben y se
+ejecutan **fuera** del capítulo, comparando Python contra R línea a línea, y solo entonces
+se pegan en el HTML con su `#>`. Escribir primero y verificar después significa un ciclo de
+corrección de cifras por bloque.
 
 ---
 

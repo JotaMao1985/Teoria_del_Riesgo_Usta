@@ -62,6 +62,17 @@ importe `arch`, `QuantLib`, `cvxpy`, `xgboost` o `pyextremes` fallará con un
 `ModuleNotFoundError` que parece un error del material y no lo es. Active el entorno
 primero. `python3 entorno/humo.py` comprueba que esté todo.
 
+⚠️ **Si `conda activate` no funciona** —dentro de un agente en modo restringido devuelve
+`__conda_exe: permission denied`— use el intérprete del entorno por ruta absoluta, que es
+exactamente lo que `conda activate` deja en `sys.executable`:
+
+```bash
+/opt/homebrew/Caskroom/mambaforge/base/envs/teoria-riesgo/bin/python3 "Material html/_plantilla/verificar.py" --con-salidas
+```
+
+R va aparte: `verificar.py` invoca el `Rscript` del sistema (`/opt/homebrew/bin/Rscript`),
+no uno del entorno de conda, y los paquetes de `entorno/instalar.R` están instalados ahí.
+
 Un capítulo nuevo nace copiando `_plantilla/tr-base.html`, cambiando `CONFIG` y
 reemplazando las secciones. **El bloque entre `TR-CORE INICIO` y `TR-CORE FIN` no se edita
 a mano**: se genera y se estampa. La comprobación 1 existe para cazar exactamente eso.
