@@ -1,0 +1,262 @@
+---
+title: "Taller 5 · Expected Shortfall: coherencia, estimación y el marco FRTB"
+subtitle: "Teoría del Riesgo · Unidad 1 · RA1"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la sección 6. Un
+taller sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es*
+uno de los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-05-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use
+`scipy.stats` donde el andamio use `qnorm` y `qt`. El taller está escrito para
+las dos rutas y se califica igual por cualquiera de ellas: salvo la parte 4, que
+remuestrea, todo lo demás es cálculo cerrado y los dos lenguajes devuelven
+exactamente lo mismo.
+:::
+
+::: {.callout-warning}
+## El Expected Shortfall no es un cuantil
+
+Escribir `quantile(perdida, 0.975)` y llamarlo ES corre, no lanza ningún error y
+devuelve una cifra plausible **y más baja que el VaR al 99 %**, que es justo lo
+que uno esperaría del cambio normativo. Es el primer R3 del capítulo y el error
+más caro de este taller: sobre el portafolio del fondo invierte el signo de una
+decisión de capital de 14 158 millones de pesos. Antes de reportar cualquier ES,
+compruebe que su función promedia y no corta.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+```{r}
+#| label: parte1-carga
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w <- c(0.30, 0.20, 0.25, 0.25)
+W <- 800000
+
+rp <- as.vector(diff(log(as.matrix(precios[, acciones]))) %*% w)
+L  <- -rp * 100                        # pérdidas del portafolio, en %
+
+var_es <- function(L, a) {
+  v <- quantile(L, a, names = FALSE)
+  c(var = v, es = mean(L[L > v]), n = sum(L > v))
+}
+
+for (a in c(0.975, 0.99)) {
+  x <- var_es(L, a)
+  cat(sprintf("alfa %5.1f %%   VaR %6.3f %%   ES %6.3f %%   cola de %2d ruedas   ES/VaR %.3f\n",
+              a * 100, x["var"], x["es"], x["n"], x["es"] / x["var"]))
+}
+```
+
+**1.1** Reproduzca la tabla de los cuatro métodos del capítulo: ES histórico,
+paramétrico normal, paramétrico t y el ES exacto de la muestra, en los niveles
+95 %, 97,5 % y 99 %. Debe obtener **4,727 %** de ES histórico al 97,5 % y
+**6,599 %** al 99 %. Si no coinciden, el resto del taller estará mal y no lo
+sabrá.
+
+**1.2** Reproduzca la brecha entre el ES simple y el ES exacto de la muestra
+—30 millones al 97,5 % y 884 al 99 %— y **compruébela en código** con
+`stopifnot()` y una tolerancia declarada, no con una frase en el texto. Después
+explique en tres líneas por qué la brecha crece con el nivel.
+
+**1.3** Compruebe la identidad que el capítulo usa sin demostrar: que el ES es el
+promedio de los VaR desde α hasta 1. Estímelo numéricamente promediando
+`quantile(L, u)` sobre una malla fina de *u* entre 0,975 y 1, y compare con el ES
+directo. Reporte la diferencia y diga de qué depende que sea pequeña.
+
+---
+
+## Parte 2 · Su propia posición
+
+```{r}
+#| label: parte2-activo
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d <- as.integer(substr(documento, nchar(documento), nchar(documento)))
+serie <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")[(d %% 4) + 1]
+serie
+```
+
+**2.1** Sobre *su* serie, calcule el VaR y el ES al 97,5 % y al 99 %, en
+porcentaje y en millones sobre el valor de esa posición en el fondo. Reporte
+también cuántas ruedas entran en cada media de cola.
+
+**2.2** Compare el cociente ES/VaR de su emisor con el del portafolio (1,598 al
+97,5 %). Un cociente más alto significa que la cola de su activo es más pesada
+*relativamente a su propio umbral*. Diga cuál de los cuatro emisores tiene la
+cola relativamente más pesada y si eso coincide con cuál es el más volátil —son
+dos preguntas distintas y la respuesta no tiene por qué ser la misma—.
+
+**2.3** Calcule el ES del portafolio y la suma de los ES individuales ponderados
+por el peso de cada posición. Reporte el beneficio de diversificación en pesos y
+compárelo con el que da el VaR. Explique en dos líneas por qué el del ES es
+mayor.
+
+---
+
+## Parte 3 · Coherencia, con su propio contraejemplo
+
+**3.1** Construya un contraejemplo de subaditividad del VaR **distinto** del del
+capítulo: cambie el nivel de confianza a 99 % y encuentre una probabilidad de
+incumplimiento que rompa la desigualdad. Reporte los tres escenarios de la
+cartera con sus probabilidades, el VaR de cada bono, el de la suma y el de la
+cartera.
+
+**3.2** Demuestre —con código, barriendo una malla de p— que la ruptura ocurre
+exactamente en el intervalo $1-\sqrt{\alpha} < p < 1-\alpha$, y explique en
+cuatro líneas de dónde sale cada extremo. Repita el barrido para el ES y muestre
+que no se rompe en ningún punto.
+
+**3.3** Extienda el ejemplo a **tres** bonos independientes con el mismo p y el
+mismo α del capítulo. ¿Sigue fallando la subaditividad al comparar la cartera de
+los tres contra la suma de los tres VaR individuales? Responda con las cifras y
+diga qué cambió respecto del caso de dos.
+
+**3.4** Un compañero afirma que el contraejemplo es artificial porque los bonos
+son independientes, y que con correlación positiva el problema desaparecería.
+Refútelo o confírmelo con un cálculo: introduzca dependencia entre los dos
+incumplimientos y vuelva a medir.
+
+---
+
+## Parte 4 · Lo que cuesta estimar una media de cola
+
+Esta parte es la que separa un ES que se puede defender de un número con cuatro
+decimales y ninguna incertidumbre declarada.
+
+**4.1** Estime por *bootstrap* —al menos 2 000 remuestreos con semilla fija— el
+error estándar del VaR y del ES al 97,5 % sobre la muestra completa. Reporte los
+dos, su cociente y el intervalo de confianza al 95 % de cada uno.
+
+**4.2** Repita 4.1 con ventanas de 250, 500 y 1 000 ruedas y ponga los resultados
+en una tabla con el número de observaciones que entran en la cola en cada caso.
+Grafique el error estándar del ES contra el tamaño de la ventana.
+
+**4.3** Con la ventana de 250 ruedas y α = 99 %, el ES del capítulo se apoya en
+**tres** observaciones. Calcule cuánto se movería ese ES si se excluyera la peor
+de las tres, y compare ese desplazamiento con el error estándar que estimó en
+4.2. Diga cuál de los dos números llevaría a un comité y por qué.
+
+**4.4** Con las cifras anteriores, responda: ¿cuántas ruedas de historia harían
+falta para estimar el ES al 99 % con el mismo error estándar que hoy tiene el ES
+al 97,5 % con 1 916? Diga también qué supuesto está haciendo al extrapolar así.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que *«calcule el Expected Shortfall al
+97,5 % de un portafolio a partir de un archivo de precios diarios, compárelo con
+el VaR al 99 % y diga cuánto capital libera o exige el cambio del FRTB»*. Pegue
+aquí el prompt exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención cuatro cosas, que son los dos R3 del capítulo más lo
+que las partes 3 y 4 acaban de mostrar: si el ES se calculó **promediando la
+cola** o cortándola; si el signo del cambio de capital es el correcto; si se
+reportó alguna medida de incertidumbre del número; y si alguna afirmación sobre
+coherencia se presentó como demostrada por una comprobación empírica.
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 7 · Horizonte de liquidez y memorando
+
+**7.1** Reproduzca el cálculo del FRTB de la sección 5 con la asignación de
+horizontes del capítulo (Ecopetrol 10, ISA 20, Grupo Sura 40, Banco de Bogotá
+60) y compruebe que obtiene **23,1126 %** agregado contra **14,9495 %** con
+horizonte plano. Reporte los cinco ES parciales.
+
+**7.2** Repita el cálculo con **su** emisor movido un tramo hacia arriba y otro
+hacia abajo en la tabla de horizontes. Reporte el efecto en pesos de cada
+cambio y diga cuál de los cuatro emisores tiene el efecto más grande por peso
+invertido, con la cifra que lo demuestra.
+
+**7.3** El comité de inversiones le pidió una nota de **una página**, sin
+fórmulas y sin código, sobre **si el fondo debe adoptar el Expected Shortfall al
+97,5 % como medida de gobierno en lugar del VaR al 99 %**. Debe contener la
+recomendación en la primera frase, la evidencia en cifras que un lector sin
+estadística pueda seguir, qué se pierde y qué cuesta la alternativa, y —esto es
+lo que separa un memorando defendible de uno ingenuo— qué tiene que estar montado
+**antes** de hacer el cambio para que no empeore las cosas.
+
+Si el memorando necesita la palabra «subaditividad» para entenderse, todavía no
+está terminado.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1 reproduce las cifras del capítulo, con la brecha del estimador comprobada en código | 15 % |
+| Parte 2: VaR y ES de la posición propia, cociente de cola y diversificación comparada con el VaR | 15 % |
+| Parte 3: contraejemplo propio, ventana de ruptura demostrada y extensión a tres bonos | 20 % |
+| Parte 4: errores estándar por bootstrap, sensibilidad a la ventana y lectura de la parte 4.3 | 20 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: cálculo del FRTB reproducido y memorando legible para quien no sabe estadística | 10 % |
+
+Se descuenta: calcular el ES como un cuantil; reportar un ES sin decir cuántas
+observaciones lo sostienen; presentar una comprobación empírica de subaditividad
+como si demostrara la coherencia de la medida; y afirmar que el paso al ES al
+97,5 % libera capital sin haber mirado la cola de esta muestra en particular.
