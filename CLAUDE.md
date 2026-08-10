@@ -16,8 +16,12 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2), T9 (cap. 3), T10 (cap. 5) y T10-bis (saneamiento) completadas** · sigue **T11 (cap. 6)** |
+| 2 · Unidad 1 (T7–T11) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · pendiente el **punto de control C** |
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
+
+⚠️ **Lo siguiente es el punto de control C** (revisión con el usuario, criterios en
+el plan), y después la fase 3 empieza por el capítulo 7. Antes de la fase 3 conviene
+ratificar **D-D**, la tasa libre de riesgo.
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
@@ -31,6 +35,15 @@ ruedas que exceden el VaR**, no el ES exacto de la muestra. La brecha está medi
 (30 millones al 97,5 %, **884 al 99 %**), como la de agregación del capítulo 1. Cualquier
 capítulo que vuelva a calcular un ES —el 8, el 15— usa esa misma convención o declara por qué
 no.
+
+El **capítulo 6** cierra la unidad 1 y fija la tercera convención: **el backtest reestima el
+modelo rueda a rueda con las 250 anteriores**, nunca sobre la muestra completa. Todo capítulo
+que valide un modelo —el 14, con el de crédito— hereda esa regla y la nombra. Sus cifras de
+referencia, por si otro capítulo las cita: 1 666 ruedas de prueba, **26 excepciones** del VaR
+histórico al 99 %, LR_uc 4,5175 · LR_ind 17,6911 · LR_cc 22,2086, Z₁ +0,2487, y **7
+excepciones** en la ventana regulatoria — zona amarilla, m = 3,65, 371 675 millones de
+capital. Los valores críticos de Acerbi-Székely (+0,0515 y +0,4217) van literales porque
+exigen simulación; están calculados con 200 000 réplicas y comprobados con tres semillas.
 
 **Las tres decisiones abiertas están resueltas** (2026-08-08, detalle en el plan):
 
@@ -97,6 +110,22 @@ El capítulo 5 añadió una quinta, y es la que más veces se ha repetido:
   existen, y ni React ni el verificador se quejan de lo que no existe. Antes de cerrar un
   capítulo, además del recorrido: `grep` de los nombres de propiedad contra la firma del
   componente, y `grep` de las clases `chart-h-*` contra las cuatro que el CSS define.
+
+El capítulo 6 añadió una sexta zona ciega, y esta es de prosa:
+
+6. **Una afirmación de la forma «no existe ninguno» hay que barrerla, no razonarla.** El
+   laboratorio del capítulo 6 afirmaba que ninguna combinación de ventana y nivel pasa la
+   prueba de independencia. Al recorrer las 170 que permiten los deslizadores resultó que
+   cinco la pasan y una pasa la conjunta. El verificador no puede comprobar una afirmación
+   sobre el rango de un laboratorio: solo quien la barra. **El hallazgo real casi siempre
+   es mejor que el que se dio por supuesto** — allí se convirtió en el argumento de por qué
+   las pruebas se fijan por escrito antes de correrlas.
+
+Y una advertencia de mecánica que el capítulo 6 pagó: **escribir los dos lenguajes es lo
+que caza los desfases de índice, pero no siempre al primer bloque.** La recursión del EWMA
+en R iba un índice corrida y el primer bloque no lo vio, porque las dos versiones daban el
+mismo conteo de excepciones por casualidad; lo destapó el segundo, con la matriz de
+transición. Cuando dos bloques comparten un cálculo, compare **más de un resumen** de él.
 
 ## Ciclo de trabajo
 

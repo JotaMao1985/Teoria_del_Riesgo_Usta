@@ -8,8 +8,8 @@
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
 **Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
 D-A, D-B y D-C resueltas · **D-D declarada el 2026-08-09** (tasa libre de riesgo, pendiente
-de ratificar) · fase 2 en curso: **tareas 7, 8, 9, 10 y 10-bis completadas** — queda T11 (C6)
-para cerrar la unidad 1 y llegar al punto de control C
+de ratificar) · **fase 2 completada**: tareas 7, 8, 9, 10, 10-bis y 11 · los seis capítulos de
+la unidad 1 pasan las doce reglas — pendiente el punto de control C
 
 ---
 
@@ -919,7 +919,7 @@ corrección de cifras por bloque.
 | 9 | C3 CAPM | M | 1 | ✅ **2026-08-09** |
 | 10 | C5 Expected Shortfall | M | 1 | ✅ **2026-08-09** |
 | **10-bis** | **Saneamiento de los capítulos 1–5** (4 defectos que el verificador no ve, y un quinto que apareció al hacerlo) | S | 1 | ✅ **completada 2026-08-10** |
-| 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
+| 11 | C6 Backtesting y marco regulatorio | M | 1 | ✅ **2026-08-10** |
 
 #### Tarea 7 · Capítulo 1 completo — **COMPLETADA 2026-08-08**
 
@@ -1057,6 +1057,28 @@ que darle `justificacion` a la opción correcta. Los cinco primeros no la tienen
 ahora, con la guarda, simplemente no muestran explicación; era eso o un recuadro
 vacío. Rellenarlas en los cinco es trabajo de autoría, no de saneamiento, y queda
 como pendiente separado.
+
+#### Tarea 11 · Capítulo 6 completo (backtesting) — **COMPLETADA 2026-08-10**
+
+**Criterios de aceptación:**
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] La cuota es exacta — `R1:2 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:2`, 15 ejercicios
+- [x] Las salidas `#>` coinciden con la ejecución real — **seis** bloques en los
+      dos lenguajes, 12 ejecutados y comparados, los doce dígito a dígito. No hay
+      ninguna excepción de dos pestañas: los valores críticos de Acerbi-Székely,
+      que exigen simulación, van literales y declarados
+- [x] Recorrido en el navegador: nueve secciones, tres gráficas, dos laboratorios
+      y el cuestionario, sin errores de consola
+- [x] Los dos laboratorios reproducen las cifras de los bloques de su sección —
+      el del backtest da 26 excepciones, LR_uc 4,5175, LR_ind 17,6911 y LR_cc
+      22,2086, que es exactamente lo que declara el bloque
+- [x] Los dos R3 respondidos en pantalla **en los dos lenguajes**, y las dos
+      `TablaTraza` completadas: 8/8 celdas cada una, calculadas desde los valores
+      redondeados que se muestran
+- [x] El R6 resuelto en pantalla: 4 de 4
+
+**Entregado:** `Material html/06_TDR_Backtesting.html` (324 KB) y
+`talleres/TDR-06.qmd`.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1599,6 +1621,77 @@ que no existe. Antes de dar un capítulo por terminado conviene, además del
 recorrido: `grep` de los nombres de propiedad contra la firma del componente en
 `_plantilla/tr-core-*.jsx`, y `grep` de las clases `chart-h-*` contra las cuatro
 que el CSS define.
+
+---
+
+### Fase 2 — Tarea 11: capítulo 6 · 2026-08-10
+
+Nueve secciones, **seis** bloques ejecutados en los dos lenguajes, tres gráficas
+y dos laboratorios. Doce reglas en verde y `--con-salidas` con cero
+discrepancias: los doce bloques se escribieron y se ejecutaron fuera del
+capítulo antes de entrar en él. **Ninguna excepción de dos pestañas** — la
+primera de las tareas de capítulo que no necesita ninguna—: los valores críticos
+de Acerbi-Székely, que solo se obtienen simulando, se calcularon fuera y entran
+como constantes declaradas.
+
+**El hallazgo del capítulo: contar excepciones no distingue modelos, y medirlas
+sí.** El VaR histórico y el paramétrico normal fallan **26 veces** los dos, con
+la misma tasa, el mismo LR_uc de 4,5175 y la **misma matriz de transición**
+(1618, 21, 21, 5). Kupiec y Christoffersen dan veredictos idénticos. Y sin
+embargo no son los mismos días: coinciden en 23 y cada uno tiene tres propios.
+Lo que los separa es Z₁ de Acerbi-Székely, +0,2487 contra +0,6107 — el normal se
+queda **2,5 veces más corto** en la cola—. La coincidencia de los cuatro
+estadísticos sobre dos conjuntos distintos de días no estaba prevista y es la
+tesis de las secciones 2 y 4.
+
+**El segundo hallazgo es el que cuesta dinero: el marco premia lo que no mide.**
+Sobre la ventana regulatoria, el histórico cae en amarilla con 7 excepciones —m
+= 3,65, capital 371 675 millones— y el normal en verde con 4 —m = 3,00, capital
+309 852—. El fondo pagaría **61 823 millones menos** por usar el modelo con el
+peor Z₁ de los cuatro. El semáforo cuenta y no mide, y la brecha va en las dos
+direcciones: empieza a cobrar recargo en la quinta excepción, donde Kupiec da p
+= 0,1619 y no rechaza nada, y absuelve el conteo cero, que Kupiec **sí** rechaza
+con LR_uc = 5,025.
+
+**El modelo que pasa Kupiec es el que peor agrupa, y ese es el primer R3.** La t
+de 4,23 gl es la única de las cuatro que Kupiec no rechaza (p = 0,3044) y la que
+peor pasa la independencia (LR_ind = 22,2724): tras una excepción, la siguiente
+es **24,5 veces** más probable. Adoptarla por su buen conteo bajaría el
+multiplicador de 3,65 a 3,00 y liberaría 18 617 millones — cambiar a un modelo
+peor y cobrar por ello.
+
+**Ninguno de los cinco modelos ensayados pasa la prueba conjunta**, y eso se
+declara como resultado en la sección 7 en vez de esconderse: el panel contiene
+marzo de 2020 y ninguna familia calibrada sobre las 250 ruedas anteriores
+anticipa cuatro pérdidas de dos dígitos en diez ruedas. El remedio del capítulo
+—EWMA con innovaciones t, que junta el ingrediente que le faltaba a cada uno—
+mejora las cuatro columnas a la vez y pasa una: su Z₁ baja de +0,3377 a +0,0974
+y sigue al doble del crítico.
+
+**Lo que el navegador cazó y el verificador no.** Una afirmación mía que era
+falsa. El laboratorio del backtest decía que «no hay ninguna combinación de
+ventana y nivel en toda la malla que pase la independencia». Al comprobarlo
+sobre las 170 combinaciones de los dos deslizadores resultó que **cinco** pasan
+la independencia y **una** pasa la conjunta: ventana de 175 ruedas al 99,5 %,
+con 14 excepciones. El hallazgo real es mejor que el que estaba escrito, y ahora
+es el R9 y el tercer ítem del acordeón de la sección 7: encontrar esa casilla
+buscando entre 170 no es calibrar, es elegir el resultado, y por eso el segundo
+paso del R5 fija las pruebas por escrito antes de correr nada. **Moraleja para
+lo que queda: toda afirmación de la forma «no existe ninguno» hay que barrerla,
+no razonarla.**
+
+**Y un desfase de un índice que solo apareció por escribir los dos lenguajes.**
+La recursión del EWMA en R usaba `L[VENT + k - 2]` donde Python usa
+`L[VENT + k - 1]`. El primer bloque —el de Kupiec— **no lo vio**: las dos
+versiones daban 32 excepciones, por casualidad. Lo destapó el segundo, cuando la
+matriz de transición salió (1606, 27, 27, 5) en R y (1604, 29, 29, 3) en Python.
+Es exactamente la tesis del capítulo aplicada al capítulo: el conteo coincidía y
+los días no.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-06.qmd`.
+Quarto sigue sin estar instalado. El bloque ejecutable de la parte 1 se corrió a
+mano con `Rscript` desde `talleres/` y da las cifras del capítulo: 26
+excepciones, tasa 1,56 %, LR_uc 4,5175 y p 0,0336.
 
 ---
 
