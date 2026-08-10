@@ -16,12 +16,19 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · pendiente el **punto de control C** |
+| 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
-⚠️ **Lo siguiente es el punto de control C** (revisión con el usuario, criterios en
-el plan), y después la fase 3 empieza por el capítulo 7. Antes de la fase 3 conviene
-ratificar **D-D**, la tasa libre de riesgo.
+⚠️ **Lo siguiente es la fase 3, que empieza por el capítulo 7.** El punto de control C
+quedó aprobado el 2026-08-10 con las cuatro comprobaciones hechas con evidencia, y
+**D-D quedó ratificada**: la tasa libre de riesgo del curso es **7,00 % E.A.**, y la usan
+C3, C7, C11 y C12. Ojo con la convención — el 7,00 % es efectivo y el curso anualiza
+logarítmicos por 252, con lo que la misma tasa vale **6,7667 %**; el capítulo que la use
+declara cuál aplica.
+
+El instrumento calificado de la unidad 1 es **`talleres/TDR-U1.qmd`**, el taller VaR→ES con
+bitácora y backtest obligatorio. Los seis talleres de capítulo son práctica. Las unidades 2
+y 3 necesitan el suyo, y va en la tarea 22.
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
@@ -45,7 +52,7 @@ excepciones** en la ventana regulatoria — zona amarilla, m = 3,65, 371 675 mil
 capital. Los valores críticos de Acerbi-Székely (+0,0515 y +0,4217) van literales porque
 exigen simulación; están calculados con 200 000 réplicas y comprobados con tres semillas.
 
-**Las tres decisiones abiertas están resueltas** (2026-08-08, detalle en el plan):
+**Las cuatro decisiones están resueltas** (detalle en el plan):
 
 - **D-A · pesos del portafolio:** se mantienen 30/20/25/25 sobre 800 000 millones. El
   capítulo 1 los presenta como decisión declarada del curso, con tres criterios explícitos.
@@ -53,12 +60,9 @@ exigen simulación; están calculados con 200 000 réplicas y comprobados con tr
   capítulo 4. El capítulo 2 lo cuenta; el 1 ya lo anuncia.
 - **D-C · punto de control B:** aprobado tal cual. Mismas convenciones para lo que queda.
 
-⚠️ **D-D está declarada pero sin ratificar** (2026-08-09). El capítulo 3 necesitaba una
-tasa libre de riesgo y no había ninguna en el plan, así que declara **7,00 % E.A.** como
-decisión del curso, del mismo tipo que D-A. La usan dos bloques y una gráfica del capítulo
-3, y **afecta a C7, C11 y C12**: conviene ratificarla o cambiarla antes de la fase 3.
-Ojo con la convención: el 7,00 % es efectivo y el curso anualiza logarítmicos por 252, con
-lo que la misma tasa vale **6,7667 %**. Mezclarlas mueve las cifras de la SML.
+- **D-D · tasa libre de riesgo: ratificada** (2026-08-10) en **7,00 % E.A.**, sin recálculo.
+  Decisión declarada del curso, no estimación. Se sustituirá por el TES del plazo que
+  corresponda cuando exista `curva_tes.csv`, y esa sustitución será una revisión de D-D.
 
 ⚠️ **El verificador tiene dos zonas ciegas, y las dos se cierran abriendo el capítulo.**
 
@@ -102,10 +106,6 @@ El capítulo 5 añadió una quinta, y es la que más veces se ha repetido:
 - **`chart-h-400` ya existe.** Las cuatro clases definidas son `chart-h-320`, `-360`, `-400`
   y `-420`. Van en el `<style>` de la cabecera, que **`migrar.py` no estampa**: una clase
   nueva hay que añadirla en `_plantilla/tr-head.html` **y a mano en cada capítulo**.
-- ⚠️ **Un `MCQ` nuevo lleva `justificacion` en su opción correcta.** Ninguno de los cinco
-  primeros la tiene, y el componente pintaba igual el rótulo «Explicación:» vacío; ahora hay
-  guarda, así que sin `justificacion` no se muestra explicación ninguna. Rellenar las de los
-  cinco primeros es pendiente de autoría.
 - **El método que estos cinco defectos dejan:** todos son propiedades o clases que no
   existen, y ni React ni el verificador se quejan de lo que no existe. Antes de cerrar un
   capítulo, además del recorrido: `grep` de los nombres de propiedad contra la firma del
@@ -126,6 +126,24 @@ que caza los desfases de índice, pero no siempre al primer bloque.** La recursi
 en R iba un índice corrida y el primer bloque no lo vio, porque las dos versiones daban el
 mismo conteo de excepciones por casualidad; lo destapó el segundo, con la matriz de
 transición. Cuando dos bloques comparten un cálculo, compare **más de un resumen** de él.
+
+El punto de control C (2026-08-10) añadió la séptima, y es sobre cómo se cierran las otras:
+
+7. **Corregir los casos conocidos no cierra una familia de defectos; hay que barrer el
+   rango.** La tarea 10-bis dio por resuelto el asunto de las alturas añadiendo
+   `chart-h-400`, y el capítulo 2 seguía usando **`chart-h-380`**, que no existe: sus dos
+   elementos medían 450 px, la altura por omisión de Plotly. Mismo defecto, valor distinto,
+   sobrevivió a su propia corrección. Lo mismo pasó con las justificaciones: el pendiente
+   decía «los `MCQ`» y eran **90 preguntas** en tres familias —4 `MCQ` + 1 `Comparador` +
+   10 `Quiz` por capítulo—, porque **el `Comparador` monta un `MCQ` por dentro** y un `grep`
+   de `<MCQ` no lo encuentra. Barra por propiedad (`opciones={`, `preguntas={`) y no por
+   nombre de componente, y cuente haciendo clic, no leyendo el archivo.
+
+⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
+correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la
+**pregunta**, no en la opción). Las 90 de la unidad 1 ya están escritas. La regla editorial:
+la justificación **no repite la opción correcta**, añade la cifra del capítulo, la
+consecuencia en pesos y el puente al capítulo que retoma el asunto.
 
 ## Ciclo de trabajo
 

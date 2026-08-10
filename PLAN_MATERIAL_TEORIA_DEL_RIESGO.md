@@ -6,10 +6,10 @@
 **Espacio académico:** Pregrado profesional, Estadística · Periodo 8 · Obligatorio · Teórico-práctico
 **Créditos:** 2 · **Horas:** 64 acompañadas + 32 autónomas = 96
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
-**Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
-D-A, D-B y D-C resueltas · **D-D declarada el 2026-08-09** (tasa libre de riesgo, pendiente
-de ratificar) · **fase 2 completada**: tareas 7, 8, 9, 10, 10-bis y 11 · los seis capítulos de
-la unidad 1 pasan las doce reglas — pendiente el punto de control C
+**Estado:** fases 0, 1 y 2 completadas · **puntos de control B y C aprobados** (B el
+2026-08-08, C el 2026-08-10) · D-A, D-B, D-C y **D-D ratificada el 2026-08-10** (tasa libre
+de riesgo, 7,00 % E.A.) · los seis capítulos de la unidad 1 pasan las doce reglas con
+`--con-salidas` · **lo siguiente es la fase 3**, que empieza por el capítulo 7
 
 ---
 
@@ -517,12 +517,26 @@ backtest falla.
 - **Ejercicios:** R1 (\(LR_{uc}\) con doce excepciones) · R2 ×2 · R3 ×2 (la IA acepta un modelo con excepciones agrupadas porque el conteo total cuadra; la IA aplica Kupiec al ES) · R4 (Kupiec vs Christoffersen sobre la misma serie) · R5 (orden del procedimiento de backtest) · R6 (`FichaNorma` SARM) · R7 ×2 · R8 · R9.
 - **Depende de:** C4, C5.
 
-### ✅ Punto de control C — Unidad 1 completa
-- [ ] Seis capítulos pasan `verificar.py --con-salidas`
-- [ ] Las 24 h del syllabus están cubiertas y suman lo declarado
-- [ ] El hilo del fondo de pensiones es continuo entre C1 y C6
-- [ ] El taller VaR→ES del syllabus se puede armar con el material existente
-- [ ] Revisión con el usuario
+### ✅ Punto de control C — Unidad 1 completa · **APROBADO 2026-08-10**
+- [x] Seis capítulos pasan `verificar.py --con-salidas` — seis OK, sin avisos, TR-CORE
+      `1782905c90e0a6b8…` idéntico en los seis; el mayor pesa 340 KB
+- [x] Las 24 h del syllabus están cubiertas y suman lo declarado — `CONFIG.horas`
+      4+6+3+5+3+3 = **24**, y los ocho contenidos de la U1 tienen sección (C5 absorbe el 5
+      y el 7, C6 el 6 y el 8)
+- [x] El hilo del fondo de pensiones es continuo entre C1 y C6 — la serie `RP` embebida es
+      **byte a byte la misma en los seis** (n = 1 916, sha `ff9adfde…`), los 800 000 millones
+      y los cuatro emisores aparecen en los seis, y el VaR de 32 617 millones viaja de C4 a
+      C1, C3, C5 y C6. Las 35 secciones abren con `<Motivacion>`
+- [x] El taller VaR→ES del syllabus se puede armar con el material existente — y se armó:
+      **`talleres/TDR-U1.qmd`**, el instrumento calificado de la unidad, con R1, R3, R4 y R5,
+      bitácora en nivel 3 y backtest obligatorio. Sus tres bloques ejecutables corren y dan
+      las cifras del material
+- [x] Revisión con el usuario — **2026-08-10**, con la tarea 11-bis como condición de cierre
+
+**Lo que la revisión encontró y el verificador no podía ver:** `chart-h-380`, una clase que
+no existe, en dos elementos del capítulo 2 —medían 450 px, la altura por omisión de
+Plotly—; y **90 preguntas sin explicación** en los seis capítulos, no 30 como se creía. Las
+dos cosas quedaron corregidas en la tarea 11-bis antes de aprobar el punto de control.
 
 ---
 
@@ -920,6 +934,7 @@ corrección de cifras por bloque.
 | 10 | C5 Expected Shortfall | M | 1 | ✅ **2026-08-09** |
 | **10-bis** | **Saneamiento de los capítulos 1–5** (4 defectos que el verificador no ve, y un quinto que apareció al hacerlo) | S | 1 | ✅ **completada 2026-08-10** |
 | 11 | C6 Backtesting y marco regulatorio | M | 1 | ✅ **2026-08-10** |
+| **11-bis** | **Cierre del punto de control C**: `chart-h-380`, las 90 justificaciones y el taller de unidad | M | 1 | ✅ **completada 2026-08-10** |
 
 #### Tarea 7 · Capítulo 1 completo — **COMPLETADA 2026-08-08**
 
@@ -1080,7 +1095,25 @@ como pendiente separado.
 **Entregado:** `Material html/06_TDR_Backtesting.html` (324 KB) y
 `talleres/TDR-06.qmd`.
 
-→ **Punto de control C** (definido en la sección 7)
+#### Tarea 11-bis · Cierre del punto de control C — **COMPLETADA 2026-08-10**
+
+**Criterios de aceptación:**
+- [x] Ninguna clase `chart-h-*` sin definir — barrido de los seis capítulos contra las
+      cuatro que el CSS declara; `chart-h-380` corregida y medida en el navegador: los dos
+      elementos del capítulo 2 pasan de 450 px a 400
+- [x] Ninguna pregunta sin explicación — **90 justificaciones** escritas: 4 `MCQ` + 1
+      `Comparador` + 10 `Quiz` por capítulo, las quince en cada uno
+- [x] Comprobado en el navegador: los seis capítulos renderizan, el cuestionario integrador
+      califica 10/10 y muestra sus diez explicaciones en los seis, y los `MCQ` muestran la
+      suya. Sin errores de consola
+- [x] Las doce reglas siguen en verde con `--con-salidas` después de los tres cambios
+- [x] `talleres/TDR-U1.qmd` escrito y con sus bloques ejecutables corridos con `Rscript`:
+      1 916 sesiones, σ 1,5764 %, VaR 99 % 4,077 %, 26 excepciones, LR~uc~ 4,5175, p 0,0336
+- [x] D-D ratificada
+
+**Entregado:** los seis capítulos actualizados y `talleres/TDR-U1.qmd`.
+
+→ **Punto de control C aprobado** (criterios y evidencia en la sección 7)
 
 ---
 
@@ -1118,8 +1151,14 @@ Portal `index.html` con las tres unidades, los quince capítulos, sus horas, sus
 AIAS. Enlaces entre capítulos consecutivos. · **Alcance: S**
 
 #### Tarea 22 · Cuadernos Quarto
-Los quince `.qmd` con el taller ejecutable de cada capítulo, `_quarto.yml`, y una pasada de
-`quarto render` que no falle. · **Alcance: M**
+Los quince `.qmd` con el taller ejecutable de cada capítulo, **más los tres talleres de
+unidad** —`TDR-U1.qmd` ya escrito, y sus equivalentes de la U2 y la U3, que son los
+instrumentos calificados del syllabus—, `_quarto.yml`, y una pasada de `quarto render` que
+no falle. · **Alcance: M**
+
+⚠️ **Quarto no está instalado** y ningún `.qmd` se ha renderizado nunca. `brew install
+--cask quarto` exige `sudo` con terminal. Hasta entonces, los bloques ejecutables se
+comprueban a mano con `Rscript` desde `talleres/`.
 
 #### Tarea 23 · Pase final
 `verificar.py --con-salidas` sobre los quince, auditoría de contraste resuelta o justificada
@@ -1436,7 +1475,18 @@ error de un punto. La beta es un cociente de segundos momentos y la prima un pri
 momento, y esa diferencia explica por qué el CAPM se usa a diario para medir riesgo y casi
 nunca para predecir rendimientos.
 
-#### D-D · La tasa libre de riesgo del curso es 7,00 % E.A., declarada
+#### D-D · La tasa libre de riesgo del curso es 7,00 % E.A. · **RATIFICADA 2026-08-10**
+
+**Ratificada tal cual en el punto de control C**, sin recálculo. El 7,00 % efectivo anual
+queda como decisión declarada del curso para C3 y para todo lo que venga: **C7** (CML y
+máximo Sharpe), **C11** y **C12** (descuento y valoración de derivados). La convención va
+con ella: el 7,00 % es efectivo, el curso anualiza logarítmicos por 252 y la misma tasa vale
+**6,7667 %** en esa convención; los capítulos que la usen declaran cuál de las dos aplican.
+Cuando exista `curva_tes.csv` se sustituye por el TES del plazo que corresponda, y esa
+sustitución es una revisión de D-D, no un cambio silencioso.
+
+*(Lo de abajo es la declaración original del 2026-08-09, que se conserva por el razonamiento
+y por la trampa de convención que documenta.)*
 
 Decisión nueva, del mismo tipo que D-A y tomada con el mismo criterio: el CAPM la necesita,
 `curva_tes.csv` sigue pendiente, y no había ninguna en el plan. Se declara **7,00 % efectivo
@@ -1692,6 +1742,65 @@ los días no.
 Quarto sigue sin estar instalado. El bloque ejecutable de la parte 1 se corrió a
 mano con `Rscript` desde `talleres/` y da las cifras del capítulo: 26
 excepciones, tasa 1,56 %, LR_uc 4,5175 y p 0,0336.
+
+---
+
+### Fase 2 — Punto de control C y tarea 11-bis · 2026-08-10
+
+Los cuatro criterios técnicos del punto de control se comprobaron con evidencia y no con
+lectura, y **dos de los cuatro destaparon trabajo**. Las cifras están en la sección 7.
+
+**El hilo conductor se puede demostrar, no solo afirmar.** La serie `RP` que embeben los
+seis capítulos es byte a byte idéntica —1 916 valores, sha `ff9adfde…`—, y el VaR de 32 617
+millones aparece en cinco de los seis. Es la prueba de que D7 se cumplió y el método para
+comprobarlo en las unidades 2 y 3: comparar el hash de la serie embebida, no leer la prosa.
+
+**El taller de unidad no existía, y era un entregable del syllabus.** El instrumento
+calificado de la U1 es *uno*: «Taller VaR→ES con bitácora de IA y backtest obligatorio». Lo
+que había eran seis talleres de capítulo, cada uno dentro del suyo. `talleres/TDR-U1.qmd`
+lo arma en ocho partes alrededor de una sola decisión —con qué medida reporta el fondo a
+partir del próximo trimestre— y trae los cuatro tipos que el syllabus le asigna: R5 en la
+declaración previa, R1 en la traza del ES a mano, R4 en la comparación de métodos y en la
+migración, R3 en la auditoría. Los seis talleres de capítulo se quedan como práctica.
+
+**Lo que costó dinero de verdad: `chart-h-380`.** La tarea 10-bis dio por cerrado el asunto
+de las clases de altura añadiendo `chart-h-400`, pero **no barrió los valores ya escritos**.
+El capítulo 2 usaba `chart-h-380` en dos sitios —una `ChartFrame` y un `Laboratorio`— y esa
+clase no la define nadie: medidos en el navegador, los dos elementos daban **450 px**, que es
+la altura por omisión de Plotly. Es exactamente el defecto que 10-bis creía haber eliminado,
+sobreviviendo por un valor distinto. **Moraleja: cerrar una familia de defectos exige barrer
+el rango de valores, no corregir los casos conocidos.**
+
+**Y el hallazgo de tamaño: no eran 30 preguntas sin explicación, eran 90.** El plan hablaba
+de «los `MCQ` de los cinco primeros capítulos». Al abrir el capítulo 1 y responder todo lo
+que tiene botón de comprobar aparecieron tres familias, no una:
+
+| Componente | Por capítulo | En la U1 | Dónde vive `justificacion` |
+|---|---:|---:|---|
+| `MCQ` sueltos | 4 | 24 | en la opción correcta |
+| `Comparador` (R4) | 1 | 6 | monta un `MCQ` por dentro, con sus mismas `opciones` |
+| `Quiz` integrador | 10 | 60 | en la **pregunta**, no en la opción |
+| | | **90** | |
+
+Las 90 escritas. La regla editorial que se siguió: la justificación **no repite la opción
+correcta** —que en este material ya viene razonada—, sino que añade la cifra del capítulo, la
+consecuencia en pesos y el puente al capítulo que retoma el asunto. El `Quiz` es el que más
+lo agradece, porque es el que prepara el examen final presencial No-AI.
+
+**Lo que esto deja como método**, y vale para los nueve capítulos que faltan:
+
+1. **Un componente que envuelve a otro hereda sus zonas ciegas.** `grep` de `<MCQ` no
+   encuentra los `MCQ` que monta el `Comparador`. Barra por **propiedad** —`opciones={`,
+   `preguntas={`— y no por nombre de componente.
+2. **Contar en el navegador, no en el archivo.** El recuento correcto salió de hacer clic en
+   todo lo que tiene botón «Comprobar», no de un `grep`.
+3. **Un capítulo nuevo nace con sus 15 justificaciones**: 4 + 1 + 10. Ya no es deuda que se
+   arrastre.
+
+**Lo que sigue sin poder verificarse:** `quarto render`, sobre los seis talleres y sobre
+`TDR-U1.qmd`. `brew install --cask quarto` exige `sudo` con terminal, así que la instalación
+queda del lado del usuario. Los bloques ejecutables de `TDR-U1.qmd` se corrieron a mano con
+`Rscript` y dan las cifras del material.
 
 ---
 

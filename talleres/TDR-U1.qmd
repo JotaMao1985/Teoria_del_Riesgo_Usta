@@ -1,0 +1,358 @@
+---
+title: "Taller de unidad 1 · Del VaR al Expected Shortfall, con backtest obligatorio"
+subtitle: "Teoría del Riesgo · Unidad 1 · RA1, RA2 y RA3 · instrumento calificado"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Qué es este taller y en qué se diferencia de los seis anteriores {.unnumbered}
+
+Los talleres 1 a 6 son práctica de capítulo: cada uno se queda dentro del suyo.
+**Este es el instrumento calificado de la unidad**, y su pregunta es una que
+ningún capítulo puede contestar solo:
+
+> El comité de riesgos del fondo tiene que decidir con qué medida reporta el
+> riesgo de mercado del portafolio a partir del próximo trimestre, y defenderla
+> ante la Superfinanciera. ¿VaR al 99 % o *Expected Shortfall* (déficit
+> esperado) al 97,5 %? ¿Con qué método de estimación? ¿Y con qué evidencia de
+> que el número elegido resiste una prueba retrospectiva?
+
+Todo lo que sigue existe para llegar a esa recomendación con cifras propias. Se
+califica la decisión y su defensa, no la cantidad de código.
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 7. Un
+taller sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es*
+uno de los productos evaluados.
+
+La **parte 6** es la excepción y va en nivel 1 · No AI, porque consiste
+precisamente en auditar a la IA.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-U1-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use
+`scipy.stats` donde el andamio use `qnorm`, `qt` y `pchisq`. El taller está
+escrito para las dos rutas y se califica igual por cualquiera de ellas. Salvo
+las partes que simulan —3.4 y 5.2, donde la semilla se declara—, todo es cálculo
+cerrado y los dos lenguajes devuelven exactamente lo mismo.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar este taller antes del primer cálculo
+
+**Elegir la medida después de ver los resultados.** La parte 1 se entrega
+declarada. Si en la parte 8 recomienda algo distinto de lo que declaró, eso no
+es un problema: es un hallazgo, y hay que contarlo como tal. Lo que no se acepta
+es reescribir la parte 1 para que coincida con el final.
+
+**Mirar hacia adelante en el backtest.** El VaR de la rueda *t* se estima con
+información disponible al cierre de *t*−1 y con nada más. Si su código no
+reestima una vez por rueda, está midiendo el ajuste y no la predicción.
+
+**Confundir el ES con un cuantil.** El ES al 97,5 % no es el percentil 97,5 de
+las pérdidas: es la media de las pérdidas que superan ese percentil. Es el error
+más frecuente del dominio y aparece en la parte 6 sin avisar.
+:::
+
+---
+
+## Parte 1 · La declaración previa {#sec-declaracion}
+
+Antes de ejecutar un solo bloque, complete esta tabla. Todo lo que siga se juzga
+contra ella.
+
+| Decisión | Su declaración | Por qué |
+|---|---|---|
+| Medida que va a reportar | | |
+| Nivel de confianza | | |
+| Método de estimación | | |
+| Ventana de estimación | | |
+| Pruebas de validación y su significancia | | |
+| Criterio de exclusión de datos, si alguno | | |
+
+**1.1 · R5 · Ordene el procedimiento.** Las nueve tareas de abajo son las de un
+ciclo completo de medición y validación. Póngalas en el orden en que deben
+ejecutarse y **justifique cada dependencia** en una línea: no basta el orden, hay
+que decir qué se rompería si dos pasos se invirtieran.
+
+a. Contrastar las excepciones con Kupiec, Christoffersen y Acerbi-Székely.
+b. Fijar por escrito la medida, el nivel y la ventana.
+c. Calcular el ES sobre las ruedas que exceden el VaR.
+d. Diagnosticar la calidad del panel de precios y declarar sus defectos.
+e. Estimar el VaR rueda a rueda con la ventana declarada.
+f. Construir la serie de rendimientos del portafolio con los pesos del fondo.
+g. Calcular el multiplicador y el capital de la zona semáforo.
+h. Escribir la recomendación al comité.
+i. Comprobar que las salidas de los dos lenguajes coinciden.
+
+Dos de las nueve pueden ir en cualquier orden entre ellas. Diga cuáles y por qué.
+
+---
+
+## Parte 2 · El VaR, por los tres caminos
+
+```{r}
+#| label: parte2-portafolio
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w <- c(0.30, 0.20, 0.25, 0.25)
+W <- 800000                                  # millones de pesos
+
+rp <- as.vector(diff(log(as.matrix(precios[, acciones]))) %*% w)
+L  <- -rp * 100                              # pérdidas del portafolio, en %
+
+c(sesiones = length(L),
+  media    = round(mean(rp) * 100, 4),
+  sigma    = round(sd(rp) * 100, 4),
+  var99    = round(quantile(L, 0.99, names = FALSE), 3))
+```
+
+**2.1** Reproduzca los tres VaR del capítulo 4 al 95 % y al 99 %: paramétrico
+normal, paramétrico t y histórico. Debe obtener **2,562 / 2,372 / 2,192 %** al
+95 % y **3,637 / 4,132 / 4,077 %** al 99 %. Preséntelos en una sola tabla, en
+porcentaje y en millones sobre los 800 000 del fondo.
+
+**2.2 · R4 · Compare los tres métodos.** El orden entre el normal y el histórico
+se invierte entre los dos niveles. Explique qué propiedad de los datos lo produce
+—con la cifra que la mide— y determine **por búsqueda numérica** el nivel α en
+que los dos coinciden. Reporte ese α con tres decimales.
+
+**2.3** El panel tiene dos defectos declarados en `datos/MANIFIESTO.md`: 101
+ruedas sin variación en ningún precio y el par del 19 y 20 de febrero de 2025.
+Cuantifique el efecto de excluir el par sobre los tres VaR al 99 % y sobre la
+volatilidad. Después decida si los excluye o no **para el resto del taller**, y
+anote la decisión en la tabla de la parte 1. Las dos respuestas son defendibles;
+lo que se califica es que la decisión sea previa y esté fundamentada.
+
+---
+
+## Parte 3 · Del VaR al Expected Shortfall
+
+**3.1 · R1 · Traza a mano.** Sin computador y sin IA. Estas son las veinte peores
+pérdidas del panel, en porcentaje y ordenadas de mayor a menor. Son exactamente
+las veinte que superan el VaR al 99 %, que vale 4,077 %:
+
+```
+17.76  13.17  12.77  11.24   9.59   5.89   5.13   4.94   4.68   4.46
+ 4.38   4.37   4.35   4.31   4.27   4.22   4.19   4.10   4.10   4.08
+```
+
+Calcule, mostrando cada paso en el documento:
+
+a. El ES al 99 % como promedio simple de las veinte. Le debe dar **6,60 %**.
+b. Cuántas ruedas *debería* promediar el ES exacto, que es n(1−α) con n = 1 916,
+   y por tanto cuántas ruedas de más está promediando el cálculo de (a).
+c. El ES exacto es **6,710 %**. Convierta la brecha a pesos sobre los 800 000
+   millones del fondo y diga **en qué dirección** yerra el promedio simple.
+
+El literal (c) es la **convención declarada del curso** y hay que nombrarla como
+tal: el material calcula el ES como promedio simple de las ruedas que exceden el
+VaR, y la brecha con el exacto está medida en 884 millones al 99 % y 30 millones
+al 97,5 %. Diga por qué la brecha es mucho mayor al 99 % que al 97,5 %, y si la
+dirección del error le parece aceptable para un informe regulatorio.
+
+**3.1 bis** Repita (a) quitando la peor rueda de las veinte. El ES cae en más de
+medio punto porcentual con una sola observación de 1 916. Esa sensibilidad es el
+argumento de la parte 5.3 y conviene tenerla medida antes de llegar allí.
+
+**3.2** Con código, calcule el ES histórico al 97,5 % y al 99 % del portafolio.
+Debe obtener **4,727 %** y **6,599 %**. Reporte también el cociente ES/VaR en los
+dos niveles y el número de ruedas que entran en cada cola.
+
+**3.3 · R4 · La migración regulatoria.** Calcule qué cuesta pasar de VaR 99 % a
+ES 97,5 % bajo las tres distribuciones. Debe obtener **+0,5 %** con la normal,
+**+6,1 %** con la t y **+16,0 %** con el histórico, es decir 5 203 millones en el
+último caso. Explique en cuatro líneas por qué el Comité de Basilea eligió
+precisamente el 97,5 % y qué propiedad de una cartera hace que la migración le
+salga cara.
+
+**3.4** Compruebe la coherencia sobre datos reales: parta el portafolio en dos
+mitades por emisor, calcule el VaR y el ES de cada mitad y de la suma, y verifique
+la subaditividad de los dos. Reporte el resultado. Si el VaR resulta subaditivo
+en su partición, diga por qué eso **no** demuestra nada sobre el VaR en general —y
+construya, si puede, una partición del mismo portafolio en que falle—.
+
+---
+
+## Parte 4 · El backtest, que es obligatorio
+
+Ninguna recomendación de la parte 8 se acepta sin esta parte completa.
+
+```{r}
+#| label: parte4-backtest
+VENT <- 250; ALFA <- 0.99
+T <- length(L) - VENT
+
+var_hist <- numeric(T)
+for (k in 1:T) var_hist[k] <- quantile(L[k:(k + VENT - 1)], ALFA, names = FALSE)
+Lt  <- L[(VENT + 1):length(L)]
+exc <- Lt > var_hist
+
+kupiec <- function(N, T, p) {
+  pi <- N / T
+  lr <- -2 * ((T-N)*log(1-p) + N*log(p) - (T-N)*log(1-pi) - N*log(pi))
+  c(N = N, tasa = pi, lr = lr, p = 1 - pchisq(lr, 1))
+}
+round(kupiec(sum(exc), T, 1 - ALFA), 4)
+```
+
+**4.1** El bloque debe dar **26 excepciones** sobre 1 666 ruedas, tasa 1,56 %,
+LR~uc~ = **4,5175** y p = **0,0336**. Si no coincide, deténgase: el resto del
+taller estará mal y no lo sabrá.
+
+**4.2** Añada Christoffersen —matriz de transición, LR~ind~ y LR~cc~— y compruebe
+en código, con `stopifnot()` y una tolerancia declarada, que LR~cc~ = LR~uc~ +
+LR~ind~. Debe obtener **17,6911** y **22,2086**.
+
+**4.3** Repita 4.1 y 4.2 con el VaR **paramétrico normal** reestimado rueda a
+rueda. Obtendrá las mismas 26 excepciones y el mismo LR~uc~. Demuestre en código
+que aun así **no son los mismos días** y reporte cuántos comparten. Después
+conteste: ¿qué prueba de las que ha corrido puede distinguirlos, y por qué las
+otras no?
+
+**4.4** Calcule Z~1~ de Acerbi-Székely para los dos modelos —debe obtener
+**+0,2487** y **+0,6107**— y compárelos con el valor crítico de **+0,0515**, que
+el capítulo 6 obtuvo simulando 200 000 réplicas. Diga cuál de los dos mide peor la
+cola y en qué proporción.
+
+**4.5** Repita el backtest con la medida que usted declaró en la parte 1. Si
+declaró ES, tenga cuidado: la tasa de excedencia del ES **no** es 1−α y depende de
+la forma de la cola. Diga cuál es sobre este panel y por qué contrastarla con
+Kupiec al 1 % sería un error.
+
+---
+
+## Parte 5 · Lo que cuesta la decisión
+
+**5.1** Sobre la **ventana regulatoria** —las últimas 250 ruedas—, calcule para
+los dos modelos de la parte 4: número de excepciones, zona del semáforo,
+multiplicador y capital exigido. Debe obtener **7 excepciones, zona amarilla,
+m = 3,65 y 371 675 millones** para el histórico, y **4, verde, 3,00 y 309 852**
+para el normal.
+
+**5.2** El fondo pagaría **61 823 millones menos** usando el modelo con el peor
+Z~1~. Explique en cinco líneas por qué el marco produce ese incentivo y qué
+tendría que medir el semáforo para no producirlo. Cite las dos cifras que
+sostienen su argumento.
+
+**5.3** Estime por simulación, con semilla declarada, la **potencia** de la prueba
+de Kupiec con T = 250 al 99 %: la probabilidad de rechazar cuando la tasa
+verdadera es del 2 %, del 3 % y del 5 %. Con esas tres cifras, responda: un
+supervisor que valida sobre 250 ruedas, ¿qué clase de modelo malo detecta y cuál
+se le escapa?
+
+---
+
+## Parte 6 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**6.1** Pídale a un modelo de lenguaje que *«calcule el VaR y el Expected
+Shortfall al 97,5 % de un portafolio a partir de un archivo de precios diarios,
+valide el modelo con una prueba retrospectiva y diga si sirve para reporte
+regulatorio»*. Pegue aquí el prompt exacto y la respuesta completa, sin editar.
+
+**6.2 · R3 · Audítela.** Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección, en pesos |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención seis cosas, que son los errores que los tres capítulos
+de esta unidad documentan como los más frecuentes: si el **ES se calculó como un
+cuantil** en vez de como una media de cola; si el VaR se **reestimó rueda a
+rueda** o de una vez sobre toda la muestra; si se **sumaron los VaR individuales**
+para obtener el del portafolio; si se **escaló con la raíz del tiempo** una serie
+autocorrelacionada; si la palabra «validado» se apoya en una sola prueba; y si
+algún resultado simulado se reportó **sin su error estándar**.
+
+**6.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo. Ocurre, y
+afirmarlo con evidencia vale lo mismo que encontrar un fallo.
+
+---
+
+## Parte 7 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 8 · La recomendación al comité
+
+**8.1** Vuelva a la parte 1 y compare su declaración con lo que las partes 2 a 5
+produjeron. Si cambió de opinión, dígalo explícitamente y explique qué cifra se la
+cambió. **Cambiar de opinión con evidencia se califica mejor que acertar de
+entrada sin ella.**
+
+**8.2** Escriba la nota al comité. **Una página, sin fórmulas y sin código.** Debe
+contener, en este orden:
+
+1. La recomendación en la primera frase: qué medida, a qué nivel, con qué método.
+2. La evidencia en cifras que un lector sin estadística pueda seguir. Como mucho
+   cuatro números, y cada uno con su unidad y su significado.
+3. Qué se pierde con la alternativa que descartó. Si no pierde nada, la
+   comparación está mal hecha.
+4. Qué dice la prueba retrospectiva del modelo que recomienda —incluido si lo
+   rechaza—, y qué hace el fondo con eso.
+5. Un compromiso con fecha: qué se revisa, cuándo y con qué criterio de
+   reprobación fijado de antemano.
+
+Si la nota necesita la palabra «cuantil» para entenderse, todavía no está
+terminada.
+
+**8.3** En dos líneas y para usted, no para el comité: ¿qué parte de su
+recomendación no podría defender ante alguien que hubiera hecho este mismo taller
+con las otras respuestas? Esa es la pregunta que la defensa oral va a hacerle.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: declaración previa completa y R5 ordenado con sus dependencias justificadas | 10 % |
+| Parte 2: los tres VaR reproducidos, el cruce localizado y la decisión sobre los datos defectuosos fundamentada | 15 % |
+| Parte 3: traza a mano correcta, convención del ES nombrada, migración cuantificada y coherencia comprobada | 20 % |
+| Parte 4: backtest completo, aditividad comprobada en código y los dos modelos separados por la prueba que sí los distingue | 25 % |
+| Parte 5: semáforo, capital y potencia, con la lectura del incentivo | 10 % |
+| Parte 6: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 10 % |
+| Parte 7: bitácora completa y honesta | 5 % |
+| Parte 8: recomendación defendible, legible sin estadística y con compromiso fechado | 5 % |
+
+Se descuenta, en cualquier parte del taller: calcular el ES como un cuantil;
+estimar el VaR sobre la muestra completa y contar excepciones sobre ella; sumar
+los VaR individuales para obtener el del portafolio; concluir «validado»
+apoyándose en una sola prueba; reportar un resultado simulado sin su error
+estándar; y modificar la parte 1 después de haber visto los resultados —lo cual,
+si el documento se escribe en orden, queda registrado en él mismo—.

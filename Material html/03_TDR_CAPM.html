@@ -3302,7 +3302,7 @@ for (i in 1:5) {
                         <MCQ
                             pregunta="Un analista compara dos posiciones del fondo: Grupo Sura tiene σ = 2,6818 % y R² = 0,1293; Ecopetrol tiene σ = 2,4347 % y R² = 0,2344. Concluye que Grupo Sura aporta más riesgo de mercado al portafolio porque es más volátil. ¿Resiste?"
                             opciones={[
-                                { texto: 'No. El riesgo de mercado que aporta cada posición es su parte sistemática, y esa es β²σ²M: 0,9297 %² para Grupo Sura contra 1,3897 %² para Ecopetrol. Grupo Sura es más volátil en total pero aporta menos riesgo no diversificable, porque la mayor parte de su varianza es suya y se cancela contra las otras posiciones.', correcta: true },
+                                { texto: 'No. El riesgo de mercado que aporta cada posición es su parte sistemática, y esa es β²σ²M: 0,9297 %² para Grupo Sura contra 1,3897 %² para Ecopetrol. Grupo Sura es más volátil en total pero aporta menos riesgo no diversificable, porque la mayor parte de su varianza es suya y se cancela contra las otras posiciones.', correcta: true, justificacion: 'Las dos cifras del bloque: 0,9297 %² de varianza sistemática para Grupo Sura contra 1,3897 %² para Ecopetrol, un 49 % más, siendo Ecopetrol la menos volátil de las dos en total. Lo que ordena el aporte a un portafolio diversificado es β²σ²M y no σ. El resto es riesgo residual, y el capítulo 4 lo vuelve a encontrar como la diferencia entre el VaR aislado de cada posición y su componente.' },
                                 { texto: 'Sí. La desviación típica es la medida de riesgo del capítulo 1, y 2,6818 % es mayor que 2,4347 %: la posición más volátil aporta más riesgo por cualquier vía.', correcta: false },
                                 { texto: 'No, pero por otra razón: lo que decide el aporte de una posición es su peso en el portafolio, y Grupo Sura pesa 25 % contra el 30 % de Ecopetrol.', correcta: false },
                                 { texto: 'Sí, siempre que las dos betas sean menores que uno, que es el caso: con β < 1 la volatilidad total y la sistemática se ordenan igual.', correcta: false },
@@ -3459,7 +3459,7 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                         <MCQ
                             pregunta="La beta de Banco de Bogotá es 0,3466 con un error estándar de 0,0356. ¿Cuál de estas afirmaciones se puede sostener?"
                             opciones={[
-                                { texto: 'Que la beta es distinta de cero con mucha holgura —el estadístico t es 9,73— y también distinta de 1: el intervalo al 95 % es [0,28 · 0,42] y no lo contiene. Lo que el error estándar no dice es si el 0,3466 mide exposición al mercado o mide que la acción no se negocia; esa es otra pregunta y necesita otro dato.', correcta: true },
+                                { texto: 'Que la beta es distinta de cero con mucha holgura —el estadístico t es 9,73— y también distinta de 1: el intervalo al 95 % es [0,28 · 0,42] y no lo contiene. Lo que el error estándar no dice es si el 0,3466 mide exposición al mercado o mide que la acción no se negocia; esa es otra pregunta y necesita otro dato.', correcta: true, justificacion: 'Las tres afirmaciones son ciertas a la vez y conviene no mezclarlas: t = 9,73 dice que la estimación es precisa, el intervalo [0,28 · 0,42] dice que no es 1, y el R² de 0,0472 dice que el mercado explica menos del 5 % de la varianza de esta acción. Precisión no es poder explicativo. La sección 5 añade la cuarta: con 101 ruedas sin variación en el panel, parte de ese 0,3466 es iliquidez y no exposición.' },
                                 { texto: 'Que el modelo está mal especificado, porque un R² de 0,0472 indica que la regresión no es válida y sus coeficientes no se pueden interpretar.', correcta: false },
                                 { texto: 'Que la beta no es significativa: con un R² tan bajo, el error estándar de 0,0356 no permite descartar que la verdadera beta sea cero.', correcta: false },
                                 { texto: 'Que Banco de Bogotá es un activo defensivo y por tanto una buena cobertura frente a caídas del mercado, ya que su beta es mucho menor que uno.', correcta: false },
@@ -3653,7 +3653,7 @@ alfa    <- obs_isa - exigido`,
                         <MCQ
                             pregunta="Dos posiciones del fondo tienen la misma beta, 0,70, pero una tiene σ = 1,5 % diario y la otra σ = 2,8 %. Según el CAPM, ¿qué rendimiento esperado le corresponde a cada una?"
                             opciones={[
-                                { texto: 'El mismo. El CAPM remunera únicamente el riesgo sistemático, y con la misma beta las dos aportan lo mismo a un portafolio diversificado; la volatilidad extra de la segunda es residual y el inversionista se la quita gratis diversificando. Otra cosa es que el fondo pueda diversificar de verdad: con cuatro emisores, no del todo.', correcta: true },
+                                { texto: 'El mismo. El CAPM remunera únicamente el riesgo sistemático, y con la misma beta las dos aportan lo mismo a un portafolio diversificado; la volatilidad extra de la segunda es residual y el inversionista se la quita gratis diversificando. Otra cosa es que el fondo pueda diversificar de verdad: con cuatro emisores, no del todo.', correcta: true, justificacion: 'Es el CAPM entero en una línea: lo que se paga es el riesgo que no se puede quitar. Si el mercado remunerara la volatilidad total, bastaría comprar el activo más ruidoso para cobrar prima, y quien lo tuviera dentro de un portafolio diversificado cobraría por un riesgo que ya no corre. La sección 4 mide sobre este panel cuánta de esa volatilidad extra desaparece al añadir emisores.' },
                                 { texto: 'Mayor la segunda, en proporción a su volatilidad: el rendimiento esperado crece con el riesgo total, y 2,8 % es casi el doble de 1,5 %.', correcta: false },
                                 { texto: 'Mayor la primera, porque con la misma beta y menos volatilidad total su correlación con el mercado es más alta y por tanto su riesgo sistemático es más fiable.', correcta: false },
                                 { texto: 'No se puede decir sin conocer el alfa de cada una, que es lo que fija la diferencia de rendimiento esperado entre dos activos de igual beta.', correcta: false },
@@ -3836,7 +3836,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     }}
                     pregunta="El reparto por partes iguales da menos volatilidad que el del fondo. ¿Qué se puede concluir de eso?"
                     opciones={[
-                        { texto: 'Que el reparto del fondo concentra un poco más y que sobre esta muestra eso costó tres centésimas de punto de volatilidad diaria, nada más. No se puede concluir que el equiponderado sea mejor: la comparación se hace sobre los mismos datos con los que se mediría cualquier alternativa, no incluye el rendimiento, y ninguno de los dos repartos se eligió optimizando. Comparar volatilidades realizadas de dos carteras fijas es un contraste sin criterio de decisión detrás.', correcta: true },
+                        { texto: 'Que el reparto del fondo concentra un poco más y que sobre esta muestra eso costó tres centésimas de punto de volatilidad diaria, nada más. No se puede concluir que el equiponderado sea mejor: la comparación se hace sobre los mismos datos con los que se mediría cualquier alternativa, no incluye el rendimiento, y ninguno de los dos repartos se eligió optimizando. Comparar volatilidades realizadas de dos carteras fijas es un contraste sin criterio de decisión detrás.', correcta: true, justificacion: 'Tres centésimas de punto son la respuesta correcta a la pregunta equivocada. El reparto 30/20/25/25 es una decisión declarada del curso —D-A del plan, con sus tres criterios— y compararla contra el equiponderado sobre la misma muestra con la que se juzga no prueba nada. Quien optimiza de verdad es el capítulo 7, con una frontera, una restricción de concentración y una ventana distinta de la de evaluación.' },
                         { texto: 'Que los pesos del fondo están mal elegidos y deberían sustituirse por el reparto equiponderado, que domina en riesgo sobre la misma muestra.', correcta: false },
                         { texto: 'Que el equiponderado está mejor diversificado por definición, porque reparte el riesgo idiosincrásico entre las cuatro posiciones por igual y eso siempre minimiza la varianza.', correcta: false },
                         { texto: 'Que la diferencia no significa nada porque tres centésimas están dentro del error de estimación, y con 1 916 observaciones ninguna diferencia de volatilidad por debajo de una décima es detectable.', correcta: false },
@@ -4074,7 +4074,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     <MCQ
                         pregunta="El comité pide cubrir el 100 % de la exposición del portafolio al mercado con futuros del índice. Con 800 000 millones invertidos, ¿qué nominal se vende?"
                         opciones={[
-                            { texto: 'Ni 0,6779 ni 1 sin decir por qué. La beta diaria da 542 000 millones y la semanal, 759 000 millones; la diferencia entre las dos —217 000 millones— es el sesgo de negociación no simultánea, no una diferencia de criterio. Con datos diarios de este panel, la beta que corresponde a una cobertura que se va a sostener semanas es la de frecuencia semanal o una beta ajustada, y la decisión se documenta.', correcta: true },
+                            { texto: 'Ni 0,6779 ni 1 sin decir por qué. La beta diaria da 542 000 millones y la semanal, 759 000 millones; la diferencia entre las dos —217 000 millones— es el sesgo de negociación no simultánea, no una diferencia de criterio. Con datos diarios de este panel, la beta que corresponde a una cobertura que se va a sostener semanas es la de frecuencia semanal o una beta ajustada, y la decisión se documenta.', correcta: true, justificacion: 'Los 217 000 millones de diferencia no son una discrepancia de criterio sino un defecto medido: las 101 ruedas sin variación se llevan un tercio de la beta, que sube de 0,6779 a 0,95 al medir el rendimiento por semanas. La respuesta profesional no es un número sino un número con su ventana declarada, y eso es exactamente lo que evalúa el R8 de esta sección.' },
                             { texto: '542 000 millones, que es 0,6779 por 800 000. La beta del portafolio es la que estima la regresión sobre los datos disponibles, y usar otra cosa es intervenir el dato.', correcta: false },
                             { texto: '800 000 millones, porque cubrir el 100 % de la exposición significa vender el nominal completo de la posición, y ahí la beta no interviene.', correcta: false },
                             { texto: '542 000 millones, pero revisando la cobertura cada día para recalcular la beta con la ventana rodante de 250 ruedas y ajustar el nominal.', correcta: false },
@@ -4152,7 +4152,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 3" preguntas={[
                     {
-                        pregunta: 'La varianza de Ecopetrol es 5,9276 %² y su parte sistemática 1,3897 %². ¿Qué afirma exactamente esa segunda cifra?',
+                        pregunta: 'La varianza de Ecopetrol es 5,9276 %² y su parte sistemática 1,3897 %². ¿Qué afirma exactamente esa segunda cifra?', justificacion: 'El reparto es 23,4 % sistemático y 76,6 % propio de la empresa, y la segunda parte es la que se paga por tenerla sin diversificar. El capítulo 4 la vuelve a encontrar como la brecha entre el VaR aislado de Ecopetrol, 13 593 millones, y su componente, 9 918.',
                         opciones: [
                             { texto: 'Que 1,3897 de las 5,9276 unidades de varianza se explican por el movimiento del mercado y no desaparecen al diversificar; las 4,5379 restantes son propias de la empresa y otra posición del portafolio puede cancelarlas.', correcta: true },
                             { texto: 'Que el 23,4 % de las ruedas de Ecopetrol se movieron en la misma dirección que el mercado.', correcta: false },
@@ -4161,7 +4161,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Grupo Sura es la posición más volátil del fondo (σ = 2,6818 %) y el CAPM le asigna un rendimiento exigido menor que a Ecopetrol (σ = 2,4347 %). ¿Por qué?',
+                        pregunta: 'Grupo Sura es la posición más volátil del fondo (σ = 2,6818 %) y el CAPM le asigna un rendimiento exigido menor que a Ecopetrol (σ = 2,4347 %). ¿Por qué?', justificacion: 'Betas de 0,7369 contra 0,9009, con las volatilidades en el orden inverso. Es el resultado del CAPM que más incomoda la primera vez que se ve, y el que hace falta para leer el capítulo 7: lo que entra en la frontera eficiente es la covarianza, no la varianza.',
                         opciones: [
                             { texto: 'Porque el CAPM remunera solo el riesgo sistemático y la beta de Grupo Sura (0,7369) es menor que la de Ecopetrol (0,9009). La volatilidad extra de Grupo Sura es residual, y en un mercado donde todos diversifican nadie paga por lo que se puede eliminar gratis.', correcta: true },
                             { texto: 'Porque Grupo Sura es una holding y el CAPM aplica un descuento por diversificación interna del emisor.', correcta: false },
@@ -4170,7 +4170,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'La beta del portafolio es 0,6779 y coincide hasta la doceava cifra con la suma ponderada de las cuatro betas. ¿Es una casualidad de estos datos?',
+                        pregunta: 'La beta del portafolio es 0,6779 y coincide hasta la doceava cifra con la suma ponderada de las cuatro betas. ¿Es una casualidad de estos datos?', justificacion: 'La bilinealidad de la covarianza es lo que permite repartir la beta por pesos. La comparación con el capítulo 1 es el punto: allí la agregación por pesos era una aproximación con un costo medido, aquí es una identidad exacta.',
                         opciones: [
                             { texto: 'No: la beta es una covarianza dividida por una constante, y la covarianza es bilineal, así que la igualdad es exacta para cualquier conjunto de pesos y de activos. Es lo contrario de lo que pasaba con el rendimiento logarítmico del capítulo 1, que no es lineal en los pesos.', correcta: true },
                             { texto: 'Sí: coinciden porque los cuatro residuos están casi incorrelacionados, con correlación media 0,1216. Con residuos muy correlacionados las dos cifras diferirían.', correcta: false },
@@ -4179,7 +4179,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'El R² del modelo de mercado de Banco de Bogotá es 0,0472. ¿Qué se puede concluir?',
+                        pregunta: 'El R² del modelo de mercado de Banco de Bogotá es 0,0472. ¿Qué se puede concluir?', justificacion: 'Precisión y poder explicativo son cosas distintas, y la misma regresión tiene las dos: t = 9,73 y R² = 0,0472. La beta sirve para agregar la posición al riesgo del portafolio; no sirve para predecir el rendimiento de mañana de esa acción.',
                         opciones: [
                             { texto: 'Que el 95,3 % de su varianza es idiosincrásica, lo cual es un resultado sobre el activo y no un defecto de la regresión. La beta sigue siendo válida para agregar la posición al riesgo del portafolio; lo que no se puede es usar el modelo para proyectar el rendimiento de la acción.', correcta: true },
                             { texto: 'Que la regresión está mal especificada y hay que añadir factores hasta que el R² suba a un nivel aceptable.', correcta: false },
@@ -4188,7 +4188,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Un analista regresa el precio de Grupo Sura contra el precio del ETF y obtiene beta 2,8996 con R² 0,6207. ¿Cómo se clasifica el error?',
+                        pregunta: 'Un analista regresa el precio de Grupo Sura contra el precio del ETF y obtiene beta 2,8996 con R² 0,6207. ¿Cómo se clasifica el error?', justificacion: 'Es el error de IA más frecuente del capítulo, y engaña porque el resultado luce mejor: 2,8996 con un R² de 0,6207 parece un ajuste superior a 0,7369 con 0,1293. Ese es justamente el problema — dos series con tendencia se parecen aunque sus rendimientos no—.',
                         opciones: [
                             { texto: 'Estimador inconsistente: la pendiente entre dos series de precios no estima el parámetro que la beta define, que es un cociente entre momentos de los rendimientos. Las dos series comparten tendencia y el R² alto es el síntoma de la regresión espuria, no su garantía.', correcta: true },
                             { texto: 'Convención equivocada: se usó la periodicidad diaria donde correspondía la mensual, y por eso la cifra sale multiplicada.', correcta: false },
@@ -4197,7 +4197,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Con una volatilidad media de 2,3776 % y una correlación media de 0,2268, el riesgo de un portafolio equiponderado tiende a 1,1322 % al crecer N. ¿Qué es esa cifra?',
+                        pregunta: 'Con una volatilidad media de 2,3776 % y una correlación media de 0,2268, el riesgo de un portafolio equiponderado tiende a 1,1322 % al crecer N. ¿Qué es esa cifra?', justificacion: 'Sobre 800 000 millones son unos 9 058 millones diarios que ningún número de emisores locales elimina. La única salida es cambiar de clase de activo o de mercado, y ahí es donde empieza el capítulo 7.',
                         opciones: [
                             { texto: 'La raíz de la covarianza media entre los activos: el riesgo que ningún número de emisores de este mercado elimina, porque es el riesgo de que el mercado entero se mueva. Bajarlo exige cambiar de clase de activo o de mercado, no añadir emisores.', correcta: true },
                             { texto: 'El riesgo del ETF ICOLCAP, que es el portafolio equiponderado límite de ese mercado.', correcta: false },
@@ -4206,7 +4206,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'La beta del portafolio del fondo contra el ETF que replica su propia bolsa es 0,6779, con un error estándar de 0,0228. ¿Cuál es la explicación que sostienen los datos?',
+                        pregunta: 'La beta del portafolio del fondo contra el ETF que replica su propia bolsa es 0,6779, con un error estándar de 0,0228. ¿Cuál es la explicación que sostienen los datos?', justificacion: 'Una beta de 0,68 contra el índice que replica su propio portafolio es imposible como economía y perfectamente posible como estadística de un panel ilíquido. Medida por semanas sube a 0,95, y esa diferencia son 217 000 millones de nominal en la cobertura.',
                         opciones: [
                             { texto: 'Negociación no simultánea: los cuatro emisores no cambian de precio entre el 10 % y el 16 % de las ruedas y el ETF solo el 4,9 %, así que la covarianza contemporánea pierde parte del movimiento. Medida cada semana la beta sube a 0,9486 y cada mes a 0,9984, que es donde la teoría decía que debía estar.', correcta: true },
                             { texto: 'Que el portafolio está bien diversificado y por eso su beta es menor que uno: la diversificación reduce la exposición al mercado.', correcta: false },
@@ -4215,7 +4215,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'La prima de mercado estimada es 1,34 % anual con un error estándar de 7,53 puntos porcentuales. ¿Qué se hace con eso?',
+                        pregunta: 'La prima de mercado estimada es 1,34 % anual con un error estándar de 7,53 puntos porcentuales. ¿Qué se hace con eso?', justificacion: 'Los 431 años son la cifra que conviene recordar: estimar rendimientos esperados es un problema distinto de estimar riesgos, y solo uno de los dos se resuelve con ocho años de datos. Por eso el curso mide riesgo y declara la tasa libre de riesgo en vez de estimarla.',
                         opciones: [
                             { texto: 'Reconocer que con ocho años no se puede estimar un rendimiento esperado —harían falta 431 años para un error de un punto— y no apoyar ninguna decisión en el nivel de esa prima. La beta, en cambio, se estima bien con los mismos datos porque es un cociente de segundos momentos.', correcta: true },
                             { texto: 'Ampliar la muestra hacia atrás hasta que el error estándar baje a un nivel aceptable, que es la práctica habitual para estimar primas.', correcta: false },
@@ -4224,7 +4224,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'La beta rodante de Ecopetrol a 250 ruedas va de 0,3977 a 1,6219. ¿Qué implicación práctica tiene para quien reporta «la beta de Ecopetrol»?',
+                        pregunta: 'La beta rodante de Ecopetrol a 250 ruedas va de 0,3977 a 1,6219. ¿Qué implicación práctica tiene para quien reporta «la beta de Ecopetrol»?', justificacion: 'El rango es un factor de cuatro sobre el mismo activo y el mismo índice. Es el R8 de este capítulo: la ventana es parte del modelo, y elegirla después de ver el resultado es el mismo error que el capítulo 6 nombra al barrer las 170 combinaciones de su laboratorio.',
                         opciones: [
                             { texto: 'Que el número no significa nada sin la ventana, la frecuencia y el sustituto de mercado con que se calculó, y que elegir la ventana después de ver los resultados equivale a elegir la beta. Por eso la ventana se declara antes.', correcta: true },
                             { texto: 'Que hay que usar siempre la ventana más larga disponible, porque produce la estimación más estable y por tanto la más precisa.', correcta: false },
@@ -4233,7 +4233,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'El alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?',
+                        pregunta: 'El alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?', justificacion: 'Con un error estándar de 7,53 puntos en la prima, un alfa de +0,02 no se distingue de cero por ningún criterio. Presentarlo como valor añadido es exactamente lo que el R7 de esta sección pide desmontar ante la junta.',
                         opciones: [
                             { texto: 'Que medido contra su propia exposición al mercado el portafolio empató, y que el contraste pertinente depende de si el mandato fijaba una beta objetivo. Y que con la prima estimada con el error estándar que tiene, un alfa de dos centésimas no es distinguible de cero de ninguna manera.', correcta: true },
                             { texto: 'Que el gestor añadió valor, porque un alfa positivo indica desempeño superior al que el modelo predice.', correcta: false },

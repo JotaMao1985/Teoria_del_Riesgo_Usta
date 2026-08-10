@@ -3159,7 +3159,7 @@ for (nombre in names(declarado)) {
                         <MCQ
                             pregunta="El fondo tiene 40 000 millones en un bono corporativo de un emisor local que no se negocia hace tres semanas. La última operación fue a 98,5. ¿Qué riesgo está midiendo mal el informe si valora la posición a 98,5?"
                             opciones={[
-                                { texto: 'Liquidez, sobre todo: un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. De paso subestima también el de mercado, porque la volatilidad medida sobre una serie con precios repetidos sale artificialmente baja.', correcta: true },
+                                { texto: 'Liquidez, sobre todo: un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. De paso subestima también el de mercado, porque la volatilidad medida sobre una serie con precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 sin variación en ningún precio, y el capítulo 3 cifra lo que cuestan — se llevan un tercio de la beta del portafolio, que sale 0,6779 contra su propio índice en vez de 0,95 midiendo por semanas—. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
                                 { texto: 'Crédito, porque un bono que no se negocia es señal de que el emisor está en dificultades y la probabilidad de incumplimiento subió.', correcta: false },
                                 { texto: 'Ninguno: 98,5 es el último precio observado y valorar a último precio es la práctica estándar del mercado.', correcta: false },
                                 { texto: 'Operativo, porque no actualizar un precio durante tres semanas es una falla del proceso de valoración.', correcta: false },
@@ -3416,7 +3416,7 @@ acumulado <- exp(sum(r)) - 1`,
                     }}
                     pregunta="Las dos devuelven 166,2 %. ¿Cuál de las afirmaciones resiste?"
                     opciones={[
-                        { texto: 'Son algebraicamente la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho. B se prefiere porque la suma acumula menos error numérico que un producto de casi dos mil factores, y porque la magnitud intermedia —la suma— es la que después se puede modelar.', correcta: true },
+                        { texto: 'Son algebraicamente la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho. B se prefiere porque la suma acumula menos error numérico que un producto de casi dos mil factores, y porque la magnitud intermedia —la suma— es la que después se puede modelar.', correcta: true, justificacion: 'El acumulado de la muestra da 166,2 % por las dos vías porque exp(Σ ln(1+R)) = Π(1+R) es una identidad y no una aproximación. Lo que las separa es numérico: la suma acumula menos error de coma flotante que un producto de 1 916 factores. La aproximación de primer orden —confundir r con R— es otra cosa muy distinta, y esa sí cuesta las doce centésimas de punto que la sección mide en el cuantil al 1 %.' },
                         { texto: 'A es la correcta y B una aproximación de primer orden que casualmente da bien porque los rendimientos diarios son pequeños.', correcta: false },
                         { texto: 'Coinciden solo porque la serie no tiene rendimientos negativos grandes; con una caída del 50 % B daría un resultado distinto.', correcta: false },
                         { texto: 'B es la correcta y A tiene un sesgo al alza, porque el producto de factores mayores que uno crece más rápido que la suma de sus logaritmos.', correcta: false },
@@ -3507,7 +3507,7 @@ acumulado <- exp(sum(r)) - 1`,
                     <MCQ
                         pregunta="Un informe reporta el rendimiento mensual de un fondo sumando los rendimientos logarítmicos diarios del mes y presentando esa suma como «rentabilidad del mes». En un mes en que el fondo ganó, ¿qué le pasa al número reportado?"
                         opciones={[
-                            { texto: 'Queda por debajo de la rentabilidad real, y el sesgo crece con el tamaño del movimiento: ln(1+x) < x para todo x distinto de cero, así que la suma de logarítmicos siempre se queda corta frente al acumulado. En un mes de pérdida, el mismo sesgo hace que el número reportado exagere la caída.', correcta: true },
+                            { texto: 'Queda por debajo de la rentabilidad real, y el sesgo crece con el tamaño del movimiento: ln(1+x) < x para todo x distinto de cero, así que la suma de logarítmicos siempre se queda corta frente al acumulado. En un mes de pérdida, el mismo sesgo hace que el número reportado exagere la caída.', correcta: true, justificacion: 'Es la concavidad del logaritmo, y la sección 3 la mide sobre este panel: la brecha media entre las dos definiciones es de −1,643 puntos básicos por rueda y llega a 103,95 en la peor. Sobre un mes que gana un 5 %, la suma de logarítmicos reporta 4,879 %. Doce puntos básicos son ruido en un informe mensual y son la diferencia entre −3,9553 % y −4,0771 % en el cuantil al 1 %, que es donde se firma el VaR.' },
                             { texto: 'Queda por encima de la rentabilidad real, porque el logaritmo amplifica los movimientos pequeños.', correcta: false },
                             { texto: 'Coincide con la rentabilidad real: sumar logarítmicos es exactamente la agregación temporal correcta, que es para lo que sirven.', correcta: false },
                             { texto: 'Depende del signo de la media diaria: si es positiva el número queda por encima y si es negativa por debajo.', correcta: false },
@@ -3787,7 +3787,7 @@ curtosis <- mean(z^4) - 3`,
                         <MCQ
                             pregunta="Un analista quiere comparar la volatilidad de dos fondos. Del primero tiene rendimientos diarios y del segundo, mensuales. Calcula la desviación de cada serie y anualiza las dos multiplicando por la raíz de 252, «porque el año tiene 252 días hábiles». ¿Cuál es la consecuencia?"
                             opciones={[
-                                { texto: 'El segundo fondo aparece con una volatilidad 4,58 veces mayor de la que tiene, porque la raíz correcta para una serie mensual es la de 12. El factor de anualización no depende del año sino de la periodicidad de la serie que se escala.', correcta: true },
+                                { texto: 'El segundo fondo aparece con una volatilidad 4,58 veces mayor de la que tiene, porque la raíz correcta para una serie mensual es la de 12. El factor de anualización no depende del año sino de la periodicidad de la serie que se escala.', correcta: true, justificacion: 'El factor correcto es la raíz del número de periodos de la propia serie, así que el error es de √(252/12) = 4,5826. Una volatilidad mensual del 5 % se reportaría como 79,4 % anual en vez de 17,3 %: el fondo más tranquilo de los dos pasa a ser el más arriesgado sin que ningún dato cambie. El calendario no entra en la fórmula; la periodicidad de la serie, sí.' },
                                 { texto: 'Ninguna, siempre que las dos series cubran el mismo periodo: anualizar es una transformación monótona y el orden de los dos fondos se conserva.', correcta: false },
                                 { texto: 'El segundo fondo aparece con menor volatilidad, porque los datos mensuales suavizan los movimientos diarios y la raíz de 252 no alcanza a compensarlo.', correcta: false },
                                 { texto: 'El error se compensa si los rendimientos son independientes, porque en ese caso la volatilidad escala exactamente con la raíz del tiempo en cualquier periodicidad.', correcta: false },
@@ -3947,7 +3947,7 @@ curtosis <- mean(z^4) - 3`,
                     <MCQ
                         pregunta="Su equipo va a publicar el informe trimestral de riesgo. Un compañero propone que el cuaderno descargue los precios al ejecutarse, «para que el informe siempre esté actualizado». ¿Cuál es la objeción decisiva?"
                         opciones={[
-                            { texto: 'Que el informe dejaría de ser reproducible: la misma ejecución en dos fechas daría cifras distintas y ninguna versión pasada se podría volver a obtener, que es justamente lo que BCBS 239 exige poder hacer. Actualizar es una decisión que se toma y se fecha, no algo que deba ocurrirle al informe por sí solo.', correcta: true },
+                            { texto: 'Que el informe dejaría de ser reproducible: la misma ejecución en dos fechas daría cifras distintas y ninguna versión pasada se podría volver a obtener, que es justamente lo que BCBS 239 exige poder hacer. Actualizar es una decisión que se toma y se fecha, no algo que deba ocurrirle al informe por sí solo.', correcta: true, justificacion: 'El repositorio del curso hace lo contrario a propósito: datos/ está versionado y datos/MANIFIESTO.md guarda fuente, fecha y SHA-256 de cada instantánea, que es lo que comprueba el bloque de esta sección. Y no es hipotético — volver a ejecutar descargar.py produce un panel equivalente pero no idéntico, porque Yahoo reajusta los precios hacia atrás con cada dividendo—. Actualizar es una decisión que se toma y se fecha.' },
                             { texto: 'Que la descarga puede fallar por problemas de conexión y el informe no se generaría a tiempo.', correcta: false },
                             { texto: 'Que los precios descargados en tiempo de ejecución vienen sin ajustar por dividendos y eso sesga los rendimientos.', correcta: false },
                             { texto: 'Ninguna: mantener los datos al día es preferible, y la trazabilidad se resuelve guardando la fecha de descarga en el encabezado del informe.', correcta: false },
@@ -4022,7 +4022,7 @@ curtosis <- mean(z^4) - 3`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 1" preguntas={[
                     {
-                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?',
+                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Lo que el curso mide de aquí al capítulo 15 es dispersión.',
                         opciones: [
                             { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles y no el nivel del rendimiento ni la posibilidad de perder.', correcta: true },
                             { texto: 'El primero, porque un rendimiento de 8 % está por debajo de la media del segundo, que es 5 %.', correcta: false },
@@ -4031,7 +4031,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'De los cuatro riesgos financieros, ¿cuál se puede medir directamente sobre una serie de precios de mercado?',
+                        pregunta: 'De los cuatro riesgos financieros, ¿cuál se puede medir directamente sobre una serie de precios de mercado?', justificacion: 'La segunda opción es la tentadora, y es la que enseña el matiz: el panel del curso muestra iliquidez —101 ruedas sin variación— pero eso es un síntoma leído a posteriori, no una medida. Medir liquidez exige el diferencial de compra y venta y la profundidad del libro, que un archivo de cierres no trae.',
                         opciones: [
                             { texto: 'El de mercado. Los otros tres necesitan datos que el precio no contiene: características del deudor, registros internos de eventos y profundidad del libro de órdenes.', correcta: true },
                             { texto: 'El de mercado y el de liquidez, porque un precio que no se mueve durante días revela iliquidez.', correcta: false },
@@ -4040,7 +4040,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?',
+                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?', justificacion: 'La brecha son 17,5 puntos porcentuales sobre una sola posición del fondo. No es un decimal perdido: es la diferencia entre sumar y multiplicar, y crece con el horizonte y con la volatilidad.',
                         opciones: [
                             { texto: 'Una magnitud real —el rendimiento acumulado sin reinversión— pero no el rendimiento acumulado, que es 166,2 %. La agregación temporal de los aritméticos es multiplicativa, no aditiva.', correcta: true },
                             { texto: 'El rendimiento acumulado correcto; el 166,2 % incluye el efecto de los dividendos, que la serie de rendimientos no recoge.', correcta: false },
@@ -4049,7 +4049,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'El curso construye el rendimiento del portafolio como la combinación lineal de los rendimientos logarítmicos de los cuatro activos. ¿Qué es exactamente lo que se está aproximando?',
+                        pregunta: 'El curso construye el rendimiento del portafolio como la combinación lineal de los rendimientos logarítmicos de los cuatro activos. ¿Qué es exactamente lo que se está aproximando?', justificacion: 'Es la convención declarada del curso y su costo está medido en esta misma sección: doce centésimas de punto en el cuantil al 1 %, hacia el lado conservador. Los quince capítulos la heredan, y el 4 la usa para producir el 4,077 % con el que abre.',
                         opciones: [
                             { texto: 'La linealidad en los pesos, que es exacta para los aritméticos y no para los logarítmicos. Se acepta porque conserva la aditividad temporal, y el costo se midió: el cuantil al 1 % se mueve doce centésimas de punto, hacia el lado conservador.', correcta: true },
                             { texto: 'La independencia entre los cuatro activos, que la combinación lineal da por supuesta.', correcta: false },
@@ -4058,7 +4058,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La asimetría del portafolio es −0,512. ¿Qué afirma eso sobre la serie?',
+                        pregunta: 'La asimetría del portafolio es −0,512. ¿Qué afirma eso sobre la serie?', justificacion: 'Media, asimetría y curtosis contestan preguntas distintas, y confundirlas es el error frecuente: la asimetría no dice nada sobre el signo de la media ni sobre cuántas ruedas fueron negativas. Habla de la forma, y solo de la forma.',
                         opciones: [
                             { texto: 'Que la cola izquierda es más larga que la derecha: las caídas grandes superan en magnitud a las subidas grandes. Es el patrón habitual de la renta variable.', correcta: true },
                             { texto: 'Que el rendimiento medio de la serie es negativo.', correcta: false },
@@ -4067,7 +4067,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La curtosis de exceso del portafolio es 25,77 y la del S&P 500, 14,73. ¿Qué conclusión resiste?',
+                        pregunta: 'La curtosis de exceso del portafolio es 25,77 y la del S&P 500, 14,73. ¿Qué conclusión resiste?', justificacion: 'La curtosis no es una escala de riesgo sino una afirmación sobre la forma de la cola. Y la última opción se puede desmentir con código: el capítulo 4 mide que excluir el par de febrero de 2025 mueve la volatilidad un 5 % y el VaR histórico apenas un 1 %. Un defecto puntual no fabrica una curtosis de 25,77 sobre 1 916 ruedas.',
                         opciones: [
                             { texto: 'Los dos mercados tienen colas mucho más pesadas que una normal, y el colombiano más. La diferencia es de grado y no de naturaleza: en ninguno de los dos se puede suponer normalidad sin decirlo.', correcta: true },
                             { texto: 'El mercado colombiano es 1,75 veces más riesgoso que el estadounidense.', correcta: false },
@@ -4076,7 +4076,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'Ocho ruedas del portafolio superan las cinco desviaciones típicas. Bajo una normal se esperaban 0,00. ¿Cuál es la lectura correcta?',
+                        pregunta: 'Ocho ruedas del portafolio superan las cinco desviaciones típicas. Bajo una normal se esperaban 0,00. ¿Cuál es la lectura correcta?', justificacion: 'Bajo normalidad, superar cinco desviaciones típicas tiene una probabilidad de una en 3,5 millones: una rueda cada catorce mil años de bolsa. Ocurrió ocho veces en ocho años. Por eso el capítulo 4 estima con una t de nu = 4,23 y no con una normal.',
                         opciones: [
                             { texto: 'Que el modelo normal no asigna probabilidad apreciable a eventos que ocurrieron ocho veces en ocho años, así que no es una aproximación pobre sino una afirmación falsa sobre la cola.', correcta: true },
                             { texto: 'Que la muestra es demasiado corta: con más años, la frecuencia observada convergería a la esperada.', correcta: false },
@@ -4085,7 +4085,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene las dos ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?',
+                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene las dos ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?', justificacion: 'La curtosis es un cociente y el dato anómalo entra en el numerador y en el denominador. Es la razón de no fiarlo todo a un indicador: esa misma ventana, que por curtosis parece mansa, tiene una desviación de 7,74 %, casi cinco veces la del panel completo.',
                         opciones: [
                             { texto: 'Porque esos dos valores inflan la desviación de la ventana hasta 7,74 % y, medidos contra su propia desviación, dejan de estar lejos. La curtosis es un cociente: el dato anómalo sube el numerador y el denominador a la vez.', correcta: true },
                             { texto: 'Porque las dos ruedas tienen signos opuestos y sus contribuciones a la curtosis se cancelan.', correcta: false },
@@ -4094,7 +4094,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'Un modelo de lenguaje calcula la desviación de una serie de cierres mensuales y la anualiza multiplicando por la raíz de 252. ¿Cómo se clasifica ese error?',
+                        pregunta: 'Un modelo de lenguaje calcula la desviación de una serie de cierres mensuales y la anualiza multiplicando por la raíz de 252. ¿Cómo se clasifica ese error?', justificacion: 'El factor sobra por 4,58, y clasificar el error importa tanto como detectarlo: es una convención equivocada, no un supuesto sin verificar. La taxonomía de los R3 existe para eso — aquí se arregla cambiando 252 por 12, no recolectando más datos—.',
                         opciones: [
                             { texto: 'Convención equivocada: el factor de anualización es la raíz del número de periodos del año en la periodicidad de la serie, y para datos mensuales son 12, no 252. Exagera la cifra por un factor de 4,58.', correcta: true },
                             { texto: 'Estimador inconsistente: la desviación muestral de una serie mensual no estima el mismo parámetro que la de una serie diaria.', correcta: false },
@@ -4103,7 +4103,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?',
+                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?', justificacion: 'Es la decisión D3 del plan y la condición de existencia de la regla 9 del verificador, que ejecuta cada bloque de los quince capítulos en los dos lenguajes y compara su salida con la declarada. Contra una fuente en vivo esa regla no podría existir.',
                         opciones: [
                             { texto: 'Que sin instantánea congelada no se puede comprobar que las cifras declaradas en el material sean las que el código produce: contra una fuente en vivo el número cambia cada día y la única salida sería dejar de comprobarlo.', correcta: true },
                             { texto: 'Que así los estudiantes sin conexión pueden trabajar, que es la única ventaja frente a descargar los datos.', correcta: false },

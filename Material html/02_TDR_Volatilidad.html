@@ -3290,7 +3290,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                         crítico de 23,2. El primero apenas cruza; el segundo lo cruza veinticuatro veces.
                     </p>
 
-                    <ChartFrame id="cap2-acf" height="chart-h-380"
+                    <ChartFrame id="cap2-acf" height="chart-h-400"
                         caption="Autocorrelación de r (gris) y de r² (morado) hasta el rezago 20. Las líneas punteadas son ±2/√n, la banda dentro de la cual una autocorrelación no se distingue de cero con 1 916 observaciones. Las barras grises entran y salen de la banda; las moradas se quedan fuera veinte rezagos seguidos, y todavía valen +0,11 al rezago 20." />
 
                     <Box type="tip" label="Por qué esto no contradice la eficiencia del mercado">
@@ -3306,7 +3306,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                         <MCQ
                             pregunta="Un analista concluye: «como la autocorrelación de r² es +0,257 en el rezago 1, mañana el rendimiento será grande si hoy lo fue, y puedo montar una estrategia con eso». ¿Dónde está el problema?"
                             opciones={[
-                                { texto: 'La conclusión sobre la magnitud es correcta, pero de ella no se sigue ninguna estrategia direccional: r² no dice el signo, y la primera columna del bloque muestra que el signo es esencialmente impredecible. Lo que sí permite es dimensionar el riesgo, cotizar una opción o fijar un límite.', correcta: true },
+                                { texto: 'La conclusión sobre la magnitud es correcta, pero de ella no se sigue ninguna estrategia direccional: r² no dice el signo, y la primera columna del bloque muestra que el signo es esencialmente impredecible. Lo que sí permite es dimensionar el riesgo, cotizar una opción o fijar un límite.', correcta: true, justificacion: 'Las dos columnas del bloque dicen cosas distintas sobre la misma serie: la autocorrelación de r en el rezago 1 vale −0,002 y la de r² vale +0,257. La primera es la razón de que no haya estrategia direccional; la segunda es la razón de que exista este capítulo. Predecir la magnitud sirve para dimensionar la cobertura y el capital, que es de lo que vive un área de riesgo.' },
                                 { texto: 'La autocorrelación de r² no es significativa con 1 916 observaciones: +0,257 está dentro de la banda de ±2/√n.', correcta: false },
                                 { texto: 'El problema es que r² siempre está autocorrelacionado por construcción, al ser una transformación no lineal de una serie con media distinta de cero.', correcta: false },
                                 { texto: 'No hay problema: una autocorrelación positiva en r² implica una autocorrelación positiva en r del mismo signo, y con eso sí se puede operar.', correcta: false },
@@ -3384,7 +3384,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     <MCQ
                         pregunta="El comité de riesgos del fondo recibe el informe del 29 de marzo de 2021 con la volatilidad anualizada cayendo de 37,1 % a 32,5 %. El gerente propone reducir la cobertura. ¿Qué debe decir el área de riesgos?"
                         opciones={[
-                            { texto: 'Que la caída no refleja un cambio en el mercado sino la salida de marzo de 2020 de la ventana de 250 ruedas, y que con un estimador que pondere en vez de cortar —EWMA o GARCH— la volatilidad de esa fecha no cae. La decisión de cobertura no debería depender de qué ventana usa el informe.', correcta: true },
+                            { texto: 'Que la caída no refleja un cambio en el mercado sino la salida de marzo de 2020 de la ventana de 250 ruedas, y que con un estimador que pondere en vez de cortar —EWMA o GARCH— la volatilidad de esa fecha no cae. La decisión de cobertura no debería depender de qué ventana usa el informe.', correcta: true, justificacion: 'El escalón tiene fecha y no tiene noticia detrás: cae el día en que marzo de 2020 sale de la ventana de 250 ruedas. La prueba de que es del estimador y no del mercado es que EWMA y GARCH, que ponderan en vez de cortar, no lo producen sobre esa misma serie. Una cobertura reducida sobre ese escalón se reduce el día equivocado y por la razón equivocada.' },
                             { texto: 'Que la caída es real y refleja la normalización posterior a la pandemia, así que reducir la cobertura es prudente si se acompaña de un límite de pérdida.', correcta: false },
                             { texto: 'Que hay que ampliar la ventana a 500 ruedas para que la caída no se produzca, y recalcular todo el histórico con esa ventana.', correcta: false },
                             { texto: 'Que la volatilidad de ventana móvil no sirve para tomar decisiones y hay que sustituirla por la volatilidad implícita de las opciones sobre el índice.', correcta: false },
@@ -3612,7 +3612,7 @@ for (x in r) {
                     <MCQ
                         pregunta="La prueba ARCH-LM con q = 10 da 398,0 contra un crítico de 23,2. Un analista concluye que hay que ajustar un ARCH(10). ¿Qué falta en ese razonamiento?"
                         opciones={[
-                            { texto: 'La prueba dice que la varianza no es constante, no qué modelo la describe. Rechazar la hipótesis nula no selecciona una especificación: un GARCH(1,1) con dos parámetros produce exactamente la misma clase de dependencia larga y es lo que se ajusta en la práctica.', correcta: true },
+                            { texto: 'La prueba dice que la varianza no es constante, no qué modelo la describe. Rechazar la hipótesis nula no selecciona una especificación: un GARCH(1,1) con dos parámetros produce exactamente la misma clase de dependencia larga y es lo que se ajusta en la práctica.', correcta: true, justificacion: 'Rechazar no es especificar. El propio capítulo lo muestra: el GARCH(1,1) reproduce esa dependencia larga con tres parámetros y una persistencia de 0,9248, mientras que un ARCH(10) necesita once y queda peor condicionado. La prueba dice que hay algo que modelar; qué modelo lo deciden el criterio de información y el diagnóstico de los residuos estandarizados de la sección 6.' },
                             { texto: 'Falta comprobar que la serie sea estacionaria antes de aplicar la prueba; con datos no estacionarios el estadístico no sigue una chi-cuadrado.', correcta: false },
                             { texto: 'Falta corregir el nivel de significancia por comparaciones múltiples, ya que la prueba se aplicó con tres valores de q distintos.', correcta: false },
                             { texto: 'Nada falta: el estadístico es máximo en q = 10, así que ese es el orden que los datos seleccionan.', correcta: false },
@@ -3908,7 +3908,7 @@ sigma <- as.numeric(sigma(aj))`,
                         }}
                         pregunta="Sobre esta serie, ¿cuál de las afirmaciones resiste?"
                         opciones={[
-                            { texto: 'B aporta lo que A no puede tener: un nivel de largo plazo al que revertir, que es lo que hace posible el pronóstico a más de un día de la sección 7. A cambio, B introduce un ajuste numérico cuyo resultado depende del optimizador, como las dos pestañas de la sección 5 dejan ver. Sobre el día siguiente las dos dan cifras parecidas.', correcta: true },
+                            { texto: 'B aporta lo que A no puede tener: un nivel de largo plazo al que revertir, que es lo que hace posible el pronóstico a más de un día de la sección 7. A cambio, B introduce un ajuste numérico cuyo resultado depende del optimizador, como las dos pestañas de la sección 5 dejan ver. Sobre el día siguiente las dos dan cifras parecidas.', correcta: true, justificacion: 'La reversión a la media es lo que los separa: EWMA no tiene nivel de largo plazo, así que su pronóstico a sesenta ruedas es una recta horizontal en la σ de hoy, mientras que el GARCH converge a 1,4951 %. El precio está declarado y es D-B del plan: arch y rugarch dan persistencias de 0,9248 y 0,9263 sobre los mismos datos, de modo que el número más citado de un GARCH redondea a 0,92 en una pestaña y a 0,93 en la otra.' },
                             { texto: 'A es preferible porque no estima nada y por tanto no puede sobreajustar: sus resultados son reproducibles entre paquetes, cosa que B no garantiza.', correcta: false },
                             { texto: 'B es siempre preferible porque tiene más parámetros y por tanto se ajusta mejor a los datos, y su log-verosimilitud es más alta.', correcta: false },
                             { texto: 'Las dos son el mismo modelo escrito de dos formas: EWMA es un GARCH(1,1) con λ estimado, así que la elección es solo de implementación.', correcta: false },
@@ -4034,7 +4034,7 @@ sigma <- as.numeric(sigma(aj))`,
                     <Laboratorio
                         titulo="R9 · Mueva la persistencia"
                         id="cap2-lab-pronostico"
-                        altura="chart-h-380"
+                        altura="chart-h-400"
                         enunciado="El pronóstico a sesenta ruedas partiendo del mismo punto que el bloque —σ a un día de 1,3751 %— y con el mismo nivel de largo plazo —1,4951 %—, cambiando solo la persistencia. Mueva α + β y mire cuánto tarda la curva en pegarse a la línea roja."
                         controles={[
                             { id: 'pers', etiqueta: 'Persistencia α + β', min: 0.70, max: 0.995, paso: 0.001, valor: 0.925, formato: v => `${dec(v, 3)}` },
@@ -4096,7 +4096,7 @@ sigma <- as.numeric(sigma(aj))`,
                         <MCQ
                             pregunta="La σ condicional de hoy es 1,2922 % y la de largo plazo, 1,4951 %. ¿Qué le pasa al pronóstico si la persistencia sube de 0,925 a 0,98, con todo lo demás igual?"
                             opciones={[
-                                { texto: 'Sube más despacio hacia 1,4951 %: a veinte ruedas queda en 1,363 % en vez de 1,455 %. Una persistencia más alta no cambia a dónde va el pronóstico, solo cuánto tarda en llegar.', correcta: true },
+                                { texto: 'Sube más despacio hacia 1,4951 %: a veinte ruedas queda en 1,363 % en vez de 1,455 %. Una persistencia más alta no cambia a dónde va el pronóstico, solo cuánto tarda en llegar.', correcta: true, justificacion: 'El nivel de largo plazo lo fija ω/(1 − α − β) y el laboratorio lo mantiene en 1,4951 %, así que lo único que cambia es el tiempo de viaje, que va como (α + β) elevado a h. Con 0,925 la mitad del camino se recorre en nueve ruedas; con 0,98, en treinta y cuatro. Una persistencia alta no dice que la volatilidad vaya a ser más alta: dice que la de hoy tarda más en dejar de importar.' },
                                 { texto: 'Sube más rápido, porque una persistencia mayor implica que la varianza arrastra más y por tanto converge antes a su nivel.', correcta: false },
                                 { texto: 'El nivel de largo plazo baja, porque ω se mantiene fijo y el denominador 1 − α − β se hace más pequeño.', correcta: false },
                                 { texto: 'No cambia nada: la persistencia solo afecta al pronóstico a un día, que en los dos casos parte de la misma σ observada.', correcta: false },
@@ -4194,7 +4194,7 @@ sigma <- as.numeric(sigma(aj))`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 2" preguntas={[
                     {
-                        pregunta: 'La autocorrelación de r en el rezago 1 vale −0,002 y la de r² vale +0,257. ¿Qué se concluye?',
+                        pregunta: 'La autocorrelación de r en el rezago 1 vale −0,002 y la de r² vale +0,257. ¿Qué se concluye?', justificacion: 'El agrupamiento es lo que hace posible el resto del curso: si la magnitud fuera tan impredecible como el signo, el VaR de mañana sería el de siempre y no habría nada que modelar. La sección 7 lo convierte en pronóstico y el capítulo 6 lo pone a prueba.',
                         opciones: [
                             { texto: 'Que el signo del rendimiento de mañana es esencialmente impredecible pero su magnitud no lo es. Es el agrupamiento de volatilidad, y es lo que justifica modelar la varianza.', correcta: true },
                             { texto: 'Que la serie no es estacionaria y hay que diferenciarla antes de modelar.', correcta: false },
@@ -4203,7 +4203,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'El 29 de marzo de 2021 la volatilidad de ventana de 250 cayó de 2,3379 % a 2,0454 % en una rueda en que el portafolio subió 0,64 %. ¿Qué pasó?',
+                        pregunta: 'El 29 de marzo de 2021 la volatilidad de ventana de 250 cayó de 2,3379 % a 2,0454 % en una rueda en que el portafolio subió 0,64 %. ¿Qué pasó?', justificacion: 'La caída de 2,3379 % a 2,0454 % es del 12,5 % en una sola rueda, y ninguna noticia la respalda. Es el argumento entero a favor de ponderar en vez de cortar, y por eso existen las secciones 3 a 5.',
                         opciones: [
                             { texto: 'Salió de la ventana el −17,76 % del 16 de marzo de 2020. Es el efecto fantasma: el estimador cambió porque cambió su memoria, no porque cambiara el riesgo.', correcta: true },
                             { texto: 'Entró en la ventana una rueda muy tranquila que arrastró la desviación hacia abajo.', correcta: false },
@@ -4212,7 +4212,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'En la recursión EWMA con λ = 0,94, ¿qué significa exactamente ese número?',
+                        pregunta: 'En la recursión EWMA con λ = 0,94, ¿qué significa exactamente ese número?', justificacion: 'La vida media de 11,2 ruedas es la traducción útil de λ: ln(0,5)/ln(0,94). Es lo que hace comparable a EWMA con una ventana móvil — el 0,94 de RiskMetrics recuerda algo más de dos semanas, no 250 ruedas—.',
                         opciones: [
                             { texto: 'Que la varianza de ayer pesa un 94 % y la sorpresa de ayer un 6 %, lo cual equivale a una vida media de 11,2 ruedas: el peso de una observación cae a la mitad en algo más de dos semanas.', correcta: true },
                             { texto: 'Que se usan las últimas 94 ruedas de historia y se descartan las anteriores.', correcta: false },
@@ -4221,7 +4221,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'EWMA no tiene varianza de largo plazo. ¿Por qué?',
+                        pregunta: 'EWMA no tiene varianza de largo plazo. ¿Por qué?', justificacion: 'La consecuencia práctica está en la sección 7: el pronóstico de EWMA a sesenta ruedas es una recta horizontal en la σ de hoy. Sirve para mañana y no para el trimestre, y eso es exactamente lo que el GARCH añade con su ω.',
                         opciones: [
                             { texto: 'Porque sus coeficientes suman exactamente uno: es un GARCH(1,1) con ω = 0, α = 1 − λ y β = λ, de modo que la persistencia vale uno y el modelo no revierte a ningún nivel.', correcta: true },
                             { texto: 'Porque no tiene suficientes parámetros: con dos coeficientes no se puede identificar un tercer momento.', correcta: false },
@@ -4230,7 +4230,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'La prueba ARCH-LM con q = 5 da 278,0 contra un crítico de 15,09. ¿Qué establece eso, exactamente?',
+                        pregunta: 'La prueba ARCH-LM con q = 5 da 278,0 contra un crítico de 15,09. ¿Qué establece eso, exactamente?', justificacion: 'Rechazar con 278,0 contra 15,09 no deja duda de que hay algo, y ninguna pista de qué. El capítulo lo resuelve en el orden inverso al que la prueba sugiere: GARCH(1,1) con tres parámetros, y el diagnóstico de la sección 6 como juez.',
                         opciones: [
                             { texto: 'Que la hipótesis de varianza constante se rechaza. No dice qué modelo usar: la selección de la especificación es una decisión aparte, y en la práctica se hace con GARCH(1,1) y no con ARCH(5).', correcta: true },
                             { texto: 'Que el modelo correcto es un ARCH(5), porque ese es el orden con el que se rechazó la nula.', correcta: false },
@@ -4239,7 +4239,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'Con α = 0,1146 y β = 0,8102, la persistencia es 0,9248. ¿Cómo se lee ese número?',
+                        pregunta: 'Con α = 0,1146 y β = 0,8102, la persistencia es 0,9248. ¿Cómo se lee ese número?', justificacion: 'Media vida de 8,9 ruedas: un susto de mercado deja de importar en algo menos de dos semanas. Es el número que mueve el laboratorio de la sección 7, y el que decide si el pronóstico a veinte ruedas se parece más a hoy o a siempre.',
                         opciones: [
                             { texto: 'Como la velocidad a la que un choque de volatilidad se disipa: la mitad del efecto desaparece en ln(0,5)/ln(0,9248) ≈ 8,9 ruedas, y el modelo tiende a su nivel de reposo de 1,4951 % diario.', correcta: true },
                             { texto: 'Como la proporción de la varianza total que el modelo consigue explicar, un 92,5 %.', correcta: false },
@@ -4248,7 +4248,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: '`arch` reporta una persistencia de 0,924785 y `rugarch`, de 0,926259, sobre los mismos datos. ¿Cuál es la lectura correcta?',
+                        pregunta: '`arch` reporta una persistencia de 0,924785 y `rugarch`, de 0,926259, sobre los mismos datos. ¿Cuál es la lectura correcta?', justificacion: 'Es D-B del plan y una de las dos únicas excepciones declaradas a la regla de que las dos pestañas coinciden — la otra es la simulación—. La log-verosimilitud de R es marginalmente mejor: −3150,4906 contra −3150,7748.',
                         opciones: [
                             { texto: 'Los dos optimizadores paran en puntos vecinos de una superficie de verosimilitud plana. Ninguno está mal; lo que corresponde es documentar cuál se usó. Las dos series de σ condicional tienen correlación 0,9998 y la última rueda difiere en la cuarta cifra.', correcta: true },
                             { texto: 'Uno de los dos paquetes tiene un defecto de implementación y hay que reportarlo a sus mantenedores.', correcta: false },
@@ -4257,7 +4257,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'El Ljung-Box sobre r² vale 567,5 y sobre z² vale 11,1, con un crítico de 18,3. ¿Qué se concluye?',
+                        pregunta: 'El Ljung-Box sobre r² vale 567,5 y sobre z² vale 11,1, con un crítico de 18,3. ¿Qué se concluye?', justificacion: 'Conviene no confundir dos cosas que este capítulo separa a propósito: que el optimizador converja no dice si el modelo sirve, y que el modelo sirva no dice que los dos paquetes den los mismos coeficientes. El Ljung-Box sobre z² contesta lo segundo y nada más.',
                         opciones: [
                             { texto: 'Que el GARCH capturó el agrupamiento: la estructura que había en los datos crudos ya no está en los residuos estandarizados. Es la comprobación de que el modelo sirve, y es distinta de que el optimizador haya convergido.', correcta: true },
                             { texto: 'Que el modelo está sobreajustado, porque un estadístico tan bajo indica que absorbió también el ruido.', correcta: false },
@@ -4266,7 +4266,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'La curtosis de exceso pasa de 25,77 en r a 5,95 en z. ¿Qué dice ese par de números?',
+                        pregunta: 'La curtosis de exceso pasa de 25,77 en r a 5,95 en z. ¿Qué dice ese par de números?', justificacion: 'Queda un exceso de 5,95, que sigue siendo mucho para una normal: por eso el ajuste pide innovaciones t con nu cercano a 3,98 en vez de gaussianas. El capítulo 4 recoge el mismo hilo con nu = 4,23 por el método de los momentos.',
                         opciones: [
                             { texto: 'Que el agrupamiento de volatilidad explica la mayor parte de las colas pesadas del capítulo 1, pero no todas: queda un exceso que justifica pedir innovaciones t y no normales, y que es coherente con el ν ≈ 3,98 que el ajuste devuelve.', correcta: true },
                             { texto: 'Que el modelo eliminó las colas pesadas y las innovaciones se pueden tratar como normales a partir de aquí.', correcta: false },
@@ -4275,7 +4275,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'Hoy la σ condicional es 1,2922 % y la de largo plazo, 1,4951 %. Escalar el VaR de un día a veinte con la raíz del tiempo, ¿qué produce?',
+                        pregunta: 'Hoy la σ condicional es 1,2922 % y la de largo plazo, 1,4951 %. Escalar el VaR de un día a veinte con la raíz del tiempo, ¿qué produce?', justificacion: 'Los 6,1497 % contra 6,4099 % son un 4 % de subestimación, y el signo del error depende de dónde esté hoy la volatilidad respecto a su nivel de reposo. La raíz del tiempo no es conservadora ni optimista: es ciega, y el capítulo 4 la contrasta con el escalamiento exacto.',
                         opciones: [
                             { texto: 'Una subestimación: 6,1497 % contra el 6,4099 % del acumulado correcto, porque el modelo anticipa que la volatilidad va a subir hacia su nivel de reposo. Después de un susto el error cambia de signo.', correcta: true },
                             { texto: 'Una sobreestimación, porque la raíz del tiempo supone independencia y esta serie tiene autocorrelación positiva en r².', correcta: false },
