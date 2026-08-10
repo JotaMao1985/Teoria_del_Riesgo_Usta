@@ -7,7 +7,8 @@
 **Créditos:** 2 · **Horas:** 64 acompañadas + 32 autónomas = 96
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
 **Estado:** fases 0 y 1 completadas · **punto de control B aprobado el 2026-08-08** ·
-D-A, D-B y D-C resueltas · fase 2 en curso: **tarea 7 (capítulo 1) completada**
+D-A, D-B y D-C resueltas · **D-D declarada el 2026-08-09** (tasa libre de riesgo, pendiente
+de ratificar) · fase 2 en curso: **tareas 7, 8 y 9 completadas** — quedan T10 (C5) y T11 (C6)
 
 ---
 
@@ -914,7 +915,7 @@ corrección de cifras por bloque.
 |---|---|---|---|---|
 | 7 | C1 Riesgo, rendimiento y entorno | M | 1 | ✅ **2026-08-08** |
 | 8 | C2 Volatilidad (a: EWMA/ARCH · b: GARCH) | L | 2 | ✅ **2026-08-09** |
-| 9 | C3 CAPM | M | 1 | pendiente |
+| 9 | C3 CAPM | M | 1 | ✅ **2026-08-09** |
 | 10 | C5 Expected Shortfall | M | 1 | pendiente |
 | 11 | C6 Backtesting y marco regulatorio | M | 1 | pendiente |
 
@@ -944,6 +945,21 @@ corrección de cifras por bloque.
 - [x] Los dos laboratorios reproducen las cifras de los bloques de su sección
 
 **Entregado:** `Material html/02_TDR_Volatilidad.html` (315 KB) y `talleres/TDR-02.qmd`.
+
+#### Tarea 9 · Capítulo 3 completo (CAPM) — **COMPLETADA 2026-08-09**
+
+**Criterios de aceptación:**
+- [x] Las doce reglas del verificador pasan, incluida `--con-salidas`
+- [x] La cuota es exacta — `R1:2 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:2`, 15 ejercicios
+- [x] Las salidas `#>` coinciden con la ejecución real — 7 bloques en los dos lenguajes,
+      14 ejecutados y comparados, 0 discrepancias. Aquí **las dos pestañas coinciden en
+      todo**: OLS es un cálculo cerrado y no aparece la discrepancia entre paquetes que el
+      capítulo 2 tuvo que declarar
+- [x] Recorrido en el navegador: siete secciones, tres gráficas, dos laboratorios y el
+      cuestionario, sin errores de consola
+- [x] Los dos laboratorios reproducen las cifras de los bloques de su sección
+
+**Entregado:** `Material html/03_TDR_CAPM.html` (331 KB) y `talleres/TDR-03.qmd`.
 
 → **Punto de control C** (definido en la sección 7)
 
@@ -1263,6 +1279,99 @@ dos laboratorios, cómodamente por debajo del límite de 400 KB.
 **Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-02.qmd`. Quarto sigue
 sin estar instalado. El bloque ejecutable de la parte 1 se corrió a mano con `Rscript` y da
 las cifras del capítulo.
+
+---
+
+### Fase 2 — Tarea 9: capítulo 3 · 2026-08-09
+
+Siete secciones, siete bloques ejecutados en los dos lenguajes, tres gráficas y dos
+laboratorios. Doce reglas en verde, y `--con-salidas` con cero discrepancias: los catorce
+bloques —siete por lenguaje— se escribieron y se ejecutaron fuera del capítulo antes de
+entrar en él, con el mismo método de las tres tareas anteriores.
+
+**El hallazgo del capítulo: la beta del portafolio contra su propio índice es 0,68, y no
+puede ser.** Los cuatro emisores del fondo están dentro del ETF ICOLCAP, así que la beta
+tenía que salir cerca de uno; la regresión da 0,6779 con un error estándar de 0,0228, es
+decir el uno a catorce errores estándar. La explicación no es teórica sino de
+microestructura, y el panel la trae medida: Banco de Bogotá no cambia de precio el 16,2 %
+de las ruedas y Grupo Sura el 15,1 %, mientras el ETF solo el 4,9 %. Cuando el mercado se
+mueve y la acción no se negocia, el movimiento aparece al día siguiente y la covarianza
+contemporánea lo pierde. Medida cada dos ruedas la beta sube a 0,8368; cada semana, a
+0,9486; cada mes, a 0,9984. Es el sesgo de negociación no simultánea que Dimson formalizó
+en 1979, y en este mercado se lleva un tercio de la exposición.
+
+**Es la tercera consecuencia de un defecto que el capítulo 4 ya había declarado.** Las
+ruedas sin variación estaban anotadas desde la fase 1 como una anomalía del panel; hasta
+ahora no se había medido qué estropean. Con esto el cuadro queda completo, y ninguna
+limpieza lo habría resuelto: excluir el par defectuoso de febrero de 2025 mueve el VaR
+histórico un 1 %, la volatilidad un 5 %, el VaR de la ventana corta un 10 % y la beta un
+0,5 % — pero el otro defecto, el de las ruedas quietas, no toca a los tres primeros y sí
+se lleva un tercio de la cuarta. No hay un dato limpio: hay estimadores sensibles a cosas
+distintas.
+
+**Un segundo contraste que el capítulo aprovecha: la beta se estima bien y la prima no.**
+Con los mismos 1 916 datos, el intervalo de confianza de la beta del portafolio mide 0,09
+de ancho y el de la prima de mercado, 29,5 puntos porcentuales — la prima estimada es
+1,34 % anual con un error estándar de 7,53. Harían falta **431 años** para conocerla con un
+error de un punto. La beta es un cociente de segundos momentos y la prima un primer
+momento, y esa diferencia explica por qué el CAPM se usa a diario para medir riesgo y casi
+nunca para predecir rendimientos.
+
+#### D-D · La tasa libre de riesgo del curso es 7,00 % E.A., declarada
+
+Decisión nueva, del mismo tipo que D-A y tomada con el mismo criterio: el CAPM la necesita,
+`curva_tes.csv` sigue pendiente, y no había ninguna en el plan. Se declara **7,00 % efectivo
+anual** —del orden de la tasa de política del Banco de la República promediada sobre
+2018–2025— presentada en la portada como decisión del curso y no como estimación. Es
+revisable a coste bajo: la usan dos bloques y una gráfica, y el propio capítulo demuestra
+que la conclusión no depende de ella, porque moverla dos puntos desplaza la prima mucho
+menos de lo que su error estándar la mueve por azar. Cuando exista `curva_tes.csv` se
+sustituye por el TES del plazo que corresponda. **Afecta a C7 (Sharpe) y a C11–C12
+(descuento), así que conviene ratificarla o cambiarla antes de la fase 3.**
+
+**Una trampa de convención que costó cuadrar dos veces.** El 7,00 % es *efectivo*, y el
+curso anualiza rendimientos logarítmicos multiplicando por 252, con lo que la misma tasa
+vale 6,7667 %. Mezclarlas movía el rendimiento exigido de ISA de 7,59 % a 7,68 %. Todas las
+cifras de la sección 3 van en la convención logarítmica, la conversión está explicada en una
+`Box` y el R1 de esa sección la usa como parte del ejercicio — es la brecha entre
+aritméticos y logarítmicos del capítulo 1, aplicada ahora a una tasa.
+
+**Lo que el navegador volvió a cazar y el verificador no.** Cuatro cosas, y ninguna era
+sintaxis:
+
+- **El R3 de la sección 5 apuntaba a la línea equivocada en Python.** El comentario que
+  contiene la conclusión falsa ocupaba tres líneas y `lineaCorrecta` señalaba la primera,
+  que es cierta. En R la equivalencia caía bien por casualidad. Los dos casos R3 se
+  reescribieron con **una sola línea de conclusión**, inequívoca en los dos lenguajes, y se
+  comprobaron respondiéndolos en pantalla. La regla 6 exige que `lineaCorrecta` sea un
+  objeto por lenguaje, pero no puede saber si apunta al sitio correcto.
+- **El R1 de la beta a mano no era reproducible a mano.** Los productos declarados salían
+  del cálculo exacto mientras que los factores mostrados iban redondeados a cuatro
+  decimales, así que un estudiante que multiplicara lo que ve obtenía 0,0730 donde la tabla
+  esperaba 0,0729 — en cuatro de las seis filas. Rehecha entera desde los valores
+  redondeados: ahora cada casilla es exactamente el producto de los dos números que tiene al
+  lado y la beta final es 4,3091.
+- **La curva de la beta rodante no llegaba al final de la muestra.** Al dibujar de cuatro en
+  cuatro ruedas hacia adelante, el último punto era el de la rueda 1 914 y mostraba 1,0923
+  para Ecopetrol donde el bloque declara 0,9718. Se recorre ahora desde el final hacia atrás.
+  Por lo mismo, la `lectura` del laboratorio recorre **todas** las ventanas y no una de cada
+  cuatro: con el muestreo del trazo declaraba un mínimo de 0,4058 contra el 0,3977 del
+  bloque.
+- **Dos cifras de gráfica que contradecían a su bloque por diezmilésimas**: la varianza
+  residual, que se derivaba de σ² − sistemática con la σ ya redondeada, y la SML, que no
+  pasaba exactamente por el punto del mercado. Las dos van ahora escritas con la cifra del
+  bloque.
+
+Ninguna de las cuatro habría fallado ninguna de las doce reglas. **La zona ciega del
+verificador no es solo el JavaScript: es todo lo que el navegador calcula.**
+
+**Y una de tipografía, que solo se ve mirando.** `σ̄` y `ρ̄` escritos con macrón combinante
+se renderizan mal fuera de MathJax —en pantalla se leían como «ō» y «p̄»—. Fuera de las
+fórmulas se dice «volatilidad media» y «correlación media» con todas las letras.
+
+**Lo que no se pudo verificar:** `quarto render` sobre `talleres/TDR-03.qmd`. Quarto sigue
+sin estar instalado. El bloque ejecutable de la parte 1 se corrió a mano con `Rscript` desde
+`talleres/` y da las cifras del capítulo: 1 916 sesiones, beta 0,6779, R² 0,3167.
 
 ---
 

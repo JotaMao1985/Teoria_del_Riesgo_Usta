@@ -1,0 +1,252 @@
+---
+title: "Taller 3 · Riesgo sistemático y no sistemático: beta, CAPM y diversificación"
+subtitle: "Teoría del Riesgo · Unidad 1 · RA1, RA3"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la sección 6. Un
+taller sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es*
+uno de los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-03-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use
+`statsmodels` donde el andamio use `lm`. El taller está escrito para las dos
+rutas y se califica igual por cualquiera de ellas: mínimos cuadrados ordinarios
+es un cálculo cerrado y los dos lenguajes devuelven exactamente lo mismo, a
+diferencia de lo que pasaba con el GARCH del taller 2.
+:::
+
+::: {.callout-warning}
+## La beta está definida sobre rendimientos, no sobre precios
+
+Regresar precios contra precios corre, no lanza ningún error y devuelve un R²
+más alto que el correcto. Es el primer R3 del capítulo y el error más caro de
+este taller: si en algún momento su beta se sale del rango razonable de un
+emisor de la Bolsa de Valores de Colombia, lo primero que hay que mirar es sobre
+qué magnitud se hizo la regresión.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+```{r}
+#| label: parte1-carga
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w  <- c(0.30, 0.20, 0.25, 0.25)
+
+r  <- diff(log(as.matrix(precios[, -1])))
+rm <- r[, "ICOLCAP.CL"]
+rp <- as.vector(r[, acciones] %*% w)
+
+cat(sprintf("Sesiones: %d   ·   beta del portafolio: %.4f   ·   R2: %.4f\n",
+            length(rp), cov(rp, rm) / var(rm), summary(lm(rp ~ rm))$r.squared))
+```
+
+**1.1** Reproduzca la tabla de regresiones del capítulo: alfa en puntos básicos,
+beta, error estándar de la beta, estadístico t y R² para los cuatro emisores y
+para el portafolio. Debe obtener betas de **0,9009 · 0,3466 · 0,7369 · 0,6165** y
+**0,6779** para la cartera. Si no coinciden, el resto del taller estará mal y no
+lo sabrá.
+
+**1.2** Reproduzca la descomposición de la varianza y compruebe **en código** que
+la parte sistemática más la residual da la varianza total en las cinco filas.
+Escriba la comprobación con `stopifnot()` y una tolerancia declarada, no con una
+frase en el texto.
+
+**1.3** Verifique la propiedad de la sección 4: que la suma de los pesos por las
+betas individuales coincide con la beta de la regresión directa del portafolio.
+Reporte la diferencia con doce decimales y **no** en notación científica, y
+explique en dos líneas por qué esa precaución de formato no es cosmética.
+
+---
+
+## Parte 2 · Su propio activo
+
+```{r}
+#| label: parte2-activo
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d <- as.integer(substr(documento, nchar(documento), nchar(documento)))
+serie <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")[(d %% 4) + 1]
+serie
+```
+
+**2.1** Sobre *su* serie, estime el modelo de mercado y reporte alfa, beta, el
+error estándar de la beta, su intervalo de confianza al 95 % y el R². Dibuje la
+dispersión con la recta ajustada y con la recta β = 1 superpuesta.
+
+**2.2** Parta la varianza de su activo en sistemática y residual, en porcentaje
+al cuadrado y en porcentaje del total. Después responda con una cifra: si el
+fondo duplicara la posición en su emisor, ¿cuánto subiría la parte del riesgo del
+**portafolio** que no se puede diversificar?
+
+**2.3** Contraste su beta con la del portafolio (0,6779). Diga si su emisor
+aporta o resta exposición al mercado respecto de la cartera que lo contiene, y
+qué le pasaría a la beta del fondo si su peso subiera del actual a 40 %.
+
+---
+
+## Parte 3 · La beta no es un número
+
+**3.1** Calcule la beta rodante de su activo con ventanas de 60, 250 y 1 000
+ruedas y grafique las tres en el mismo eje, con la beta de la muestra completa
+marcada como línea horizontal. Reporte mínimo, máximo, rango y último valor de
+cada una.
+
+**3.2** Estime la beta por separado en 2018–2021 y en 2022–2025, con sus errores
+estándar. Diga si la diferencia entre las dos es compatible con el error de
+estimación o si hay que concluir que el parámetro cambió, y **cómo** lo decidió:
+la respuesta tiene que apoyarse en una comparación explícita, no en mirar los
+números.
+
+**3.3** Un compañero elige la ventana que le da la beta más cercana a la que
+esperaba y justifica la elección diciendo que «es la más estable». Escriba en
+cuatro líneas por qué ese argumento no se sostiene, y qué habría que haber hecho
+antes de mirar ningún resultado.
+
+---
+
+## Parte 4 · La beta que se lleva la iliquidez
+
+Esta parte es la que separa una beta que mide exposición de una que mide que el
+emisor no se negoció. Es el hallazgo de la sección 5 del capítulo.
+
+**4.1** Cuente las ruedas sin variación de precio de su serie y del ETF ICOLCAP,
+en número y en porcentaje. Reporte también la racha más larga de ruedas seguidas
+sin movimiento.
+
+**4.2** Reestime la beta de su activo midiendo el rendimiento cada 1, 2, 5, 10 y
+21 ruedas. Ponga las cinco en una tabla con el número de observaciones de cada
+una y grafíquelas contra la frecuencia.
+
+**4.3** Estime la beta de Dimson: regrese su serie contra el rendimiento del
+mercado contemporáneo, el rezagado un día y el adelantado un día, y sume los tres
+coeficientes. Compare esa suma con la beta simple y con la semanal de 4.2, y diga
+cuál de las tres declararía en la ficha del activo.
+
+**4.4** Con las cifras de 4.2 y 4.3, calcule el nominal de futuros del índice que
+haría falta para cubrir una posición de 200 000 millones en su emisor, con cada
+una de las betas. Reporte la diferencia máxima en pesos entre dos de esas
+coberturas y diga qué le pasaría a esa diferencia el día en que el mercado
+realmente se mueva.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que *«calcule la beta de una acción
+colombiana contra el índice del mercado a partir de un archivo de precios diarios
+y valore si el modelo de mercado describe bien la acción»*. Pegue aquí el prompt
+exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención tres cosas, que son los dos R3 del capítulo más lo que
+la parte 4 acaba de mostrar: si la regresión se hizo sobre **rendimientos** o
+sobre precios; qué conclusión se sacó del R² y si esa conclusión distingue entre
+usar la beta para **agregar** riesgo y usarla para **proyectar** rendimiento; y
+si alguien mencionó la frecuencia de los datos y el sesgo de negociación no
+simultánea.
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 7 · Diversificación y memorando
+
+**7.1** Mida la desviación típica media de los cuatro emisores y la correlación
+media entre ellos, y con esos dos números dibuje la curva del riesgo de un
+portafolio equiponderado de N activos, con el suelo marcado. Compruebe la fórmula
+contra los datos: calcule la desviación del portafolio equiponderado real de los
+cuatro y compárela con lo que la fórmula predice para N = 4.
+
+**7.2** Responda con cifras a esta pregunta, que es la de la motivación de la
+sección 4: un asesor propone pasar de cuatro a treinta emisores locales. ¿Cuánta
+volatilidad diaria se ahorra el fondo, en puntos y en pesos sobre los 800 000
+millones? Y una segunda: ¿cuánto se ahorraría en cambio si añadiera cuatro
+emisores extranjeros cuya correlación con los actuales fuera 0,30 en vez de la
+del panel?
+
+**7.3** Una página, sin fórmulas y sin código, para el comité de inversiones del
+fondo, que le pidió una nota sobre **si conviene ampliar el número de emisores
+del portafolio de renta variable local**. Debe contener la recomendación en la
+primera frase, la evidencia en cifras que un lector sin estadística pueda seguir,
+qué se pierde y qué cuesta la alternativa, y la salvedad sobre lo que la beta
+diaria de este mercado no mide.
+
+Si el memorando necesita la palabra «idiosincrásico» para entenderse, todavía no
+está terminado.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1 reproduce las cifras del capítulo, con la descomposición comprobada en código | 15 % |
+| Parte 2: modelo de mercado del activo propio, partición de su varianza y efecto sobre la cartera | 15 % |
+| Parte 3: inestabilidad de la beta documentada y elección de ventana justificada antes de mirar | 20 % |
+| Parte 4: ruedas sin variación, beta por frecuencias, Dimson y consecuencia en pesos sobre la cobertura | 20 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: diversificación cuantificada y memorando legible para quien no sabe estadística | 10 % |
+
+Se descuenta: regresar precios en lugar de rendimientos; reportar una beta sin su
+error estándar, sin la ventana y sin el sustituto de mercado con que se estimó;
+leer el R² como una nota del ajuste en vez de como la fracción sistemática del
+riesgo; y usar la beta diaria para dimensionar una cobertura sin mencionar el
+sesgo de negociación no simultánea.

@@ -16,7 +16,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 |---|---|
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
-| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1) y T8 (cap. 2) completadas** · siguen T9 (cap. 3), T10 (cap. 5), T11 (cap. 6) |
+| 2 · Unidad 1 (T7–T11) | 🔄 en curso · **T7 (cap. 1), T8 (cap. 2) y T9 (cap. 3) completadas** · siguen T10 (cap. 5) y T11 (cap. 6) |
 | 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
@@ -33,6 +33,13 @@ que es donde se cuantifica y se declara la convención de rendimientos que usan 
   capítulo 4. El capítulo 2 lo cuenta; el 1 ya lo anuncia.
 - **D-C · punto de control B:** aprobado tal cual. Mismas convenciones para lo que queda.
 
+⚠️ **D-D está declarada pero sin ratificar** (2026-08-09). El capítulo 3 necesitaba una
+tasa libre de riesgo y no había ninguna en el plan, así que declara **7,00 % E.A.** como
+decisión del curso, del mismo tipo que D-A. La usan dos bloques y una gráfica del capítulo
+3, y **afecta a C7, C11 y C12**: conviene ratificarla o cambiarla antes de la fase 3.
+Ojo con la convención: el 7,00 % es efectivo y el curso anualiza logarítmicos por 252, con
+lo que la misma tasa vale **6,7667 %**. Mezclarlas mueve las cifras de la SML.
+
 ⚠️ **El verificador tiene dos zonas ciegas, y las dos se cierran abriendo el capítulo.**
 
 1. **No parsea JavaScript.** Un error de sintaxis en el JSX —`-a ** 2`, que es ilegal— deja
@@ -46,6 +53,17 @@ que es donde se cuantifica y se declara la convención de rendimientos que usan 
 Y una tercera cosa que solo se ve mirando: en el capítulo 1, un pie de gráfica afirmaba lo
 contrario de lo que la gráfica mostraba. **Abra el capítulo, recorra las secciones, mueva
 los deslizadores y mire la consola antes de darlo por terminado.**
+
+El capítulo 3 añadió dos zonas ciegas más, y ninguna es JavaScript:
+
+3. **La regla 6 comprueba que `lineaCorrecta` sea un objeto por lenguaje, no que apunte a
+   la línea correcta.** En el capítulo 3 señalaba en Python la primera línea de un
+   comentario de tres, que era la verdadera; la falsa estaba en la segunda. **Responda cada
+   R3 en pantalla, en los dos lenguajes.**
+4. **Una `TablaTraza` puede no ser reproducible a mano.** Si los factores se muestran
+   redondeados y el resultado sale del cálculo exacto, el estudiante multiplica lo que ve y
+   la tabla le dice que está mal. Calcule cada casilla **desde los valores redondeados que
+   se muestran**.
 
 ## Ciclo de trabajo
 
@@ -109,9 +127,16 @@ idéntica** —Yahoo reajusta los precios hacia atrás con cada dividendo—. Si
 sin variación en ningún precio, y el par 19–20 de febrero de 2025, que es una cotización
 defectuosa (los cuatro emisores caen 10–20 % y el ETF que los replica sube). Están
 declarados en `datos/MANIFIESTO.md` y la sección 3 del capítulo 4 los diagnostica con
-código. Si escribe un capítulo que estime volatilidad, sepa que excluir ese par la baja un
-5 %. Limpiar el panel en silencio rompería las cifras del capítulo 4 y el argumento del
+código. Limpiar el panel en silencio rompería las cifras del capítulo 4 y el argumento del
 material.
+
+**Los dos defectos no estropean lo mismo, y eso ya está medido.** Excluir el par de febrero
+de 2025 mueve el VaR histórico un 1 %, la volatilidad un **5 %**, el VaR de la ventana de
+250 ruedas un **10 %** y la beta apenas un 0,5 %. Las ruedas sin variación no tocan a los
+tres primeros y en cambio se llevan **un tercio de la beta** —la del portafolio contra su
+propio índice sale 0,68 en vez de ~1, y sube a 0,95 midiendo el rendimiento por semanas—:
+es el sesgo de negociación no simultánea, y es la sección 5 del capítulo 3. Quien escriba un
+capítulo que estime una covarianza con datos diarios tiene que contarlo.
 
 ⚠️ **`curva_tes.csv` está pendiente** y bloquea los capítulos 9 y 10. Hay que bajarla a mano
 del Banco de la República. Ningún otro capítulo depende de ella.
