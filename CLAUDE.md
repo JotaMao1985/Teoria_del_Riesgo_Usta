@@ -51,10 +51,22 @@ tiene que hacer el usuario o alguien con su token:
 gh api -X POST repos/JotaMao1985/Teoria_del_Riesgo_Usta/pages -f build_type=workflow
 ```
 
-⚠️ **Quarto sigue sin instalar** y ningún `.qmd` se ha renderizado nunca — el
-«no se pudo verificar» que arrastran siete registros seguidos—. `brew install --cask
-quarto` exige `sudo` con terminal, así que lo corre el usuario. Entretanto los bloques
-ejecutables se comprueban a mano con `Rscript` desde `talleres/`.
+✅ **Quarto SÍ está, y no hace falta instalarlo**: viene dentro de RStudio, y `brew
+install --cask quarto` —que exige `sudo` y no se puede correr desde un agente— era un
+callejón sin salida. Es la 1.9.38 y no está en el `PATH`, así que se invoca por ruta:
+
+```bash
+export PATH="/Applications/RStudio.app/Contents/Resources/app/quarto/bin:$PATH"
+cd talleres && quarto render
+```
+
+La salida va a `talleres/_salida/`, que **está en `.gitignore`**: son artefactos: un solo
+`TDR-01.html` pesa 1,9 MB porque `_quarto.yml` embebe todo con `embed-resources: true`. Lo
+que se versiona es el `.qmd`.
+
+⚠️ **`git add -A` en este repositorio barre la salida de Quarto si alguien acaba de
+renderizar.** Ya pasó una vez y el artefacto de 1,9 MB llegó al repositorio público. Mire
+`git status` antes de añadir, o añada por ruta.
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —

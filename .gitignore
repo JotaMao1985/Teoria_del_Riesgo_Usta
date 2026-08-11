@@ -29,6 +29,13 @@ Banco Moodle/
 # historial de git cumple esa función mucho mejor.
 *.bak
 
+# Salida de `quarto render`. `_quarto.yml` la manda a `talleres/_salida/` y son
+# artefactos de construcción: un solo TDR-01.html pesa 1,9 MB porque Quarto
+# embebe todo con `embed-resources: true`. Lo que se versiona es el `.qmd`, que
+# es la fuente; el HTML lo regenera cualquiera con `quarto render`.
+talleres/_salida/
+.quarto/
+
 # Entorno de conda materializado y cachés de las librerías pesadas.
 .conda/
 .venv/

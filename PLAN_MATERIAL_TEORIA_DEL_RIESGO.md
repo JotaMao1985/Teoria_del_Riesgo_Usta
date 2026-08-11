@@ -1164,9 +1164,23 @@ unidad** —`TDR-U1.qmd` ya escrito, y sus equivalentes de la U2 y la U3, que so
 instrumentos calificados del syllabus—, `_quarto.yml`, y una pasada de `quarto render` que
 no falle. · **Alcance: M**
 
-⚠️ **Quarto no está instalado** y ningún `.qmd` se ha renderizado nunca. `brew install
---cask quarto` exige `sudo` con terminal. Hasta entonces, los bloques ejecutables se
-comprueban a mano con `Rscript` desde `talleres/`.
+✅ **Quarto estaba instalado desde el principio**, dentro de RStudio: la 1.9.38 en
+`/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto`. Siete registros
+seguidos anotaron «Quarto no está instalado» porque `which quarto` no lo encuentra —no está
+en el `PATH`— y porque se dio por supuesto que la vía era `brew`, que además exige `sudo`.
+Se invoca por ruta, y **con la locale fijada**:
+
+```bash
+export PATH="/Applications/RStudio.app/Contents/Resources/app/quarto/bin:$PATH"
+export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+cd talleres && quarto render
+```
+
+⚠️ **Sin `LANG` en UTF-8, `quarto render` falla aquí y el error no dice «locale».** Dice
+`unable to translate '…/Teori<U+0301>a del riesgo/talleres' to native encoding`: la ruta del
+curso lleva «Teoría» con acento **descompuesto** (NFD, que es como macOS guarda los nombres)
+y R en locale `C` no puede traducirla. RStudio fija la locale y por eso allí sí renderiza.
+Es el mismo tipo de trampa que los directorios con espacio del flujo de Pages.
 
 #### Tarea 23 · Pase final
 `verificar.py --con-salidas` sobre los quince, auditoría de contraste resuelta o justificada
@@ -1809,6 +1823,41 @@ lo agradece, porque es el que prepara el examen final presencial No-AI.
 `TDR-U1.qmd`. `brew install --cask quarto` exige `sudo` con terminal, así que la instalación
 queda del lado del usuario. Los bloques ejecutables de `TDR-U1.qmd` se corrieron a mano con
 `Rscript` y dan las cifras del material.
+
+---
+
+### Publicación y cierre del pendiente de Quarto · 2026-08-11
+
+**El repositorio se publicó**: `https://github.com/JotaMao1985/Teoria_del_Riesgo_Usta`,
+público, rama `main`. Con él subió un `index.html` **provisional** —los seis capítulos
+escritos con enlace, los nueve pendientes en gris con sus horas y sus RA— porque el flujo de
+Pages publica la raíz y la raíz no tenía portada. No es un capítulo y el verificador no lo
+mira; la tarea 21 lo sustituye.
+
+**Quarto estaba instalado desde el principio y siete registros dijeron lo contrario.** La
+1.9.38 viene dentro de RStudio. `which quarto` no la encuentra porque no está en el `PATH`,
+y de ahí se concluyó «no está instalado» sin buscarla — la conclusión correcta era «no está
+en el `PATH`»—. Los siete `.qmd` de la unidad 1, incluido `TDR-U1`, **renderizan sin un solo
+error**, y la salida ejecutada de `TDR-U1.html` trae lo que el material declara: 1 916
+sesiones, σ 1,5764 %, VaR 99 % 4,077 %, 26 excepciones, LR~uc~ 4,5175 y p 0,0336.
+
+**La segunda trampa era la locale, y su mensaje de error no la nombra.** Sin `LANG` en
+UTF-8, `quarto render` muere con `unable to translate '…/Teori<U+0301>a del riesgo/talleres'
+to native encoding`: la ruta del curso lleva «Teoría» con acento descompuesto —NFD, como
+guarda macOS— y R en locale `C` no puede traducirla. RStudio fija la locale y por eso allí
+sí renderizaba. Es la misma familia de problema que los directorios con espacio que obligaron
+a escribir `pages.yml` a mano.
+
+**Y un error propio que conviene dejar escrito porque es fácil de repetir.** Un `git add -A`
+se llevó al repositorio público `talleres/_salida/TDR-01.html`, 1,9 MB de salida de Quarto
+que estaba en el disco de un render anterior. Ahora `talleres/_salida/` y `.quarto/` están
+en `.gitignore`, pero el blob se queda en el historial: sacarlo exigiría reescribir una
+historia ya publicada, y no compensa para un artefacto que no es secreto. **En este
+repositorio, `git status` antes de `git add`.**
+
+**Lo único que sigue pendiente de configuración:** activar Pages con origen «GitHub
+Actions», que es un cambio de ajustes del repositorio y lo hace el usuario. Mientras no
+ocurra, el flujo falla en cada push y eso no es un defecto del material.
 
 ---
 
