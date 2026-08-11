@@ -30,6 +30,32 @@ El instrumento calificado de la unidad 1 es **`talleres/TDR-U1.qmd`**, el taller
 bitácora y backtest obligatorio. Los seis talleres de capítulo son práctica. Las unidades 2
 y 3 necesitan el suyo, y va en la tarea 22.
 
+## Publicación
+
+El repositorio **está en GitHub y es público** desde el 2026-08-11:
+`origin` → `https://github.com/JotaMao1985/Teoria_del_Riesgo_Usta.git`, rama `main`. Todo
+lo que se commitea aquí acaba siendo visible, incluidos el plan, este archivo y los
+talleres con sus rúbricas — es una decisión tomada, no un descuido.
+
+⚠️ **`index.html` es un portal PROVISIONAL y no es un capítulo.** No lleva TR-CORE, no lo
+estampa `migrar.py` y el verificador no lo mira: es HTML plano con la paleta de los
+capítulos, para que la raíz del sitio no devuelva 404 mientras no exista el portal de
+verdad. **La tarea 21 lo sustituye en la fase 5.** Un capítulo nuevo hay que añadirlo a
+mano a su rejilla —los nueve pendientes ya están, en gris y sin enlace—.
+
+⚠️ **GitHub Pages no está activado**, así que el flujo `pages.yml` **falla en cada push**
+con `Get Pages site failed`. No es un defecto del material. Se arregla una sola vez, y lo
+tiene que hacer el usuario o alguien con su token:
+
+```bash
+gh api -X POST repos/JotaMao1985/Teoria_del_Riesgo_Usta/pages -f build_type=workflow
+```
+
+⚠️ **Quarto sigue sin instalar** y ningún `.qmd` se ha renderizado nunca — el
+«no se pudo verificar» que arrastran siete registros seguidos—. `brew install --cask
+quarto` exige `sudo` con terminal, así que lo corre el usuario. Entretanto los bloques
+ejecutables se comprueban a mano con `Rscript` desde `talleres/`.
+
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
 del 4, sobre todo la sección 3, donde el material trata las anomalías del panel, y la 4, el

@@ -1150,6 +1150,14 @@ como pendiente separado.
 Portal `index.html` con las tres unidades, los quince capítulos, sus horas, sus RA y su nivel
 AIAS. Enlaces entre capítulos consecutivos. · **Alcance: S**
 
+⚠️ **Existe ya un `index.html` provisional** (2026-08-11), escrito al publicar el
+repositorio para que la raíz del sitio no devolviera 404. Trae las tres unidades y los
+quince capítulos —los seis escritos con enlace, los nueve pendientes en gris—, con sus horas
+y sus RA, en HTML plano y con la paleta de los capítulos. **No es un capítulo**: sin
+TR-CORE, sin `migrar.py`, sin verificador. Lo que le falta para ser el definitivo son los
+enlaces entre capítulos consecutivos y el nivel AIAS de los nueve que faltan. Un capítulo
+nuevo hay que añadirlo a mano a su rejilla mientras tanto.
+
 #### Tarea 22 · Cuadernos Quarto
 Los quince `.qmd` con el taller ejecutable de cada capítulo, **más los tres talleres de
 unidad** —`TDR-U1.qmd` ya escrito, y sus equivalentes de la U2 y la U3, que son los
