@@ -43,9 +43,15 @@ capítulos, para que la raíz del sitio no devuelva 404 mientras no exista el po
 verdad. **La tarea 21 lo sustituye en la fase 5.** Un capítulo nuevo hay que añadirlo a
 mano a su rejilla —los nueve pendientes ya están, en gris y sin enlace—.
 
-⚠️ **GitHub Pages no está activado**, así que el flujo `pages.yml` **falla en cada push**
-con `Get Pages site failed`. No es un defecto del material. Se arregla una sola vez, y lo
-tiene que hacer el usuario o alguien con su token:
+✅ **El sitio está publicado**: <https://jotamao1985.github.io/Teoria_del_Riesgo_Usta/>.
+Pages quedó activado el 2026-08-11 con origen «GitHub Actions», y desde entonces cada push
+a `main` despliega solo. Comprobado en producción: el portal, el capítulo 6 con sus siete
+secciones y su cuestionario, sin errores de consola.
+
+Las siete ejecuciones que fallaron antes de esa fecha —todas con `Get Pages site failed` a
+los diez segundos— eran eso y solo eso: Pages sin activar. Si el flujo vuelve a fallar así,
+lo primero es `gh api repos/JotaMao1985/Teoria_del_Riesgo_Usta/pages`; un 404 significa que
+se desactivó, y se reactiva con:
 
 ```bash
 gh api -X POST repos/JotaMao1985/Teoria_del_Riesgo_Usta/pages -f build_type=workflow

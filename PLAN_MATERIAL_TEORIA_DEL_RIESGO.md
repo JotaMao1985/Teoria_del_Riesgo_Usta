@@ -1867,9 +1867,18 @@ artefacto de construcción da igual — **si alguna vez se sube un secreto de ve
 procedimiento correcto no es este: es rotar el secreto**, porque la reescritura no lo
 invalida.
 
-**Lo único que sigue pendiente de configuración:** activar Pages con origen «GitHub
-Actions», que es un cambio de ajustes del repositorio y lo hace el usuario. Mientras no
-ocurra, el flujo falla en cada push y eso no es un defecto del material.
+**El sitio quedó publicado el mismo día:**
+<https://jotamao1985.github.io/Teoria_del_Riesgo_Usta/>. Pages activado con origen «GitHub
+Actions» y despliegue en verde. Comprobado en producción, no solo en local: el portal
+sirve sus quince tarjetas con las seis enlazadas, y el capítulo 6 abre por URL directa
+—con el `%20` de `Material html` incluido—, recorre sus siete secciones y su cuestionario
+califica y muestra las diez explicaciones, sin errores de consola.
+
+**Siete ejecuciones habían fallado antes, y ninguna estaba «atorada»:** las siete murieron
+a los 9–12 segundos en `configure-pages` con `Get Pages site failed`, que es el error de
+Pages sin activar. Conviene distinguirlo — un flujo que falla siempre en el mismo paso y en
+diez segundos no es un despliegue lento, es una precondición que falta—. El diagnóstico se
+hace con `gh api repos/.../pages`: un 404 es eso.
 
 ---
 
