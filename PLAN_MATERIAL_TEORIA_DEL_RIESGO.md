@@ -1851,9 +1851,21 @@ a escribir `pages.yml` a mano.
 **Y un error propio que conviene dejar escrito porque es fácil de repetir.** Un `git add -A`
 se llevó al repositorio público `talleres/_salida/TDR-01.html`, 1,9 MB de salida de Quarto
 que estaba en el disco de un render anterior. Ahora `talleres/_salida/` y `.quarto/` están
-en `.gitignore`, pero el blob se queda en el historial: sacarlo exigiría reescribir una
-historia ya publicada, y no compensa para un artefacto que no es secreto. **En este
-repositorio, `git status` antes de `git add`.**
+en `.gitignore`. **En este repositorio, `git status` antes de `git add`.**
+
+**El historial se reescribió con `git filter-repo`** el mismo día, a petición del usuario.
+`git filter-repo --path talleres/_salida --invert-paths --force`, respaldo previo en un
+`git bundle` verificado, comprobación de que el remoto seguía en el commit esperado y
+`push --force-with-lease`. Resultado: 23 commits intactos —solo los dos que tocaban el blob
+cambiaron de SHA—, 41 archivos, y un clon nuevo baja **792 KB** donde antes bajaba 2,6 MB.
+
+⚠️ **Lo que una reescritura NO borra, y conviene no prometer que sí.** El commit huérfano
+`b4597bb` sigue existiendo en el almacén de objetos de GitHub y el blob se puede recuperar
+por SHA directo hasta que GitHub recoja la basura, sin plazo comprometido. Un `clone`, un
+`fetch` y la interfaz web ya no lo ven; quien tenga el SHA de 40 caracteres, sí. Para un
+artefacto de construcción da igual — **si alguna vez se sube un secreto de verdad, el
+procedimiento correcto no es este: es rotar el secreto**, porque la reescritura no lo
+invalida.
 
 **Lo único que sigue pendiente de configuración:** activar Pages con origen «GitHub
 Actions», que es un cambio de ajustes del repositorio y lo hace el usuario. Mientras no

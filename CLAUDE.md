@@ -65,8 +65,13 @@ La salida va a `talleres/_salida/`, que **está en `.gitignore`**: son artefacto
 que se versiona es el `.qmd`.
 
 ⚠️ **`git add -A` en este repositorio barre la salida de Quarto si alguien acaba de
-renderizar.** Ya pasó una vez y el artefacto de 1,9 MB llegó al repositorio público. Mire
-`git status` antes de añadir, o añada por ruta.
+renderizar.** Ya pasó una vez, el artefacto de 1,9 MB llegó al repositorio público y hubo
+que reescribir el historial con `filter-repo` y forzar el push. Mire `git status` antes de
+añadir, o añada por ruta.
+
+⚠️ **El historial se reescribió el 2026-08-11** (`filter-repo`, `push --force-with-lease`).
+Si alguien clonó el repositorio antes de esa fecha, su copia diverge y tiene que rehacerla:
+`git fetch origin && git reset --hard origin/main`.
 
 Los capítulos **4** (VaR) y **1** (riesgo y rendimiento) son la **rebanada de referencia**:
 lo que allí quedó decidido se repite trece veces. Antes de escribir otro capítulo, léalos —
