@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Material de estudio autónomo de Teoría del Riesgo. Universidad Santo Tomás, Estadística, 2026-II. Quince capítulos HTML autocontenidos.">
+    <title>Teoría del Riesgo — Universidad Santo Tomás · 2026-II</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!--
+      PORTAL PROVISIONAL.
+
+      Este archivo NO es un capítulo: no lleva TR-CORE, no lo estampa migrar.py
+      y el verificador no lo mira. Es HTML plano a propósito, para que la raíz
+      del sitio no dependa de React ni de ninguna CDN de cálculo.
+
+      La tarea 21 del plan lo sustituye por el portal definitivo en la fase 5.
+      Mientras tanto, su único trabajo es que los seis capítulos escritos se
+      alcancen desde algún sitio y que los nueve que faltan se vean como lo que
+      son: pendientes, no rotos.
+    -->
+    <style>
+        :root {
+            --primary: #3D008D;
+            --secondary: #ED1E79;
+            --navy: #001A4D;
+            --gold: #FDB913;
+            --teal: #0E7490;
+            --bg: #F8FAFC;
+            --texto: #1E293B;
+            --tenue: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+
+        .cabecera {
+            background: linear-gradient(180deg, #001A4D 0%, #002868 100%);
+            color: #fff;
+            padding: 3rem 1.5rem 3.5rem;
+        }
+
+        .contenido {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .cabecera .contenido {
+            padding: 0;
+        }
+
+        .institucion {
+            font-size: .72rem;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--gold);
+            margin: 0 0 .6rem;
+        }
+
+        .cabecera h1 {
+            font-size: clamp(1.9rem, 5vw, 2.9rem);
+            font-weight: 800;
+            margin: 0 0 .5rem;
+            letter-spacing: -.02em;
+        }
+
+        .cabecera p.lead {
+            font-size: 1.02rem;
+            color: #C7D2FE;
+            margin: 0 0 1.6rem;
+            max-width: 62ch;
+        }
+
+        .datos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        .dato {
+            background: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            padding: .3rem .9rem;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        main {
+            padding: 2.5rem 0 4rem;
+        }
+
+        .aviso {
+            background: #fff;
+            border-left: 4px solid var(--gold);
+            border-radius: 0 12px 12px 0;
+            padding: 1.1rem 1.3rem;
+            margin: 0 0 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+            font-size: .93rem;
+        }
+
+        .aviso strong {
+            color: var(--navy);
+        }
+
+        h2.unidad {
+            font-size: 1.28rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 2.6rem 0 .2rem;
+            letter-spacing: -.01em;
+        }
+
+        h2.unidad:first-of-type {
+            margin-top: 0;
+        }
+
+        p.unidad-meta {
+            margin: 0 0 1.1rem;
+            font-size: .82rem;
+            color: var(--tenue);
+            font-weight: 600;
+        }
+
+        .rejilla {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1rem;
+        }
+
+        .cap {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.2rem 1.3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            display: flex;
+            flex-direction: column;
+            gap: .55rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid transparent;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        a.cap:hover,
+        a.cap:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, .12);
+            border-color: rgba(61, 0, 141, .25);
+            outline: none;
+        }
+
+        .cap.pendiente {
+            background: #F1F5F9;
+            box-shadow: none;
+            border: 1px dashed #CBD5E1;
+            color: var(--tenue);
+        }
+
+        .cap-top {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .numero {
+            flex-shrink: 0;
+            width: 2.1rem;
+            height: 2.1rem;
+            border-radius: 10px;
+            background: linear-gradient(140deg, #3D008D 0%, #ED1E79 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: .85rem;
+        }
+
+        .pendiente .numero {
+            background: #CBD5E1;
+            color: #fff;
+        }
+
+        .cap h3 {
+            margin: 0;
+            font-size: .99rem;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.3;
+        }
+
+        .pendiente h3 {
+            color: #94A3B8;
+        }
+
+        .cap p {
+            margin: 0;
+            font-size: .84rem;
+            color: var(--tenue);
+        }
+
+        .etiquetas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem;
+            margin-top: auto;
+            padding-top: .5rem;
+        }
+
+        .et {
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            border-radius: 6px;
+            padding: .17rem .5rem;
+            background: #EEF2FF;
+            color: var(--primary);
+        }
+
+        .et.ra {
+            background: #FDF2F8;
+            color: var(--secondary);
+        }
+
+        .et.ia {
+            background: #ECFEFF;
+            color: var(--teal);
+        }
+
+        .pendiente .et {
+            background: #E2E8F0;
+            color: #94A3B8;
+        }
+
+        .talleres {
+            margin-top: 3rem;
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem 1.6rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+        }
+
+        .talleres h2 {
+            margin: 0 0 .5rem;
+            font-size: 1.15rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .talleres p {
+            margin: 0 0 .8rem;
+            font-size: .9rem;
+        }
+
+        .talleres ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            font-size: .88rem;
+            color: var(--tenue);
+        }
+
+        .talleres li {
+            margin-bottom: .3rem;
+        }
+
+        .talleres a,
+        .aviso a,
+        footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        footer {
+            border-top: 1px solid #E2E8F0;
+            padding: 1.8rem 0 3rem;
+            font-size: .82rem;
+            color: var(--tenue);
+        }
+
+        footer p {
+            margin: .25rem 0;
+        }
+
+        @media (max-width: 560px) {
+            .cabecera {
+                padding: 2.2rem 1rem 2.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="cabecera">
+        <div class="contenido">
+            <p class="institucion">Universidad Santo Tomás · Estadística</p>
+            <h1>Teoría del Riesgo</h1>
+            <p class="lead">
+                Material de estudio autónomo. Quince capítulos, cada uno un archivo HTML
+                autocontenido: se abre y se usa, sin instalar nada. Todo el código va en
+                Python y en R, y toda cifra que el material declara se produjo ejecutándolo.
+            </p>
+            <div class="datos">
+                <span class="dato">Periodo 8 · 2 créditos</span>
+                <span class="dato">64 h acompañadas + 32 autónomas</span>
+                <span class="dato">2026-II</span>
+                <span class="dato">Hilo conductor: el portafolio de un fondo de pensiones</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenido">
+        <div class="aviso">
+            <strong>Estado: unidad 1 completa.</strong> Los seis capítulos de riesgo de
+            mercado están escritos y verificados; los nueve de las unidades 2 y 3 están
+            planificados y todavía no. Este portal es provisional y lo sustituye el
+            definitivo cuando el material esté completo. El plan capítulo a capítulo está en
+            <a href="PLAN_MATERIAL_TEORIA_DEL_RIESGO.md">el documento de planeación</a>.
+        </div>
+
+        <h2 class="unidad">Unidad 1 · Riesgo de mercado</h2>
+        <p class="unidad-meta">24 h acompañadas · 12 autónomas · RA1 a RA3 · <strong>completa</strong></p>
+        <div class="rejilla">
+
+            <a class="cap" href="Material%20html/01_TDR_Riesgo_y_rendimiento.html">
+                <div class="cap-top">
+                    <span class="numero">01</span>
+                    <h3>Riesgo, rendimiento y el entorno reproducible</h3>
+                </div>
+                <p>De dónde sale el número, quién responde por él y con qué datos se calculó.</p>
+                <div class="etiquetas">
+                    <span class="et">4 h</span><span class="et ra">RA1 · RA3</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+
+            <a class="cap" href="Material%20html/02_TDR_Volatilidad.html">
+                <div class="cap-top">
+                    <span class="numero">02</span>
+                    <h3>Volatilidad: EWMA, ARCH y GARCH</h3>
+                </div>
+                <p>La volatilidad de ayer predice la de hoy; la de hace un año, no.</p>
+                <div class="etiquetas">
+                    <span class="et">6 h</span><span class="et ra">RA1</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+
+            <a class="cap" href="Material%20html/03_TDR_CAPM.html">
+                <div class="cap-top">
+                    <span class="numero">03</span>
+                    <h3>Riesgo sistemático y no sistemático: CAPM</h3>
+                </div>
+                <p>Qué parte del riesgo paga prima, qué parte se diversifica y qué parte es un defecto del dato.</p>
+                <div class="etiquetas">
+                    <span class="et">3 h</span><span class="et ra">RA1 · RA3</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+
+            <a class="cap" href="Material%20html/04_TDR_Valor_en_riesgo.html">
+                <div class="cap-top">
+                    <span class="numero">04</span>
+                    <h3>Valor en Riesgo</h3>
+                </div>
+                <p>Un número, un porcentaje y un plazo: qué promete el VaR y qué no promete.</p>
+                <div class="etiquetas">
+                    <span class="et">5 h</span><span class="et ra">RA1</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+
+            <a class="cap" href="Material%20html/05_TDR_Expected_shortfall.html">
+                <div class="cap-top">
+                    <span class="numero">05</span>
+                    <h3>Expected Shortfall</h3>
+                </div>
+                <p>La medida coherente: qué hay dentro de la cola, y por qué Basilea cambió de número.</p>
+                <div class="etiquetas">
+                    <span class="et">3 h</span><span class="et ra">RA1</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+
+            <a class="cap" href="Material%20html/06_TDR_Backtesting.html">
+                <div class="cap-top">
+                    <span class="numero">06</span>
+                    <h3>Backtesting y marco regulatorio</h3>
+                </div>
+                <p>La prueba que decide si el número del capítulo 4 se puede firmar, y cuánto capital cuesta que no.</p>
+                <div class="etiquetas">
+                    <span class="et">3 h</span><span class="et ra">RA2 · RA3</span><span class="et ia">AIAS 1</span>
+                </div>
+            </a>
+        </div>
+
+        <h2 class="unidad">Unidad 2 · Portafolio y renta fija</h2>
+        <p class="unidad-meta">16 h acompañadas · 8 autónomas · RA4 a RA6 · en preparación</p>
+        <div class="rejilla">
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">07</span>
+                    <h3>Teoría del portafolio y frontera eficiente</h3>
+                </div>
+                <p>Diversificación, media-varianza y la fragilidad de la matriz de covarianzas.</p>
+                <div class="etiquetas">
+                    <span class="et">5 h</span><span class="et">RA4</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">08</span>
+                    <h3>Optimización CVaR (Rockafellar–Uryasev)</h3>
+                </div>
+                <p>Optimizar la cola en vez de la varianza, con programación lineal.</p>
+                <div class="etiquetas">
+                    <span class="et">3 h</span><span class="et">RA4</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">09</span>
+                    <h3>Bonos, tasas y curvas de rendimiento</h3>
+                </div>
+                <p>Valoración, tasas cero y la curva de los TES.</p>
+                <div class="etiquetas">
+                    <span class="et">4 h</span><span class="et">RA5</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">10</span>
+                    <h3>Duración, convexidad y valoración con QuantLib</h3>
+                </div>
+                <p>Sensibilidad del precio a la tasa, a mano y con librería.</p>
+                <div class="etiquetas">
+                    <span class="et">4 h</span><span class="et">RA5 · RA6</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="unidad">Unidad 3 · Derivados, crédito y eventos extremos</h2>
+        <p class="unidad-meta">24 h acompañadas · 12 autónomas · RA7 a RA9 · en preparación</p>
+        <div class="rejilla">
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">11</span>
+                    <h3>Derivados: forwards, futuros, opciones y árbol binomial</h3>
+                </div>
+                <p>Cobertura y valoración por no arbitraje.</p>
+                <div class="etiquetas">
+                    <span class="et">5 h</span><span class="et">RA7</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">12</span>
+                    <h3>Black-Scholes, Montecarlo y griegas</h3>
+                </div>
+                <p>La fórmula, la simulación y las derivadas que se usan para cubrir.</p>
+                <div class="etiquetas">
+                    <span class="et">5 h</span><span class="et">RA7</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">13</span>
+                    <h3>Riesgo de crédito con ML: PD y scorecards</h3>
+                </div>
+                <p>Probabilidad de incumplimiento, tarjetas de puntaje y el costo de un falso negativo.</p>
+                <div class="etiquetas">
+                    <span class="et">6 h</span><span class="et">RA8</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">14</span>
+                    <h3>Validación e interpretabilidad del modelo de crédito</h3>
+                </div>
+                <p>Qué hay que poder explicarle al supervisor sobre un modelo que decide créditos.</p>
+                <div class="etiquetas">
+                    <span class="et">4 h</span><span class="et">RA8</span>
+                </div>
+            </div>
+
+            <div class="cap pendiente">
+                <div class="cap-top">
+                    <span class="numero">15</span>
+                    <h3>Eventos extremos: EVT, cópulas y riesgo operativo</h3>
+                </div>
+                <p>La cola más allá de los datos, y la dependencia que solo aparece en las crisis.</p>
+                <div class="etiquetas">
+                    <span class="et">4 h</span><span class="et">RA9</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="talleres">
+            <h2>Talleres</h2>
+            <p>
+                Cuadernos Quarto ejecutables, en <strong>nivel 3 · AI Collaboration con
+                    bitácora obligatoria</strong>. Se descargan y se renderizan con Quarto; no
+                se abren en el navegador como los capítulos.
+            </p>
+            <ul>
+                <li>
+                    <a href="talleres/TDR-U1.qmd">TDR-U1</a> — <strong>el instrumento
+                        calificado de la unidad 1</strong>: del VaR al Expected Shortfall, con
+                    backtest obligatorio y recomendación al comité.
+                </li>
+                <li>
+                    <a href="talleres/TDR-01.qmd">TDR-01</a> ·
+                    <a href="talleres/TDR-02.qmd">TDR-02</a> ·
+                    <a href="talleres/TDR-03.qmd">TDR-03</a> ·
+                    <a href="talleres/TDR-04.qmd">TDR-04</a> ·
+                    <a href="talleres/TDR-05.qmd">TDR-05</a> ·
+                    <a href="talleres/TDR-06.qmd">TDR-06</a> — práctica de capítulo.
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="contenido">
+        <p>
+            Los datos van <strong>congelados y versionados</strong> en
+            <a href="datos/MANIFIESTO.md">datos/</a>, con fuente, fecha y SHA-256 de cada
+            instantánea: sin eso, ninguna cifra del material sería comprobable.
+        </p>
+        <p>Docente y diseño del material: Javier Mauricio Sierra.</p>
+        <p>Universidad Santo Tomás · Estadística · 2026-II</p>
+    </footer>
+</body>
+
+</html>
