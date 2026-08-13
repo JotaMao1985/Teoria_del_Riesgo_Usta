@@ -2,7 +2,7 @@
 """
 Verificador estructural de los capítulos de Teoría del Riesgo.
 
-Comprueba doce cosas sobre cada archivo HTML de capítulo:
+Comprueba catorce cosas sobre cada archivo HTML de capítulo:
 
   1. DERIVA — que el bloque TR-CORE (la librería de componentes) sea byte a
      byte idéntico al de `_plantilla/tr-base.html`.
@@ -34,6 +34,26 @@ Comprueba doce cosas sobre cada archivo HTML de capítulo:
  12. PESO — que ningún capítulo pase de 400 KB. Con MathJax denso, gráficas y
      datos embebidos es un límite que se cruza sin darse cuenta, y del otro
      lado el capítulo tarda en abrir en el equipo de un estudiante.
+ 13. LONGITUD DE LAS OPCIONES — que la opción correcta no sea sistemáticamente
+     la más larga. `barajarOpciones` cerró la pista de la POSICIÓN y dejó
+     abierta la de la LONGITUD, que el barajado no toca: en la primera pasada
+     de la unidad 1 la correcta era la más larga en 89 de 90 preguntas, con
+     una razón media de 2,1 veces sus distractores. Un estudiante que marque
+     la más larga sin leer saca la nota completa. La causa es de redacción —la
+     opción correcta arrastra su propia justificación—, y el arreglo es mover
+     ese razonamiento a `justificacion`, que es donde la regla editorial ya
+     dice que va.
+ 14. POSICIÓN DE LA CORRECTA — que la letra en la que la opción correcta acaba
+     saliendo en pantalla esté repartida. `barajarOpciones` permuta con un hash
+     del ENUNCIADO, así que la posición no depende de las opciones: reescribir
+     el texto para arreglar la regla 13 no mueve ni una letra. Y como la
+     correcta se escribe casi siempre en el índice 0 del arreglo, la letra
+     acaba siendo una función del enunciado y solo de él. En el capítulo 2 eso
+     dejó la correcta en la (c) nueve veces de quince y en la (a) ninguna: un
+     estudiante que descarte la (a) y marque la (c) aprueba sin leer. Se
+     arregla moviendo la correcta de índice en el fuente, y esta regla dice a
+     cuáles. Solo se aplica a las preguntas cuyo enunciado es una cadena
+     literal: si es JSX, la semilla no se puede reconstruir aquí y se omiten.
 
 Uso:
     python3 _plantilla/verificar.py                 # todos los capítulos
@@ -103,6 +123,22 @@ PREFIJOS_AJENOS = {"//>": "pseudocódigo", "'>": "VBA"}
 PREFIJO_PROPIO = "#>"
 
 PESO_MAXIMO_KB = 400
+
+# Regla 13. La fracción no es cero a propósito: con cuatro opciones, que la
+# correcta salga la más larga por azar pasa una vez de cada cuatro, así que
+# exigir cero obligaría a redactar contra la casualidad. Un tercio ya no es
+# azar. La razón individual tolera un 30 % de holgura sobre la media de los
+# distractores, que es lo que cabe sin que la diferencia se vea de un vistazo.
+FRACCION_DELATADAS_MAXIMA = 0.34
+RAZON_LONGITUD_MAXIMA = 1.30
+
+# Regla 14. Con cuatro opciones lo esperable es una cuarta parte por letra. Se
+# tolera hasta la mitad —redactar contra la casualidad de un hash no es trabajo
+# de nadie— y se exige que ninguna letra se quede sin salir, que es la pista
+# barata: descartar la que nunca es correcta reduce el problema a tres opciones.
+# El mínimo de preguntas evita que un capítulo a medias falle por tener cuatro.
+FRACCION_POSICION_MAXIMA = 0.50
+MINIMO_PREGUNTAS_POSICION = 8
 
 # Etiquetas que no son componentes React definidos por nosotros.
 IGNORAR = {"React", "ReactDOM", "Fragment", "Math", "Object", "JSON", "Array",
@@ -609,6 +645,160 @@ def pide_escribir_programa(texto, cuerpo, desplazamiento):
     return fallos
 
 
+RE_OPCION = re.compile(r"\{\s*texto:\s*'((?:[^'\\]|\\.)*)'\s*,\s*correcta:\s*(true|false)")
+
+# El enunciado se escribe de tres formas: atributo JSX (`pregunta="…"`), llave
+# con cadena (`pregunta={'…'}`) y propiedad de objeto en el Quiz
+# (`pregunta: '…'`). La cuarta —`pregunta={<>…</>}`— es JSX y no da cadena; la
+# regla 14 la omite en vez de adivinar la semilla.
+RE_PREGUNTA = re.compile(
+    r"\bpregunta\s*(?:=\"([^\"]*)\"|=\{'((?:[^'\\]|\\.)*)'\}|:\s*'((?:[^'\\]|\\.)*)')")
+
+
+def _sin_escapes(s):
+    return s.replace("\\'", "'").replace('\\"', '"').replace("\\\\", "\\")
+
+
+def enunciado_antes_de(cuerpo, tope):
+    """El último `pregunta` literal que hay antes de `tope`, o None si es JSX."""
+    ultimo = None
+    for m in RE_PREGUNTA.finditer(cuerpo, 0, tope):
+        ultimo = m
+    if not ultimo:
+        return None
+    return _sin_escapes(next(g for g in ultimo.groups() if g is not None))
+
+
+def grupos_de_opciones(cuerpo):
+    """Las opciones del cuerpo, agrupadas por pregunta.
+
+    Se barre por la PROPIEDAD y no por el nombre del componente: el
+    `Comparador` monta un `MCQ` por dentro, así que un grep de `<MCQ` deja
+    fuera una de las quince preguntas de cada capítulo.
+
+    El corte entre preguntas sale del arreglo `opciones` —`={[…]}` en el JSX de
+    un MCQ, `: […]` dentro de una pregunta del Quiz— y NO de dónde caiga la
+    opción correcta. Inferirlo de `correcta: true` parece funcionar y falla en
+    silencio en cuanto una pregunta no trae la correcta de primera: en el
+    capítulo 5 fundía dos preguntas en una de ocho opciones y contaba catorce.
+    """
+    for m in re.finditer(r"\bopciones\s*(?:=\{\[|:\s*\[)", cuerpo):
+        i = cuerpo.rfind("[", m.start(), m.end())
+        prof = 0
+        for j in range(i, len(cuerpo)):
+            if cuerpo[j] == "[":
+                prof += 1
+            elif cuerpo[j] == "]":
+                prof -= 1
+                if prof == 0:
+                    grupo = [(o.group(1), o.group(2) == "true", i + o.start())
+                             for o in RE_OPCION.finditer(cuerpo[i:j])]
+                    if grupo:
+                        yield grupo, enunciado_antes_de(cuerpo, i)
+                    break
+
+
+def opciones_delatadas(texto, cuerpo, desplazamiento):
+    """La correcta no puede ser sistemáticamente la más larga de su pregunta."""
+    fallos, delatadas, total = [], 0, 0
+    for grupo, _ in grupos_de_opciones(cuerpo):
+        correctas = [t for t, c, _ in grupo if c]
+        otras = [t for t, c, _ in grupo if not c]
+        if len(correctas) != 1 or not otras:
+            continue
+        total += 1
+        larga = len(correctas[0])
+        media = sum(len(o) for o in otras) / len(otras)
+        pos = next(p for _, c, p in grupo if c)
+        if larga > max(len(o) for o in otras):
+            delatadas += 1
+            fallos.append(
+                f"línea {linea_de(texto, desplazamiento + pos)}: la opción correcta es la más "
+                f"larga ({larga} caracteres contra {media:.0f} de media). Mueva su razonamiento "
+                f"a `justificacion`")
+        elif larga / media > RAZON_LONGITUD_MAXIMA:
+            fallos.append(
+                f"línea {linea_de(texto, desplazamiento + pos)}: la opción correcta mide "
+                f"{larga / media:.1f} veces la media de sus distractores")
+    if total and delatadas / total > FRACCION_DELATADAS_MAXIMA:
+        fallos.insert(0, f"la correcta es la más larga en {delatadas} de {total} preguntas — "
+                         f"marcar la más larga sin leer basta para aprobar")
+    return fallos
+
+
+def _fnv1a(cadena):
+    """El hash de `hashTexto` en TR-CORE, byte a byte.
+
+    `charCodeAt` de JavaScript devuelve unidades UTF-16. Para todo lo que el
+    material escribe —α, σ, ², «», el menos tipográfico— coincide con `ord`;
+    solo se separarían fuera del plano básico, y ahí no hay nada.
+    """
+    h = 0x811C9DC5
+    for ch in cadena:
+        h = ((h ^ (ord(ch) & 0xFFFFFFFF)) * 0x01000193) & 0xFFFFFFFF
+    return h
+
+
+def permutacion(n, semilla):
+    """`barajarOpciones`: devuelve, por posición en pantalla, el índice fuente."""
+    s = _fnv1a(semilla) or 1
+
+    def siguiente():
+        nonlocal s
+        s = (s * 1664525 + 1013904223) & 0xFFFFFFFF
+        return s / 4294967296
+
+    out = list(range(n))
+    for i in range(n - 1, 0, -1):
+        j = int(siguiente() * (i + 1))
+        out[i], out[j] = out[j], out[i]
+    return out
+
+
+def posiciones_delatadas(texto, cuerpo, desplazamiento):
+    """La letra en la que sale la correcta no puede concentrarse ni faltar."""
+    letras, detalle, omitidas = [], [], 0
+    for grupo, enunciado in grupos_de_opciones(cuerpo):
+        correctas = [p for _, c, p in grupo if c]
+        if len(correctas) != 1 or len(grupo) < 2:
+            continue
+        if not enunciado:
+            omitidas += 1
+            continue
+        orden = permutacion(len(grupo), enunciado)
+        fuente = next(i for i, (_, c, _) in enumerate(grupo) if c)
+        letra = chr(97 + orden.index(fuente))
+        letras.append(letra)
+        detalle.append((linea_de(texto, desplazamiento + correctas[0]), letra, orden))
+
+    fallos = []
+    if len(letras) < MINIMO_PREGUNTAS_POSICION:
+        return fallos
+    n, alfabeto = len(letras), sorted({chr(97 + i) for d in detalle for i in range(len(d[2]))})
+    cuenta = {l: letras.count(l) for l in alfabeto}
+    reparto = " · ".join(f"{l}:{cuenta[l]}" for l in alfabeto)
+
+    vacias = [l for l in alfabeto if cuenta[l] == 0]
+    if vacias:
+        fallos.append(f"la correcta nunca sale en la ({'), la ('.join(vacias)}) — reparto "
+                      f"{reparto} en {n} preguntas. Descartar esa opción sin leerla no cuesta nada")
+    for l in alfabeto:
+        if cuenta[l] / n > FRACCION_POSICION_MAXIMA:
+            fallos.append(f"la correcta sale en la ({l}) {cuenta[l]} de {n} veces — reparto "
+                          f"{reparto}")
+    if fallos:
+        fallos.append("la permutación sale del hash del ENUNCIADO, así que reescribir las "
+                      "opciones no la mueve: hay que cambiar de índice la correcta en el "
+                      "fuente. Destinos por pregunta:")
+        for linea, letra, orden in detalle:
+            mapa = " ".join(f"idx{i}→{chr(97 + orden.index(i))}" for i in range(len(orden)))
+            fallos.append(f"  línea {linea}: hoy ({letra}) · {mapa}")
+    if omitidas:
+        fallos.append(f"{omitidas} pregunta(s) omitidas: su `pregunta` es JSX y la semilla "
+                      f"no se puede reconstruir desde aquí")
+    return fallos
+
+
 def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
     texto = ruta.read_text(encoding="utf-8")
     cuerpo = cuerpo_capitulo(texto)
@@ -684,6 +874,14 @@ def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
         problemas.append(
             f"peso — el capítulo ocupa {kb:.0f} KB y el máximo es {PESO_MAXIMO_KB} KB. "
             f"Reduzca las series de las gráficas a 1500 puntos o parta el capítulo")
+
+    # 13 · la opción correcta no se delata por ser la más larga
+    for f in opciones_delatadas(texto, cuerpo, desplazamiento):
+        problemas.append(f"opciones — {f}")
+
+    # 14 · ni por la letra en la que acaba saliendo
+    for f in posiciones_delatadas(texto, cuerpo, desplazamiento):
+        problemas.append(f"posición — {f}")
 
     total = sum(conteo.values())
     resumen = " ".join(f"{t}:{conteo[t]}" for t in sorted(conteo))

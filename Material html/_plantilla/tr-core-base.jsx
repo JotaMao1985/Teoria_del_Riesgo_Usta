@@ -281,12 +281,20 @@
                         <i className="fas fa-dumbbell text-gold"></i>{titulo}
                     </div>
                     <div className="text-gray-700 text-[0.95rem] mb-3">{children}</div>
-                    <button onClick={() => setShow(s => !s)}
-                        className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
-                        <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
-                        {show ? 'Ocultar solución' : 'Mostrar solución'}
-                    </button>
-                    {show && <div className="mt-3 animate-fade-in">{solucion}</div>}
+                    {/* El botón solo existe si hay solución que mostrar. Sin esta
+                        guarda —y `solucion` es opcional— el botón se pintaba
+                        igual, cambiaba a «Ocultar solución» y no aparecía nada:
+                        los seis R7 de la unidad 1 no la traen y los seis abrían
+                        un panel vacío. Es el mismo defecto que el `MCQ` ya
+                        cerraba con su «Explicación:» vacía. */}
+                    {solucion && (
+                        <button onClick={() => setShow(s => !s)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
+                            <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
+                            {show ? 'Ocultar solución' : 'Mostrar solución'}
+                        </button>
+                    )}
+                    {show && solucion && <div className="mt-3 animate-fade-in">{solucion}</div>}
                 </div>
             );
         };

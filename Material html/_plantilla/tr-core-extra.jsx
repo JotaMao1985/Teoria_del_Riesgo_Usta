@@ -409,7 +409,15 @@
         const normalizarCelda = (v) => {
             let s = String(v === null || v === undefined ? '' : v).trim().toLowerCase();
             s = s.replace(/\s+/g, '');
-            if (s === '' || s === '-' || s === '—' || s === '–' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
+            // El signo menos tipográfico (U+2212) y los guiones largos se
+            // unifican con el guion ASCII ANTES de mirar si la celda está
+            // vacía. La prosa del material escribe −0,512 con U+2212 y los
+            // bloques de código escriben -0.512 con el guion del teclado, así
+            // que el estudiante teclea cualquiera de los dos. Sin esto, el R1
+            // marcaba en rojo una celda que en pantalla es carácter por
+            // carácter la misma respuesta que él imprime debajo en verde.
+            s = s.replace(/[−–—]/g, '-');
+            if (s === '' || s === '-' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
             s = s.replace(/\$/g, '').replace(/\bcop\b/g, '');
             if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.');
             else s = s.replace(',', '.');
