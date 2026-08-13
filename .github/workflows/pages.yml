@@ -16,6 +16,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # `deploy-pages` localiza el artefacto por su ID desde la v4, y para eso lee
+  # la API de Actions. Está documentado como requisito desde entonces; el flujo
+  # venía funcionando sin declararlo y conviene no depender de esa suerte.
+  actions: read
 
 # Un despliegue a la vez; no se cancela el que ya está en curso.
 concurrency:
@@ -29,10 +33,19 @@ jobs:
       name: github-pages
       url: ${{ steps.despliegue.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: .
+          # Desde la v4 esta acción excluye todo lo que empiece por punto, y
+          # aquí se publican dos archivos así: `.nojekyll` y `.gitignore`. Con
+          # esto el artefacto queda idéntico al de antes de subir las versiones,
+          # que es lo único que esta subida debía cambiar. Quitar la línea deja
+          # de publicarlos —`.nojekyll` no hace falta, porque este flujo nunca
+          # invoca a Jekyll—, pero eso es una decisión aparte.
+          # `.git` y `.github` quedan fuera pase lo que pase: la acción los
+          # excluye sin condición, así que esto no expone el repositorio.
+          include-hidden-files: true
       - id: despliegue
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
