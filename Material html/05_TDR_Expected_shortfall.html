@@ -703,12 +703,20 @@
                         <i className="fas fa-dumbbell text-gold"></i>{titulo}
                     </div>
                     <div className="text-gray-700 text-[0.95rem] mb-3">{children}</div>
-                    <button onClick={() => setShow(s => !s)}
-                        className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
-                        <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
-                        {show ? 'Ocultar solución' : 'Mostrar solución'}
-                    </button>
-                    {show && <div className="mt-3 animate-fade-in">{solucion}</div>}
+                    {/* El botón solo existe si hay solución que mostrar. Sin esta
+                        guarda —y `solucion` es opcional— el botón se pintaba
+                        igual, cambiaba a «Ocultar solución» y no aparecía nada:
+                        los seis R7 de la unidad 1 no la traen y los seis abrían
+                        un panel vacío. Es el mismo defecto que el `MCQ` ya
+                        cerraba con su «Explicación:» vacía. */}
+                    {solucion && (
+                        <button onClick={() => setShow(s => !s)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
+                            <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
+                            {show ? 'Ocultar solución' : 'Mostrar solución'}
+                        </button>
+                    )}
+                    {show && solucion && <div className="mt-3 animate-fade-in">{solucion}</div>}
                 </div>
             );
         };
@@ -1486,7 +1494,15 @@
         const normalizarCelda = (v) => {
             let s = String(v === null || v === undefined ? '' : v).trim().toLowerCase();
             s = s.replace(/\s+/g, '');
-            if (s === '' || s === '-' || s === '—' || s === '–' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
+            // El signo menos tipográfico (U+2212) y los guiones largos se
+            // unifican con el guion ASCII ANTES de mirar si la celda está
+            // vacía. La prosa del material escribe −0,512 con U+2212 y los
+            // bloques de código escriben -0.512 con el guion del teclado, así
+            // que el estudiante teclea cualquiera de los dos. Sin esto, el R1
+            // marcaba en rojo una celda que en pantalla es carácter por
+            // carácter la misma respuesta que él imprime debajo en verde.
+            s = s.replace(/[−–—]/g, '-');
+            if (s === '' || s === '-' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
             s = s.replace(/\$/g, '').replace(/\bcop\b/g, '');
             if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.');
             else s = s.replace(',', '.');
@@ -3512,7 +3528,7 @@ cat(sprintf("lo que cuesta la iliquidez: %+.1f%%  =  %s millones\\n",
                             pregunta="Las carteras A y B declaran el mismo VaR 99 % de 25 000 millones, y B tiene además mayor ganancia esperada. Un gestor concluye que B domina a A. ¿Qué está pasando por alto?"
                             opciones={[
                                 { texto: 'Que la ganancia esperada de B se calcula sobre una distribución con un escenario extremo, y las esperanzas no son comparables cuando las colas difieren.', correcta: false },
-                                { texto: 'Que el VaR marca dónde empieza la cola y no lo que hay dentro: el ES de B es 300 000 millones contra 30 000 de A, diez veces más. Las dos medidas de A y B coinciden justo en el punto donde dejan de mirar.', correcta: true, justificacion: 'Los números del contraejemplo: mismo VaR 99 % de 25 000 millones, ES de 30 000 en A y de 300 000 en B. La cartera B es la de quien vende opciones — cobra la prima todos los meses y devuelve el acumulado entero el mes en que el mercado se mueve—. El VaR está construido para no ver eso: señala dónde empieza la cola y se detiene justo antes de entrar.' },
+                                { texto: 'Que el VaR marca dónde empieza la cola y no lo que hay dentro: el ES de B es 300 000 millones contra 30 000 de A, diez veces más.', correcta: true, justificacion: 'Los números del contraejemplo: mismo VaR 99 % de 25 000 millones, ES de 30 000 en A y de 300 000 en B. La cartera B es la de quien vende opciones — cobra la prima todos los meses y devuelve el acumulado entero el mes en que el mercado se mueve—. El VaR está construido para no ver eso: señala dónde empieza la cola y se detiene justo antes de entrar.' },
                                 { texto: 'Que B tiene mayor varianza, y la varianza es la medida de riesgo correcta para comparar dos carteras con el mismo VaR.', correcta: false },
                                 { texto: 'Nada: con el mismo VaR y más ganancia esperada, B efectivamente domina a A bajo cualquier medida coherente.', correcta: false },
                             ]}
@@ -3951,7 +3967,7 @@ es <- mean(perdida[perdida > v])`,
                             { texto: 'A da un número mayor porque su nivel de confianza es más alto, y un nivel más alto siempre produce una medida de riesgo más grande, sea cual sea la medida.', correcta: false },
                             { texto: 'Los dos miden lo mismo con distinta parametrización: existe siempre un nivel al que el VaR coincide con el ES, así que la elección entre A y B es una convención sin consecuencias.', correcta: false },
                             { texto: 'B es preferible en todos los casos porque usa más observaciones, y más observaciones implican siempre un estimador con menor error estándar.', correcta: false },
-                            { texto: 'B da un número mayor pese a usar un nivel de confianza más bajo, porque promedia toda la cola en vez de leer su borde; y usa 48 observaciones donde A usa el entorno de una sola, lo que lo hace más informativo sobre la cola y a la vez más sensible a la ventana.', correcta: true, justificacion: 'Las dos cifras sobre este portafolio: VaR 99 % de 4,077 % contra ES 97,5 % de 4,727 %, y el segundo promedia 48 ruedas donde el primero se apoya en el entorno de la número veinte. Que la medida del nivel más bajo dé el número más alto es justo la calibración con la que el Comité eligió el 97,5 %, y solo ocurre porque la cola de este panel pesa más que la de una normal: con datos normales las dos coincidirían.' },
+                            { texto: 'B da un número mayor pese a usar un nivel de confianza más bajo, porque promedia toda la cola en vez de leer su borde, y se apoya en 48 observaciones donde A usa una.', correcta: true, justificacion: 'Las dos cifras sobre este portafolio: VaR 99 % de 4,077 % contra ES 97,5 % de 4,727 %, y el segundo promedia 48 ruedas donde el primero se apoya en el entorno de la número veinte —lo que lo hace a la vez más informativo sobre la cola y más sensible a la ventana—. Que la medida del nivel más bajo dé el número más alto es justo la calibración con la que el Comité eligió el 97,5 %, y solo ocurre porque la cola de este panel pesa más que la de una normal: con datos normales las dos coincidirían.' },
                         ]}
                     />
 
@@ -3961,7 +3977,7 @@ es <- mean(perdida[perdida > v])`,
                             opciones={[
                                 { texto: 'Porque el ES se calcula a partir del VaR, de modo que hereda su error y le suma el propio: el error del ES es siempre la suma de los dos.', correcta: false },
                                 { texto: 'Porque el nivel del ES es 97,5 % y el del VaR 99 %, y a menor nivel de confianza el error estándar de cualquier estimador aumenta.', correcta: false },
-                                { texto: 'El ES es una media sobre la fracción (1−α) de escenarios más extremos, que son pocos y muy dispersos; el VaR es un estadístico de orden que solo necesita localizar la frontera, y para eso los escenarios centrales de la cola también ayudan.', correcta: true, justificacion: 'El bloque lo mide sobre el mismo lote: EE de 0,0080 pp para el VaR y 0,0162 para el ES, exactamente el doble. La razón es el tamaño de la muestra efectiva — el ES promedia el 2,5 % de escenarios que caen en la cola, donde la dispersión es enorme, mientras que el VaR solo necesita localizar la frontera—. Es el precio de mirar dentro de la cola en vez de señalarla, y el capítulo 6 lo vuelve a pagar al validarlo.' },
+                                { texto: 'El ES es una media sobre los escenarios más extremos, que son pocos y muy dispersos; el VaR solo necesita localizar la frontera.', correcta: true, justificacion: 'El bloque lo mide sobre el mismo lote: EE de 0,0080 pp para el VaR y 0,0162 para el ES, exactamente el doble. La razón es el tamaño de la muestra efectiva — el ES promedia el 2,5 % de escenarios que caen en la cola, donde la dispersión es enorme, mientras que al VaR, para localizar la frontera, le sirven también los escenarios centrales de esa cola—. Es el precio de mirar dentro de la cola en vez de señalarla, y el capítulo 6 lo vuelve a pagar al validarlo.' },
                                 { texto: 'Porque las innovaciones t tienen varianza infinita para ν = 4,23 y eso infla el error de cualquier media calculada sobre ellas.', correcta: false },
                             ]}
                         />
@@ -4140,7 +4156,7 @@ es <- mean(perdida[perdida > v])`,
                         <MCQ
                             pregunta="Un banco calcula el ES al 97,5 % de su cartera y obtiene casi exactamente su VaR al 99 %. ¿Qué se puede concluir?"
                             opciones={[
-                                { texto: 'Que la cola de su cartera se parece a la de una normal, porque esa igualdad es justamente la calibración con la que el Comité eligió el 97,5 %. No dice que el riesgo sea bajo: dice que no hay exceso de curtosis apreciable.', correcta: true, justificacion: 'El bloque lo enseña con las tres distribuciones sobre el mismo portafolio: con la normal el ES al 97,5 % es 3,655 % contra un VaR al 99 % de 3,637 %, un +0,5 %. Con la t de nu = 4,23 la brecha sube al +6,1 % y con el histórico al +16,0 %, que son 5 203 millones sobre el fondo. La calibración del Comité vale para la cartera que se parece a una normal; este capítulo trata de las que no.' },
+                                { texto: 'Que la cola de su cartera se parece a la de una normal, porque esa igualdad es justamente la calibración con la que el Comité eligió el 97,5 %.', correcta: true, justificacion: 'El bloque lo enseña con las tres distribuciones sobre el mismo portafolio: con la normal el ES al 97,5 % es 3,655 % contra un VaR al 99 % de 3,637 %, un +0,5 %. Con la t de nu = 4,23 la brecha sube al +6,1 % y con el histórico al +16,0 %, que son 5 203 millones sobre el fondo. Y conviene no leer la coincidencia como buena noticia: no informa de que el riesgo sea bajo, informa de que no hay exceso de curtosis apreciable. La calibración del Comité vale para la cartera que se parece a una normal; este capítulo trata de las que no.' },
                                 { texto: 'Que hay un error en el cálculo del ES: el ES a cualquier nivel es siempre estrictamente mayor que el VaR al mismo nivel, así que no puede coincidir con el de un nivel superior.', correcta: false },
                                 { texto: 'Que la cartera está bien diversificada, porque la coincidencia entre las dos medidas es una consecuencia de la subaditividad del ES.', correcta: false },
                                 { texto: 'Que el banco puede seguir usando el VaR al 99 % indefinidamente, porque el FRTB acepta cualquier medida que dé el mismo número que el ES al 97,5 %.', correcta: false },
@@ -4234,7 +4250,7 @@ es <- mean(perdida[perdida > v])`,
                         opciones={[
                             { texto: 'Que Ecopetrol es más volátil que Banco de Bogotá, de modo que el ES de horizonte base sube y compensa cualquier ahorro por liquidez.', correcta: false },
                             { texto: 'Que al cambiar los pesos cambia la matriz de covarianzas del portafolio, y el efecto sobre el requerimiento está dominado por la correlación entre los dos emisores.', correcta: false },
-                            { texto: 'Que Banco de Bogotá es el único factor que llega al tramo de 60 días y por eso entra en los cuatro sumandos de la fórmula, mientras que Ecopetrol solo entra en el primero. El ES de horizonte base sube —Ecopetrol es más volátil, 2,43 % contra 2,09 % diario— y aun así el requerimiento total baja un 5,4 %: el ahorro por liquidez es mayor que el sobrecosto por volatilidad.', correcta: true, justificacion: 'La fórmula agrega los tramos en cuadratura, y un factor entra en tantos sumandos como tramos supere. Banco de Bogotá es el único que llega a 60 días —16,23 % de ruedas sin variación, el más ilíquido de los cuatro— y por eso pesa en los cuatro. Reducirlo a la mitad baja el requerimiento por la vía del horizonte aunque el ES de horizonte base suba: es la lectura que el FRTB quiere premiar, y también la que se puede jugar.' },
+                            { texto: 'Que Banco de Bogotá es el único factor que llega al tramo de 60 días y por eso entra en los cuatro sumandos de la fórmula, mientras que Ecopetrol solo entra en el primero.', correcta: true, justificacion: 'La fórmula agrega los tramos en cuadratura, y un factor entra en tantos sumandos como tramos supere. Banco de Bogotá es el único que llega a 60 días —16,23 % de ruedas sin variación, el más ilíquido de los cuatro— y por eso pesa en los cuatro. Reducirlo a la mitad baja el requerimiento total un 5,4 % por la vía del horizonte, aunque el ES de horizonte base suba —Ecopetrol es más volátil, 2,43 % contra 2,09 % diario—: el ahorro por liquidez es mayor que el sobrecosto por volatilidad. Es la lectura que el FRTB quiere premiar, y también la que se puede jugar.' },
                             { texto: 'Nada relevante: la fórmula de agregación es una raíz de suma de cuadrados, y las raíces de suma de cuadrados son insensibles a la composición mientras el valor total no cambie.', correcta: false },
                         ]}
                     />
@@ -4314,10 +4330,10 @@ es <- mean(perdida[perdida > v])`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 5" preguntas={[
                     {
-                        pregunta: 'El VaR 99 % del fondo es 4,077 % y su ES 99 % es 6,599 %. ¿Cuál es la lectura correcta de la segunda cifra?', justificacion: 'La distancia entre las dos cifras —4,077 % y 6,599 %, un 62 % más— es exactamente lo que el VaR no dice. Sobre los 800 000 millones del fondo son 32 617 contra 52 792 millones.',
+                        pregunta: 'El VaR 99 % del fondo es 4,077 % y su ES 99 % es 6,599 %. ¿Cuál es la lectura correcta de la segunda cifra?', justificacion: 'Es un promedio condicionado y no un umbral nuevo, y la distancia entre las dos cifras —4,077 % y 6,599 %, un 62 % más— es exactamente lo que el VaR no dice. Sobre los 800 000 millones del fondo son 32 617 contra 52 792 millones.',
                         opciones: [
                             { texto: 'La pérdida máxima que el fondo puede sufrir en un día es de 6,599 %.', correcta: false },
-                            { texto: 'En las ruedas en que la pérdida superó el umbral del VaR, la pérdida media fue de 6,599 %. Es un promedio condicionado, no un umbral nuevo.', correcta: true },
+                            { texto: 'En las ruedas que superaron el VaR, la pérdida media fue 6,599 %.', correcta: true },
                             { texto: 'En 99 de cada 100 ruedas la pérdida no superará el 6,599 %.', correcta: false },
                             { texto: 'La pérdida esperada del fondo en un día cualquiera es de 6,599 %.', correcta: false },
                         ],
@@ -4328,14 +4344,14 @@ es <- mean(perdida[perdida > v])`,
                             { texto: 'La monotonía: hay carteras que pierden más en todos los escenarios y a las que el VaR asigna menos capital.', correcta: false },
                             { texto: 'La invarianza por traslación: añadir efectivo a la posición no reduce el VaR peso a peso.', correcta: false },
                             { texto: 'La homogeneidad positiva: al doblar la posición el VaR no se dobla, por el efecto de la correlación.', correcta: false },
-                            { texto: 'La subaditividad: sin ella la suma de los límites por mesa no acota el límite consolidado, y partir una cartera puede reducir el capital exigido.', correcta: true },
+                            { texto: 'La subaditividad: sin ella la suma de los límites por mesa no acota el límite consolidado.', correcta: true },
                         ],
                     },
                     {
-                        pregunta: 'En el contraejemplo de los dos bonos, ¿qué condición sobre la probabilidad de incumplimiento p hace que el VaR al nivel α deje de ser subaditivo?', justificacion: 'La ventana es estrecha —al 95 %, p tiene que estar entre 2,53 % y 5 %— y por eso el fallo no salta todos los días. Que sea estrecha no lo hace inofensivo: es justo el rango de probabilidad de incumplimiento de las carteras de crédito.',
+                        pregunta: 'En el contraejemplo de los dos bonos, ¿qué condición sobre la probabilidad de incumplimiento p hace que el VaR al nivel α deje de ser subaditivo?', justificacion: 'Por debajo del primer umbral el incumplimiento de un bono aislado no llega a asomar a su propia cola; por encima del segundo, la probabilidad de que alguno de los dos falle sí entra en la de la cartera, y ahí es donde el cuantil de la suma se dispara por encima de la suma de los cuantiles. La ventana es estrecha —al 95 %, p tiene que estar entre 2,53 % y 5 %— y por eso el fallo no salta todos los días. Que sea estrecha no lo hace inofensivo: es justo el rango de probabilidad de incumplimiento de las carteras de crédito.',
                         opciones: [
                             { texto: 'Que p sea mayor que 1 − α, de modo que el incumplimiento esté siempre dentro de la cola de cada bono.', correcta: false },
-                            { texto: 'Que p sea menor que 1 − α —para que el incumplimiento de un bono solo quede fuera de su cola— y a la vez mayor que 1 − √α, para que con dos bonos la probabilidad de que alguno incumpla sí entre en la cola.', correcta: true },
+                            { texto: 'Que p esté entre 1 − √α y 1 − α: fuera de la cola de un bono solo, dentro de la de la cartera de dos.', correcta: true },
                             { texto: 'Que los dos bonos estén positivamente correlacionados: con independencia el VaR es siempre subaditivo.', correcta: false },
                             { texto: 'Que la pérdida en caso de incumplimiento supere el valor de la cartera, lo que produce un cuantil fuera del soporte.', correcta: false },
                         ],
@@ -4343,7 +4359,7 @@ es <- mean(perdida[perdida > v])`,
                     {
                         pregunta: 'Sobre el panel de este fondo, el VaR resulta ser subaditivo en la partición que el capítulo prueba. ¿Qué se concluye?', justificacion: 'Es la diferencia entre una propiedad y una observación. Del ES se sabe de antemano que nunca fallará; del VaR hay que comprobarlo partición a partición, y ninguna comprobación cubre la siguiente.',
                         opciones: [
-                            { texto: 'Que en este caso no falla, y nada más. La diferencia con el ES no es que aquí funcione o no, sino que del ES se sabe de antemano que nunca fallará y del VaR hay que comprobarlo para cada partición.', correcta: true },
+                            { texto: 'Que en este caso no falla, y nada más: una observación sobre esta partición, no una propiedad.', correcta: true },
                             { texto: 'Que el contraejemplo de los dos bonos es artificial y no describe carteras reales, de modo que la objeción al VaR es teórica.', correcta: false },
                             { texto: 'Que el VaR es subaditivo siempre que los activos sean acciones, y el fallo solo aparece con instrumentos de crédito.', correcta: false },
                             { texto: 'Que la muestra es demasiado corta para detectar el fallo, y con más datos se observaría.', correcta: false },
@@ -4354,24 +4370,24 @@ es <- mean(perdida[perdida > v])`,
                         opciones: [
                             { texto: 'Que la media muestral de los rendimientos sea positiva, lo que desplaza hacia abajo la distribución de pérdidas ajustada.', correcta: false },
                             { texto: 'Que el ES histórico se calcule sobre 20 observaciones y el paramétrico sobre 1 916, de modo que la brecha es error de muestreo.', correcta: false },
-                            { texto: 'La curtosis de exceso de 25,8: la normal asigna a la cola mucha menos masa de la observada, y el ES —que promedia toda la cola— acumula esa diferencia en vez de leer solo su borde.', correcta: true },
+                            { texto: 'La curtosis de exceso de 25,8: la normal asigna a la cola mucha menos masa de la que se observa.', correcta: true },
                             { texto: 'Que la normal sea simétrica y la distribución de pérdidas del fondo tenga asimetría positiva; sin asimetría las dos cifras coincidirían.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: '¿Por qué el Comité de Basilea eligió el 97,5 % como nivel del Expected Shortfall?', justificacion: 'La calibración se comprueba en el bloque: con la normal, ES 97,5 % de 3,655 % contra VaR 99 % de 3,637 %, un +0,5 %. Con el histórico de este panel la misma migración cuesta un +16,0 %, que son 5 203 millones. Ese contraste es el capítulo entero.',
+                        pregunta: '¿Por qué el Comité de Basilea eligió el 97,5 % como nivel del Expected Shortfall?', justificacion: 'La calibración se comprueba en el bloque: con la normal, ES 97,5 % de 3,655 % contra VaR 99 % de 3,637 %, un +0,5 % — el Comité buscaba que cambiar de medida no fuera de paso una subida encubierta de capital—. Con el histórico de este panel la misma migración cuesta un +16,0 %, que son 5 203 millones. Ese contraste es el capítulo entero.',
                         opciones: [
                             { texto: 'Porque es el nivel al que el ES y el VaR coinciden para cualquier distribución, lo que hace la migración neutra en todos los casos.', correcta: false },
                             { texto: 'Porque con 250 observaciones de backtesting es el nivel que deja un número entero de excepciones esperadas.', correcta: false },
                             { texto: 'Porque un nivel más alto habría exigido estimar la cola con menos de diez observaciones en cualquier ventana razonable.', correcta: false },
-                            { texto: 'Porque bajo una distribución normal el ES al 97,5 % coincide casi exactamente con el VaR al 99 %, de modo que el cambio de medida no fuera de paso una subida encubierta de capital.', correcta: true },
+                            { texto: 'Porque bajo una distribución normal el ES al 97,5 % coincide casi exactamente con el VaR al 99 %.', correcta: true },
                         ],
                     },
                     {
                         pregunta: 'Sobre este portafolio el paso de VaR 99 % a ES 97,5 % cuesta 5 203 millones, un 16 %. Bajo la normal costaría un 0,5 %. ¿Qué mide esa diferencia?', justificacion: 'Funciona como un detector de colas pesadas incorporado a la norma: la cartera que se parece a una normal no nota el cambio y la que no, paga. Sobre este fondo el sobrecosto es del 16,0 % con el histórico y del 6,1 % con innovaciones t.',
                         opciones: [
                             { texto: 'El error de estimación del ES histórico, que con 48 observaciones en la cola es del orden del 15 %.', correcta: false },
-                            { texto: 'Exactamente la parte de la cola que la normal no ve. El cambio de medida funciona como un detector de colas pesadas incorporado a la norma.', correcta: true },
+                            { texto: 'Exactamente la parte de la cola que la normal no ve, y que en este panel pesa un 16 %.', correcta: true },
                             { texto: 'El efecto de la diversificación entre los cuatro emisores, que el VaR no captura y el ES sí.', correcta: false },
                             { texto: 'El recargo por horizonte de liquidez que el FRTB añade al pasar de una medida a otra.', correcta: false },
                         ],
@@ -4381,26 +4397,26 @@ es <- mean(perdida[perdida > v])`,
                         opciones: [
                             { texto: 'Porque el ES se obtiene a partir del VaR y por tanto acumula el error de las dos etapas del cálculo.', correcta: false },
                             { texto: 'Porque el ES se calculó al 97,5 % y el VaR al 99 %, y el error estándar crece al bajar el nivel de confianza.', correcta: false },
-                            { texto: 'Porque el ES promedia la fracción (1−α) de escenarios más extremos —pocos y muy dispersos— mientras que el VaR solo tiene que localizar la frontera de esa cola.', correcta: true },
+                            { texto: 'Porque el ES promedia los escenarios más extremos, pocos y dispersos, y el VaR solo localiza la frontera.', correcta: true },
                             { texto: 'Porque el generador de números aleatorios de cada lenguaje introduce un sesgo distinto en la cola de la t.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El bloque mide una brecha de 884 millones entre el ES simple —la media de las ruedas que superan el VaR— y el ES exacto de la muestra, al 99 %. ¿De dónde sale?', justificacion: 'Es la segunda convención declarada del curso: el ES es el promedio simple de las ruedas que exceden el VaR, no el ES exacto de la muestra. Al 97,5 % la brecha son 30 millones y al 99 % son 884, porque allí la cola tiene 20 ruedas y cada una pesa el 5 %.',
+                        pregunta: 'El bloque mide una brecha de 884 millones entre el ES simple —la media de las ruedas que superan el VaR— y el ES exacto de la muestra, al 99 %. ¿De dónde sale?', justificacion: 'Es la segunda convención declarada del curso: el ES es el promedio simple de las ruedas que exceden el VaR, no el ES exacto de la muestra. Al 97,5 % la brecha son 30 millones y al 99 % son 884, porque allí se promedia una rueda de más sobre una cola de 20 y cada una pesa el 5 % del resultado.',
                         opciones: [
-                            { texto: 'De que la cola pedida mide n(1−α) = 19,16 ruedas y el promedio simple usa las 20 que superan el corte: se promedia una rueda de más, y a ese nivel cada rueda pesa el 5 % del resultado.', correcta: true },
+                            { texto: 'De que la cola pedida mide 19,16 ruedas y el promedio simple usa las 20 que superan el corte.', correcta: true },
                             { texto: 'De que el cuantil de tipo 7 interpola entre observaciones y el ES exacto usa el cuantil de tipo 1.', correcta: false },
                             { texto: 'De la asimetría de la distribución de pérdidas: con asimetría cero las dos definiciones coinciden.', correcta: false },
                             { texto: 'De que el ES exacto descuenta la media muestral y el simple no.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Bajo el FRTB, el ES del fondo con horizontes de liquidez diferenciados es un 54,6 % mayor que con un horizonte plano de diez días. ¿Qué cambió entre los dos cálculos?', justificacion: 'No cambió ningún dato ni ningún nivel de confianza: solo el supuesto de cuánto se tarda en deshacer cada posición. Es la lectura que conviene llevar a un comité — más de la mitad del requerimiento adicional viene de una decisión sobre liquidez, no de una medida de mercado—.',
+                        pregunta: 'Bajo el FRTB, el ES del fondo con horizontes de liquidez diferenciados es un 54,6 % mayor que con un horizonte plano de diez días. ¿Qué cambió entre los dos cálculos?', justificacion: 'No cambió ningún dato ni ningún nivel de confianza. Los factores de horizonte largo siguen expuestos tramo a tramo y vuelven a aportar en cada sumando de la fórmula, y de ahí sale el 54,6 % entero. Es la lectura que conviene llevar a un comité — más de la mitad del requerimiento adicional viene de una decisión sobre liquidez, no de una medida de mercado—.',
                         opciones: [
                             { texto: 'La ventana de estimación, que en el cálculo del FRTB se restringe al periodo de tensión.', correcta: false },
                             { texto: 'El nivel de confianza, que pasa del 97,5 % al 99 % cuando se aplican horizontes diferenciados.', correcta: false },
                             { texto: 'La matriz de covarianzas, que se recalcula excluyendo las ruedas sin variación de precio de los emisores ilíquidos.', correcta: false },
-                            { texto: 'Solo el supuesto sobre cuánto se tarda en deshacer cada posición: los factores de horizonte largo siguen expuestos tramo a tramo y vuelven a aportar en cada sumando de la fórmula.', correcta: true },
+                            { texto: 'Solo el supuesto sobre cuánto se tarda en deshacer cada posición, que no es un dato de mercado.', correcta: true },
                         ],
                     },
                 ]} />

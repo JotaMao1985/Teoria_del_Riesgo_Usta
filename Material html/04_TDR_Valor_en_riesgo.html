@@ -703,12 +703,20 @@
                         <i className="fas fa-dumbbell text-gold"></i>{titulo}
                     </div>
                     <div className="text-gray-700 text-[0.95rem] mb-3">{children}</div>
-                    <button onClick={() => setShow(s => !s)}
-                        className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
-                        <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
-                        {show ? 'Ocultar solución' : 'Mostrar solución'}
-                    </button>
-                    {show && <div className="mt-3 animate-fade-in">{solucion}</div>}
+                    {/* El botón solo existe si hay solución que mostrar. Sin esta
+                        guarda —y `solucion` es opcional— el botón se pintaba
+                        igual, cambiaba a «Ocultar solución» y no aparecía nada:
+                        los seis R7 de la unidad 1 no la traen y los seis abrían
+                        un panel vacío. Es el mismo defecto que el `MCQ` ya
+                        cerraba con su «Explicación:» vacía. */}
+                    {solucion && (
+                        <button onClick={() => setShow(s => !s)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
+                            <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
+                            {show ? 'Ocultar solución' : 'Mostrar solución'}
+                        </button>
+                    )}
+                    {show && solucion && <div className="mt-3 animate-fade-in">{solucion}</div>}
                 </div>
             );
         };
@@ -1486,7 +1494,15 @@
         const normalizarCelda = (v) => {
             let s = String(v === null || v === undefined ? '' : v).trim().toLowerCase();
             s = s.replace(/\s+/g, '');
-            if (s === '' || s === '-' || s === '—' || s === '–' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
+            // El signo menos tipográfico (U+2212) y los guiones largos se
+            // unifican con el guion ASCII ANTES de mirar si la celda está
+            // vacía. La prosa del material escribe −0,512 con U+2212 y los
+            // bloques de código escriben -0.512 con el guion del teclado, así
+            // que el estudiante teclea cualquiera de los dos. Sin esto, el R1
+            // marcaba en rojo una celda que en pantalla es carácter por
+            // carácter la misma respuesta que él imprime debajo en verde.
+            s = s.replace(/[−–—]/g, '-');
+            if (s === '' || s === '-' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
             s = s.replace(/\$/g, '').replace(/\bcop\b/g, '');
             if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.');
             else s = s.replace(',', '.');
@@ -3232,7 +3248,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         <MCQ
                             pregunta="Sobre esta misma muestra, el VaR normal está por encima del histórico al 95 % y por debajo al 99 %. ¿Cuál es la lectura correcta?"
                             opciones={[
-                                { texto: 'La distribución empírica tiene colas más pesadas y hombros más ligeros que la normal, así que el corte normal se queda corto lejos del centro y se pasa cerca de él. Existe un nivel intermedio en el que ambos coinciden.', correcta: true, justificacion: 'Las cuatro cifras del bloque: al 95 % el normal da 2,562 % contra 2,192 % del histórico, y al 99 % da 3,637 % contra 4,077 %. El cruce cae entre los dos niveles, y ahí está la trampa — una normal que se valida al 95 % se queda un 11 % corta al 99 %, que es justo el nivel al que se reporta—. La t de Student con nu = 4,23 ordena bien los dos: 2,372 % y 4,132 %.' },
+                                { texto: 'Colas más pesadas y hombros más ligeros que la normal: el corte normal se pasa cerca del centro y se queda corto lejos de él.', correcta: true, justificacion: 'Las cuatro cifras del bloque: al 95 % el normal da 2,562 % contra 2,192 % del histórico, y al 99 % da 3,637 % contra 4,077 %. Existe entonces un nivel intermedio en el que los dos métodos coinciden, y ahí está la trampa — una normal que se valida al 95 % se queda un 11 % corta al 99 %, que es justo el nivel al que se reporta—. La t de Student con nu = 4,23 ordena bien los dos: 2,372 % y 4,132 %.' },
                                 { texto: 'El VaR normal siempre subestima el riesgo; al 95 % la diferencia se debe a un error de estimación de la media.', correcta: false },
                                 { texto: 'La muestra tiene asimetría positiva, y eso invierte el orden de los dos métodos al pasar del 95 % al 99 %.', correcta: false },
                                 { texto: 'Es una consecuencia de que el cuantil empírico se calcule por interpolación; con otro tipo de cuantil el orden sería el mismo en los dos niveles.', correcta: false },
@@ -3364,7 +3380,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         <MCQ
                             pregunta="Un analista decide excluir el 19 y el 20 de febrero de 2025 por tratarse de una cotización defectuosa. ¿Qué es lo que cambia más y por qué?"
                             opciones={[
-                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella. El histórico apenas se mueve, porque el corte al 99 % lo fija la observación número veinte y no la primera.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %. Un solo defecto, tres sensibilidades distintas. Y una cuarta que conviene mirar: sobre la ventana de 250 ruedas el histórico sí se derrumba, de 4,294 % a 3,858 %, porque ahí el par de febrero sí está entre las peores.' },
+                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %, porque su corte al 99 % lo fija la observación número veinte y no la primera. Un solo defecto, tres sensibilidades distintas. Y una cuarta que conviene mirar: sobre la ventana de 250 ruedas el histórico sí se derrumba, de 4,294 % a 3,858 %, porque ahí el par de febrero sí está entre las peores.' },
                                 { texto: 'El VaR histórico, porque el dato excluido era justamente el que definía el cuantil al 99 % sobre la muestra completa.', correcta: false },
                                 { texto: 'Los dos por igual, porque ambos se calculan sobre la misma muestra y pierden las mismas dos observaciones.', correcta: false },
                                 { texto: 'Ninguno de forma apreciable: dos observaciones de 1 916 son el 0,1 % de la muestra y ningún estimador razonable depende de eso.', correcta: false },
@@ -3600,7 +3616,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         }}
                         pregunta="Sobre este portafolio, ¿cuál de las afirmaciones resiste?"
                         opciones={[
-                            { texto: 'A subestima el corte al 99 % porque la normal asigna a la cola menos masa de la que los datos muestran; B lo lee sin suponer nada, pero a cambio su precisión depende de cuántas observaciones haya en la cola, que son pocas.', correcta: true, justificacion: 'Las cifras de la tabla: 3,637 % contra 4,077 % al 99 %. A se queda corto porque la normal no tiene la curtosis de exceso de 25,77 que tiene esta muestra; B no supone nada, pero apoya su corte en la observación número veinte de 1 916, y por eso la sección 3 lo mueve entre 3,176 % y 4,294 % con solo cambiar la ventana. Ninguno es preferible sin decir a qué nivel y con cuánta cola detrás.' },
+                            { texto: 'A subestima el corte al 99 %: la normal pone menos masa en la cola de la que hay. B no supone nada, pero se apoya en pocas ruedas.', correcta: true, justificacion: 'Las cifras de la tabla: 3,637 % contra 4,077 % al 99 %. A se queda corto porque la normal no tiene la curtosis de exceso de 25,77 que tiene esta muestra; B no supone nada, pero apoya su corte en la observación número veinte de 1 916, y por eso la sección 3 lo mueve entre 3,176 % y 4,294 % con solo cambiar la ventana. Ninguno es preferible sin decir a qué nivel y con cuánta cola detrás.' },
                             { texto: 'B es preferible siempre y sin condiciones, porque no impone ningún supuesto sobre la distribución.', correcta: false },
                             { texto: 'A y B convergen al mismo número si se aumenta el tamaño de la muestra, porque el teorema central del límite se aplica a los cuantiles.', correcta: false },
                             { texto: 'A es preferible porque usa toda la información de la muestra, mientras que B descarta el 99 % de las observaciones.', correcta: false },
@@ -3611,7 +3627,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         <MCQ
                             pregunta="El bloque simula un millón de escenarios y obtiene un error estándar de 0,005 puntos porcentuales. Si se quisiera reducirlo a la mitad, ¿cuántos escenarios harían falta?"
                             opciones={[
-                                { texto: 'Cuatro millones: el error estándar de una media cae con la raíz del número de réplicas, así que dividirlo entre dos exige multiplicar el esfuerzo por cuatro.', correcta: true, justificacion: 'La ley de la raíz no perdona: bajar de 0,005 pp a 0,0025 exige cuatro millones de escenarios, y llegar a 0,00125 exige dieciséis. El capítulo 5 le añade la vuelta de tuerca que importa — con los mismos escenarios, estimar el ES cuesta el doble de error que el VaR—, de modo que la misma precisión sobre el ES sale cuatro veces más cara.' },
+                                { texto: 'Cuatro millones: el error estándar cae con la raíz de las réplicas, así que dividirlo entre dos cuadruplica el esfuerzo.', correcta: true, justificacion: 'La ley de la raíz no perdona: bajar de 0,005 pp a 0,0025 exige cuatro millones de escenarios, y llegar a 0,00125 exige dieciséis. El capítulo 5 le añade la vuelta de tuerca que importa — con los mismos escenarios, estimar el ES cuesta el doble de error que el VaR—, de modo que la misma precisión sobre el ES sale cuatro veces más cara.' },
                                 { texto: 'Dos millones: el error estándar es inversamente proporcional al número de escenarios.', correcta: false },
                                 { texto: 'Un millón sigue bastando; el error estándar depende de la ventana de datos históricos, no del número de escenarios simulados.', correcta: false },
                                 { texto: 'No se puede reducir: el error estándar refleja la incertidumbre del mercado y es una propiedad del portafolio.', correcta: false },
@@ -3810,7 +3826,7 @@ componente <- w * marginal`,
                         <MCQ
                             pregunta="El comité pide reducir el VaR del portafolio vendiendo una parte de una sola posición y reinvirtiendo en liquidez. Con las cifras del bloque, ¿qué posición hay que recortar para bajar más el VaR por cada peso vendido?"
                             opciones={[
-                                { texto: 'Grupo Sura, porque tiene el VaR marginal más alto (33 896 millones por unidad de peso): el marginal es precisamente el efecto de mover el peso, y es la cifra que responde a esta pregunta.', correcta: true, justificacion: 'Componente y marginal contestan preguntas distintas y el capítulo tiene las dos. El componente reparte los 29 338 millones del VaR total entre las cuatro posiciones —Ecopetrol se lleva 9 918, el 33,8 %— y responde a quién le atribuyo el riesgo que ya tengo. El marginal es la derivada respecto al peso y responde qué pasa si lo muevo. Confundirlos lleva a recortar la posición grande en vez de la que más baja el riesgo por peso vendido.' },
+                                { texto: 'Grupo Sura: su VaR marginal es el más alto, 33 896 millones por unidad de peso, y el marginal mide el efecto de mover el peso.', correcta: true, justificacion: 'Componente y marginal contestan preguntas distintas y el capítulo tiene las dos. El componente reparte los 29 338 millones del VaR total entre las cuatro posiciones —Ecopetrol se lleva 9 918, el 33,8 %— y responde a quién le atribuyo el riesgo que ya tengo. El marginal es la derivada respecto al peso y responde qué pasa si lo muevo. Confundirlos lleva a recortar la posición grande en vez de la que más baja el riesgo por peso vendido.' },
                                 { texto: 'Ecopetrol, porque tiene el VaR componente más alto (9 918 millones) y por tanto es la posición que más riesgo aporta al total.', correcta: false },
                                 { texto: 'Ecopetrol, porque tiene el VaR aislado más alto (13 593 millones): es la posición más volátil de las cuatro.', correcta: false },
                                 { texto: 'Banco de Bogotá, porque es la posición con mayor beneficio de diversificación y liquidarla libera la mayor parte de ese beneficio.', correcta: false },
@@ -4022,9 +4038,9 @@ componente <- w * marginal`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 4" preguntas={[
                     {
-                        pregunta: 'El VaR 99 % a un día del fondo es de 32 617 millones. ¿Cuál de estas afirmaciones es la correcta?', justificacion: 'Es la frase que hay que poder decir ante un comité sin añadir nada. Las otras tres son las tres lecturas frecuentes, y la que dice pérdida máxima es la que el capítulo 5 desmonta entero: qué hay dentro de la cola es otra medida y hay que calcularla aparte.',
+                        pregunta: 'El VaR 99 % a un día del fondo es de 32 617 millones. ¿Cuál de estas afirmaciones es la correcta?', justificacion: 'Es la frase que hay que poder decir ante un comité sin añadir nada, y lo que calla pesa tanto como lo que afirma: de la rueda restante no dice absolutamente nada. Las otras tres son las tres lecturas frecuentes, y la que dice pérdida máxima es la que el capítulo 5 desmonta entero: qué hay dentro de la cola es otra medida y hay que calcularla aparte.',
                         opciones: [
-                            { texto: 'En 99 de cada 100 ruedas la pérdida de un día no superará esa cifra; qué ocurre en la rueda restante, el número no lo dice.', correcta: true },
+                            { texto: 'En 99 de cada 100 ruedas la pérdida de un día no superará esa cifra.', correcta: true },
                             { texto: 'La pérdida máxima que el fondo puede sufrir en un día es de 32 617 millones.', correcta: false },
                             { texto: 'El fondo perderá en promedio 32 617 millones el 1 % de las ruedas.', correcta: false },
                             { texto: 'Hay un 99 % de probabilidad de que el fondo pierda exactamente esa cifra mañana.', correcta: false },
@@ -4033,70 +4049,70 @@ componente <- w * marginal`,
                     {
                         pregunta: 'Sobre esta muestra, el VaR normal está por encima del histórico al 95 % y por debajo al 99 %. ¿Qué propiedad de los datos lo explica?', justificacion: 'Curtosis de exceso de 25,8 sobre 1 916 ruedas. El cruce no es un accidente de esta muestra: ocurre siempre que se ajusta una normal a datos con más masa en el centro y en los extremos y menos en los hombros.',
                         opciones: [
-                            { texto: 'Colas más pesadas y hombros más ligeros que los de una normal: una curtosis de exceso de 25,8.', correcta: true },
+                            { texto: 'Colas más pesadas y hombros más ligeros que los de la normal.', correcta: true },
                             { texto: 'Que la media muestral sea positiva y pequeña.', correcta: false },
                             { texto: 'Que la muestra contenga 101 ruedas sin variación de precios.', correcta: false },
                             { texto: 'Que el cuantil empírico se calcule por interpolación de tipo 7.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: '¿Por qué la t de Student de este capítulo lleva el factor √((ν−2)/ν)?', justificacion: 'Sin el factor, una t con nu = 4,23 tendría varianza 1,90 en vez de 1 y el VaR saldría un 38 % alto por una razón puramente de parametrización. Es el tipo de fallo que un R3 clasifica como convención equivocada y no como supuesto no verificado.',
+                        pregunta: '¿Por qué la t de Student de este capítulo lleva el factor √((ν−2)/ν)?', justificacion: 'Estandarizar es lo que hace que σ siga siendo la desviación de los datos y no un parámetro de escala cualquiera. Sin el factor, una t con nu = 4,23 tendría varianza 1,90 en vez de 1 y el VaR saldría un 38 % alto por una razón puramente de parametrización. Es el tipo de fallo que un R3 clasifica como convención equivocada y no como supuesto no verificado.',
                         opciones: [
-                            { texto: 'Porque una t con ν grados de libertad tiene varianza ν/(ν−2); el factor la estandariza para que σ siga siendo la desviación de los datos.', correcta: true },
+                            { texto: 'Porque una t con ν grados de libertad tiene varianza ν/(ν−2) y el factor la estandariza.', correcta: true },
                             { texto: 'Porque corrige el sesgo de estimar ν por el método de los momentos en vez de por máxima verosimilitud.', correcta: false },
                             { texto: 'Porque convierte el cuantil de una t en el de una normal cuando ν es grande.', correcta: false },
                             { texto: 'Porque compensa que la t sea simétrica y los rendimientos de acciones no lo sean.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El VaR histórico con 250 ruedas da 4,29 % y con 500 da 3,18 %, y las siete peores ruedas son las mismas en ambas ventanas. ¿Cuál es la lectura correcta?', justificacion: 'Las siete peores ruedas son las mismas en las dos ventanas y aun así el VaR cambia de 4,29 % a 3,18 %, un 26 %. Lo que se movió es la posición del cuantil, no el riesgo — y por eso la ventana se declara antes de mirar el resultado—.',
+                        pregunta: 'El VaR histórico con 250 ruedas da 4,29 % y con 500 da 3,18 %, y las siete peores ruedas son las mismas en ambas ventanas. ¿Cuál es la lectura correcta?', justificacion: 'Las siete peores ruedas son las mismas en las dos ventanas y aun así el VaR cambia de 4,29 % a 3,18 %, un 26 %. Lo que se movió es la posición del cuantil, no los datos ni el riesgo — y por eso la ventana es parte del modelo y se fija por política, antes de mirar el resultado—.',
                         opciones: [
-                            { texto: 'Al duplicar el número de observaciones, el corte al 99 % se desplaza de la tercera-cuarta peor rueda a la quinta-sexta: cambia la posición del cuantil, no los datos. La ventana es parte del modelo y debe fijarse por política.', correcta: true },
+                            { texto: 'Al duplicar las observaciones el corte al 99 % pasa de la tercera-cuarta rueda a la quinta-sexta.', correcta: true },
                             { texto: 'La ventana de 500 excluye el episodio extremo que la de 250 sí contiene, y por eso da un VaR más bajo.', correcta: false },
                             { texto: 'La diferencia es error de estimación y desaparece si se aumenta el nivel de confianza.', correcta: false },
                             { texto: 'La ventana larga siempre da un VaR más bajo porque promedia periodos tranquilos con periodos agitados.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Un salto brusco hacia abajo en la serie del VaR histórico rodante de 250 días significa, casi siempre, que…', justificacion: 'Es el efecto fantasma del capítulo 2 visto sobre el VaR en vez de sobre la volatilidad. La prueba de que es memoria y no mercado es la fecha: el salto cae exactamente 250 ruedas después del episodio que lo causó.',
+                        pregunta: 'Un salto brusco hacia abajo en la serie del VaR histórico rodante de 250 días significa, casi siempre, que…', justificacion: 'Es el efecto fantasma del capítulo 2 visto sobre el VaR en vez de sobre la volatilidad: lo que cambió no es el riesgo sino la memoria del estimador. La prueba de que es memoria y no mercado es la fecha: el salto cae exactamente 250 ruedas después del episodio que lo causó.',
                         opciones: [
-                            { texto: '…una pérdida grande cumplió 250 ruedas y salió de la ventana. El riesgo no cambió; cambió la memoria del estimador.', correcta: true },
+                            { texto: '…una pérdida grande cumplió 250 ruedas y salió de la ventana.', correcta: true },
                             { texto: '…el mercado entró en un régimen de baja volatilidad ese mismo día.', correcta: false },
                             { texto: '…el portafolio se rebalanceó hacia activos menos volátiles.', correcta: false },
                             { texto: '…hubo un error de datos en la rueda correspondiente.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El par de ruedas defectuosas de febrero de 2025 mueve el VaR histórico de la muestra completa cuatro centésimas de punto, pero mueve la volatilidad un 5 %. ¿Por qué?', justificacion: 'Cuatro centésimas contra un 5 %: un solo defecto, dos sensibilidades. Y hay una tercera en esta misma sección — sobre la ventana de 250 ruedas el histórico cae de 4,294 % a 3,858 %, un 10 %—, porque ahí el par de febrero sí está entre las peores.',
+                        pregunta: 'El par de ruedas defectuosas de febrero de 2025 mueve el VaR histórico de la muestra completa cuatro centésimas de punto, pero mueve la volatilidad un 5 %. ¿Por qué?', justificacion: 'Cuatro centésimas contra un 5 %: un solo defecto, dos sensibilidades. El corte al 99 % sobre la muestra completa lo fija la observación número veinte y no la primera, así que un par de ruedas muy malas no lo desplaza. Y hay una tercera sensibilidad en esta misma sección — sobre la ventana de 250 ruedas el histórico cae de 4,294 % a 3,858 %, un 10 %—, porque ahí el par de febrero sí está entre las peores.',
                         opciones: [
-                            { texto: 'El histórico es un estadístico de orden y el corte al 99 % lo fija la observación número veinte, no la primera; la desviación típica, en cambio, pesa cada desviación al cuadrado.', correcta: true },
+                            { texto: 'El histórico es un estadístico de orden; la desviación típica pesa cada desviación al cuadrado.', correcta: true },
                             { texto: 'Porque el VaR histórico se calcula sobre la muestra ordenada y la desviación típica sobre la muestra original.', correcta: false },
                             { texto: 'Porque las dos observaciones son de signo contrario y se cancelan en el cuantil pero no en la varianza.', correcta: false },
                             { texto: 'Porque la volatilidad usa 1 916 observaciones y el cuantil solo 20.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La pestaña de Python declara 3,626 % y la de R 3,642 % para el mismo Montecarlo. ¿Qué hay que concluir?', justificacion: 'Es la excepción declarada del curso a la regla de que las dos pestañas coinciden. Los errores estándar del bloque, 0,005 y 0,006 pp, hacen que la diferencia de 0,016 pp sea del orden de dos errores estándar: compatible con el ruido de simulación y no con un defecto.',
+                        pregunta: 'La pestaña de Python declara 3,626 % y la de R 3,642 % para el mismo Montecarlo. ¿Qué hay que concluir?', justificacion: 'Es la excepción declarada del curso a la regla de que las dos pestañas coinciden. Los errores estándar del bloque, 0,005 y 0,006 pp, hacen que la diferencia de 0,016 pp sea del orden de dos errores estándar: compatible con el ruido de simulación y no con un defecto. Sin ese error estándar al lado, una cifra simulada está incompleta.',
                         opciones: [
-                            { texto: 'Que son generadores de números aleatorios distintos y que un resultado simulado no es un número exacto: sin su error estándar, la cifra está incompleta.', correcta: true },
+                            { texto: 'Que son generadores distintos y que un resultado simulado no es un número exacto.', correcta: true },
                             { texto: 'Que una de las dos implementaciones tiene un error, porque la semilla es la misma en ambas.', correcta: false },
                             { texto: 'Que hace falta aumentar el número de escenarios hasta que las dos coincidan cifra a cifra.', correcta: false },
                             { texto: 'Que la descomposición de Cholesky no es única y cada lenguaje elige una raíz distinta de Σ.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Montecarlo con innovaciones normales devuelve prácticamente el mismo VaR que la fórmula paramétrica normal. ¿Qué muestra eso?', justificacion: 'Montecarlo no descubre colas: las reproduce. La misma simulación con innovaciones t da 4,132 % en vez de 3,642 %, y toda la diferencia es el supuesto, no el método.',
+                        pregunta: 'Montecarlo con innovaciones normales devuelve prácticamente el mismo VaR que la fórmula paramétrica normal. ¿Qué muestra eso?', justificacion: 'Montecarlo no descubre colas: las reproduce. Bajo normalidad devuelve con ruido lo que la fórmula ya daba exacto, y la misma simulación con innovaciones t da 4,132 % en vez de 3,642 %: toda la diferencia es el supuesto, no el método.',
                         opciones: [
-                            { texto: 'Que la cola de la simulación es la que se le puso al simulador: bajo normalidad, Montecarlo reproduce con ruido lo que la fórmula ya daba exacto.', correcta: true },
+                            { texto: 'Que la cola de la simulación es la que se le puso al simulador, no una que el método descubra.', correcta: true },
                             { texto: 'Que la simulación está bien implementada y por tanto puede sustituir al método histórico.', correcta: false },
                             { texto: 'Que el número de escenarios fue suficiente para que el error de simulación desapareciera.', correcta: false },
                             { texto: 'Que el portafolio es lineal y por eso los dos métodos coinciden siempre, sea cual sea la distribución.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La suma de los VaR individuales del fondo da 44 572 millones y el VaR del portafolio 29 338. ¿Qué es la diferencia?', justificacion: 'Los 15 234 millones de diversificación son el 34 % de la suma de los VaR individuales. Es el número que el capítulo 7 va a intentar maximizar y el que el capítulo 5 comprueba que el ES también respeta — allí vale 21 886 millones—.',
+                        pregunta: 'La suma de los VaR individuales del fondo da 44 572 millones y el VaR del portafolio 29 338. ¿Qué es la diferencia?', justificacion: 'Los 15 234 millones de diversificación son el 34 % de la suma de los VaR individuales, y solo desaparecerían si las cuatro acciones estuvieran perfectamente correlacionadas. Es el número que el capítulo 7 va a intentar maximizar y el que el capítulo 5 comprueba que el ES también respeta — allí vale 21 886 millones—.',
                         opciones: [
-                            { texto: 'El beneficio de diversificación: los términos cruzados de w′Σw, que solo desaparecerían si las cuatro acciones estuvieran perfectamente correlacionadas.', correcta: true },
+                            { texto: 'El beneficio de diversificación: lo que aportan los términos cruzados de w′Σw.', correcta: true },
                             { texto: 'Un error de redondeo acumulado al convertir porcentajes a millones de pesos.', correcta: false },
                             { texto: 'El efecto de la media, que la fórmula del portafolio incluye y la de las posiciones individuales no.', correcta: false },
                             { texto: 'La parte del riesgo que corresponde al mercado y no a los emisores; es el riesgo sistemático del capítulo 3.', correcta: false },

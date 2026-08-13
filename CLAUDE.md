@@ -121,7 +121,11 @@ exigen simulación; están calculados con 200 000 réplicas y comprobados con tr
 2. **La regla 9 audita los bloques de código, no los laboratorios.** Lo que calcula el
    navegador solo lo comprueba quien lo abra. En el capítulo 2, el laboratorio del
    pronóstico pasaba las doce reglas devolviendo 1,4057 % donde su propio bloque declara
-   1,4370 %, y su nota afirmaba que coincidían.
+   1,4370 %, y su nota afirmaba que coincidían. **Y corregir el laboratorio no corrigió lo
+   que lo citaba**: el `MCQ` de esa misma sección se quedó con las cifras de la convención
+   vieja —1,455 % y 1,363 % donde el laboratorio ya devolvía 1,4687 % y 1,4145 %— hasta la
+   auditoría del 2026-08-11. Cuando un laboratorio y una pregunta comparten cifras, hay que
+   leer las dos **con el deslizador puesto**.
 
 Y una tercera cosa que solo se ve mirando: en el capítulo 1, un pie de gráfica afirmaba lo
 contrario de lo que la gráfica mostraba. **Abra el capítulo, recorra las secciones, mueva
@@ -188,11 +192,137 @@ El punto de control C (2026-08-10) añadió la séptima, y es sobre cómo se cie
    de `<MCQ` no lo encuentra. Barra por propiedad (`opciones={`, `preguntas={`) y no por
    nombre de componente, y cuente haciendo clic, no leyendo el archivo.
 
+La auditoría del capítulo 1 (2026-08-11) añadió la octava, y es la más cara de todas porque
+ninguna de las siete anteriores la habría encontrado:
+
+8. **La opción correcta se delataba por ser la MÁS LARGA, en 89 de las 90 preguntas de la
+   unidad.** Razón media: 2,1 veces sus distractores. Un estudiante que marque la más larga
+   sin leer saca la nota completa, y eso vale para el capítulo 1, el 2, el 3, el 5 y el 6
+   —quince de quince en cada uno— y para catorce de quince del 4. La causa es de redacción:
+   la opción correcta arrastraba su propia justificación pegada al texto. Y es la zona ciega
+   7 otra vez en su forma pura — `barajarOpciones` cerró la pista de la **posición** y nadie
+   miró que la **longitud** siguiera abierta, porque barajar no la toca—. **Ahora la vigila
+   la regla 13** de `verificar.py`: falla si la correcta es la más larga en más de un tercio
+   de las preguntas, o si mide más de 1,3 veces la media de sus distractores. El arreglo es
+   mover el razonamiento a `justificacion`, que es donde la regla editorial ya decía que va.
+
+⚠️ **Solo el capítulo 6 FALLA hoy la regla 13, a propósito.** Los capítulos 1 a 5 quedaron
+corregidos —el 2 el 2026-08-11, en la fase B de su auditoría; el 3, el 4 y el 5 el mismo
+día, con la receta de abajo— y son la rebanada de referencia también para esto; el 6 quedó
+medido y en cola, con la línea exacta de cada pregunta en la salida del verificador. Son
+**15 preguntas**, 15 de 15. Hasta que se reescriban, `verificar.py` sin argumentos
+devuelve 1.
+
+⚠️ **Ojo con la regla 14 al terminar el 6.** Los repartos de letras que dejaron las
+correcciones son **c3 a:1 · b:6 · c:4 · d:4**, **c4 a:1 · b:6 · c:3 · d:5** y **c5 a:3 ·
+b:3 · c:2 · d:7**. Los tres pasan, pero el del 5 es el margen más estrecho de la unidad
+—7 de 15 es el 46,7 % contra un techo del 50 %— y los del 3 y el 4 dejan la (a) con una
+sola aparición. Reescribir las opciones no mueve ninguna letra, pero **tocar un enunciado
+sí**: si el 6 necesita reformular alguno, hay que volver a mirar el reparto.
+
+**Cómo se hizo en el capítulo 2, por si sirve de receta.** El objetivo por pregunta es
+`min(máximo de los distractores − 1, 1,30 × su media)`: la correcta deja de ser la más larga
+y baja a razón 0,66–1,09. Lo que se recorta **no se tira**, se integra en `justificacion`
+—que ya existía en las quince— sin repetir la opción. Y el reparto de la posición va
+**después** de reescribir los textos, porque mover el índice no toca el hash pero tocar el
+enunciado sí invalida la tabla de destinos.
+
+El capítulo 3 se hizo con esa misma receta y la confirma en dos puntos. **Nueve de las
+quince justificaciones ya contenían el material que se recortó**, así que solo hubo que
+tocar seis: antes de reescribir una, léala entera —repetir lo que ya dice es el error
+fácil—. Y el **recorrido en pantalla sigue siendo obligatorio**: acortar quince cadenas
+dentro de JSX es exactamente el tipo de cambio que la regla 9 no ve, así que hay que
+responder las quince en el navegador y comprobar que el `MCQ` sigue marcando correcta la que
+se acortó y que la justificación ampliada aparece. En el 3 salió 10/10 en el `Quiz`, los
+cinco `MCQ` de sección en verde y la consola limpia.
+
+⚠️ **El panel del navegador sirve los capítulos como `data:` URL cuando el archivo está
+fuera de la carpeta del proyecto, y ahí TR-CORE no arranca**: `localStorage` está prohibido
+en ese esquema, React lanza un `SecurityError` y la página queda **en blanco**. Es un
+artefacto del panel, no un defecto del capítulo, y se confunde con la zona ciega 1. La
+salida es servir por HTTP y abrir `localhost`, que sí es un origen de verdad:
+
+```bash
+python3 -m http.server 8731 --bind 127.0.0.1 --directory "Material html"
+```
+
+Y al recorrer un capítulo en pantalla, **cuente los botones «Comprobar» de la sección antes
+de pulsar**: la sección 4 del capítulo 4 tiene dos preguntas —un `Comparador` y un `MCQ`— y
+pulsar el primero deja sin responder el otro, con lo que parece que la pregunta falla
+cuando lo que falta es contestarla.
+
+La auditoría del capítulo 2 (2026-08-11) añadió la novena, y es la propia regla 13
+mordiéndose la cola:
+
+9. **La POSICIÓN volvió a abrirse por detrás, y arreglar la regla 13 no la cierra.** En el
+   capítulo 2 la correcta sale en la **(c) nueve veces de quince** y en la **(a) ninguna**:
+   descartar la (a) y marcar la (c) aprueba sin leer. La causa es que `barajarOpciones`
+   siembra el hash con el **ENUNCIADO** y no con las opciones, y que la correcta se escribe
+   siempre en el índice 0 del arreglo —las 15 de 15, en los seis capítulos—: la letra acaba
+   siendo función del enunciado y solo de él. **Reescribir las opciones para la regla 13 no
+   mueve ni una letra.** Hay que cambiar de índice la correcta en el fuente. **Ahora lo
+   vigila la regla 14** de `verificar.py`, que porta el FNV-1a + LCG de TR-CORE, calcula la
+   letra de cada pregunta e imprime a qué índice hay que mover cada correcta. El capítulo 2
+   quedó en **a:4 · b:4 · c:4 · d:3** moviendo siete preguntas; los otros cinco ya repartían
+   bien y ninguno la falla.
+
+La auditoría de los bloques del capítulo 1 (2026-08-12) añadió la décima, y es la primera
+que no es de forma sino de sentido: las catorce reglas pasaban y las salidas eran exactas.
+
+10. **Una convención medida como barata sobre la DISPERSIÓN puede ser ruinosa sobre un
+    NIVEL, porque el sesgo no se promedia: se acumula.** El capítulo 1 mide lo que cuesta
+    combinar logarítmicos entre activos —0,16 % en la volatilidad, 3,1 % en el cuantil al
+    99 %— y concluye que sale barata. Las dos son medidas de dispersión. Después la sección 5
+    usaba esa misma serie para un **acumulado anual**, y allí el sesgo de −1,643 pb por rueda
+    se multiplica por las ruedas del año: la tabla reportaba **−0,08 % en 2022, un año en que
+    el fondo ganó +10,21 %** —el signo, no la cifra—, y **+79,44 % contra +145,82 % en los
+    ocho años**. La regla 9 no lo ve porque la salida declarada **era** la que el código
+    produce; el código calculaba bien otra cosa. Y el capítulo ya traía escrita la regla que
+    incumplía, al cierre de la sección 3: «¿Va a reportarle una rentabilidad a alguien que la
+    va a cobrar? Aritméticos, siempre». **Cómo se caza: para toda magnitud que el material
+    reporte como un nivel —un acumulado, un precio, un valor de portafolio—, recalcúlela por
+    la vía exacta y compare. Si la brecha crece con el horizonte en vez de promediarse, la
+    convención no aplica ahí.** El arreglo del capítulo 1 fue añadir la columna exacta y la
+    brecha, no cambiar la convención: la volatilidad se sigue midiendo sobre la serie de la
+    convención y por eso el 40,87 % de 2020 que cita el capítulo 2 no se movió.
+
+    Corolario de vocabulario, que salió de la misma pasada: al corregirlo, el laboratorio de
+    agregación de la sección 3 quedó llamando «acumulado real» a `exp(Σ conv) − 1`, que es
+    justo lo que la sección 5 acababa de declarar que no lo es. **Una corrección puede abrir
+    una colisión de términos en otra sección del mismo capítulo**; se pasó a «acumulado
+    compuesto». Y su pregunta R9 afirmaba una forma de la nube «a partir de h = 20» que el
+    barrido desmiente a partir de h ≈ 68 —el brazo de las pérdidas se levanta—: zona ciega 6
+    otra vez, en un laboratorio distinto.
+
 ⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
 correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la
 **pregunta**, no en la opción). Las 90 de la unidad 1 ya están escritas. La regla editorial:
 la justificación **no repite la opción correcta**, añade la cifra del capítulo, la
-consecuencia en pesos y el puente al capítulo que retoma el asunto.
+consecuencia en pesos y el puente al capítulo que retoma el asunto. Y **nunca nombra una
+opción por su posición** («la segunda», «la última»): el barajado las mueve, y en el
+capítulo 1 la frase «la última opción se puede desmentir con código» acabó señalando la
+respuesta correcta.
+
+⚠️ **`OrdenaPasos` califica UN solo orden**, con `secuencia[pos] === pos`: no hay crédito
+parcial por una alternativa defendible. Así que todo par de pasos cuyo orden sea discutible
+hay que **anclarlo en el texto del paso**, no confiarlo al enunciado ni a la pista. En el
+capítulo 1, «congelar la instantánea» iba antes de «declarar el universo de activos» y lo
+razonable es lo contrario —no se baja un panel sin saber qué series—; se ancló escribiendo
+«Declarar **sobre esa instantánea** el universo…», y con eso «esa instantánea» se queda sin
+referente si el estudiante lo pone primero. La comprobación es resolverlo en pantalla y ver
+«¡Secuencia correcta!», no leer el arreglo.
+
+⚠️ **Dos defectos que estaban en TR-CORE y ya no** (2026-08-11, salieron de la misma
+auditoría; los dos afectaban a los quince capítulos):
+
+- **`Reto` pintaba el botón «Mostrar solución» aunque `solucion` fuera `undefined`**: se
+  pulsaba, el rótulo cambiaba a «Ocultar solución» y no aparecía nada. Los **seis R7** de la
+  unidad estaban así. Es el mismo defecto que el `MCQ` ya cerraba con su «Explicación:»
+  vacía, sin que nadie lo llevara a `Reto` — zona ciega 7, otra vez.
+- **`normalizarCelda` rechazaba el signo menos tipográfico.** Escribir `−0,7937` (U+2212, que
+  es el que usa toda la prosa del material) en una celda del R1 salía en rojo, con la tabla
+  imprimiendo debajo, en verde, esa misma cadena como respuesta correcta. Eran 14 celdas con
+  valor negativo en la unidad, 10 de ellas en el capítulo 6.
 
 ## Ciclo de trabajo
 
@@ -200,7 +330,7 @@ consecuencia en pesos y el puente al capítulo que retoma el asunto.
 conda activate teoria-riesgo
 python3 "Material html/_plantilla/ensamblar.py"                    # fuentes → tr-base.html
 python3 "Material html/_plantilla/migrar.py"                       # plantilla → capítulos
-python3 "Material html/_plantilla/verificar.py" --con-salidas      # las doce reglas
+python3 "Material html/_plantilla/verificar.py" --con-salidas      # las catorce reglas
 ```
 
 ⚠️ **La regla 9 ejecuta los bloques de Python con el mismo intérprete que corre el

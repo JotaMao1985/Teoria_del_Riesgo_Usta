@@ -703,12 +703,20 @@
                         <i className="fas fa-dumbbell text-gold"></i>{titulo}
                     </div>
                     <div className="text-gray-700 text-[0.95rem] mb-3">{children}</div>
-                    <button onClick={() => setShow(s => !s)}
-                        className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
-                        <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
-                        {show ? 'Ocultar solución' : 'Mostrar solución'}
-                    </button>
-                    {show && <div className="mt-3 animate-fade-in">{solucion}</div>}
+                    {/* El botón solo existe si hay solución que mostrar. Sin esta
+                        guarda —y `solucion` es opcional— el botón se pintaba
+                        igual, cambiaba a «Ocultar solución» y no aparecía nada:
+                        los seis R7 de la unidad 1 no la traen y los seis abrían
+                        un panel vacío. Es el mismo defecto que el `MCQ` ya
+                        cerraba con su «Explicación:» vacía. */}
+                    {solucion && (
+                        <button onClick={() => setShow(s => !s)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white tr-gradient hover:opacity-90 transition-opacity">
+                            <i className={`fas ${show ? 'fa-eye-slash' : 'fa-key'} mr-1`}></i>
+                            {show ? 'Ocultar solución' : 'Mostrar solución'}
+                        </button>
+                    )}
+                    {show && solucion && <div className="mt-3 animate-fade-in">{solucion}</div>}
                 </div>
             );
         };
@@ -1486,7 +1494,15 @@
         const normalizarCelda = (v) => {
             let s = String(v === null || v === undefined ? '' : v).trim().toLowerCase();
             s = s.replace(/\s+/g, '');
-            if (s === '' || s === '-' || s === '—' || s === '–' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
+            // El signo menos tipográfico (U+2212) y los guiones largos se
+            // unifican con el guion ASCII ANTES de mirar si la celda está
+            // vacía. La prosa del material escribe −0,512 con U+2212 y los
+            // bloques de código escriben -0.512 con el guion del teclado, así
+            // que el estudiante teclea cualquiera de los dos. Sin esto, el R1
+            // marcaba en rojo una celda que en pantalla es carácter por
+            // carácter la misma respuesta que él imprime debajo en verde.
+            s = s.replace(/[−–—]/g, '-');
+            if (s === '' || s === '-' || s === 'vacio' || s === 'vacío' || s === 'nada' || s === 'null') return '∅';
             s = s.replace(/\$/g, '').replace(/\bcop\b/g, '');
             if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.');
             else s = s.replace(',', '.');
@@ -2837,55 +2853,84 @@ precios  = pd.read_csv("datos/bvc_diario.csv", parse_dates=["fecha"], index_col=
 acciones = ["ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL"]
 w = np.array([0.30, 0.20, 0.25, 0.25])
 
-r = np.log(precios[acciones]).diff().dropna()
+arit = precios[acciones].pct_change().dropna()
+log_ = np.log(precios[acciones]).diff().dropna()
 
-resumen = (pd.DataFrame({"anio": r.index.year, "rp": r.values @ w})
-             .groupby("anio")
-             .agg(ruedas=("rp", "size"),
-                  acumulado=("rp", lambda x: (np.exp(x.sum()) - 1) * 100),
-                  volatilidad=("rp", lambda x: x.std(ddof=1) * np.sqrt(252) * 100)))
+# Dos rendimientos del portafolio por rueda: el de la convencion del curso y el
+# exacto de la seccion 3. La volatilidad se mide sobre el primero; el acumulado
+# NO se puede medir sobre el primero, y eso es lo que el bloque hace ver.
+tabla = pd.DataFrame({"anio":   log_.index.year,
+                      "conv":   log_.values @ w,                 # suma de logaritmicos
+                      "exacto": np.log(1 + arit.values @ w)})    # suma de aritmeticos, y DESPUES el log
 
-print("anio  ruedas   acumulado   volatilidad anual")
-#> anio  ruedas   acumulado   volatilidad anual
+resumen = tabla.groupby("anio").agg(
+    ruedas = ("conv",   "size"),
+    aprox  = ("conv",   lambda x: (np.exp(x.sum()) - 1) * 100),
+    real   = ("exacto", lambda x: (np.exp(x.sum()) - 1) * 100),
+    vol    = ("conv",   lambda x: x.std(ddof=1) * np.sqrt(252) * 100))
+
+print("anio ruedas acumulado aprox  acumulado real      brecha  volatilidad")
+#> anio ruedas acumulado aprox  acumulado real      brecha  volatilidad
 for anio, f in resumen.iterrows():
-    print(f"{anio}   {f.ruedas:4.0f}    {f.acumulado:+7.2f} %       {f.volatilidad:6.2f} %")
-#> 2018    235      -1.73 %        17.49 %
-#> 2019    236     +35.47 %        16.40 %
-#> 2020    242      -8.94 %        40.87 %
-#> 2021    245      +8.41 %        18.77 %
-#> 2022    245      -0.08 %        27.59 %
-#> 2023    236     -10.41 %        21.61 %
-#> 2024    233      +5.96 %        16.74 %
-#> 2025    244     +43.95 %        29.63 %`,
+    print(f"{anio}   {f.ruedas:4.0f}      {f.aprox:+8.2f} %      {f.real:+8.2f} %  {f.real - f.aprox:+7.2f} pp     {f.vol:6.2f} %")
+#> 2018    235         -1.73 %         +0.58 %    +2.31 pp      17.49 %
+#> 2019    236        +35.47 %        +37.83 %    +2.37 pp      16.40 %
+#> 2020    242         -8.94 %         -4.76 %    +4.18 pp      40.87 %
+#> 2021    245         +8.41 %        +10.97 %    +2.56 pp      18.77 %
+#> 2022    245         -0.08 %        +10.21 %   +10.29 pp      27.59 %
+#> 2023    236        -10.41 %         -6.36 %    +4.05 pp      21.61 %
+#> 2024    233         +5.96 %         +9.06 %    +3.10 pp      16.74 %
+#> 2025    244        +43.95 %        +49.06 %    +5.11 pp      29.63 %
+
+apr = (np.exp(tabla.conv.sum())   - 1) * 100
+exa = (np.exp(tabla.exacto.sum()) - 1) * 100
+print(f"Ocho anios juntos: la convencion acumula {apr:+.2f} % donde el fondo hizo {exa:+.2f} %.")
+#> Ocho anios juntos: la convencion acumula +79.44 % donde el fondo hizo +145.82 %.`,
             r: `suppressPackageStartupMessages(library(dplyr))
 
 precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
 
-r <- diff(log(as.matrix(precios[, acciones])))
+P    <- as.matrix(precios[, acciones])
+n_p  <- nrow(P)
+arit <- P[-1, ] / P[-n_p, ] - 1
+log_ <- diff(log(P))
 
-resumen <- data.frame(anio = substr(precios$fecha[-1], 1, 4),
-                      rp   = as.vector(r %*% w)) |>
+# Dos rendimientos del portafolio por rueda: el de la convencion del curso y el
+# exacto de la seccion 3. La volatilidad se mide sobre el primero; el acumulado
+# NO se puede medir sobre el primero, y eso es lo que el bloque hace ver.
+tabla <- data.frame(anio   = substr(precios$fecha[-1], 1, 4),
+                    conv   = as.vector(log_ %*% w),              # suma de logaritmicos
+                    exacto = log(1 + as.vector(arit %*% w)))     # suma de aritmeticos, y DESPUES el log
+
+resumen <- tabla |>
   group_by(anio) |>
-  summarise(ruedas      = n(),
-            acumulado   = (exp(sum(rp)) - 1) * 100,
-            volatilidad = sd(rp) * sqrt(252) * 100)
+  summarise(ruedas = n(),
+            aprox  = (exp(sum(conv))   - 1) * 100,
+            real   = (exp(sum(exacto)) - 1) * 100,
+            vol    = sd(conv) * sqrt(252) * 100)
 
-cat("anio  ruedas   acumulado   volatilidad anual\\n")
-#> anio  ruedas   acumulado   volatilidad anual
+cat("anio ruedas acumulado aprox  acumulado real      brecha  volatilidad\\n")
+#> anio ruedas acumulado aprox  acumulado real      brecha  volatilidad
 for (i in seq_len(nrow(resumen))) {
-  cat(sprintf("%s   %4d    %+7.2f %%       %6.2f %%\\n", resumen$anio[i],
-              resumen$ruedas[i], resumen$acumulado[i], resumen$volatilidad[i]))
+  cat(sprintf("%s   %4d      %+8.2f %%      %+8.2f %%  %+7.2f pp     %6.2f %%\\n",
+              resumen$anio[i], resumen$ruedas[i], resumen$aprox[i], resumen$real[i],
+              resumen$real[i] - resumen$aprox[i], resumen$vol[i]))
 }
-#> 2018    235      -1.73 %        17.49 %
-#> 2019    236     +35.47 %        16.40 %
-#> 2020    242      -8.94 %        40.87 %
-#> 2021    245      +8.41 %        18.77 %
-#> 2022    245      -0.08 %        27.59 %
-#> 2023    236     -10.41 %        21.61 %
-#> 2024    233      +5.96 %        16.74 %
-#> 2025    244     +43.95 %        29.63 %`,
+#> 2018    235         -1.73 %         +0.58 %    +2.31 pp      17.49 %
+#> 2019    236        +35.47 %        +37.83 %    +2.37 pp      16.40 %
+#> 2020    242         -8.94 %         -4.76 %    +4.18 pp      40.87 %
+#> 2021    245         +8.41 %        +10.97 %    +2.56 pp      18.77 %
+#> 2022    245         -0.08 %        +10.21 %   +10.29 pp      27.59 %
+#> 2023    236        -10.41 %         -6.36 %    +4.05 pp      21.61 %
+#> 2024    233         +5.96 %         +9.06 %    +3.10 pp      16.74 %
+#> 2025    244        +43.95 %        +49.06 %    +5.11 pp      29.63 %
+
+apr <- (exp(sum(tabla$conv))   - 1) * 100
+exa <- (exp(sum(tabla$exacto)) - 1) * 100
+cat(sprintf("Ocho anios juntos: la convencion acumula %+.2f %% donde el fondo hizo %+.2f %%.\\n", apr, exa))
+#> Ocho anios juntos: la convencion acumula +79.44 % donde el fondo hizo +145.82 %.`,
         };
 
         const EJ_HUELLA = {
@@ -3159,7 +3204,7 @@ for (nombre in names(declarado)) {
                         <MCQ
                             pregunta="El fondo tiene 40 000 millones en un bono corporativo de un emisor local que no se negocia hace tres semanas. La última operación fue a 98,5. ¿Qué riesgo está midiendo mal el informe si valora la posición a 98,5?"
                             opciones={[
-                                { texto: 'Liquidez, sobre todo: un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. De paso subestima también el de mercado, porque la volatilidad medida sobre una serie con precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 sin variación en ningún precio, y el capítulo 3 cifra lo que cuestan — se llevan un tercio de la beta del portafolio, que sale 0,6779 contra su propio índice en vez de 0,95 midiendo por semanas—. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
+                                { texto: 'Liquidez sobre todo, y de paso el de mercado: la volatilidad medida sobre precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'Un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 sin variación en ningún precio, y el capítulo 3 cifra lo que cuestan — se llevan un tercio de la beta del portafolio, que sale 0,6779 contra su propio índice en vez de 0,95 midiendo por semanas—. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
                                 { texto: 'Crédito, porque un bono que no se negocia es señal de que el emisor está en dificultades y la probabilidad de incumplimiento subió.', correcta: false },
                                 { texto: 'Ninguno: 98,5 es el último precio observado y valorar a último precio es la práctica estándar del mercado.', correcta: false },
                                 { texto: 'Operativo, porque no actualizar un precio durante tres semanas es una falla del proceso de valoración.', correcta: false },
@@ -3232,7 +3277,46 @@ for (nombre in names(declarado)) {
                 />
 
                 <Ejercicio tipo="R7">
-                    <Reto titulo="R7 · El correo que no se puede mandar así">
+                    <Reto titulo="R7 · El correo que no se puede mandar así"
+                        solucion={<>
+                            <p>
+                                Las tres frases dicen tres cosas distintas y ninguna es un favor.
+                                La <strong>primera explica sin conceder</strong>: «la diferencia no está
+                                en el cálculo sino en la ventana — el 25 % anualiza los 1 916 días de
+                                2018 a 2025, que incluyen marzo de 2020, y el 17 % del informe pasado
+                                salía de un año que se parecía a 2018 o a 2024». Note lo que <em>no</em>{' '}
+                                hace: no dice todavía que el número esté bien. Todavía no lo ha
+                                comprobado.
+                            </p>
+                            <p>
+                                La <strong>segunda es un plan, y el orden importa</strong>: primero la
+                                instantánea —qué archivo, qué huella en el manifiesto—, porque si los
+                                datos no son los declarados lo demás sobra; después la ventana y sus
+                                fechas; después el tratamiento de las dos ruedas de febrero de 2025, que
+                                por sí solas mueven la volatilidad un 5 %; y de último la convención de
+                                rendimiento. Se revisa de los datos hacia el modelo, nunca al revés,
+                                porque revisar el modelo primero es empezar por donde uno espera
+                                encontrar la respuesta que quiere.
+                            </p>
+                            <p>
+                                La <strong>tercera nombra lo que no va a pasar</strong>: el número no se
+                                corrige porque incomode. Y la razón que hay que dar no es «yo no hago
+                                eso» — es que la segunda línea existe porque no depende de la primera, y
+                                un área de riesgos que ajusta cifras a petición de la mesa deja de ser un
+                                control y pasa a ser un trámite. Con eso se cae la cadena entera de esta
+                                sección: el límite deja de vigilar nada y el apetito aprobado por la
+                                junta se vuelve decorativo.
+                            </p>
+                            <p>
+                                Y hay una cuarta cosa, que no va en el correo sino en el procedimiento:
+                                si el jefe de la mesa sostiene que la metodología está mal, eso{' '}
+                                <strong>tiene canal</strong> — se lleva por escrito al comité, el comité
+                                decide, y hasta que decida el número reportado sigue siendo el que está.
+                                Un desacuerdo metodológico escalado es sano; el mismo desacuerdo
+                                resuelto por correo antes del jueves es exactamente lo que la
+                                gobernanza existe para impedir.
+                            </p>
+                        </>}>
                         <p>
                             Usted trabaja en la segunda línea del fondo. El jefe de la mesa le escribe:
                             «la volatilidad que estás reportando para el portafolio es 25 % anual y me
@@ -3355,7 +3439,7 @@ real      <- p[length(p)] / p[1] - 1`,
                         { paso: '8', instruccion: 'comprobación: 1004 / 895 − 1', valor: '12.1788' },
                     ]}
                     ocultas={['valor']}
-                    pista="Los pasos 7 y 8 tienen que coincidir hasta el último decimal, y ahí está el punto del ejercicio: el paso 8 no usa ningún rendimiento, solo el primer precio y el último. Si difieren, el error está en la suma. Fíjese además en la rueda 2: un precio que no se mueve da rendimiento cero en las dos definiciones, y en este panel eso pasa 101 veces."
+                    pista="Los pasos 7 y 8 tienen que coincidir hasta el último decimal, y ahí está el punto del ejercicio: el paso 8 no usa ningún rendimiento, solo el primer precio y el último. Si difieren, el error está en la suma. Fíjese además en la rueda 2: un precio que no se mueve da rendimiento cero en las dos definiciones, y a Ecopetrol le pasa 189 veces en el panel. En 101 de esas ruedas se quedan quietos los cuatro emisores a la vez, y son las que el manifiesto declara como defecto."
                 />
 
                 <h3>Lo que se suma en el tiempo no es lo que se suma entre activos</h3>
@@ -3370,7 +3454,7 @@ real      <- p[length(p)] / p[1] - 1`,
                 <p>
                     La convención de la industria —y la de este curso— es usar de todos modos la
                     combinación lineal de los logarítmicos, porque conserva la aditividad temporal, que
-                    es la que hacen falta para escalar horizontes, para agregar varianzas y para
+                    es la que hace falta para escalar horizontes, para agregar varianzas y para
                     modelar. La pregunta legítima es cuánto cuesta esa comodidad. En este portafolio se
                     puede medir.
                 </p>
@@ -3416,7 +3500,7 @@ acumulado <- exp(sum(r)) - 1`,
                     }}
                     pregunta="Las dos devuelven 166,2 %. ¿Cuál de las afirmaciones resiste?"
                     opciones={[
-                        { texto: 'Son algebraicamente la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho. B se prefiere porque la suma acumula menos error numérico que un producto de casi dos mil factores, y porque la magnitud intermedia —la suma— es la que después se puede modelar.', correcta: true, justificacion: 'El acumulado de la muestra da 166,2 % por las dos vías porque exp(Σ ln(1+R)) = Π(1+R) es una identidad y no una aproximación. Lo que las separa es numérico: la suma acumula menos error de coma flotante que un producto de 1 916 factores. La aproximación de primer orden —confundir r con R— es otra cosa muy distinta, y esa sí cuesta las doce centésimas de punto que la sección mide en el cuantil al 1 %.' },
+                        { texto: 'Son la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho.', correcta: true, justificacion: 'El acumulado de la muestra da 166,2 % por las dos vías porque exp(Σ ln(1+R)) = Π(1+R) es una identidad y no una aproximación. B se prefiere por dos razones numéricas: la suma acumula menos error de coma flotante que un producto de 1 916 factores, y su magnitud intermedia —la suma de los logarítmicos— es la que después se puede modelar. La aproximación de primer orden —confundir r con R— es otra cosa muy distinta, y esa sí cuesta las doce centésimas de punto que la sección mide en el cuantil al 1 %.' },
                         { texto: 'A es la correcta y B una aproximación de primer orden que casualmente da bien porque los rendimientos diarios son pequeños.', correcta: false },
                         { texto: 'Coinciden solo porque la serie no tiene rendimientos negativos grandes; con una caída del 50 % B daría un resultado distinto.', correcta: false },
                         { texto: 'B es la correcta y A tiene un sesgo al alza, porque el producto de factores mayores que uno crece más rápido que la suma de sus logaritmos.', correcta: false },
@@ -3437,7 +3521,7 @@ acumulado <- exp(sum(r)) - 1`,
                 <Laboratorio
                     titulo="R9 · Sume aritméticos y mire cómo se separa"
                     id="cap1-lab-agregacion"
-                    enunciado="Cada punto es una ventana de h ruedas del portafolio del fondo. En el eje horizontal, el rendimiento acumulado real de esa ventana; en el vertical, lo que da sumar los rendimientos aritméticos de sus días. La recta gris es la igualdad. Mueva h y mire dónde y hacia qué lado se abre la nube."
+                    enunciado="Cada punto es una ventana de h ruedas del portafolio del fondo. En el eje horizontal, el acumulado compuesto de esa ventana; en el vertical, lo que da sumar los rendimientos aritméticos de sus días. La recta gris es la igualdad. Mueva h y mire dónde y hacia qué lado se abre la nube."
                     altura="chart-h-400"
                     controles={[
                         { id: 'h', etiqueta: 'Horizonte de la ventana (ruedas)', min: 1, max: 120, paso: 1, valor: 20, formato: v => `${v} ${v === 1 ? 'rueda' : 'ruedas'}` },
@@ -3466,13 +3550,13 @@ acumulado <- exp(sum(r)) - 1`,
                                     x: real, y: suma, type: 'scatter', mode: 'markers',
                                     marker: { size: 4, color: '#3D008D', opacity: 0.45 },
                                     name: `Ventanas de ${h}`,
-                                    hovertemplate: 'real %{x:.2f} % · suma %{y:.2f} %<extra></extra>',
+                                    hovertemplate: 'compuesto %{x:.2f} % · suma %{y:.2f} %<extra></extra>',
                                 },
                             ],
                             layout: {
                                 separators: ',.',
                                 margin: { t: 30, r: 16, b: 46, l: 56 },
-                                xaxis: { title: 'Acumulado real de la ventana (%)' },
+                                xaxis: { title: 'Acumulado compuesto de la ventana (%)' },
                                 yaxis: { title: 'Suma de los aritméticos (%)' },
                                 legend: { orientation: 'h', y: 1.14, x: 0 },
                             },
@@ -3493,21 +3577,21 @@ acumulado <- exp(sum(r)) - 1`,
                             peorSuma = Math.min(peorSuma, s);
                             maxBrecha = Math.max(maxBrecha, Math.abs(s - r));
                         }
-                        return `Con ventanas de ${h} ${h === 1 ? 'rueda' : 'ruedas'}: la peor pérdida real fue `
+                        return `Con ventanas de ${h} ${h === 1 ? 'rueda' : 'ruedas'}: la peor pérdida compuesta fue `
                             + `${dec(peorReal)} % y la suma de aritméticos la habría reportado como ${dec(peorSuma)} %. `
                             + `Sobre ${miles(VALOR)} millones, la diferencia entre las dos frases es de `
                             + `${miles(Math.abs(peorSuma - peorReal) / 100 * VALOR)} millones de pesos. `
                             + `La mayor brecha de una sola ventana llega a ${dec(maxBrecha)} puntos porcentuales.`;
                     }}
-                    pregunta="Con h = 1 la nube es una recta perfecta. ¿Por qué, si las dos definiciones no son la misma? Y a partir de h = 20 la nube se dobla hacia abajo en el extremo izquierdo y hacia arriba en el derecho: diga qué propiedad del logaritmo produce esa curvatura y por qué el error nunca cambia de signo dentro de cada mitad."
-                    nota="Todo se calcula en el navegador sobre la misma serie RP que producen los bloques de código, con sumas acumuladas. No hay ninguna cifra precomputada aquí."
+                    pregunta="Con h = 1 la nube es una recta perfecta. ¿Por qué, si las dos definiciones no son la misma? Después mueva el deslizador despacio y describa lo que ve en tres tramos. Hacia h = 20 la nube se abre en un arco: se queda POR ENCIMA de la igualdad en el centro y se dobla POR DEBAJO en los dos extremos, el de las pérdidas y el de las ganancias. El arco aguanta así hasta h ≈ 60. Y a partir de ahí se rompe por un solo lado: el brazo de las PÉRDIDAS se levanta por encima de la recta mientras el de las ganancias sigue debajo, y en h = 120 ya solo los puntos más extremos de la izquierda siguen doblándose. Explique de dónde sale el arco y por qué se rompe por ese lado y no por el otro. Pista: el error vale, a segundo orden, la mitad de ΣR² − (ΣR)², así que su signo depende de si la ventana tuvo tendencia o solo oscilación, y el punto de cruce está donde el movimiento acumulado de la ventana iguala a su propia volatilidad realizada — que crece con la raíz de h aunque la tendencia no la acompañe."
+                    nota="Todo se calcula en el navegador sobre la misma serie RP que producen los bloques de código, con sumas acumuladas. No hay ninguna cifra precomputada aquí. Y una precisión de vocabulario que la sección 5 cobra: RP es la serie de la convención del curso, así que el eje horizontal es el acumulado compuesto de esa serie, no el rendimiento exacto del fondo. Aquí se compara sumar contra componer; allá se compara la convención contra lo exacto."
                 />
 
                 <Ejercicio tipo="R2">
                     <MCQ
                         pregunta="Un informe reporta el rendimiento mensual de un fondo sumando los rendimientos logarítmicos diarios del mes y presentando esa suma como «rentabilidad del mes». En un mes en que el fondo ganó, ¿qué le pasa al número reportado?"
                         opciones={[
-                            { texto: 'Queda por debajo de la rentabilidad real, y el sesgo crece con el tamaño del movimiento: ln(1+x) < x para todo x distinto de cero, así que la suma de logarítmicos siempre se queda corta frente al acumulado. En un mes de pérdida, el mismo sesgo hace que el número reportado exagere la caída.', correcta: true, justificacion: 'Es la concavidad del logaritmo, y la sección 3 la mide sobre este panel: la brecha media entre las dos definiciones es de −1,643 puntos básicos por rueda y llega a 103,95 en la peor. Sobre un mes que gana un 5 %, la suma de logarítmicos reporta 4,879 %. Doce puntos básicos son ruido en un informe mensual y son la diferencia entre −3,9553 % y −4,0771 % en el cuantil al 1 %, que es donde se firma el VaR.' },
+                            { texto: 'Queda por debajo de la rentabilidad real, y el sesgo crece con el movimiento: ln(1+x) < x para todo x salvo cero.', correcta: true, justificacion: 'La suma de logarítmicos siempre se queda corta frente al acumulado, así que en un mes de pérdida el mismo sesgo hace que el número reportado exagere la caída. Es la concavidad del logaritmo, y la sección 3 la mide sobre este panel: la brecha media entre las dos definiciones es de −1,643 puntos básicos por rueda y llega a 103,95 en la peor. Sobre un mes que gana un 5 %, la suma de logarítmicos reporta 4,879 %. Doce puntos básicos son ruido en un informe mensual y son la diferencia entre −3,9553 % y −4,0771 % en el cuantil al 1 %, que es donde se firma el VaR.' },
                             { texto: 'Queda por encima de la rentabilidad real, porque el logaritmo amplifica los movimientos pequeños.', correcta: false },
                             { texto: 'Coincide con la rentabilidad real: sumar logarítmicos es exactamente la agregación temporal correcta, que es para lo que sirven.', correcta: false },
                             { texto: 'Depende del signo de la media diaria: si es positiva el número queda por encima y si es negativa por debajo.', correcta: false },
@@ -3787,7 +3871,7 @@ curtosis <- mean(z^4) - 3`,
                         <MCQ
                             pregunta="Un analista quiere comparar la volatilidad de dos fondos. Del primero tiene rendimientos diarios y del segundo, mensuales. Calcula la desviación de cada serie y anualiza las dos multiplicando por la raíz de 252, «porque el año tiene 252 días hábiles». ¿Cuál es la consecuencia?"
                             opciones={[
-                                { texto: 'El segundo fondo aparece con una volatilidad 4,58 veces mayor de la que tiene, porque la raíz correcta para una serie mensual es la de 12. El factor de anualización no depende del año sino de la periodicidad de la serie que se escala.', correcta: true, justificacion: 'El factor correcto es la raíz del número de periodos de la propia serie, así que el error es de √(252/12) = 4,5826. Una volatilidad mensual del 5 % se reportaría como 79,4 % anual en vez de 17,3 %: el fondo más tranquilo de los dos pasa a ser el más arriesgado sin que ningún dato cambie. El calendario no entra en la fórmula; la periodicidad de la serie, sí.' },
+                                { texto: 'El segundo fondo aparece con una volatilidad 4,58 veces mayor de la que tiene, porque la raíz que le corresponde a una serie mensual es la de 12.', correcta: true, justificacion: 'El factor de anualización no depende del año sino de la periodicidad de la serie que se escala: es la raíz del número de periodos de la propia serie, así que el error es de √(252/12) = 4,5826. Una volatilidad mensual del 5 % se reportaría como 79,4 % anual en vez de 17,3 %: el fondo más tranquilo de los dos pasa a ser el más arriesgado sin que ningún dato cambie. El calendario no entra en la fórmula; la periodicidad de la serie, sí.' },
                                 { texto: 'Ninguna, siempre que las dos series cubran el mismo periodo: anualizar es una transformación monótona y el orden de los dos fondos se conserva.', correcta: false },
                                 { texto: 'El segundo fondo aparece con menor volatilidad, porque los datos mensuales suavizan los movimientos diarios y la raíz de 252 no alcanza a compensarlo.', correcta: false },
                                 { texto: 'El error se compensa si los rendimientos son independientes, porque en ese caso la volatilidad escala exactamente con la raíz del tiempo en cualquier periodicidad.', correcta: false },
@@ -3879,7 +3963,7 @@ curtosis <- mean(z^4) - 3`,
                 </p>
 
                 <CodeTabs titulo="El resumen anual del portafolio, con pandas y con dplyr" bloques={EJ_PUENTE}
-                    nota="El acumulado de cada año se calcula con exp(suma de los logarítmicos) − 1, que es la agregación temporal de la sección 3, y la volatilidad se anualiza con la raíz de 252 porque la serie es diaria, que es la convención de la sección 4." />
+                    nota="La tabla trae dos acumulados a propósito. El de la izquierda sale de la convención del curso —se combinan los logarítmicos entre activos y después se suman en el tiempo—; el de la derecha combina los aritméticos y solo después toma el logaritmo, que es lo exacto de la sección 3. La volatilidad se mide sobre el primero y se anualiza con la raíz de 252, porque la serie es diaria." />
 
                 <p>
                     La tabla contesta de paso la pregunta del ejercicio de la sección 2. La volatilidad
@@ -3887,6 +3971,29 @@ curtosis <- mean(z^4) - 3`,
                     2020</strong>, y el 25,02 % de la muestra completa es un promedio de ocho regímenes
                     distintos. Que la volatilidad no sea constante no es un detalle empírico: es el
                     capítulo 2 entero.
+                </p>
+
+                <p>
+                    Y la columna de la brecha termina la cuenta que la sección 3 dejó a medias. Allí se
+                    midió lo que cuesta la convención sobre la <strong>volatilidad</strong> —un 0,16 %—
+                    y sobre el <strong>cuantil al 1 %</strong> —un 3,1 %—: las dos son medidas de
+                    dispersión, y en las dos la convención sale barata. Sobre un <strong>nivel</strong>{' '}
+                    no sale barata, porque el sesgo de −1,643 pb por rueda no se promedia, se acumula.
+                    En 2022 la convención reporta <strong>−0,08 %</strong> para un año en que el fondo
+                    ganó <strong>10,21 %</strong> —el signo, no la cifra—, y en los ocho años juntos se
+                    deja <strong>66 puntos porcentuales</strong>. De aquí sale la regla que rige los
+                    catorce capítulos siguientes: los logarítmicos del portafolio sirven para medir
+                    dispersión, nunca para reportar cuánto se ganó.
+                </p>
+
+                <p>
+                    Que el peor año sea 2022 tampoco es casualidad. La brecha crece con lo que los
+                    activos se <em>separan entre sí</em>: en 2022 Grupo Sura subió 43,0 % mientras el
+                    Banco de Bogotá caía 38,9 %, y la dispersión transversal media fue de 2,13 % diarios
+                    contra 1,34 % en 2025, cuando los cuatro subieron a la vez. Es la desigualdad de
+                    Jensen leída en pesos, y explica por qué la convención es tolerable en un activo
+                    solo y peligrosa en una canasta: cuanto más disienten los activos, más se equivoca
+                    quien promedia sus logaritmos.
                 </p>
 
                 <CalloutPro tema="warn" titulo="La semilla no basta para que dos lenguajes coincidan"
@@ -3931,7 +4038,7 @@ curtosis <- mean(z^4) - 3`,
                     enunciado="Reordene el procedimiento, desde el archivo hasta el papel de trabajo. Hay pasos que no se pueden hacer después de otros sin invalidar el resultado, y por lo menos uno que si se hace tarde convierte el análisis en una justificación de lo que ya se quería decir."
                     pasos={[
                         'Congelar la instantánea de precios y anotar su fuente, su fecha y su huella en el manifiesto',
-                        'Declarar el universo de activos, los pesos y el valor del portafolio, antes de calcular nada',
+                        'Declarar sobre esa instantánea el universo de activos, los pesos y el valor del portafolio, antes de calcular nada',
                         'Cruzar las series por fechas comunes y comprobar que ninguna quede con huecos rellenados',
                         'Revisar el panel: ruedas sin variación y cotizaciones incoherentes con el índice de referencia',
                         'Decidir qué se hace con las anomalías encontradas, y dejarlo escrito antes de mirar ningún resultado',
@@ -3947,7 +4054,7 @@ curtosis <- mean(z^4) - 3`,
                     <MCQ
                         pregunta="Su equipo va a publicar el informe trimestral de riesgo. Un compañero propone que el cuaderno descargue los precios al ejecutarse, «para que el informe siempre esté actualizado». ¿Cuál es la objeción decisiva?"
                         opciones={[
-                            { texto: 'Que el informe dejaría de ser reproducible: la misma ejecución en dos fechas daría cifras distintas y ninguna versión pasada se podría volver a obtener, que es justamente lo que BCBS 239 exige poder hacer. Actualizar es una decisión que se toma y se fecha, no algo que deba ocurrirle al informe por sí solo.', correcta: true, justificacion: 'El repositorio del curso hace lo contrario a propósito: datos/ está versionado y datos/MANIFIESTO.md guarda fuente, fecha y SHA-256 de cada instantánea, que es lo que comprueba el bloque de esta sección. Y no es hipotético — volver a ejecutar descargar.py produce un panel equivalente pero no idéntico, porque Yahoo reajusta los precios hacia atrás con cada dividendo—. Actualizar es una decisión que se toma y se fecha.' },
+                            { texto: 'Que el informe dejaría de ser reproducible: la misma ejecución en dos fechas daría cifras distintas.', correcta: true, justificacion: 'Ninguna versión pasada se podría volver a obtener, que es justamente lo que BCBS 239 exige poder hacer. El repositorio del curso hace lo contrario a propósito: datos/ está versionado y datos/MANIFIESTO.md guarda fuente, fecha y SHA-256 de cada instantánea, que es lo que comprueba el bloque de esta sección. Y no es hipotético — volver a ejecutar descargar.py produce un panel equivalente pero no idéntico, porque Yahoo reajusta los precios hacia atrás con cada dividendo—. Actualizar es una decisión que se toma y se fecha.' },
                             { texto: 'Que la descarga puede fallar por problemas de conexión y el informe no se generaría a tiempo.', correcta: false },
                             { texto: 'Que los precios descargados en tiempo de ejecución vienen sin ajustar por dividendos y eso sesga los rendimientos.', correcta: false },
                             { texto: 'Ninguna: mantener los datos al día es preferible, y la trazabilidad se resuelve guardando la fecha de descarga en el encabezado del informe.', correcta: false },
@@ -4022,90 +4129,90 @@ curtosis <- mean(z^4) - 3`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 1" preguntas={[
                     {
-                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Lo que el curso mide de aquí al capítulo 15 es dispersión.',
+                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Riesgo tampoco es la posibilidad de perder: lo que el curso mide de aquí al capítulo 15 es dispersión, y un activo que solo pudiera ganar, pero por cuantías muy distintas, también tendría riesgo.',
                         opciones: [
-                            { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles y no el nivel del rendimiento ni la posibilidad de perder.', correcta: true },
+                            { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles, no el nivel del rendimiento.', correcta: true },
                             { texto: 'El primero, porque un rendimiento de 8 % está por debajo de la media del segundo, que es 5 %.', correcta: false },
                             { texto: 'Los dos igual: el riesgo se mide sobre el rendimiento esperado y ambos tienen uno definido.', correcta: false },
                             { texto: 'El segundo, pero solo si su rendimiento esperado es menor que 8 %; si es mayor, el riesgo queda compensado.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'De los cuatro riesgos financieros, ¿cuál se puede medir directamente sobre una serie de precios de mercado?', justificacion: 'La segunda opción es la tentadora, y es la que enseña el matiz: el panel del curso muestra iliquidez —101 ruedas sin variación— pero eso es un síntoma leído a posteriori, no una medida. Medir liquidez exige el diferencial de compra y venta y la profundidad del libro, que un archivo de cierres no trae.',
+                        pregunta: 'De los cuatro riesgos financieros, ¿cuál se puede medir directamente sobre una serie de precios de mercado?', justificacion: 'La tentadora es la que añade el de liquidez, y es la que enseña el matiz: el panel del curso muestra iliquidez —101 ruedas sin variación— pero eso es un síntoma leído a posteriori, no una medida. Medir liquidez exige el diferencial de compra y venta y la profundidad del libro, que un archivo de cierres no trae; el de crédito exige características del deudor, y el operativo, registros internos de eventos.',
                         opciones: [
-                            { texto: 'El de mercado. Los otros tres necesitan datos que el precio no contiene: características del deudor, registros internos de eventos y profundidad del libro de órdenes.', correcta: true },
+                            { texto: 'El de mercado, y solo ese: los otros tres piden datos que una serie de cierres no contiene.', correcta: true },
                             { texto: 'El de mercado y el de liquidez, porque un precio que no se mueve durante días revela iliquidez.', correcta: false },
                             { texto: 'Los cuatro, si la serie es lo bastante larga: todos los riesgos acaban manifestándose en el precio.', correcta: false },
                             { texto: 'El de mercado y el de crédito, porque la caída del precio de un emisor anticipa su incumplimiento.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?', justificacion: 'La brecha son 17,5 puntos porcentuales sobre una sola posición del fondo. No es un decimal perdido: es la diferencia entre sumar y multiplicar, y crece con el horizonte y con la volatilidad.',
+                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?', justificacion: 'La agregación temporal de los aritméticos es multiplicativa, no aditiva. La brecha son 17,5 puntos porcentuales sobre una sola posición del fondo. No es un decimal perdido: es la diferencia entre sumar y multiplicar, y crece con el horizonte y con la volatilidad.',
                         opciones: [
-                            { texto: 'Una magnitud real —el rendimiento acumulado sin reinversión— pero no el rendimiento acumulado, que es 166,2 %. La agregación temporal de los aritméticos es multiplicativa, no aditiva.', correcta: true },
+                            { texto: 'Una magnitud real —el acumulado sin reinversión— pero no el rendimiento acumulado, que es 166,2 %.', correcta: true },
                             { texto: 'El rendimiento acumulado correcto; el 166,2 % incluye el efecto de los dividendos, que la serie de rendimientos no recoge.', correcta: false },
                             { texto: 'Una aproximación de primer orden del rendimiento acumulado, con un error que tiende a cero al aumentar el número de observaciones.', correcta: false },
                             { texto: 'El rendimiento logarítmico acumulado, que siempre queda por debajo del aritmético.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El curso construye el rendimiento del portafolio como la combinación lineal de los rendimientos logarítmicos de los cuatro activos. ¿Qué es exactamente lo que se está aproximando?', justificacion: 'Es la convención declarada del curso y su costo está medido en esta misma sección: doce centésimas de punto en el cuantil al 1 %, hacia el lado conservador. Los quince capítulos la heredan, y el 4 la usa para producir el 4,077 % con el que abre.',
+                        pregunta: 'El curso construye el rendimiento del portafolio como la combinación lineal de los rendimientos logarítmicos de los cuatro activos. ¿Qué es exactamente lo que se está aproximando?', justificacion: 'Se acepta porque conserva la aditividad temporal, que es la que hace falta para escalar horizontes y para modelar. Es la convención declarada del curso y su costo está medido en esta misma sección: doce centésimas de punto en el cuantil al 1 %, hacia el lado conservador. Los quince capítulos la heredan, y el 4 la usa para producir el 4,077 % con el que abre.',
                         opciones: [
-                            { texto: 'La linealidad en los pesos, que es exacta para los aritméticos y no para los logarítmicos. Se acepta porque conserva la aditividad temporal, y el costo se midió: el cuantil al 1 % se mueve doce centésimas de punto, hacia el lado conservador.', correcta: true },
+                            { texto: 'La linealidad en los pesos, que es exacta para los aritméticos y no para los logarítmicos.', correcta: true },
                             { texto: 'La independencia entre los cuatro activos, que la combinación lineal da por supuesta.', correcta: false },
                             { texto: 'Nada: la combinación lineal de logarítmicos es exacta, y por eso se usa.', correcta: false },
                             { texto: 'La estabilidad de los pesos, porque el portafolio real se rebalancea y los pesos cambian todos los días.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La asimetría del portafolio es −0,512. ¿Qué afirma eso sobre la serie?', justificacion: 'Media, asimetría y curtosis contestan preguntas distintas, y confundirlas es el error frecuente: la asimetría no dice nada sobre el signo de la media ni sobre cuántas ruedas fueron negativas. Habla de la forma, y solo de la forma.',
+                        pregunta: 'La asimetría del portafolio es −0,512. ¿Qué afirma eso sobre la serie?', justificacion: 'Las caídas grandes superan en magnitud a las subidas grandes, que es el patrón habitual de la renta variable y la razón de que el capítulo 8 optimice contra esa cola. Media, asimetría y curtosis contestan preguntas distintas, y confundirlas es el error frecuente: la asimetría no dice nada sobre el signo de la media ni sobre cuántas ruedas fueron negativas. Habla de la forma, y solo de la forma.',
                         opciones: [
-                            { texto: 'Que la cola izquierda es más larga que la derecha: las caídas grandes superan en magnitud a las subidas grandes. Es el patrón habitual de la renta variable.', correcta: true },
+                            { texto: 'Que la cola izquierda es más larga que la derecha en la muestra.', correcta: true },
                             { texto: 'Que el rendimiento medio de la serie es negativo.', correcta: false },
                             { texto: 'Que hay más ruedas de pérdida que de ganancia en la muestra.', correcta: false },
                             { texto: 'Que la volatilidad de las ruedas negativas es menor que la de las positivas.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La curtosis de exceso del portafolio es 25,77 y la del S&P 500, 14,73. ¿Qué conclusión resiste?', justificacion: 'La curtosis no es una escala de riesgo sino una afirmación sobre la forma de la cola. Y la última opción se puede desmentir con código: el capítulo 4 mide que excluir el par de febrero de 2025 mueve la volatilidad un 5 % y el VaR histórico apenas un 1 %. Un defecto puntual no fabrica una curtosis de 25,77 sobre 1 916 ruedas.',
+                        pregunta: 'La curtosis de exceso del portafolio es 25,77 y la del S&P 500, 14,73. ¿Qué conclusión resiste?', justificacion: 'La diferencia es de grado y no de naturaleza: en ninguno de los dos mercados se puede suponer normalidad sin decirlo. La curtosis tampoco es una escala de riesgo, sino una afirmación sobre la forma de la cola. Y la opción que carga toda la diferencia sobre el par defectuoso de febrero de 2025 se puede desmentir con código: el capítulo 4 mide que excluirlo mueve la volatilidad un 5 % y el VaR histórico apenas un 1 %. Un defecto puntual no fabrica una curtosis de 25,77 sobre 1 916 ruedas.',
                         opciones: [
-                            { texto: 'Los dos mercados tienen colas mucho más pesadas que una normal, y el colombiano más. La diferencia es de grado y no de naturaleza: en ninguno de los dos se puede suponer normalidad sin decirlo.', correcta: true },
+                            { texto: 'Los dos mercados tienen colas mucho más pesadas que una normal, y el colombiano más.', correcta: true },
                             { texto: 'El mercado colombiano es 1,75 veces más riesgoso que el estadounidense.', correcta: false },
                             { texto: 'El S&P 500 se puede modelar con una normal, porque 14,73 es un valor moderado para una serie de dos mil observaciones.', correcta: false },
                             { texto: 'La diferencia se explica enteramente por las dos ruedas defectuosas de febrero de 2025.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Ocho ruedas del portafolio superan las cinco desviaciones típicas. Bajo una normal se esperaban 0,00. ¿Cuál es la lectura correcta?', justificacion: 'Bajo normalidad, superar cinco desviaciones típicas tiene una probabilidad de una en 3,5 millones: una rueda cada catorce mil años de bolsa. Ocurrió ocho veces en ocho años. Por eso el capítulo 4 estima con una t de nu = 4,23 y no con una normal.',
+                        pregunta: 'Ocho ruedas del portafolio superan las cinco desviaciones típicas. Bajo una normal se esperaban 0,00. ¿Cuál es la lectura correcta?', justificacion: 'El bloque de la sección 4 cuenta las ruedas con |r − μ| mayor que cinco desviaciones, es decir las dos colas: bajo normalidad eso tiene una probabilidad de una en 1,7 millones, una rueda cada siete mil años de bolsa. Ocurrió ocho veces en ocho años, así que el modelo normal no asigna probabilidad apreciable a lo que de hecho pasó. Por eso el capítulo 4 estima con una t de nu = 4,23 y no con una normal.',
                         opciones: [
-                            { texto: 'Que el modelo normal no asigna probabilidad apreciable a eventos que ocurrieron ocho veces en ocho años, así que no es una aproximación pobre sino una afirmación falsa sobre la cola.', correcta: true },
+                            { texto: 'Que el modelo normal no es una aproximación pobre sino una afirmación falsa sobre la cola.', correcta: true },
                             { texto: 'Que la muestra es demasiado corta: con más años, la frecuencia observada convergería a la esperada.', correcta: false },
                             { texto: 'Que la desviación típica está mal estimada y habría que recalcularla excluyendo esas ocho ruedas.', correcta: false },
                             { texto: 'Que el portafolio está mal diversificado; con más activos, la suma de rendimientos tendería a la normal por el teorema central del límite.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene las dos ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?', justificacion: 'La curtosis es un cociente y el dato anómalo entra en el numerador y en el denominador. Es la razón de no fiarlo todo a un indicador: esa misma ventana, que por curtosis parece mansa, tiene una desviación de 7,74 %, casi cinco veces la del panel completo.',
+                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene las dos ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?', justificacion: 'Medidos contra su propia desviación inflada, esos dos valores ya no están lejos. La curtosis es un cociente y el dato anómalo entra en el numerador y en el denominador a la vez. Es la razón de no fiarlo todo a un indicador: esa misma ventana, que por curtosis parece mansa, tiene una desviación de 7,74 %, casi cinco veces la del panel completo.',
                         opciones: [
-                            { texto: 'Porque esos dos valores inflan la desviación de la ventana hasta 7,74 % y, medidos contra su propia desviación, dejan de estar lejos. La curtosis es un cociente: el dato anómalo sube el numerador y el denominador a la vez.', correcta: true },
+                            { texto: 'Porque esos dos valores inflan la desviación de la ventana hasta 7,74 % y dejan de estar lejos.', correcta: true },
                             { texto: 'Porque las dos ruedas tienen signos opuestos y sus contribuciones a la curtosis se cancelan.', correcta: false },
                             { texto: 'Porque con solo ocho observaciones la curtosis muestral está sesgada hacia cero.', correcta: false },
                             { texto: 'Porque la curtosis solo detecta colas pesadas cuando hay al menos una observación en cada cola y aquí las dos son de la misma.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Un modelo de lenguaje calcula la desviación de una serie de cierres mensuales y la anualiza multiplicando por la raíz de 252. ¿Cómo se clasifica ese error?', justificacion: 'El factor sobra por 4,58, y clasificar el error importa tanto como detectarlo: es una convención equivocada, no un supuesto sin verificar. La taxonomía de los R3 existe para eso — aquí se arregla cambiando 252 por 12, no recolectando más datos—.',
+                        pregunta: 'Un modelo de lenguaje calcula la desviación de una serie de cierres mensuales y la anualiza multiplicando por la raíz de 252. ¿Cómo se clasifica ese error?', justificacion: 'El factor de anualización es la raíz del número de periodos que tiene el año en la periodicidad de la serie, así que sobra por 4,58. Clasificar el error importa tanto como detectarlo: es una convención equivocada, no un supuesto sin verificar. La taxonomía de los R3 existe para eso — aquí se arregla cambiando 252 por 12, no recolectando más datos—.',
                         opciones: [
-                            { texto: 'Convención equivocada: el factor de anualización es la raíz del número de periodos del año en la periodicidad de la serie, y para datos mensuales son 12, no 252. Exagera la cifra por un factor de 4,58.', correcta: true },
+                            { texto: 'Convención equivocada: para una serie mensual el factor es la raíz de 12, no la de 252.', correcta: true },
                             { texto: 'Estimador inconsistente: la desviación muestral de una serie mensual no estima el mismo parámetro que la de una serie diaria.', correcta: false },
                             { texto: 'Supuesto no verificado: escalar con la raíz del tiempo exige independencia y nadie la comprobó.', correcta: false },
                             { texto: 'No es un error: 252 es el número de días hábiles del año y anualizar siempre se hace con él.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?', justificacion: 'Es la decisión D3 del plan y la condición de existencia de la regla 9 del verificador, que ejecuta cada bloque de los quince capítulos en los dos lenguajes y compara su salida con la declarada. Contra una fuente en vivo esa regla no podría existir.',
+                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?', justificacion: 'Contra una fuente en vivo el número cambia cada día y la única salida sería dejar de comprobarlo. Es la decisión D3 del plan y la condición de existencia de la regla 9 del verificador, que ejecuta cada bloque de los quince capítulos en los dos lenguajes y compara su salida con la declarada. Contra una fuente en vivo esa regla no podría existir.',
                         opciones: [
-                            { texto: 'Que sin instantánea congelada no se puede comprobar que las cifras declaradas en el material sean las que el código produce: contra una fuente en vivo el número cambia cada día y la única salida sería dejar de comprobarlo.', correcta: true },
+                            { texto: 'Que sin instantánea congelada nadie puede comprobar que las cifras sean las que el código produce.', correcta: true },
                             { texto: 'Que así los estudiantes sin conexión pueden trabajar, que es la única ventaja frente a descargar los datos.', correcta: false },
                             { texto: 'Que los archivos son pequeños y versionarlos no tiene costo, así que no hay motivo para excluirlos.', correcta: false },
                             { texto: 'Que la licencia de la fuente obliga a redistribuir los datos junto con cualquier análisis que los use.', correcta: false },

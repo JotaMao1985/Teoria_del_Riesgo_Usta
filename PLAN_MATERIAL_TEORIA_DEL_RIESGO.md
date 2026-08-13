@@ -1882,6 +1882,116 @@ hace con `gh api repos/.../pages`: un 404 es eso.
 
 ---
 
+### Regla 13 en el capítulo 3 · 2026-08-11
+
+Las quince preguntas del capítulo 3 delataban la correcta por longitud —era la más larga en
+**15 de 15**, con razones de 1,7 a 2,7 veces la media de sus distractores—. Reescritas con
+la receta del capítulo 2: objetivo por pregunta `min(máximo de los distractores − 1,
+1,30 × su media)`, el razonamiento recortado se integra en `justificacion`. Quedan en razón
+**0,82–1,16**, ninguna es ya la más larga y solo dos son la más corta, así que la pista no
+se invierte. `verificar.py --con-salidas` da las catorce reglas en verde sobre el capítulo.
+
+**Nueve de las quince justificaciones ya decían lo que se recortó**, y solo hubo que ampliar
+seis. Es el ahorro que no se ve si se reescribe la justificación sin leerla entera: la regla
+editorial —la justificación no repite la opción— convierte «pegar lo recortado» en un
+defecto, no en el trabajo.
+
+**La regla 14 no se movió, como estaba previsto.** El reparto sigue en **a:1 · b:6 · c:4 ·
+d:4** sobre quince preguntas: pasa —ninguna letra vacía, ninguna por encima de la mitad—
+porque la permutación sale del hash del enunciado y los enunciados no se tocaron. Conviene
+anotar que la (a) con una sola aparición es el margen más estrecho de los seis capítulos; si
+alguna vez se reescribe un enunciado del 3, hay que volver a mirar el reparto.
+
+**El recorrido por el navegador cazó lo que la regla 9 no puede ver, y por eso se hizo:**
+acortar quince cadenas dentro de JSX no lo comprueba ningún análisis estático. Con el
+capítulo abierto, el `Quiz` calificó **10/10** marcando las diez opciones acortadas, los
+cinco `MCQ` de sección dieron «Correcto» y las quince justificaciones —las seis ampliadas
+incluidas— aparecen completas. Consola limpia.
+
+Quedan los capítulos **4, 5 y 6**, que son **45 preguntas** y siguen fallando la regla 13 a
+propósito, con la línea de cada una en la salida del verificador.
+
+---
+
+### Regla 13 en el capítulo 4 · 2026-08-11
+
+**14 de 15**, no quince: la pregunta 15 del `Quiz` —la del VaR marginal— ya cumplía, con 62
+caracteres contra 73 de media. Es el único caso de la unidad que nació bien, y conviene
+saber por qué: su opción correcta es una definición de una línea y el razonamiento estaba
+desde el principio en `justificacion`. Las otras catorce quedan en razón **0,82–1,12**,
+ninguna es ya la más larga y `verificar.py --con-salidas` da las catorce reglas en verde.
+
+**El capítulo 4 exigió más recorte que el 3 aunque partiera de opciones más cortas.** Las
+del `Quiz` son breves —distractores de 56 a 97 caracteres de media— y eso deja objetivos de
+**62, 65 y 79 caracteres**, donde no cabe ni una oración subordinada. Ahí el recorte no es
+pulir: es quedarse con la afirmación y nada más. Cuatro de las diez perdieron su segunda
+frase entera —«el riesgo no cambió; cambió la memoria del estimador», «qué ocurre en la
+rueda restante, el número no lo dice»— y las cuatro son ahora mejores preguntas, porque esa
+segunda frase era justamente la que regalaba la respuesta.
+
+**La regla 14 tampoco se movió**: el reparto sigue en **a:1 · b:6 · c:3 · d:5**. Pasa, y es
+el mismo margen estrecho en la (a) que el capítulo 3 —una sola aparición—; ninguno de los
+dos lo falla porque la regla solo exige que ninguna letra quede vacía y que ninguna pase de
+la mitad.
+
+⚠️ **El panel del navegador sirvió el capítulo como `data:` URL y la página salió en
+blanco.** `localStorage` está prohibido en ese esquema, React lanza un `SecurityError` y
+TR-CORE no monta nada. **Es un artefacto del panel, no un defecto del capítulo**, y se
+parece demasiado a la zona ciega 1 como para no dejarlo anotado: el síntoma es idéntico
+—página en blanco, verificador en verde— y el diagnóstico es mirar la consola, donde el
+error dice `data:` con todas las letras. Se resuelve sirviendo por HTTP
+(`python3 -m http.server 8731 --bind 127.0.0.1 --directory "Material html"`) y abriendo
+`localhost`, que sí es un origen de verdad.
+
+**Y un tropiezo de método que vale para los dos capítulos que faltan:** la sección 4 tiene
+**dos** preguntas —el `Comparador` y el `MCQ` de Montecarlo— y dos botones «Comprobar».
+Pulsar el primero califica el `Comparador` sin responder, no el `MCQ` que se acababa de
+contestar, y el recorrido informa «incorrecto» sobre una pregunta que está bien. Cuente los
+«Comprobar» de la sección antes de pulsar.
+
+Con las 10 del `Quiz` en **10/10**, los cinco de sección en «Correcto», las quince
+justificaciones visibles y la consola limpia, quedan los capítulos **5 y 6**: **30
+preguntas**, 15 de 15 en cada uno.
+
+---
+
+### Regla 13 en el capítulo 5 · 2026-08-11
+
+Quince de quince, y las quince corregidas con la misma receta. Quedan en razón
+**0,73–1,06** y `verificar.py --con-salidas` da las catorce reglas en verde. Es el capítulo
+que más contenido tenía que reubicar —la correcta llegaba a **371 caracteres** contra 157
+de media en la pregunta del FRTB— y aun así solo hubo que ampliar **nueve** de las quince
+justificaciones: las otras seis ya lo decían.
+
+**Lo que este capítulo enseña sobre qué se recorta.** En el 3 y el 4 lo que sobraba era
+razonamiento; aquí lo que sobraba eran **cifras**. La opción del FRTB traía dentro el
+2,43 % contra 2,09 % de volatilidad diaria y el −5,4 % del requerimiento; la del Comparador
+traía las 48 observaciones y su lectura; la de los dos bonos traía la condición sobre p
+enunciada dos veces, una por cada lado de la desigualdad. Una cifra dentro de la opción
+correcta es doblemente mala — alarga y, además, es información que el distractor no puede
+tener, porque el distractor es falso—. Todas se movieron a `justificacion`, que es donde el
+capítulo ya guardaba las suyas.
+
+**Un caso que obligó a afinar dos veces:** la primera pregunta del `Quiz` quedó en 68
+caracteres contra un distractor máximo de 68. La regla pasa —compara con `>`, no con `>=`—
+pero un empate en el máximo no es margen, así que se recortó a 65. Al medir, mire el empate
+y no solo el fallo.
+
+**La regla 14 no se movió, y aquí conviene mirarla:** el reparto es **a:3 · b:3 · c:2 ·
+d:7**. Pasa, pero 7 de 15 es el **46,7 %** contra un techo del 50 % — el margen más estrecho
+de los cinco capítulos corregidos—. No hay nada que hacer mientras no se toque un enunciado;
+queda anotado por si alguna vez se toca.
+
+**En pantalla:** 10/10 en el `Quiz`, los cinco de sección en «Correcto» —la sección 3 tiene
+**dos** preguntas, el `Comparador` y el `MCQ` de Montecarlo, como la sección 4 del capítulo
+4—, las quince justificaciones visibles y la consola limpia. El recorrido tuvo que hacerse
+sección a sección: un script que encadenaba las cinco con esperas de 800 ms excedió los 30
+segundos del panel, porque cada cambio de sección monta sus Plotly.
+
+Queda el capítulo **6**: **15 preguntas**, 15 de 15.
+
+---
+
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.
 - Se añaden las decisiones **D8** (niveles AIAS por tipo de ejercicio) y **D9** (terminología).
