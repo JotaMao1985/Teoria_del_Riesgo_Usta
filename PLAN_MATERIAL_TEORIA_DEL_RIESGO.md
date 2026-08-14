@@ -1988,7 +1988,34 @@ queda anotado por si alguna vez se toca.
 sección a sección: un script que encadenaba las cinco con esperas de 800 ms excedió los 30
 segundos del panel, porque cada cambio de sección monta sus Plotly.
 
-Queda el capítulo **6**: **15 preguntas**, 15 de 15.
+### Regla 13 en el capítulo 6 · 2026-08-14
+
+El último de los seis. Las quince delataban la correcta por longitud —15 de 15, la mayor con
+**332 caracteres contra 165** de media de sus distractores—. Reescritas con la misma receta:
+objetivo por pregunta `min(máximo de los distractores − 1, 1,30 × su media)`, calculado con
+el propio parser de `verificar.py` y sustituido por desplazamiento, para no transcribir
+ninguna opción a mano. Quedan en razón **0,76–1,09**, ninguna es ya la más larga y solo
+**dos** pasan a ser la más corta, que es el mismo saldo del capítulo 3: la pista no se
+invierte.
+
+**Las catorce reglas en verde sobre el 6 y, con él, `verificar.py` sin argumentos devuelve
+0 por primera vez.** Los seis capítulos pasan.
+
+**La regla 14 no se movió, y esta vez se comprobó en vez de darlo por supuesto.** El reparto
+del 6 es **a:1 · b:5 · c:3 · d:6** —máximo 40 %, ninguna letra vacía—. Pero la garantía no
+es que el verificador pase: es que ningún enunciado cambió, y eso se midió extrayendo los
+quince de antes y los quince de después y comparándolos uno a uno. Cero diferencias. El
+método hace falta porque **el diff engaña**: dieciocho de las líneas tocadas contienen
+`pregunta:`, ya que en el `Quiz` el enunciado y la justificación comparten renglón, y quien
+mire solo el diff concluirá que tocó quince enunciados sin haber tocado ninguno.
+
+**En pantalla:** 10/10 en el `Quiz`, los cinco `MCQ` de sección en «Correcto» —salen en la
+d, la b, la b, la b y la c— y las justificaciones ampliadas visibles en las quince. Consola
+limpia. El recorrido volvió a tropezar con el límite de 30 segundos del panel: un bucle que
+respondía las diez preguntas con esperas entre clics lo excedió, y hubo que partirlo en dos
+tandas de cinco sin esperas.
+
+Con esto la unidad 1 queda cerrada también para la regla 13.
 
 ---
 

@@ -206,19 +206,21 @@ ninguna de las siete anteriores la habría encontrado:
    de las preguntas, o si mide más de 1,3 veces la media de sus distractores. El arreglo es
    mover el razonamiento a `justificacion`, que es donde la regla editorial ya decía que va.
 
-⚠️ **Solo el capítulo 6 FALLA hoy la regla 13, a propósito.** Los capítulos 1 a 5 quedaron
-corregidos —el 2 el 2026-08-11, en la fase B de su auditoría; el 3, el 4 y el 5 el mismo
-día, con la receta de abajo— y son la rebanada de referencia también para esto; el 6 quedó
-medido y en cola, con la línea exacta de cada pregunta en la salida del verificador. Son
-**15 preguntas**, 15 de 15. Hasta que se reescriban, `verificar.py` sin argumentos
-devuelve 1.
+✅ **Los seis capítulos pasan hoy la regla 13**, y con ellos `verificar.py` sin argumentos
+devuelve **0** por primera vez (2026-08-14). El 2 se corrigió el 2026-08-11 en la fase B de
+su auditoría; el 3, el 4 y el 5 el mismo día; y el **6 el 2026-08-14**, que era el último
+—15 preguntas, 15 de 15, de razón 1,4–2,1 a **0,76–1,09** tras el recorte—. La receta de
+abajo se ha aplicado seis veces sin variarla, y las seis veces el trabajo real estuvo en
+leer entera la justificación antes de ampliarla.
 
-⚠️ **Ojo con la regla 14 al terminar el 6.** Los repartos de letras que dejaron las
-correcciones son **c3 a:1 · b:6 · c:4 · d:4**, **c4 a:1 · b:6 · c:3 · d:5** y **c5 a:3 ·
-b:3 · c:2 · d:7**. Los tres pasan, pero el del 5 es el margen más estrecho de la unidad
-—7 de 15 es el 46,7 % contra un techo del 50 %— y los del 3 y el 4 dejan la (a) con una
-sola aparición. Reescribir las opciones no mueve ninguna letra, pero **tocar un enunciado
-sí**: si el 6 necesita reformular alguno, hay que volver a mirar el reparto.
+⚠️ **Los repartos de letras de la regla 14, para cuando haya que tocar un enunciado.** Son
+**c1 a:3 · b:5 · c:4 · d:3**, **c2 a:4 · b:4 · c:4 · d:3**, **c3 a:1 · b:6 · c:4 · d:4**,
+**c4 a:1 · b:6 · c:3 · d:5**, **c5 a:3 · b:3 · c:2 · d:7** y **c6 a:1 · b:5 · c:3 · d:6**.
+Los seis pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo
+del 50 %— y el 3, el 4 y el 6 dejan la (a) con una sola aparición. Reescribir las opciones
+no mueve ninguna letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver
+a mirar el reparto de su capítulo. La comprobación barata, si se dudó, es extraer los quince
+enunciados de antes y de después y contar cuántos cambiaron; en el 6 fueron cero.
 
 **Cómo se hizo en el capítulo 2, por si sirve de receta.** El objetivo por pregunta es
 `min(máximo de los distractores − 1, 1,30 × su media)`: la correcta deja de ser la más larga
