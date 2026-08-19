@@ -861,25 +861,23 @@ const Bloque3 = () => {
                     puntúan de verdad.
                 </>}
                 campos={[
-                    /* La pista dice «o ninguno» porque con una de las doce
-                       combinaciones —V = 500 y Grupo Sura— Kupiec rechaza en los
-                       diez niveles, y una pista que solo enseña un número obliga
-                       a inventarse uno. Y dice «barra entero» porque con otra
-                       —V = 125 e ISA— la prueba NO es monótona: rechaza en
-                       0,975 y vuelve a pasar en 0,980. Quien pare en el primer
-                       rechazo contesta 0,970, que es la respuesta del barrido a
-                       medias. */
+                    /* La pista dice «o ninguno» y «barra el rango entero» porque
+                       el barrido de las doce combinaciones obliga a las dos cosas.
+                       ⚠️ CUÁLES y con qué cifras NO se escribe aquí, sino en
+                       `talleres/clave/clave_cifras.md`, que es privado: Babel corre
+                       en el navegador, el JSX se embebe como texto y ESTE
+                       COMENTARIO VIAJA AL HTML que abre el estudiante. */
                     { id: 'nivel_kupiec', etiqueta: 'Nivel más alto en que Kupiec NO rechaza', pista: 'p. ej. 0,970 — o «ninguno». Barra el rango entero antes de contestar: la prueba no tiene por qué empeorar de forma continua' },
                     { id: 'p_kupiec', etiqueta: 'Su p en ese nivel', pista: 'cuatro decimales' },
                     /* ⚠️ NO presuponer el resultado. La redacción anterior decía
                        «por qué mover el nivel arregla una prueba y NUNCA la
-                       otra», que es lo que pasa sobre el portafolio y lo que el
-                       capítulo 6 enseña. Sobre el emisor es falso en 7 de las 12
-                       combinaciones: con Bogotá la independencia pasa en los diez
-                       niveles con V = 125 y V = 200, y con ISA en diez y en ocho.
-                       Esa redacción le habría dado por errónea la respuesta
-                       correcta a siete estudiantes de doce. Se pregunta por lo
-                       que encuentre, y lo que puntúa es la razón. */
+                       otra», que es lo que pasa sobre el PORTAFOLIO y lo que el
+                       capítulo 6 enseña; esta pregunta corre sobre el emisor,
+                       donde manda el barrido y no el capítulo. Se pregunta por lo
+                       que encuentre, y lo que puntúa es la razón.
+                       ⚠️ QUÉ SALE en cada combinación va en
+                       `talleres/clave/clave_cifras.md` y nunca aquí: ESTE
+                       COMENTARIO VIAJA AL HTML que abre el estudiante. */
                     { id: 'independencia', etiqueta: '¿Qué le pasa a la prueba de independencia a lo largo de todo el barrido: hay niveles que la pasan, o no la pasa ninguno? Diga cuáles, si los hay. Y después lo que puntúa: ¿por qué mover el nivel puede arreglar el conteo de Kupiec con mucha más facilidad que el agrupamiento?', largo: true },
                     { id: 'conciliacion', etiqueta: 'El capítulo 6 del curso barrió esto mismo sobre el PORTAFOLIO, con 17 ventanas y 10 niveles, y publicó el resultado: de las 170 combinaciones, 127 pasan Kupiec, 5 pasan independencia y exactamente 1 pasa la conjunta. Concilie ese resultado con el suyo: ¿le sale más permisivo o más exigente que el portafolio, y qué propiedad de su emisor lo explica? Si le sale muy distinto, la pregunta no es cuál está mal.', largo: true },
                 ]}>
@@ -1077,11 +1075,24 @@ const Bloque4 = () => {
                 <DetectaError
                     titulo="A4 · Cuatro frases del anexo, una defectuosa"
                     enunciado="Del anexo estadístico del mismo informe. Señale la afirmación defectuosa y clasifique el defecto."
+                    /* ⚠️ Las cuatro salen de `D`, no del teclado. Antes iban tecleadas
+                       —1,55 %, 390,6 % y 24,6 %— y el panel las desmiente: es 1,5764 %,
+                       que los capítulos 1 a 5 publican doce veces. El ejercicio era
+                       coherente consigo mismo y por eso no saltaba (zona ciega 4).
+                       Las dos de relleno se reescribieron además por un motivo que NO
+                       se cuenta aquí, porque ESTE COMENTARIO VIAJA AL HTML que abre el
+                       estudiante: Babel corre en el navegador y el JSX se embebe como
+                       texto. Está en `talleres/clave/T13-hallazgos.md`, H-2. */
                     lineas={[
-                        'La volatilidad diaria del portafolio sobre las 1 916 ruedas es del 1,55 %.',
-                        'Anualizamos esa cifra multiplicándola por las 252 ruedas del año: 390,6 % anual.',
-                        'La curtosis de exceso de la serie es 25,77, muy por encima del 0 de una normal.',
-                        'Por eso el ajuste paramétrico se hizo con una t de Student y no con una normal.',
+                        `La volatilidad diaria del portafolio sobre las ${miles(D.panel.sesiones)} ruedas es del ${dec(D.momentos.sigma, 4)} %.`,
+                        `Anualizamos esa cifra multiplicándola por las 252 ruedas del año: ${dec(D.momentos.sigma * 252, 1)} % anual.`,
+                        /* ⚠️ Las cuatro caben en el recuadro sin barra horizontal, y el
+                           corte está sobre los 85 caracteres RENDERIZADOS. Estas dos van
+                           además sin comparación ni afirmación de método: una frase de
+                           relleno solo tiene que ser verdadera y no discutible, porque
+                           `DetectaError` califica UNA línea y no da crédito parcial. */
+                        `La media diaria del portafolio en ese mismo periodo es del ${dec(D.momentos.media, 4)} %.`,
+                        `Sobre los ${miles(800000)} millones del fondo, un punto porcentual son ${M(1)} millones.`,
                     ]}
                     /* 1-based: `DetectaError` pinta `n = i + 1` y compara contra eso.
                        Con `1` señalaba la PRIMERA frase, que es la correcta. La
@@ -1089,8 +1100,8 @@ const Bloque4 = () => {
                     lineaCorrecta={2}
                     tipos={TIPOS_ERROR_RIESGO}
                     tipoCorrecto={IDX_ERROR.convencion}
-                    explicacion="La volatilidad no escala con el tiempo: escala con su raíz. Anualizar una desviación diaria es multiplicarla por √252 ≈ 15,87, no por 252. La cifra correcta es 24,6 % anual, no 390,6 %."
-                    impacto="Un 390 % de volatilidad anual en un fondo de pensiones no es un error de coma: es una cifra que ningún comité aprobaría y que ninguna mesa reportaría dos veces. El problema es que en un informe largo nadie la mira."
+                    explicacion={`La volatilidad no escala con el tiempo: escala con su raíz. Anualizar una desviación diaria es multiplicarla por √252 ≈ 15,87, no por 252. La cifra correcta es ${dec(D.momentos.sigma * Math.sqrt(252), 1)} % anual, no ${dec(D.momentos.sigma * 252, 1)} %.`}
+                    impacto={`Un ${dec(D.momentos.sigma * 252, 0)} % de volatilidad anual en un fondo de pensiones no es un error de coma: es una cifra que ningún comité aprobaría y que ninguna mesa reportaría dos veces. El problema es que en un informe largo nadie la mira.`}
                 />
             </Andamio>
 
