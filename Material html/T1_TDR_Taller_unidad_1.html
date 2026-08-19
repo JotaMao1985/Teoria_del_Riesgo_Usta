@@ -3076,7 +3076,29 @@ const RespuestaAbierta = ({ id, etiqueta, enunciado, minPalabras = 40, maxPalabr
    puntúa: informa la sustentación. El taller lo dice en la primera pantalla.
 ============================================================ */
 const ROTULOS_COMPROBAR = ['comprobar', 'verificar', 'calificar', 'revisar'];
+
+/* Señales de acierto por SUBCADENA. Valen porque el rótulo solo se pinta
+   cuando se acertó: si está, hubo acierto. */
 const SENALES_ACIERTO = ['fa-circle-check', '¡correcto!', 'secuencia correcta', '¡bien!'];
+
+/* ⚠️ Y las que hay que LEER, porque el rótulo sale igual acertando y fallando.
+   `TablaTraza` —el único andamio del bloque 0— remata con «3 / 3 celdas
+   correctas (100 %)», y ese texto aparece idéntico con «0 / 3». No emitía
+   ninguna de las señales de arriba, así que A0 resuelto al 100 % quedaba
+   registrado como FALLO por muy bien que lo hiciera el estudiante; y añadir
+   «celdas correctas» a la lista de arriba habría sido peor, porque registraría
+   acierto por haber pulsado el botón.
+
+   La lectura vive aquí y no en el componente porque **TR-CORE no se toca**: la
+   cuenta del andamio es por observación del DOM, como dice la cabecera.
+   Devuelven `true`, `false`, o `null` si el patrón no aparece. */
+const LECTORES_ACIERTO = [
+    (texto) => {
+        const m = texto.match(/(\d+)\s*\/\s*(\d+)\s+celdas correctas/);
+        if (!m) return null;
+        return Number(m[2]) > 0 && m[1] === m[2];
+    },
+];
 
 const Andamio = ({ id, nota, children }) => {
     const caja = useRef(null);
@@ -3094,7 +3116,15 @@ const Andamio = ({ id, nota, children }) => {
             setTimeout(() => {
                 const html = (el.innerHTML || '').toLowerCase();
                 const texto = (el.textContent || '').toLowerCase();
-                const acierto = SENALES_ACIERTO.some(s => html.indexOf(s) >= 0 || texto.indexOf(s) >= 0);
+                /* El lector manda sobre las subcadenas: si el componente pinta
+                   un veredicto que hay que leer, leerlo es la respuesta, y no
+                   que además aparezca o no un icono por otro motivo. */
+                const leido = LECTORES_ACIERTO
+                    .map(f => f(texto))
+                    .find(v => v !== null && v !== undefined);
+                const acierto = leido !== undefined
+                    ? leido
+                    : SENALES_ACIERTO.some(s => html.indexOf(s) >= 0 || texto.indexOf(s) >= 0);
                 almacenTaller.sumarIntento(id, acierto);
             }, 60);
         };
@@ -3234,21 +3264,57 @@ const Entrega = ({ inventario }) => {
        a sí mismo incompleto **teniendo la respuesta dentro**. Una entrega buena
        rechazada por su propia lista de pendientes es de los peores defectos
        posibles, y no lo ve ninguna regla estática. */
-    const calcularFaltan = () => {
+    /* ⚠️ Y se comprueba campo a campo, no «alguno». La versión anterior daba por
+       respondido un `Barrido` con UN campo lleno de cuatro —`…length === 0`— y
+       una `RespuestaAbierta` con cualquier texto, sin mirar `minPalabras`. Con
+       eso, escribir «no» en las veinte abiertas y rellenar solo el primer campo
+       de P3.1, P3.2 y P3.3 anunciaba **«23 de 23 respondidas»** y sacaba el
+       archivo con `faltan: []`, dejando vacías siete de las diez casillas de
+       barrido — entre ellas las cuatro `largo: true`, que son las que puntúan, y
+       la de conciliación con el capítulo 6.
+
+       La forma de cada pregunta —cuántos campos, cuántas palabras— sale del
+       INVENTARIO y no del componente, porque `Entrega` vive en el bloque 7 y
+       tiene que saberlo aunque el estudiante no haya abierto nunca el bloque 3. */
+    const cuentaPalabras = (s) => String(s || '').trim().split(/\s+/).filter(Boolean).length;
+
+    const revisar = () => {
         const d = almacenTaller.leer() || datos;
-        return inventario.filter(q => {
+        return inventario.map(q => {
             if (q.tipo === 'barrido') {
                 const b = d.barridos[q.id];
-                return !b || Object.keys(b.campos).filter(k => String(b.campos[k]).trim()).length === 0;
+                const llenos = b ? Object.keys(b.campos)
+                    .filter(k => String(b.campos[k]).trim()).length : 0;
+                const total = q.campos || 0;
+                if (llenos === 0) return { q, motivo: 'vacía' };
+                if (llenos < total) return { q, motivo: 'incompleta', llenos, total };
+                return null;
             }
-            return !String(d.respuestas[q.id] || '').trim();
-        });
+            const texto = String(d.respuestas[q.id] || '').trim();
+            if (!texto) return { q, motivo: 'vacía' };
+            const n = cuentaPalabras(texto);
+            if (q.minPalabras && n < q.minPalabras) {
+                return { q, motivo: 'corta', palabras: n, pide: q.minPalabras };
+            }
+            return null;
+        }).filter(Boolean);
     };
-    const faltan = calcularFaltan();
+
+    /* `faltan` es lo que hay que ir a rellenar: vacías y barridos a medias. Las
+       «cortas» se avisan aparte y NO bloquean nada —una respuesta breve puede
+       ser buena y el recuento de palabras no califica—, pero viajan en el
+       archivo para que quien califique no tenga que contarlas a mano. */
+    const pendientesDe = (r) => r.filter(x => x.motivo !== 'corta');
+    const cortasDe = (r) => r.filter(x => x.motivo === 'corta');
+
+    const revision = revisar();
+    const faltan = pendientesDe(revision);
+    const cortas = cortasDe(revision);
 
     const generar = () => {
         almacenTaller.vaciarPendientes();     // lo escrito hace un segundo también cuenta
-        const pendientes = calcularFaltan();
+        const ahora = revisar();
+        const pendientes = pendientesDe(ahora);
         const cuerpo = {
             instrumento: 'TDR-U1T',
             version: datos.version,
@@ -3263,7 +3329,11 @@ const Entrega = ({ inventario }) => {
             tiempos: datos.tiempos,
             barridos: datos.barridos,
             intentos: datos.intentos,
-            faltan: pendientes.map(q => q.id),
+            faltan: pendientes.map(x => x.q.id),
+            /* Las cortas viajan con su recuento: `calificar.py` promete en su
+               docstring decir «cuántas palabras trae cada respuesta» y hasta
+               hoy lo calculaba sin imprimirlo nunca. */
+            cortas: cortasDe(ahora).map(x => ({ id: x.q.id, palabras: x.palabras, pide: x.pide })),
         };
         const sello = sellarEntrega(cuerpo);
         const texto = JSON.stringify({ ...cuerpo, sello }, null, 1);
@@ -3311,9 +3381,28 @@ const Entrega = ({ inventario }) => {
                 <div className="rounded-xl px-4 py-3 border-l-4 mb-3" style={{ borderColor: '#B45309', background: '#FFFBEB' }}>
                     <p className="text-[0.88rem] text-gray-800" style={{ margin: 0 }}>
                         <i className="fas fa-triangle-exclamation text-amber-600 mr-2"></i>
-                        Le faltan <strong>{faltan.length}</strong>: {faltan.map(q => q.id).join(', ')}.
+                        Le faltan <strong>{faltan.length}</strong>:{' '}
+                        {faltan.map(x => x.motivo === 'incompleta'
+                            ? `${x.q.id} (${x.llenos} de ${x.total} casillas)`
+                            : x.q.id).join(', ')}.
                         Puede entregar así —el archivo lo registra—, pero cada una sin responder
-                        vale cero.
+                        vale cero. <strong>Un barrido con casillas vacías cuenta como
+                        incompleto</strong>: las dos últimas de cada uno son las que puntúan.
+                    </p>
+                </div>
+            )}
+
+            {cortas.length > 0 && (
+                <div className="rounded-xl px-4 py-3 border-l-4 mb-3" style={{ borderColor: '#0369A1', background: '#F0F9FF' }}>
+                    <p className="text-[0.88rem] text-gray-800" style={{ margin: 0 }}>
+                        <i className="fas fa-circle-info text-sky-700 mr-2"></i>
+                        <strong>{cortas.length}</strong>{' '}
+                        {cortas.length === 1 ? 'respuesta se queda' : 'respuestas se quedan'} por
+                        debajo de la extensión que pide el enunciado:{' '}
+                        {cortas.map(x => `${x.q.id} (${x.palabras} de ${x.pide})`).join(', ')}.
+                        <strong> No bloquea la entrega</strong> —una respuesta breve puede ser
+                        buena y el recuento no califica—, pero a esa distancia suele faltar la
+                        cifra, el costo en pesos o la decisión firmada, que sí califican.
                     </p>
                 </div>
             )}
@@ -3384,31 +3473,45 @@ const CONFIG = {
 };
 
 /* Lo que `Entrega` comprueba. Cada id tiene que existir como componente y tener
-   entrada en la clave: es la regla 7 del verificador. */
+   entrada en la clave: es la regla 7 del verificador.
+
+   ⚠️ `campos` y `minPalabras` están aquí porque `Entrega` vive en el bloque 7 y
+   tiene que saber si P3.1 quedó a medias **aunque el estudiante no haya abierto
+   nunca el bloque 3**: si esperara a que el componente se monte para conocer su
+   forma, lo no visitado contaría como respondido, que es justo el defecto que
+   esto cierra. Sin ellos, `calcularFaltan` daba por respondido un `Barrido` con
+   UN campo lleno de cuatro y anunciaba «23 de 23» con siete casillas vacías,
+   entre ellas las dos que el enunciado de P3.1 llama «las que puntúan».
+
+   Sí, es una segunda declaración de algo que el contenido ya dice —los `campos`
+   del `Barrido` y el `minPalabras` de la `RespuestaAbierta`—, y en este proyecto
+   una lista copiada a mano se desincroniza (trampa 15, H-15). Por eso la **regla
+   9 del verificador compara las dos**, componente a componente, y falla si
+   discrepan. Es el mismo trato que reciben la sal y los pesos. */
 const INVENTARIO = [
-    { id: 'P0.1', tipo: 'abierta', bloque: 0, peso: 3 },
-    { id: 'P0.2', tipo: 'abierta', bloque: 0, peso: 2 },
-    { id: 'P1.1', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.2', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.3', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.4', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.5', tipo: 'abierta', bloque: 1, peso: 3 },
-    { id: 'P1.6', tipo: 'abierta', bloque: 1, peso: 3 },
-    { id: 'P2.1', tipo: 'abierta', bloque: 2, peso: 5 },
-    { id: 'P2.2', tipo: 'abierta', bloque: 2, peso: 5 },
-    { id: 'P2.3', tipo: 'abierta', bloque: 2, peso: 3 },
-    { id: 'P3.1', tipo: 'barrido', bloque: 3, peso: 5 },
-    { id: 'P3.2', tipo: 'barrido', bloque: 3, peso: 4 },
-    { id: 'P3.3', tipo: 'barrido', bloque: 3, peso: 4 },
-    { id: 'P4.1', tipo: 'abierta', bloque: 4, peso: 9 },
-    { id: 'P4.2', tipo: 'abierta', bloque: 4, peso: 3 },
-    { id: 'P4.3', tipo: 'abierta', bloque: 4, peso: 3 },
-    { id: 'P5.1', tipo: 'abierta', bloque: 5, peso: 7 },
-    { id: 'P5.2', tipo: 'abierta', bloque: 5, peso: 7 },
-    { id: 'P5.3', tipo: 'abierta', bloque: 5, peso: 6 },
-    { id: 'P6.1', tipo: 'abierta', bloque: 6, peso: 6 },
-    { id: 'P6.2', tipo: 'abierta', bloque: 6, peso: 2 },
-    { id: 'P7.1', tipo: 'abierta', bloque: 7, peso: 4 },
+    { id: 'P0.1', tipo: 'abierta', bloque: 0, peso: 3, minPalabras: 80 },
+    { id: 'P0.2', tipo: 'abierta', bloque: 0, peso: 2, minPalabras: 40 },
+    { id: 'P1.1', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.2', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.3', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.4', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.5', tipo: 'abierta', bloque: 1, peso: 3, minPalabras: 60 },
+    { id: 'P1.6', tipo: 'abierta', bloque: 1, peso: 3, minPalabras: 50 },
+    { id: 'P2.1', tipo: 'abierta', bloque: 2, peso: 5, minPalabras: 80 },
+    { id: 'P2.2', tipo: 'abierta', bloque: 2, peso: 5, minPalabras: 80 },
+    { id: 'P2.3', tipo: 'abierta', bloque: 2, peso: 3, minPalabras: 60 },
+    { id: 'P3.1', tipo: 'barrido', bloque: 3, peso: 5, campos: 4 },
+    { id: 'P3.2', tipo: 'barrido', bloque: 3, peso: 4, campos: 3 },
+    { id: 'P3.3', tipo: 'barrido', bloque: 3, peso: 4, campos: 3 },
+    { id: 'P4.1', tipo: 'abierta', bloque: 4, peso: 9, minPalabras: 200 },
+    { id: 'P4.2', tipo: 'abierta', bloque: 4, peso: 3, minPalabras: 70 },
+    { id: 'P4.3', tipo: 'abierta', bloque: 4, peso: 3, minPalabras: 80 },
+    { id: 'P5.1', tipo: 'abierta', bloque: 5, peso: 7, minPalabras: 110 },
+    { id: 'P5.2', tipo: 'abierta', bloque: 5, peso: 7, minPalabras: 110 },
+    { id: 'P5.3', tipo: 'abierta', bloque: 5, peso: 6, minPalabras: 110 },
+    { id: 'P6.1', tipo: 'abierta', bloque: 6, peso: 6, minPalabras: 320 },
+    { id: 'P6.2', tipo: 'abierta', bloque: 6, peso: 2, minPalabras: 90 },
+    { id: 'P7.1', tipo: 'abierta', bloque: 7, peso: 4, minPalabras: 60 },
 ];
 
 /* ---------------------------------------------------------------- utilidades

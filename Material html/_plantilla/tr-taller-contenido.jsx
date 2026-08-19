@@ -16,31 +16,45 @@ const CONFIG = {
 };
 
 /* Lo que `Entrega` comprueba. Cada id tiene que existir como componente y tener
-   entrada en la clave: es la regla 7 del verificador. */
+   entrada en la clave: es la regla 7 del verificador.
+
+   ⚠️ `campos` y `minPalabras` están aquí porque `Entrega` vive en el bloque 7 y
+   tiene que saber si P3.1 quedó a medias **aunque el estudiante no haya abierto
+   nunca el bloque 3**: si esperara a que el componente se monte para conocer su
+   forma, lo no visitado contaría como respondido, que es justo el defecto que
+   esto cierra. Sin ellos, `calcularFaltan` daba por respondido un `Barrido` con
+   UN campo lleno de cuatro y anunciaba «23 de 23» con siete casillas vacías,
+   entre ellas las dos que el enunciado de P3.1 llama «las que puntúan».
+
+   Sí, es una segunda declaración de algo que el contenido ya dice —los `campos`
+   del `Barrido` y el `minPalabras` de la `RespuestaAbierta`—, y en este proyecto
+   una lista copiada a mano se desincroniza (trampa 15, H-15). Por eso la **regla
+   9 del verificador compara las dos**, componente a componente, y falla si
+   discrepan. Es el mismo trato que reciben la sal y los pesos. */
 const INVENTARIO = [
-    { id: 'P0.1', tipo: 'abierta', bloque: 0, peso: 3 },
-    { id: 'P0.2', tipo: 'abierta', bloque: 0, peso: 2 },
-    { id: 'P1.1', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.2', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.3', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.4', tipo: 'abierta', bloque: 1, peso: 4 },
-    { id: 'P1.5', tipo: 'abierta', bloque: 1, peso: 3 },
-    { id: 'P1.6', tipo: 'abierta', bloque: 1, peso: 3 },
-    { id: 'P2.1', tipo: 'abierta', bloque: 2, peso: 5 },
-    { id: 'P2.2', tipo: 'abierta', bloque: 2, peso: 5 },
-    { id: 'P2.3', tipo: 'abierta', bloque: 2, peso: 3 },
-    { id: 'P3.1', tipo: 'barrido', bloque: 3, peso: 5 },
-    { id: 'P3.2', tipo: 'barrido', bloque: 3, peso: 4 },
-    { id: 'P3.3', tipo: 'barrido', bloque: 3, peso: 4 },
-    { id: 'P4.1', tipo: 'abierta', bloque: 4, peso: 9 },
-    { id: 'P4.2', tipo: 'abierta', bloque: 4, peso: 3 },
-    { id: 'P4.3', tipo: 'abierta', bloque: 4, peso: 3 },
-    { id: 'P5.1', tipo: 'abierta', bloque: 5, peso: 7 },
-    { id: 'P5.2', tipo: 'abierta', bloque: 5, peso: 7 },
-    { id: 'P5.3', tipo: 'abierta', bloque: 5, peso: 6 },
-    { id: 'P6.1', tipo: 'abierta', bloque: 6, peso: 6 },
-    { id: 'P6.2', tipo: 'abierta', bloque: 6, peso: 2 },
-    { id: 'P7.1', tipo: 'abierta', bloque: 7, peso: 4 },
+    { id: 'P0.1', tipo: 'abierta', bloque: 0, peso: 3, minPalabras: 80 },
+    { id: 'P0.2', tipo: 'abierta', bloque: 0, peso: 2, minPalabras: 40 },
+    { id: 'P1.1', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.2', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.3', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.4', tipo: 'abierta', bloque: 1, peso: 4, minPalabras: 70 },
+    { id: 'P1.5', tipo: 'abierta', bloque: 1, peso: 3, minPalabras: 60 },
+    { id: 'P1.6', tipo: 'abierta', bloque: 1, peso: 3, minPalabras: 50 },
+    { id: 'P2.1', tipo: 'abierta', bloque: 2, peso: 5, minPalabras: 80 },
+    { id: 'P2.2', tipo: 'abierta', bloque: 2, peso: 5, minPalabras: 80 },
+    { id: 'P2.3', tipo: 'abierta', bloque: 2, peso: 3, minPalabras: 60 },
+    { id: 'P3.1', tipo: 'barrido', bloque: 3, peso: 5, campos: 4 },
+    { id: 'P3.2', tipo: 'barrido', bloque: 3, peso: 4, campos: 3 },
+    { id: 'P3.3', tipo: 'barrido', bloque: 3, peso: 4, campos: 3 },
+    { id: 'P4.1', tipo: 'abierta', bloque: 4, peso: 9, minPalabras: 200 },
+    { id: 'P4.2', tipo: 'abierta', bloque: 4, peso: 3, minPalabras: 70 },
+    { id: 'P4.3', tipo: 'abierta', bloque: 4, peso: 3, minPalabras: 80 },
+    { id: 'P5.1', tipo: 'abierta', bloque: 5, peso: 7, minPalabras: 110 },
+    { id: 'P5.2', tipo: 'abierta', bloque: 5, peso: 7, minPalabras: 110 },
+    { id: 'P5.3', tipo: 'abierta', bloque: 5, peso: 6, minPalabras: 110 },
+    { id: 'P6.1', tipo: 'abierta', bloque: 6, peso: 6, minPalabras: 320 },
+    { id: 'P6.2', tipo: 'abierta', bloque: 6, peso: 2, minPalabras: 90 },
+    { id: 'P7.1', tipo: 'abierta', bloque: 7, peso: 4, minPalabras: 60 },
 ];
 
 /* ---------------------------------------------------------------- utilidades
