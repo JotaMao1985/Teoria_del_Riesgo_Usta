@@ -4443,14 +4443,14 @@ const Bloque4 = () => {
                 <DetectaError
                     titulo="A4 · Cuatro frases del anexo, una defectuosa"
                     enunciado="Del anexo estadístico del mismo informe. Señale la afirmación defectuosa y clasifique el defecto."
-                    /* ⚠️ Las cuatro salen de `D`, no del teclado. Antes iban tecleadas
-                       —1,55 %, 390,6 % y 24,6 %— y el panel las desmiente: es 1,5764 %,
-                       que los capítulos 1 a 5 publican doce veces. El ejercicio era
-                       coherente consigo mismo y por eso no saltaba (zona ciega 4).
-                       Las dos de relleno se reescribieron además por un motivo que NO
-                       se cuenta aquí, porque ESTE COMENTARIO VIAJA AL HTML que abre el
-                       estudiante: Babel corre en el navegador y el JSX se embebe como
-                       texto. Está en `talleres/clave/T13-hallazgos.md`, H-2. */
+                    /* ⚠️ Las cuatro salen de `D` y no del teclado. Iban tecleadas, con
+                       cifras que el panel desmiente, y el ejercicio era coherente consigo
+                       mismo —o sea reproducible a mano desde una premisa que no es la del
+                       curso—, que es por lo que no saltaba: zona ciega 4.
+                       ⚠️ CUÁLES eran y qué más se corrigió aquí NO se escribe en este
+                       comentario, porque VIAJA AL HTML que abre el estudiante: Babel corre
+                       en el navegador y el JSX se embebe como texto. Está en
+                       `talleres/clave/T13-hallazgos.md`, H-2 y H-3. */
                     lineas={[
                         `La volatilidad diaria del portafolio sobre las ${miles(D.panel.sesiones)} ruedas es del ${dec(D.momentos.sigma, 4)} %.`,
                         `Anualizamos esa cifra multiplicándola por las 252 ruedas del año: ${dec(D.momentos.sigma * 252, 1)} % anual.`,
