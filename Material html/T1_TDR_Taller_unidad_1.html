@@ -3429,6 +3429,19 @@ const desv = (xs) => {
 const dec = (x, n = 2) => Number(x).toFixed(n).replace('.', ',');
 const miles = (x) => Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
+/* ⚠️ Las gráficas usan `scatter` (SVG) y NO `scattergl` (WebGL), y es una
+   decisión medida el 2026-08-19 en Edge con el renderizador por software:
+
+     · Sin WebGL —equipos viejos, WebGL deshabilitado por política, escritorio
+       remoto— `scattergl` no dibuja nada y Plotly escribe DENTRO del recuadro
+       «WebGL is not supported by your browser», en inglés. Las seis gráficas
+       que lo usaban se caían juntas, y el estudiante solo veía eso.
+     · Con 1 916 puntos, que es el panel entero, SVG además es MÁS RÁPIDO:
+       19 ms contra 37 en líneas, 30 contra 40 en marcadores. `scattergl`
+       existe para decenas de miles de puntos, no para dos mil.
+
+   O sea que la versión WebGL era más lenta y podía no dibujar. No se vuelva a
+   `scattergl` sin volver a medir. */
 const PERDIDAS = D.rp.map(x => -x);          // pérdidas del portafolio, en %
 
 /* Pérdidas del emisor que le tocó al estudiante, en %, con el mismo signo y la
@@ -3666,7 +3679,7 @@ const GraficaQQ = () => {
             const s = D.momentos.sigma, mu = D.momentos.media;
             return [
                 {
-                    x: t, y: m, type: 'scattergl', mode: 'markers', name: 'Ruedas',
+                    x: t, y: m, type: 'scatter', mode: 'markers', name: 'Ruedas',
                     marker: { color: PALETA.primario, size: 4, opacity: 0.6 },
                 },
                 {
@@ -3693,7 +3706,7 @@ const GraficaVolatilidad = ({ V }) => {
             const x = D.fechas;
             return [
                 {
-                    x, y: r.map(Math.abs), type: 'scattergl', mode: 'lines', name: '|rendimiento|',
+                    x, y: r.map(Math.abs), type: 'scatter', mode: 'lines', name: '|rendimiento|',
                     line: { color: PALETA.gris, width: 0.7 },
                 },
                 {
@@ -3723,7 +3736,7 @@ const GraficaDispersion = ({ emisor }) => {
             const xs = [-12, 12];
             return [
                 {
-                    x, y, type: 'scattergl', mode: 'markers', name: e.rotulo,
+                    x, y, type: 'scatter', mode: 'markers', name: e.rotulo,
                     marker: { color: PALETA.agua, size: 4, opacity: 0.5 },
                 },
                 {
@@ -3755,7 +3768,7 @@ const GraficaExcepciones = ({ V, emisor }) => {
             }
             return [
                 {
-                    x, y: Lt, type: 'scattergl', mode: 'lines', name: 'Pérdida del día',
+                    x, y: Lt, type: 'scatter', mode: 'lines', name: 'Pérdida del día',
                     line: { color: PALETA.gris, width: 0.8 },
                 },
                 {
@@ -4252,7 +4265,7 @@ const Bloque3 = () => {
                         for (let i = 0; i < r.T; i++) if (r.exc[i]) { exX.push(x[i]); exY.push(r.Lt[i]); }
                         return {
                             traces: [
-                                { x, y: r.Lt, type: 'scattergl', mode: 'lines', name: 'Pérdida del día', line: { color: PALETA.gris, width: 0.8 } },
+                                { x, y: r.Lt, type: 'scatter', mode: 'lines', name: 'Pérdida del día', line: { color: PALETA.gris, width: 0.8 } },
                                 { x, y: r.varr, type: 'scatter', mode: 'lines', name: 'VaR estimado', line: { color: PALETA.primario, width: 2 } },
                                 { x: exX, y: exY, type: 'scatter', mode: 'markers', name: 'Excepciones', marker: { color: PALETA.secundario, size: 7, symbol: 'x' } },
                             ],
@@ -4305,7 +4318,7 @@ const Bloque3 = () => {
                         const x = D.fechas;
                         return {
                             traces: [
-                                { x, y: D.rp.map(Math.abs), type: 'scattergl', mode: 'lines', name: '|rendimiento|', line: { color: PALETA.gris, width: 0.6 } },
+                                { x, y: D.rp.map(Math.abs), type: 'scatter', mode: 'lines', name: '|rendimiento|', line: { color: PALETA.gris, width: 0.6 } },
                                 { x, y: sigmaMovil(D.rp, V), type: 'scatter', mode: 'lines', name: `σ móvil de ${V}`, line: { color: PALETA.primario, width: 2 } },
                                 { x, y: ewma(D.rp, p.lam), type: 'scatter', mode: 'lines', name: 'σ EWMA', line: { color: PALETA.secundario, width: 1.6 } },
                             ],
