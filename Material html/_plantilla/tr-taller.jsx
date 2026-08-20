@@ -420,6 +420,7 @@ const Identificacion = ({ children }) => {
                     </button>
                 </div>
                 <AvisoPersistencia persistencia={persistencia} />
+                <AvisoSinGraficas />
                 {children}
             </div>
         );
@@ -491,6 +492,37 @@ const Identificacion = ({ children }) => {
     );
 };
 
+/* ⚠️ Las diez gráficas las dibuja Plotly, que baja de un CDN como React, Babel,
+   Tailwind y las tipografías. Si ese CDN no contesta, el recuadro de la gráfica
+   queda BLANCO Y MUDO: probado bloqueando `cdn.plot.ly`, y lo que ve el
+   estudiante es un rectángulo vacío debajo de un título que le pide leerlo. Y
+   no es hipotético — la primera pasada de WebKit de la matriz falló sola, por
+   red.
+
+   Lo demás aguanta, y por eso el aviso puede prometerlo: la prosa sale, lo que
+   escribe se guarda, la ENTREGA se genera con su sello, y el laboratorio de
+   P3.1 sigue CALCULANDO —las cifras las hace el navegador, Plotly solo las
+   pinta—. Así que no hace falta un plan B: hace falta decirlo.
+
+   `usePlotly` vive en TR-CORE y no se toca: el aviso va aquí, en TALLER-CORE. */
+const AvisoSinGraficas = () => {
+    if (typeof window === 'undefined' || window.Plotly) return null;
+    return (
+        <div className="rounded-xl px-4 py-3 border-l-4 mt-3" style={{ borderColor: '#B45309', background: '#FFFBEB' }}>
+            <p className="text-[0.88rem] text-gray-800" style={{ margin: 0 }}>
+                <i className="fas fa-triangle-exclamation text-amber-600 mr-2"></i>
+                <strong>Las gráficas no se cargaron</strong> — la librería que las dibuja no llegó
+                desde internet, así que los recuadros salen en blanco. <strong>No es su
+                computador y no es un error del taller</strong>: recargue la página y, si sigue
+                igual, pruebe con otra red. Lo demás funciona: lo que escriba se guarda, el
+                laboratorio del bloque 3 <strong>sigue calculando sus cifras</strong> y la entrega
+                se genera igual. Pero el bloque 1 se responde mirando gráficas,{' '}
+                <strong>no lo conteste a ciegas</strong>.
+            </p>
+        </div>
+    );
+};
+
 const AvisoPersistencia = ({ persistencia }) => {
     if (persistencia.disponible) {
         return (
@@ -527,6 +559,13 @@ const AvisoPersistencia = ({ persistencia }) => {
 const RespuestaAbierta = ({ id, etiqueta, enunciado, minPalabras = 40, maxPalabras, filas = 5, ayuda, children }) => {
     const [texto, setTexto] = useState(() => almacenTaller.getRespuesta(id));
     const [guardado, setGuardado] = useState(true);
+    /* ⚠️ El indicador tiene que LEER si la escritura ocurrió, no suponerlo.
+       `setRespuesta` no lanza cuando el almacén falla —`seguro()` traga la
+       excepción y baja `persistencia.disponible`—, así que un `setGuardado(true)`
+       incondicional escribe «guardado» debajo de un texto que no se guardó. Con
+       la cuota llena y con el almacén volátil el aviso de arriba decía la verdad
+       y este decía lo contrario, a dos centímetros de donde el estudiante mira. */
+    const [persiste, setPersiste] = useState(() => almacenTaller.estadoPersistencia().disponible);
     const temporizador = useRef(null);
     /* El último texto tecleado, fuera del cierre de los efectos. Ver el aviso
        de más abajo: es lo que hace que la limpieza al desmontar baje lo que el
@@ -546,6 +585,7 @@ const RespuestaAbierta = ({ id, etiqueta, enunciado, minPalabras = 40, maxPalabr
     const bajar = useCallback((v) => {
         ultimo.current = v;
         almacenTaller.setRespuesta(id, v);
+        setPersiste(almacenTaller.estadoPersistencia().disponible);
         setGuardado(true);
     }, [id]);
 
@@ -618,9 +658,12 @@ const RespuestaAbierta = ({ id, etiqueta, enunciado, minPalabras = 40, maxPalabr
                     {larga ? ` · se pidió como mucho ${maxPalabras}, y la extensión se califica` : ''}
                     {!corta && !larga && maxPalabras ? ` · de ${minPalabras} a ${maxPalabras}` : ''}
                 </span>
-                <span className={guardado ? 'text-gray-400' : 'text-secondary font-semibold'}>
-                    <i className={`fas ${guardado ? 'fa-check' : 'fa-pen'} mr-1`}></i>
-                    {guardado ? 'guardado' : 'escribiendo…'}
+                <span className={!persiste ? 'text-amber-600 font-semibold'
+                    : (guardado ? 'text-gray-400' : 'text-secondary font-semibold')}>
+                    <i className={`fas ${!persiste ? 'fa-triangle-exclamation'
+                        : (guardado ? 'fa-check' : 'fa-pen')} mr-1`}></i>
+                    {!persiste ? 'sin guardar — descargue la entrega'
+                        : (guardado ? 'guardado' : 'escribiendo…')}
                 </span>
                 {ayuda && <span className="text-gray-500 basis-full">{ayuda}</span>}
             </div>
@@ -815,7 +858,10 @@ const Barrido = ({ id, titulo, enunciado, campos, children }) => {
 const Entrega = ({ inventario }) => {
     const { datos, persistencia } = usePersistencia();
     const [generado, setGenerado] = useState(null);
-    const [copiado, setCopiado] = useState(false);
+    /* Tres estados y no dos: `null` sin intentar · `true` copiado · `false` el
+       navegador lo denegó. Sin el tercero, un rechazo deja el botón exactamente
+       como estaba y el estudiante no sabe si copió o no. */
+    const [copiado, setCopiado] = useState(null);
 
     if (!datos || !datos.ejes) return null;
 
@@ -901,7 +947,7 @@ const Entrega = ({ inventario }) => {
         const sello = sellarEntrega(cuerpo);
         const texto = JSON.stringify({ ...cuerpo, sello }, null, 1);
         setGenerado({ texto, sello, nombre: `TDR-U1T_${datos.ejes.canonico}_${datos.ejes.combinacion}.json` });
-        setCopiado(false);
+        setCopiado(null);
 
         /* La descarga es el camino cómodo y puede fallar sin avisar en algunos
            navegadores. Por eso se intenta, no se exige: el área de texto de
@@ -919,11 +965,19 @@ const Entrega = ({ inventario }) => {
         } catch (e) { /* queda el área de texto */ }
     };
 
+    /* ⚠️ `writeText` DEVUELVE UNA PROMESA, y un `try` no atrapa su rechazo.
+       Escribir `setCopiado(true)` detrás de la llamada pone «Copiado» aunque el
+       navegador la haya denegado —Safari la rechaza si el gesto del usuario ya
+       venció, y cualquiera la rechaza sin permiso—. Es el mismo defecto que el
+       indicador de guardado tenía: declarar el éxito sin mirarlo. Y aquí duele
+       más, porque el portapapeles es el camino de reserva cuando la descarga
+       falla, que es justo lo que no se puede probar desde aquí. */
     const copiar = () => {
         if (!generado) return;
         try {
-            navigator.clipboard.writeText(generado.texto);
-            setCopiado(true);
+            const r = navigator.clipboard.writeText(generado.texto);
+            if (r && typeof r.then === 'function') r.then(() => setCopiado(true), () => setCopiado(false));
+            else setCopiado(true);
         } catch (e) { setCopiado(false); }
     };
 
@@ -1004,8 +1058,11 @@ const Entrega = ({ inventario }) => {
                         style={{ fontFamily: "'Fira Code', monospace", resize: 'vertical' }} />
                     <button onClick={copiar}
                         className="mt-2 text-xs font-bold px-3 py-1.5 rounded-full border border-primary text-primary hover:bg-primary/5">
-                        <i className={`fas ${copiado ? 'fa-check' : 'fa-copy'} mr-1`}></i>
-                        {copiado ? 'Copiado' : 'Copiar al portapapeles'}
+                        <i className={`fas ${copiado === true ? 'fa-check'
+                            : copiado === false ? 'fa-triangle-exclamation' : 'fa-copy'} mr-1`}></i>
+                        {copiado === true ? 'Copiado'
+                            : copiado === false ? 'No se pudo copiar — selecciónelo a mano y cópielo'
+                                : 'Copiar al portapapeles'}
                     </button>
                 </div>
             )}

@@ -251,6 +251,70 @@
             color: #94A3B8;
         }
 
+        /* El instrumento calificado de la unidad 1. No es un capítulo y no va en
+           la rejilla: se abre para RESPONDER, no para estudiar, y por eso lleva
+           su propio bloque y su propio botón. */
+        .instrumento {
+            margin: 1.4rem 0 0;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(61, 0, 141, .18);
+            border-left: 4px solid var(--secondary);
+            padding: 1.3rem 1.4rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+        }
+
+        .instrumento .fila {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .6rem;
+            margin-bottom: .5rem;
+        }
+
+        .instrumento h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .instrumento p {
+            margin: 0 0 .8rem;
+            font-size: .89rem;
+            color: var(--texto);
+        }
+
+        .instrumento .fino {
+            font-size: .8rem;
+            color: var(--tenue);
+            margin: .7rem 0 0;
+        }
+
+        .et.cal {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .boton {
+            display: inline-block;
+            background: linear-gradient(140deg, #3D008D 0%, #ED1E79 100%);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: .88rem;
+            padding: .55rem 1.1rem;
+            border-radius: 999px;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .boton:hover,
+        .boton:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(237, 30, 121, .3);
+            outline: none;
+        }
+
         .talleres {
             margin-top: 3rem;
             background: #fff;
@@ -407,6 +471,33 @@
             </a>
         </div>
 
+        <section class="instrumento">
+            <div class="fila">
+                <span class="et cal">Calificado</span>
+                <h3>Taller de la unidad 1 · La mesa de riesgos</h3>
+            </div>
+            <p>
+                El instrumento <strong>calificado</strong> de la unidad 1, y el único archivo del
+                material que no se abre para estudiar sino para <strong>responder</strong>: siete
+                bloques, veintitrés preguntas y una entrega que se descarga al terminar. No pide
+                calcular nada — todas las cifras están hechas y todas las gráficas pintadas—; pide
+                decir qué muestran, qué procedimiento las produjo y qué decisión cambia con cuál.
+            </p>
+            <p>
+                <strong>A cada estudiante le toca su propia ventana de estimación y su propio
+                emisor</strong>, derivados de su número de documento. No es un sorteo: es siempre
+                la misma, así que se puede cerrar la página y volver sin perder nada.
+            </p>
+            <a class="boton" href="Material%20html/T1_TDR_Taller_unidad_1.html">Abrir el taller</a>
+            <p class="fino">
+                5 horas · RA1 · RA2 · RA3 · nivel 3 con bitácora, salvo los bloques 2, 3 y 4, que
+                son de nivel 1 · No AI. La nota final es 65 % este taller y 35 % una sustentación
+                oral de diez minutos sobre lo que usted entregue. <strong>Descargue la entrega al
+                terminar cada bloque</strong>: el guardado del navegador es una comodidad, el
+                archivo es lo que se califica.
+            </p>
+        </section>
+
         <h2 class="unidad">Unidad 2 · Portafolio y renta fija</h2>
         <p class="unidad-meta">16 h acompañadas · 8 autónomas · RA4 a RA6 · en preparación</p>
         <div class="rejilla">
@@ -525,9 +616,9 @@
             </p>
             <ul>
                 <li>
-                    <a href="talleres/TDR-U1.qmd">TDR-U1</a> — <strong>el instrumento
-                        calificado de la unidad 1</strong>: del VaR al Expected Shortfall, con
-                    backtest obligatorio y recomendación al comité.
+                    <a href="talleres/TDR-U1.qmd">TDR-U1</a> — del VaR al Expected Shortfall, con
+                    backtest obligatorio y recomendación al comité. <strong>Práctica previa</strong>
+                    al taller calificado de arriba, que es el que se entrega.
                 </li>
                 <li>
                     <a href="talleres/TDR-01.qmd">TDR-01</a> ·

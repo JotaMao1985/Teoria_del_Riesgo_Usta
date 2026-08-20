@@ -187,9 +187,12 @@ const Bloque0 = () => {
                     Todos los números están calculados y todas las gráficas están pintadas. Lo que
                     se califica es lo que usted <strong>dice</strong> sobre ellos: qué muestra una
                     gráfica y qué no, qué procedimiento produjo un resultado, qué decisión cambia
-                    con qué cifra y cuánto cuesta en pesos equivocarse. Un modelo de lenguaje
-                    escribe código excelente y lee resultados muy mal. Esa es la apuesta del
-                    instrumento.
+                    con qué cifra y cuánto cuesta en pesos equivocarse. Un modelo de lenguaje{' '}
+                    <strong>también lee bien estas cifras</strong>: se midió, y las lee bien. Lo que
+                    no hace por usted es sostenerlas diez minutos en voz alta, ni haber movido el
+                    deslizador que registra su barrido, ni ser coherente con lo que declaró antes de
+                    ver los resultados. Por eso la sustentación pesa el 35 % y hay tres bloques sin
+                    IA. Esa es la apuesta del instrumento.
                 </p>
             </CalloutPro>
 
@@ -488,7 +491,7 @@ const Bloque1 = () => {
             <Andamio id="A1a" nota="Antes de escribir P1.1, compruebe que no está leyendo la gráfica sobre un concepto equivocado.">
                 <MCQ pregunta="¿Qué compara exactamente un QQ-plot?"
                     opciones={[
-                        { texto: 'Los cuantiles observados con los que tendría una normal con la misma media y desviación', correcta: true, justificacion: 'Por eso una nube que se curva en los extremos y se pega a la recta en el centro dice que el problema está en las colas y no en el cuerpo — que es justo lo que el histograma no deja ver, porque en la cola hay poquísimas ruedas y la barra es invisible.' },
+                        { texto: 'Los cuantiles observados con los de una normal ajustada', correcta: true, justificacion: '«Ajustada» quiere decir con la media y la desviación de la propia muestra: fijados esos dos, lo único que queda por comparar es la FORMA. Por eso una nube que se curva en los extremos y se pega a la recta en el centro dice que el problema está en las colas y no en el cuerpo — que es justo lo que el histograma no deja ver, porque en la cola hay poquísimas ruedas y la barra es invisible.' },
                         { texto: 'La densidad observada con la densidad normal, punto a punto' },
                         { texto: 'La media y la varianza de la muestra con las de la normal' },
                         { texto: 'La frecuencia de cada intervalo con la que predice el modelo' },
@@ -512,7 +515,7 @@ const Bloque1 = () => {
             <Andamio id="A1b" nota="Un concepto del capítulo 2 que hace falta para la siguiente pregunta.">
                 <MCQ pregunta="El «efecto fantasma» de una ventana móvil es…"
                     opciones={[
-                        { texto: 'Un salto de la volatilidad estimada el día en que una observación extrema sale de la ventana', correcta: true, justificacion: 'El salto no lo produce nada que pase ese día en el mercado: lo produce el calendario del estimador. Con una ventana de 250 ruedas, un desplome deja su huella durante 250 días y desaparece de golpe al día 251. El EWMA no lo tiene porque no descarta nada: pondera.' },
+                        { texto: 'Un salto el día en que un dato extremo deja la ventana', correcta: true, justificacion: `Lo que salta es la volatilidad ESTIMADA, no la del mercado: el salto no lo produce nada que pase ese día, sino el calendario del estimador. Con su ventana de ${V} ruedas, un desplome deja su huella durante ${V} ruedas y desaparece de golpe a la siguiente. El EWMA no lo tiene porque no descarta nada: pondera.` },
                         { texto: 'La tendencia de la volatilidad a agruparse en periodos' },
                         { texto: 'El sesgo que aparece al estimar con pocas observaciones' },
                         { texto: 'La diferencia entre la volatilidad implícita y la histórica' },
@@ -643,7 +646,7 @@ const Bloque2 = () => {
                 enunciado={<>
                     <p style={{ marginTop: 0 }}>Al ciclo de arriba le faltan dos actividades que el informe sí hizo:</p>
                     <ul className="text-[0.92rem] text-gray-700" style={{ paddingLeft: '1.2rem' }}>
-                        <li><strong>(a)</strong> Calcular el <em>Expected Shortfall</em> sobre las ruedas que excedieron el VaR.</li>
+                        <li><strong>(a)</strong> Calcular el <em>Expected Shortfall</em> (déficit esperado) sobre las ruedas que excedieron el VaR.</li>
                         <li><strong>(b)</strong> Documentar cada excepción con su fecha y su causa, separando el fallo del modelo del dato defectuoso.</li>
                     </ul>
                     <p style={{ marginBottom: 0 }}>
@@ -916,7 +919,7 @@ const Bloque3 = () => {
                     { id: 'independencia', etiqueta: '¿Qué le pasa a la prueba de independencia a lo largo de todo el barrido: hay niveles que la pasan, o no la pasa ninguno? Diga cuáles, si los hay. Y después lo que puntúa: ¿por qué mover el nivel puede arreglar el conteo de Kupiec con mucha más facilidad que el agrupamiento?', largo: true },
                     { id: 'conciliacion', etiqueta: 'El capítulo 6 del curso barrió esto mismo sobre el PORTAFOLIO, con 17 ventanas y 10 niveles, y publicó el resultado: de las 170 combinaciones, 127 pasan Kupiec, 5 pasan independencia y exactamente 1 pasa la conjunta. Concilie ese resultado con el suyo: ¿le sale más permisivo o más exigente que el portafolio, y qué propiedad de su emisor lo explica? Si le sale muy distinto, la pregunta no es cuál está mal.', largo: true },
                 ]}>
-                <Laboratorio id="lab-nivel" titulo={`El backtest de ${e.rotulo} con su ventana`}
+                <Laboratorio id="lab-nivel" titulo={`El backtest (prueba retrospectiva) de ${e.rotulo} con su ventana`}
                     enunciado={`Pérdidas de ${e.rotulo}, no del portafolio. Ventana fija en ${V} ruedas —la suya—. Lo único que se mueve es el nivel.`}
                     altura="chart-h-400"
                     controles={[{
@@ -1360,7 +1363,7 @@ const Bloque5 = () => {
             <Andamio id="A5" nota="Un paso previo a C-2. Si esto no cuadra, la contradicción de abajo no se entiende.">
                 <MCQ pregunta={`El ES al 99 % del curso promedia las ${m99.ruedas_cola} ruedas que superan el VaR. ¿Sobre cuántas ruedas se define el ES exacto de una muestra de ${miles(D.panel.sesiones)}?`}
                     opciones={[
-                        { texto: `Sobre n(1−α) = ${dec(m99.ruedas_teoricas, 2)} ruedas`, correcta: true, justificacion: `Y como ${dec(m99.ruedas_teoricas, 2)} no es entero, el ES exacto pondera parcialmente la última. El promedio simple mete una rueda entera de más —la menos extrema de la cola—, y eso lo empuja hacia abajo.` },
+                        { texto: `Sobre las n(1−α) = ${dec(m99.ruedas_teoricas, 2)} ruedas más extremas`, correcta: true, justificacion: `Y como ${dec(m99.ruedas_teoricas, 2)} no es entero, el ES exacto pondera parcialmente la última. El promedio simple mete una rueda entera de más —la menos extrema de la cola—, y eso lo empuja hacia abajo.` },
                         { texto: 'Sobre todas las ruedas de la muestra completa', correcta: false },
                         { texto: 'Sobre las que superan la media más dos desviaciones', correcta: false },
                         { texto: 'Sobre el mismo número, porque ambos coinciden', correcta: false },
@@ -1546,7 +1549,8 @@ const BloqueEntrega = () => (
                 contenido: <>
                     Lectura de gráficas 22 % · procedimientos 13 % · el barrido 13 % · la auditoría
                     15 % · la conciliación 20 % · la nota al comité 8 % · la declaración previa 5 % ·
-                    la bitácora 4 %. Eso es el 80 % de la nota; el 20 % restante es la{' '}
+                    la bitácora 4 %. Eso reparte el <strong>taller escrito</strong>, que pesa el{' '}
+                    <strong>65 % de la nota</strong>; el <strong>35 % restante</strong> es la{' '}
                     <strong>sustentación oral de diez minutos</strong>, que se hace sobre lo que
                     usted entregue.
                 </>,
