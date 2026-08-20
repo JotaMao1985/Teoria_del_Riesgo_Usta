@@ -108,7 +108,28 @@ const PERDIDAS = D.rp.map(x => -x);          // pérdidas del portafolio, en %
    niveles según a quién le toque. */
 const perdidasEmisor = (col) => D.emisor[col].serie.map(x => -x);
 
-const sigmaMovil = (r, V) => r.map((_, i) => (i < V - 1 ? null : desv(r.slice(i - V + 1, i + 1))));
+const sigmaMovilCrudo = (r, V) => r.map((_, i) => (i < V - 1 ? null : desv(r.slice(i - V + 1, i + 1))));
+
+/* ⚠️ Memorizada, y no es un lujo: es O(n·V) —958 000 operaciones con V = 500 y
+   las 1 916 ruedas— y el laboratorio de P3.2 la recalculaba DOS VECES por
+   render, una en `calcular` y otra en `lectura`, aunque **no depende de λ**: es
+   la línea morada, la que el propio enunciado describe como «no se mueve».
+   Costaba 138 ms por paso del deslizador con V = 500, justo en la pregunta cuyo
+   C4 queda sin calificar si el registro de barrido está vacío — o sea que la
+   lentitud desincentivaba precisamente lo que se quiere medir.
+   ⚠️ La clave lleva la SERIE además de la ventana. Guardarla solo por ventana
+   funcionaba hoy —las dos llamadas pasan `D.rp`— y habría devuelto en silencio
+   la curva del portafolio el día que alguien la pidiera para el emisor, que es
+   plausible desde que P1.4 y P3.1 viven en esa serie. Una caché mal indexada no
+   lanza: miente. */
+const _cacheSigma = new WeakMap();
+const sigmaMovil = (r, V) => {
+    let porVentana = _cacheSigma.get(r);
+    if (!porVentana) { porVentana = new Map(); _cacheSigma.set(r, porVentana); }
+    const k = String(V);
+    if (!porVentana.has(k)) porVentana.set(k, sigmaMovilCrudo(r, V));
+    return porVentana.get(k);
+};
 
 const ewma = (r, lam) => {
     const v = new Array(r.length);
@@ -943,8 +964,11 @@ const Bloque3 = () => {
                 titulo="P3.2 · Encuentre el λ que de verdad equivale a su ventana"
                 enunciado={<>
                     Mueva λ hasta que la vida media que muestra la lectura sea lo más cercana posible a{' '}
-                    <strong>{medioV} ruedas</strong> — el deslizador va de 0,0005 en 0,0005, así que
-                    la coincidencia exacta no existe y no se pide. Anote ese λ y compárelo con el 0,94 del informe.
+                    <strong>{medioV} ruedas</strong>. Anote ese λ con <strong>cuatro decimales</strong> y
+                    compárelo con el 0,94 del informe. Un aviso de precisión: cuanto más alto es λ, más
+                    vale cada paso — cerca de 0,997 un solo paso mueve la vida media <strong>nueve
+                    ruedas</strong>, así que con ventanas largas la cuarta cifra decimal es el límite de
+                    lo que el control puede resolver, y no se le pide más.
                 </>}
                 campos={[
                     { id: 'lambda', etiqueta: `λ cuya vida media MÁS SE ACERCA a ${medioV} ruedas`, pista: 'tres o cuatro decimales' },
@@ -955,7 +979,7 @@ const Bloque3 = () => {
                     enunciado={`La línea morada es la σ móvil de ${V} ruedas y no se mueve. La rosa es el EWMA con el λ que usted elija.`}
                     altura="chart-h-400"
                     controles={[{
-                        id: 'lam', etiqueta: 'λ del EWMA', min: 0.90, max: 0.999, paso: 0.0005,
+                        id: 'lam', etiqueta: 'λ del EWMA', min: 0.90, max: 0.999, paso: 0.0001,
                         valor: 0.94, formato: (v) => dec(v, 4),
                     }]}
                     calcular={(p) => {
