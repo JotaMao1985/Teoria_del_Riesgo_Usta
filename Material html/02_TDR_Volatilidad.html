@@ -3592,8 +3592,30 @@ for (x in r) {
                 </p>
                 <Eq>{'$$r_t = \\mu + \\varepsilon_t, \\qquad \\varepsilon_t = \\sigma_t z_t, \\qquad \\sigma_t^2 = \\omega + \\sum_{i=1}^{q}\\alpha_i\\,\\varepsilon_{t-i}^2$$'}</Eq>
                 <p>
-                    Con <span className="inline-code">z</span> independientes de media cero y varianza
-                    uno. La diferencia con EWMA no es la forma —EWMA también es una suma ponderada de
+                    Las dos primeras igualdades son las que conviene leer despacio, porque son donde el
+                    modelo se vuelve aleatorio. El rendimiento se parte en una media{' '}
+                    <span className="inline-code">μ</span> y una sorpresa{' '}
+                    <span className="inline-code">ε<sub>t</sub></span>, y la sorpresa se parte a su vez
+                    en dos factores con oficios distintos.{' '}
+                    <span className="inline-code">σ<sub>t</sub></span> pone el <strong>tamaño</strong>:
+                    es lo único que depende del pasado y lo único que el modelo predice.{' '}
+                    <span className="inline-code">z<sub>t</sub></span> —la{' '}
+                    <Termino def="El factor aleatorio de la ecuación: una extracción independiente e idénticamente distribuida en cada rueda, con media cero y varianza uno. Su contrapartida empírica es el residuo estandarizado (r − μ̂) / σ̂, que es lo que diagnostica la sección 6.">innovación estandarizada</Termino>—
+                    pone el <strong>signo y la forma de la cola</strong>: una extracción nueva cada
+                    rueda, independiente de las anteriores, con media cero y varianza uno, y de la que
+                    el modelo no predice nada.
+                </p>
+                <p>
+                    Esa división es la asimetría de la sección 1 escrita en una línea —el tamaño se
+                    modela, el signo se sortea— y es lo que permite que{' '}
+                    <span className="inline-code">σ<sub>t</sub></span> se escriba en función del pasado
+                    sin contradecir que el rendimiento sea impredecible. Elegir la distribución de{' '}
+                    <span className="inline-code">z<sub>t</sub></span> es entonces una decisión del
+                    modelador y no un detalle de implementación: la sección 5 la toma —una t con ν
+                    cercano a 4 en vez de una normal— y la sección 6 la audita.
+                </p>
+                <p>
+                    La diferencia con EWMA no es la forma —EWMA también es una suma ponderada de
                     cuadrados— sino que <strong>aquí los pesos se estiman</strong> y hay una constante ω
                     que no está atada a ellos. Eso convierte el suavizamiento en un modelo con
                     parámetros que se contrastan.
