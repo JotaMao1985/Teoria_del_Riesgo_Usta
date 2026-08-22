@@ -3381,9 +3381,20 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     </p>
                     <p>
                         <strong>La misma serie aparece en el capítulo 4</strong>, sección 3, medida con
-                        el VaR histórico en vez de con la desviación: allí la caída del 23 de marzo de
-                        2021 va de 10,43 % a 7,04 %. Dos estimadores distintos, el mismo fantasma, la
-                        misma fecha.
+                        el VaR histórico en vez de con la desviación: la misma ventana de 250 ruedas,
+                        el mismo fantasma y <strong>otra fecha</strong>. Allí el escalón cae el 23 de
+                        marzo de 2021 —de 10,43 % a 7,04 %— y lo que sale ese día no es el −17,76 % del
+                        16 de marzo de 2020, sino el −12,77 % del 9 de marzo.
+                    </p>
+                    <p>
+                        Que las dos fechas no coincidan es el argumento, no un detalle. El 29 de marzo,
+                        el día en que la desviación se desploma un 12,5 %, el VaR pasa de 4,36 % a
+                        4,33 % y no se entera. La desviación usa las 250 observaciones, así que la
+                        salida de la peor es su mayor sacudida; el VaR al 99 % sobre 250 ruedas se
+                        apoya en la tercera y la cuarta peor, y por eso es ciego a que se vaya la
+                        primera y salta cuando se van las de ese rango. <strong>Cada estimador
+                        fantasmea en su propio calendario</strong>, y quien reporte dos a la vez verá
+                        saltar uno mientras el otro no se mueve.
                     </p>
                 </CalloutPro>
 
@@ -3398,9 +3409,9 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
 
                 <Ejercicio tipo="R7">
                     <MCQ
-                        pregunta="El comité de riesgos del fondo recibe el informe del 29 de marzo de 2021 con la volatilidad anualizada cayendo de 37,1 % a 32,5 %. El gerente propone reducir la cobertura. ¿Qué debe decir el área de riesgos?"
+                        pregunta="El comité de riesgos del fondo recibe el informe del 29 de marzo de 2021: la volatilidad anualizada de ventana móvil de 250 ruedas cae de 37,1 % a 32,5 %. El gerente propone reducir la cobertura. ¿Qué debe decir el área de riesgos?"
                         opciones={[
-                            { texto: 'Que la caída no refleja un cambio en el mercado sino la salida de marzo de 2020 de la ventana de 250 ruedas.', correcta: true, justificacion: 'El escalón tiene fecha y no tiene noticia detrás: cae el día en que marzo de 2020 sale de la ventana de 250 ruedas. La prueba de que es del estimador y no del mercado es que EWMA y GARCH, que ponderan en vez de cortar, no lo producen sobre esa misma serie: la decisión de cobertura no debería depender de qué ventana usa el informe. Una cobertura reducida sobre ese escalón se reduce el día equivocado y por la razón equivocada. El mismo fantasma, en la misma fecha, mueve el VaR histórico del capítulo 4 de 10,43 % a 7,04 %.' },
+                            { texto: 'Que la caída no refleja un cambio en el mercado sino la salida de marzo de 2020 de la ventana de 250 ruedas.', correcta: true, justificacion: 'El escalón tiene fecha y no tiene noticia detrás: cae el día en que marzo de 2020 sale de la ventana de 250 ruedas. La prueba de que es del estimador y no del mercado es que EWMA y GARCH, que ponderan en vez de cortar, no lo producen sobre esa misma serie: la decisión de cobertura no debería depender de qué ventana usa el informe. Una cobertura reducida sobre ese escalón se reduce el día equivocado y por la razón equivocada. El mismo fantasma vuelve en el capítulo 4 sobre esta misma serie, pero seis ruedas antes: el VaR histórico cae de 10,43 % a 7,04 % el 23 de marzo, cuando sale el −12,77 % del 9 de marzo de 2020, y el 29 —el día de este escalón— apenas se mueve. Cada estimador fantasmea en su propia fecha.' },
                             { texto: 'Que la caída es real y refleja la normalización posterior a la pandemia, así que reducir la cobertura es prudente si se acompaña de un límite de pérdida.', correcta: false },
                             { texto: 'Que hay que ampliar la ventana a 500 ruedas para que la caída no se produzca, y recalcular todo el histórico con esa ventana.', correcta: false },
                             { texto: 'Que la volatilidad de ventana móvil no sirve para tomar decisiones y hay que sustituirla por la volatilidad implícita de las opciones sobre el índice.', correcta: false },
