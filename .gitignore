@@ -12,6 +12,18 @@ Syllabus*.xlsx
 # otra cosa: es de estudio autónomo y revela sus soluciones a propósito.
 Banco Moodle/
 
+# Clave, rúbrica, congelador y matriz de cobertura del taller calificado de la
+# unidad 1. El repositorio es PÚBLICO: lo que entre aquí queda publicado. El
+# taller sí se publica —el estudiante tiene que abrirlo—; lo que no puede
+# publicarse es lo que dice cuál es la buena respuesta, ni la matriz que
+# declara qué preguntas dependen de la semilla y cuáles no, porque eso indica
+# exactamente qué se puede compartir entre compañeros. La regla 12 de
+# `verificar_taller.py` comprueba que nada de esto esté en `git ls-files`.
+#
+# ⚠️ Consecuencia que hay que asumir: estos archivos NO tienen copia de
+# seguridad en el repositorio. Si el disco se pierde, se pierden.
+talleres/clave/
+
 # ---------------------------------------------------------------------------
 # Lo que SÍ se versiona, y por qué se dice aquí
 #
