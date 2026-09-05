@@ -1,0 +1,327 @@
+---
+title: "Taller 11 · Valorar sin pronosticar: forwards, opciones y el árbol"
+subtitle: "Teoría del Riesgo · Unidad 3 · RA7"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-11-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y traduzca el
+andamio: `numpy` y `pandas` bastan para todo este taller, porque un árbol
+binomial es aritmética hacia atrás y no necesita ninguna librería de valoración.
+El capítulo comprueba que las dos rutas devuelven los mismos dígitos.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una valoración de derivados antes del primer precio
+
+**Usar la probabilidad del mundo.** La deriva medida de Ecopetrol es 9,0576 %
+anual y es exactamente la que **no** va en la fórmula. El precio de la acción hoy
+ya la incorpora; meterla otra vez dentro de la probabilidad es contarla dos veces,
+y sobre la call de este capítulo cuesta 1 520 millones. La probabilidad que va es
+la neutral al riesgo, que no es una creencia sino un cambio de variable.
+
+**Aplicar la paridad put-call donde no vale.** Es un teorema **europeo**: su
+demostración necesita que las dos opciones se liquiden el mismo día. Con
+americanas deja de ser una igualdad, y por exactamente la prima de ejercicio
+anticipado —6,2261 pesos por acción, 839 millones sobre la posición del fondo—.
+
+**Elegir la ventana de σ después de ver el precio.** Con 1 916 ruedas la put vale
+171,2770 y con 250 vale 197,7071: 3 560 millones de diferencia sobre la misma
+posición. Declare la ventana **por escrito, en la parte 1**, y reporte al menos
+una alternativa al lado. Se califica que esté fijada antes.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Antes del primer cálculo, declare en tres líneas: qué convención de tasa, qué
+ventana para σ y qué tasa de dividendo va a usar, y cuál de las tres es una
+decisión suya y no una estimación. Todo lo que siga se juzga contra esa
+declaración.
+
+```{r}
+#| label: parte1-carga
+precios <- read.csv("../datos/bvc_diario.csv")
+r <- diff(log(as.matrix(precios[, -1])))
+
+S0    <- precios$ECOPETROL.CL[nrow(precios)]   # cierre del 30/12/2025
+sigma <- sd(r[, "ECOPETROL.CL"]) * sqrt(252)
+mu    <- mean(r[, "ECOPETROL.CL"]) * 252
+rf    <- log(1.07)        # 7,00 % E.A. (D-D) en logarítmicos
+q     <- 0.00             # DECLARADO: el panel no trae calendario de dividendos
+T     <- 0.5
+K     <- 1800
+ACC   <- 240000e6 / S0    # la posición del fondo, en acciones
+
+# Árbol binomial de n pasos. `amer = TRUE` compara contra el pago inmediato.
+arbol <- function(S, K, sigma, rf, q, T, n, tipo = "call", amer = FALSE) {
+  dt <- T / n
+  u <- exp(sigma * sqrt(dt)); d <- exp(-sigma * sqrt(dt))
+  p <- (exp((rf - q) * dt) - d) / (u - d); desc <- exp(-rf * dt)
+  j  <- 0:n
+  ST <- S * u^j * d^(n - j)
+  V  <- if (tipo == "call") pmax(ST - K, 0) else pmax(K - ST, 0)
+  for (i in (n - 1):0) {
+    V <- desc * (p * V[2:(i + 2)] + (1 - p) * V[1:(i + 1)])
+    if (amer) {
+      j  <- 0:i
+      Si <- S * u^j * d^(i - j)
+      ej <- if (tipo == "call") pmax(Si - K, 0) else pmax(K - Si, 0)
+      V  <- pmax(V, ej)
+    }
+  }
+  V[1]
+}
+
+c(S0 = S0, sigma = sigma * 100, mu = mu * 100, rf = rf * 100,
+  forward = S0 * exp((rf - q) * T),
+  call = arbol(S0, K, sigma, rf, q, T, 500, "call"),
+  put  = arbol(S0, K, sigma, rf, q, T, 500, "put"))
+```
+
+**1.1** Compruebe que obtiene las cifras del capítulo: σ = **38,6492 %**, el
+forward a seis meses en **1 843,3151**, la call en **213,1513** y la put en
+**171,2770**. Reporte la prima del forward sobre el contado en pesos por acción y
+en millones sobre la posición del fondo.
+
+**1.2** Verifique la paridad put-call: C − P debe dar **41,8743** y coincidir con
+S₀ − K·e^(−rT). Repítala con n = 1, 2, 3, 10, 50 y 500 pasos y reporte las seis
+filas. La call se moverá más de 45 pesos entre la primera y la última; la
+diferencia C − P, ni un decimal. Explique en dos líneas por qué.
+
+**1.3** Reconstruya la réplica de un período **a mano**, sin usar `arbol()`:
+calcule u, d, los dos pagos, la delta y el préstamo B, y compruebe que la cartera
+paga lo mismo que la call en los dos estados. Debe obtener delta = **0,549648**,
+B = **−720,4636** y un precio de **259,0098**. Diga qué significa que B sea
+negativo, en una frase que no use la palabra «apalancamiento».
+
+**1.4** Declare su ventana para σ y reporte **al menos una alternativa**: estime σ
+sobre 250, 500, 1 000 y las 1 916 ruedas, y dé el precio de la put con cada una.
+Reporte la diferencia entre la mayor y la menor en millones sobre la posición del
+fondo, y diga cuál habría elegido **antes** de ver esta tabla y por qué.
+
+---
+
+## Parte 2 · Su propio contrato
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+n_doc <- nchar(documento)
+d1 <- as.integer(substr(documento, n_doc, n_doc))
+d2 <- as.integer(substr(documento, n_doc - 1, n_doc - 1))
+
+K_suyo <- 1600 + 50 * d1                      # entre 1 600 y 2 050
+T_suyo <- c(3, 6, 9, 12)[(d2 %% 4) + 1] / 12  # 3, 6, 9 o 12 meses
+c(K = K_suyo, meses = T_suyo * 12)
+```
+
+**2.1** Con su K y su T, y con la σ que declaró en 1.4, valore la call y la put
+europeas con 500 pasos. Reporte los dos precios, la paridad y el costo de cubrir
+la posición del fondo con su put, en millones y como porcentaje de los 240 000.
+
+**2.2** Su contrato está más dentro o más fuera del dinero que el del capítulo.
+Diga cuál de los dos y, sin volver a correr nada, anticipe si su delta de
+replicación será mayor o menor que 0,549648. Después calcúlela con un árbol de un
+período y diga si acertó.
+
+**2.3** Repita la valoración con n = 1, 2, 3, …, 200 pasos y grafique el precio
+contra n. Marque el límite estimado promediando n de 991 a 1 000. Reporte
+**cuántas veces** su precio cruza ese límite entre n = 90 y n = 120, y si el
+precio con 200 pasos está más cerca o más lejos del límite que el de 100.
+
+::: {.callout-tip}
+No dé por supuesto el resultado del capítulo: con K = 1 800 el precio **no** cruza
+el límite en ese tramo, pero su K es otro y los nodos caen en otro sitio. Cuente
+lo que pase con el suyo.
+:::
+
+---
+
+## Parte 3 · La pregunta que el capítulo se negó a contestar
+
+El capítulo reduce la elección entre vender el forward y comprar la put a un solo
+número: las dos coberturas se cruzan cuando Ecopetrol llega a **2 020,4854**, un
+**13,38 %** por encima del contado. Y ahí se detiene, porque la pregunta que sigue
+—«¿qué probabilidad tiene eso?»— es del comité y no del modelo.
+
+Aquí sí la va a contestar, de tres maneras distintas, y lo interesante no es el
+número sino en qué se parecen y en qué no.
+
+**3.1** Calcule el punto de cruce **para su propio contrato** de la parte 2: el
+precio del subyacente al que la posición cubierta con put alcanza a la cubierta
+con forward, neta de la prima llevada al vencimiento.
+
+**3.2** Estime la probabilidad de superarlo de tres formas, y reporte las tres al
+lado:
+
+a. **Frecuencia histórica.** Sobre ventanas solapadas de la misma longitud que su
+   T, cuente qué fracción de las veces Ecopetrol subió más que su umbral. Diga
+   cuántas ventanas hay y cuántas lo superaron.
+b. **Bajo la probabilidad real**, suponiendo que el precio es lognormal con la
+   deriva medida en el panel (μ = 9,0576 %) y su σ declarada.
+c. **Bajo la probabilidad neutral al riesgo**, es decir con la deriva sustituida
+   por r − q.
+
+**3.3** Sobre el contrato del capítulo las tres cifras quedan a menos de dos
+puntos porcentuales unas de otras. **Eso es una coincidencia de este ejemplo, no
+un resultado.** Demuéstrelo: repita 3.2 con **Banco de Bogotá**, cuya deriva
+medida es 0,3093 % anual, y con un plazo de dos años. Reporte las tres cifras y
+diga cuál de los tres supuestos —la deriva, el plazo o la volatilidad— abre la
+brecha, con evidencia y no con intuición.
+
+**3.4** Una de las tres cifras **no sirve** para decidir si conviene la put, y las
+otras dos sirven para cosas distintas. Diga cuál es cuál, en tres líneas. Si su
+respuesta no distingue entre «con qué frecuencia pasó» y «cuánto vale hoy
+protegerse de que pase», todavía no está terminada.
+
+---
+
+## Parte 4 · Lo que cuesta poder ejercer antes
+
+**4.1** Valore su put de la parte 2 en versión **americana** y reporte la prima de
+ejercicio anticipado en pesos por acción y en millones sobre la posición.
+
+**4.2** Encuentre por bisección la **frontera de ejercicio**: el precio del
+subyacente por debajo del cual conviene ejercer en el acto en vez de esperar.
+Reportela en pesos y como caída porcentual desde el contado de hoy. Para el
+contrato del capítulo son **1 243,0910**, un 30,24 % abajo.
+
+**4.3** Haga lo mismo con la **call** americana y compruebe que la prima es
+exactamente cero. Después repita con q = 5 %, 10 %, 20 % y 30 % y reporte cuándo
+deja de serlo. Explique, en dos líneas, por qué el dividendo es lo único que
+puede hacer que convenga ejercer una call antes de tiempo.
+
+**4.4** Con sus resultados de 4.1 y 4.3, escriba la versión correcta de esta
+frase, que es falsa: *«una opción americana siempre vale más que su equivalente
+europea»*.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-important}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede pedirle a un modelo que **genere** el código defectuoso si quiere partir de
+uno propio, pero el diagnóstico, la cuantificación y la corrección los escribe
+usted. Registre en la bitácora cualquier intercambio.
+:::
+
+Este código corre, no lanza ningún aviso y devuelve un número perfectamente
+plausible. Le pidieron con él el precio de una **put americana**.
+
+```{r}
+#| label: parte5-ia
+#| eval: false
+# --- generado por un modelo de lenguaje ---
+Ca <- arbol(S0, K, sigma, rf, q, T, 500, "call", amer = TRUE)
+
+# la put americana sale de la paridad, sin repetir el árbol
+Pa <- Ca - S0 + K * exp(-rf * T)
+cat(sprintf("put americana: %.4f\n", Pa))
+```
+
+Entregue los cuatro elementos:
+
+1. **Dónde** está el defecto: la línea exacta y qué supuesto viola.
+2. **De qué tipo** es, según la taxonomía del curso (supuesto no verificado,
+   confusión de medida, fuga de información, convención equivocada, estimador
+   inconsistente, resultado sin incertidumbre, interpretación indebida). Justifique
+   por qué es ese y no el vecino más plausible.
+3. **Cuánto cuesta**, en pesos por acción y en millones sobre la posición del
+   fondo, y **en qué dirección** se equivoca quien lo use — si cobra de menos o de
+   más, y a quién perjudica.
+4. **Cómo se arregla**, con el código corregido corriendo y su salida.
+
+Y una quinta, que es la que separa una auditoría de una corrección: **por qué
+ninguna comprobación automática lo habría detectado**. Diga qué comprobación sí lo
+detecta y córrala.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Una fila por intercambio con el modelo. Sin esta tabla el taller se califica sobre
+cero.
+
+| # | Qué le pidió | Qué devolvió | Qué hizo usted con eso |
+|---|---|---|---|
+| 1 |  |  |  |
+| 2 |  |  |  |
+
+La última columna es la que se lee con más atención. «Lo copié» es una respuesta
+válida si es verdad y si en la parte 5 se nota que lo revisó.
+
+---
+
+## Parte 7 · La cotización, y el acta
+
+**7.1** Arme la tabla de su contrato: precio de la call y de la put europeas,
+precio de la put americana, la prima de ejercicio anticipado, el punto de cruce
+frente al forward, y el rango que produce cambiar la ventana de σ. Seis filas, con
+las unidades declaradas.
+
+**7.2** Escriba una **nota de una página** para el comité de inversiones, sin
+fórmulas y sin código, que responda a «¿cubrimos la posición en Ecopetrol, y con
+qué?». Debe contener la recomendación en la primera frase, el costo en pesos y en
+porcentaje de la posición, sobre qué supuestos declarados se calculó, qué rango
+producen esos supuestos, y qué queda fuera.
+
+**7.3** La nota tiene que incluir, con sus palabras, una frase que diga que el
+precio **no es un pronóstico** sobre Ecopetrol. Escríbala de modo que la entienda
+alguien que no ha tomado el curso, y añada debajo, para el acta, la evidencia
+concreta de su propio taller que la respalda.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: tasa, ventana y dividendo declarados **antes**; las cifras del capítulo reproducidas, la paridad comprobada a seis valores de n y la réplica hecha a mano | 15 % |
+| Parte 2: contrato propio valorado, la delta anticipada antes de calcularla, y el barrido de n contado en vez de supuesto | 15 % |
+| Parte 3: las tres probabilidades calculadas y contrastadas, la brecha abierta con Banco de Bogotá y el plazo largo, y la distinción entre frecuencia y precio | 25 % |
+| Parte 4: prima americana, frontera de ejercicio por bisección, la call con y sin dividendo, y la frase falsa corregida | 15 % |
+| Parte 5: auditoría con los cinco elementos, incluida la comprobación que sí detecta el defecto, corrida | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: tabla de seis filas, nota legible y la frase sobre el pronóstico con su evidencia | 10 % |
+
+Se descuenta: usar la deriva real dentro de la probabilidad; aplicar la paridad
+put-call a una opción americana; reportar un precio de árbol sin decir con cuántos
+pasos se calculó ni si es estable; elegir la ventana de σ después de haber visto
+el precio —lo cual, si la parte 1 está bien hecha, queda registrado en el propio
+documento—; y presentar una frecuencia histórica como si fuera una probabilidad de
+valoración.

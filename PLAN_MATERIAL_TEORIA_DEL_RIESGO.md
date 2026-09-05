@@ -8,8 +8,10 @@
 **Fecha del plan:** 2026-08-07 · **Revisión 2** (P1–P5 resueltas)
 **Estado:** fases 0, 1 y 2 completadas · **puntos de control B y C aprobados** (B el
 2026-08-08, C el 2026-08-10) · D-A, D-B, D-C y **D-D ratificada el 2026-08-10** (tasa libre
-de riesgo, 7,00 % E.A.) · los seis capítulos de la unidad 1 pasan las doce reglas con
-`--con-salidas` · **lo siguiente es la fase 3**, que empieza por el capítulo 7
+de riesgo, 7,00 % E.A.) · **fase 3 en curso: las tareas 12 y 13 —capítulos 7 y 8— quedaron
+terminadas el 2026-08-24** y los **ocho** capítulos pasan las catorce reglas con
+`--con-salidas` · **lo siguiente es la tarea 14**, el capítulo 9 (bonos, tasas y curvas),
+que sigue **bloqueado por `curva_tes.csv`**
 
 ---
 
@@ -1121,8 +1123,8 @@ como pendiente separado.
 
 | Tarea | Capítulo | Alcance | Sesiones |
 |---|---|---|---|
-| 12 | C7 Portafolio y frontera eficiente | M-L | 2 |
-| 13 | C8 Optimización CVaR | M | 1 |
+| ✅ 12 | C7 Portafolio y frontera eficiente · **terminada 2026-08-24** | M-L | 2 |
+| ✅ 13 | C8 Optimización CVaR · **terminada 2026-08-24** | M | 1 |
 | 14 | C9 Bonos, tasas y curvas | M | 1 |
 | 15 | C10 Duración, convexidad y QuantLib | M-L | 1 |
 
@@ -1134,7 +1136,7 @@ como pendiente separado.
 
 | Tarea | Capítulo | Alcance | Sesiones |
 |---|---|---|---|
-| 16 | C11 Derivados y binomial | M-L | 1 |
+| ✅ 16 | C11 Derivados y binomial · **terminada 2026-08-25** | M-L | 1 |
 | 17 | C12 Black-Scholes y Montecarlo (a · b) | L | 2 |
 | 18 | C13 Crédito con ML (a · b) | L | 2 |
 | 19 | C14 Validación e interpretabilidad | M-L | 1 |
@@ -1163,6 +1165,30 @@ Los quince `.qmd` con el taller ejecutable de cada capítulo, **más los tres ta
 unidad** —`TDR-U1.qmd` ya escrito, y sus equivalentes de la U2 y la U3, que son los
 instrumentos calificados del syllabus—, `_quarto.yml`, y una pasada de `quarto render` que
 no falle. · **Alcance: M**
+
+🟢 **La U1 tiene un segundo instrumento** (2026-08-18): `Material html/T1_TDR_Taller_unidad_1.html`,
+un taller **interactivo y calificado** de lectura, interpretación y auditoría, con sustentación
+oral. `TDR-U1.qmd` baja a taller de práctica computacional previo y no se toca. El taller se
+**genera** —única pieza del material que no es su propia fuente— con
+`Material html/_plantilla/armar_taller.py`.
+
+⚠️ Su plan, su matriz de cobertura, su clave, su rúbrica y su congelador viven en
+**`talleres/clave/`, que está en `.gitignore`**: son material de evaluación y el repositorio es
+público. El plan se movió allí el 2026-08-18, cuando la calibración adversaria mostró que su
+sección 3 entrega las tres contradicciones del bloque que vale el 20 %. Quien retome esto sin
+esa carpeta puede leer el HTML, pero no calificarlo.
+
+⚠️ **`grep -r` desde la raíz no entra en `talleres/clave/`.** Comprobado el 2026-08-18. Para
+buscar ahí hay que dar la ruta explícita, y ninguna comprobación de fugas puede apoyarse en un
+recorrido recursivo: devolvería «limpio» sin haber mirado.
+
+🟡 **El taller de la U3 se separó a plan propio** (2026-08-17): asciende a **proyecto
+integrador de las tres unidades**, individualizado por documento y con defensa oral, y tiene
+su propio plan en [`talleres/PLAN_TDR-PI.md`](talleres/PLAN_TDR-PI.md) — 22 tareas en cuatro
+fases, con auditoría en cuatro capas. **Propuesta pendiente de aprobación.** Lo que la tarea
+22 conserva es el taller de la U2 y los quince de capítulo. Ojo con una decisión de ese plan
+que sale de su alcance: sus congeladores de cifras (fase B) quedan **canónicos**, y los
+capítulos 8 a 15 tendrán que reproducirlos.
 
 ✅ **Quarto estaba instalado desde el principio**, dentro de RStudio: la 1.9.38 en
 `/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto`. Siete registros
@@ -1502,8 +1528,11 @@ nunca para predecir rendimientos.
 **Ratificada tal cual en el punto de control C**, sin recálculo. El 7,00 % efectivo anual
 queda como decisión declarada del curso para C3 y para todo lo que venga: **C7** (CML y
 máximo Sharpe), **C11** y **C12** (descuento y valoración de derivados). La convención va
-con ella: el 7,00 % es efectivo, el curso anualiza logarítmicos por 252 y la misma tasa vale
-**6,7667 %** en esa convención; los capítulos que la usen declaran cuál de las dos aplican.
+con ella, y son **dos** conversiones distintas del mismo 7,00 % efectivo: bajarlo a tasa
+diaria efectiva —`(1,07)^(1/252) − 1` = 2,6852 pb— y anualizar por 252 da **6,7668 %**, que
+es lo que hace el capítulo 3; tomar `ln(1,07)` da **6,7659 %**, que es lo que corresponde a
+un capítulo que trabaje en logarítmicos puros. Separa las dos 0,0009 pp anuales. Los
+capítulos que la usen declaran cuál de las dos aplican y no las mezclan en una misma cifra.
 Cuando exista `curva_tes.csv` se sustituye por el TES del plazo que corresponda, y esa
 sustitución es una revisión de D-D, no un cambio silencioso.
 
@@ -2016,6 +2045,316 @@ respondía las diez preguntas con esperas entre clics lo excedió, y hubo que pa
 tandas de cinco sin esperas.
 
 Con esto la unidad 1 queda cerrada también para la regla 13.
+
+---
+
+### Fase 3 — Tarea 12: capítulo 7 · 2026-08-24
+
+Seis secciones más evaluación, **seis** bloques ejecutados en los dos lenguajes, cinco
+gráficas y dos laboratorios. Las catorce reglas en verde y `--con-salidas` sin ninguna
+discrepancia: los doce bloques —seis por lenguaje— se escribieron y se corrieron fuera del
+capítulo, y se compararon en diff antes de entrar en él. Ninguna excepción de dos pestañas:
+el capítulo no simula nada.
+
+**Desviación declarada del plan capítulo por capítulo:** el plan preveía `cvxpy` y
+`scipy.optimize`. Se usa solo `cvxpy` en Python y `quadprog` en R, y donde hacía falta buscar
+una raíz —el punto de la frontera con el mismo riesgo que la cartera declarada— va una
+**bisección de 40 pasos escrita a mano en los dos lenguajes** en vez de `brentq` y `uniroot`:
+las dos habrían convergido a la misma raíz por caminos distintos, y aquí interesa que las dos
+pestañas recorran la misma sucesión de candidatos. La máxima razón de Sharpe, que no es
+convexa, entra al mismo molde con el cambio de variable `y = w / ((μ−rf)ᵀw)`.
+
+**El hallazgo del capítulo: la decisión declarada del capítulo 1 tiene precio, y es pequeño.**
+La cartera 30/20/25/25 queda por dentro de la frontera: al mismo retorno del 7,69 % la
+frontera ofrece **24,40 %** de volatilidad contra 25,02 % —**0,62 pp**, unos 4 960 millones de
+desviación típica anual— y al mismo riesgo ofrece **8,43 %** de retorno —**0,74 pp**, unos
+5 920 millones al año—. Es la primera vez que el material le pone número a D-A, y el número
+es lo bastante chico para que la sección 6 lo pueda discutir.
+
+**El segundo hallazgo es el que ordena la sección 4, y no estaba previsto.** Con la tasa
+libre de riesgo en logarítmicos —ln(1,07) = 6,7659 %, la convención que este capítulo
+declara— resulta que **Grupo Sura rindió 6,7655 %**: su razón de Sharpe es −0,0000, cuatro
+diezmilésimas por debajo de cero, después de ocho años al 42,57 % de volatilidad. Y la
+cartera de **mínima varianza tiene Sharpe negativo** (−0,0188): minimizar varianza sin mirar
+el retorno llevó al fondo por debajo de un TES. Las dos cosas salen del mismo bloque y las
+dos son argumentos, no anécdotas.
+
+**Y el tercero es el que arma la sección 5.** La cartera tangente sin cortos pone el
+**94,48 % en ISA** y su Sharpe, 0,1673, apenas mejora el de ISA sola (0,1670): el criterio de
+máximo Sharpe, en este panel, no reparte. Con el tope declarado del 30 % por emisor la
+cartera pasa a 30/10/30/30 y el Sharpe alcanzable cae a **0,0714**, menos de la mitad. Ese
+recorte es el precio explícito del régimen, y es la respuesta a la pregunta que el R7 le pone
+al comité.
+
+**El R3 nuevo salió de una trampa real de la fórmula cerrada.** `Σ⁻¹(μ − rf)` normalizado por
+la suma de sus componentes es lo que escribe cualquier manual —y cualquier modelo de
+lenguaje—, y aquí esa suma vale **−0,0784**: al dividir por un número negativo la cartera
+entera cambia de rama y sale −708 % en ISA, +927 % en el Banco de Bogotá y una razón de
+Sharpe de **−0,2891**, peor que la de cualquiera de los cuatro emisores por separado. El
+código corre, no lanza nada y los pesos suman uno. Se clasifica como **supuesto no
+verificado**, no como estimador inconsistente: Σ y μ están bien.
+
+**Las restricciones no cuestan lo mismo, y eso se midió.** Sobre la mínima varianza, prohibir
+los cortos **no cambia ni un dígito** —la solución libre ya era positiva— y el tope del 30 %
+cuesta 0,19 pp de volatilidad pero **sube** el Sharpe de −0,0188 a 0,0136. Sobre la tangente,
+la prohibición de cortos lo es todo. Y el costo crece con la exigencia: en el R4, la misma
+restricción vale 0,00 pp con la volatilidad objetivo al 28 %, 0,44 pp al 32 % y 1,06 pp al
+35 % — la primera versión de ese ejercicio se escribió al 25,02 %, donde las dos ramas
+coinciden dígito a dígito y no había nada que comparar.
+
+**La sección 6 mide la fragilidad en vez de mencionarla.** Diecisiete optimizaciones sobre el
+mismo panel: con 250 ruedas la mínima varianza deja a Ecopetrol en **0,00 %** y sube el Banco
+de Bogotá al **65,70 %**; con 1 000 reparte 24,59 · 30,68 · 17,40 · 27,33. Por años, la
+correlación media va de **0,043 en 2022 a 0,513 en 2020** —doce veces— y la cartera declarada
+movió el 40,87 % en 2020, la misma cifra que cita el capítulo 2. Y los dos defectos
+declarados del panel dejan huella distinta: quitar el par del 19–20 de febrero de 2025 mueve
+los pesos unos 2 pp y la volatilidad 1,27 pp, mientras que medir **cada quinta rueda** sube
+la correlación media de 0,227 a **0,339** y baja Ecopetrol del 20,76 % al 12,79 %. Eso último
+es el sesgo de negociación no simultánea de la sección 5 del capítulo 3, que allí se veía en
+una beta y aquí se ve en la recomendación de cartera.
+
+**Los dos laboratorios van por malla precomputada** —`Laboratorio` solo hace aritmética— y
+los dos reproducen su bloque en la posición de arranque: el de la sección 3 (κ × posición en
+la frontera, 21 × 21 celdas) devuelve en κ = 1,0 exactamente 23,93 % y 20,76 · 38,13 · 15,97 ·
+25,14, y el de la sección 6 (ventana × desplazamiento, 8 × 10) devuelve en 1 000 ruedas la
+cuarta fila del bloque. Las 80 combinaciones del segundo se barrieron antes de escribir su
+pregunta, como manda la zona ciega 6: en **4** la mínima varianza deja a Ecopetrol en cero, en
+**16** el Banco de Bogotá pasa del 50 %, en **14** el retorno de la cartera declarada es
+negativo y solo **4** quedan a menos de 3 pp de los pesos del panel completo.
+
+**Lo que el navegador cazó y el verificador no**, que fue lo de siempre y en dos formas:
+
+1. **Una celda de `TablaTraza` con exactamente tres decimales es imposible de acertar
+   escribiéndola con coma decimal.** `normalizarCelda` trata `0.167` como notación de miles
+   —la expresión `^-?\d{1,3}(\.\d{3})+(,\d+)?$` la casa— y la convierte en `0167`, mientras
+   que quien teclea `0,167` obtiene `0.167`: la traza marcaba 6 de 7 con la respuesta correcta
+   puesta. Aquí se resolvió cambiando la casilla a cuatro decimales (0,1674, con la
+   diezmilésima explicada en la pista), pero **el defecto es de TR-CORE y está vivo en dos
+   capítulos ya publicados**: el 5 tiene dos casillas así —`3.285` y `1.475`— y el 6 tiene una
+   —`0.048`—. Arreglarlo toca la librería, y con ella los siete capítulos y el taller
+   calificado, cuyo TR-CORE tiene que seguir siendo byte a byte el del capítulo 6: queda
+   anotado y no se hizo aquí.
+2. **El pie de la gráfica de la frontera afirmaba algo que no se veía.** Las dos brechas son
+   de 0,62 y 0,74 pp sobre ejes de 23 y 16 puntos, así que los dos trazos punteados medían
+   trece píxeles y quedaban debajo del rombo. Se añadieron dos anotaciones con flecha y el pie
+   dice ahora que son cortos por construcción. Es la misma familia del pie que contradecía a
+   su gráfica en el capítulo 1.
+
+**Reparto de letras (regla 14):** el capítulo quedó en **a:4 · b:2 · c:4 · d:5** y el
+cuestionario, mirado solo, en a:2 · b:2 · c:4 · d:2. La primera pasada dejaba la (a) sin
+aparecer ni una vez en las diez del cuestionario —pasaba la regla, que mira el capítulo
+entero— y se movieron de índice dos preguntas para cerrarla.
+
+**Comprobado en pantalla, servido por HTTP:** las ocho secciones, la consola sin un solo
+error, los cinco gráficos con sus trazas, los dos laboratorios recorridos en sus extremos, el
+R1 en 7/7, los dos R3 respondidos **en los dos lenguajes**, el R4, el R5 en «¡Secuencia
+correcta!», el R6 en 4 de 4, los dos R7, el R8 con sus soluciones revelándose y el
+cuestionario en **10/10**.
+
+**Entregado:** `Material html/07_TDR_Portafolio.html` (334 KB) y `talleres/TDR-07.qmd`, que
+**esta vez sí se renderizó**: `quarto render TDR-07.qmd` con la 1.9.38 de RStudio y la locale
+en UTF-8 produce `_salida/TDR-07.html` (1,9 MB, artefacto ignorado) sin un solo error, y su
+bloque de la parte 1 imprime las mismas cifras que el capítulo. El taller es de práctica y
+suma una parte que el capítulo no tiene: **el costo de perseguir la frontera** —turnover
+anualizado del orden del 55 a 60 % rebalanceando cada 21 ruedas con ventana de 250, unos 900
+millones al año a 20 pb, contra los 5 920 millones que prometía la brecha de retorno—.
+`index.html` quedó con el capítulo enlazado y su nota de estado al día.
+
+---
+
+### Fase 3 — Tarea 13: capítulo 8 · 2026-08-24
+
+Cinco secciones más evaluación, **cinco** bloques ejecutados en los dos lenguajes, seis
+gráficas y dos laboratorios. Las catorce reglas en verde y `--con-salidas` sin ninguna
+discrepancia. El programa lineal se resuelve con `cvxpy` en Python y con **`lpSolve`** en R
+—la elección que `entorno/instalar.R` ya había justificado— y los dos devuelven los mismos
+cuatro pesos, el mismo corte y el mismo valor óptimo: 19,36 · 34,61 · 16,43 · 29,60, ζ =
+2,7215 % y CVaR 4,5815 %.
+
+**La excepción declarada a la convención del capítulo 5.** El ES del curso es el promedio
+simple de las ruedas que exceden el VaR; aquí no se puede usar, porque la función de
+Rockafellar-Uryasev **es** el CVaR exacto por construcción y no hay forma de pedirle a un
+programa lineal que optimice el promedio de un conjunto que cambia con la respuesta. La
+portada lo declara y el primer bloque imprime las dos columnas al lado: la brecha es de 30
+millones al 97,5 % y de **884 al 99 %**, que son exactamente las que el capítulo 5 midió.
+El R1 de la sección 1 la reconstruye a mano desde la suma de las 19 peores ruedas y la
+vigésima, y cierra en 884.
+
+**El hallazgo que ordena el capítulo, y no estaba previsto: minimizar la varianza puede
+empeorar la cola.** La cartera de mínima varianza del capítulo 7 tiene menos CVaR que la
+declarada al 95 % y al 97,5 %, y **más al 99 %**: 6,733 % contra 6,710 %, o sea 187
+millones de pérdida media adicional en el 1 % de los días peores. La razón está en la
+primera gráfica: de las veinte ruedas que deciden el CVaR al 99 %, **ocho son de 2020 y
+siete de 2022**, y de 2018, 2019, 2021 y 2024 no entra ninguna. En el extremo no manda la
+covarianza.
+
+**El segundo hallazgo es el que obliga a ser honesto con el propio capítulo: las dos
+fronteras casi coinciden.** Sobre los mismos siete retornos objetivo, optimizar la cola
+gana entre **23 y 219 millones** frente a optimizar la varianza — el 0,03 % del fondo—. La
+explicación es que bajo distribuciones elípticas las dos formulaciones son equivalentes y
+cuatro acciones se acercan bastante; la consecuencia es que el capítulo no puede terminar
+con «adopte CVaR», y no lo hace: su R8 pide justificar si compensa, y la respuesta modelo
+separa medir de optimizar y hoy de mañana.
+
+**Los dos R3 salieron de errores que un modelo de lenguaje comete de verdad.** El primero
+fija la cola con los pesos actuales y minimiza sobre esos 48 días: devuelve **100 % Banco
+de Bogotá**, cuyo CVaR real es 6,8601 % contra el 4,5815 % del óptimo, y —lo que lo hace
+peligroso— imprime como objetivo un 3,6982 % que **parece mejor que el óptimo verdadero**.
+El segundo simula cien mil escenarios normales y los presenta como históricos: además de
+subestimar la cola en 8 696 millones, borra la razón de ser del método, porque bajo una
+normal minimizar el CVaR es minimizar la varianza — y en efecto devuelve la cartera del
+capítulo 7 a 0,56 pp, con semilla 2026.
+
+**La sección 5 mide lo que ningún optimizador imprime: cuántos datos hay detrás.** Al
+97,5 % sobre el panel entero, 47,9 escenarios; con 250 ruedas, 6,3; al 99 % con 250 ruedas,
+**2,5**. Reestimando año por año —seis ruedas en la cola— las dos carteras se separan hasta
+23,26 pp. Y el par defectuoso del 19 y 20 de febrero de 2025, dos ruedas de 1 916, mueve el
+CVaR al 99 % en **3 777 millones**, contra los 1,27 pp que movía la volatilidad en el
+capítulo 7: la misma anomalía, declarada y no corregida, apenas toca la varianza y domina
+la cola.
+
+**Lo que el navegador cazó y el verificador no.** Dos cosas, las dos de gráfica y una de
+ellas del tipo que CLAUDE.md ya documenta: la gráfica de las veinte peores ruedas usaba
+fechas en el eje x y Plotly las leyó como eje **temporal**, repartiendo veinte barras
+finísimas sobre ocho años de calendario — el pie describía una lectura que no se veía—. Se
+arregló con `type: 'category'`. Y el laboratorio del nivel imprimía «gana 202 millones»
+donde el bloque declara 201, porque restaba dos cifras ya redondeadas: se precomputó la
+ganancia exacta en la malla, que es el mismo arreglo que necesitó el laboratorio de κ del
+capítulo 7.
+
+**Reparto de letras (regla 14):** el capítulo salió en **a:4 · b:3 · c:3 · d:5** y el
+cuestionario, mirado solo, en a:2 · b:3 · c:2 · d:3. No hizo falta mover ninguna pregunta.
+
+**Comprobado en pantalla, servido por HTTP:** las siete secciones, la consola sin un solo
+error, las seis gráficas con sus trazas, los dos laboratorios recorridos en sus extremos
+—incluido el 250 × 99 %, donde la cola son 2,5 escenarios—, las dos `TablaTraza` en 6/6 y
+4/4, los dos R3 respondidos **en los dos lenguajes**, el R4, el R5 en «¡Secuencia
+correcta!», el R6 en 4 de 4, los dos R7, el R8 con su solución revelándose y el
+cuestionario en **10/10**.
+
+**Entregado:** `Material html/08_TDR_Optimizacion_CVaR.html` (290 KB) y
+`talleres/TDR-08.qmd`, renderizado con Quarto sin errores. El taller añade una parte que el
+capítulo no tiene y que era la pregunta que quedaba abierta: **la medición fuera de
+muestra**. Partiendo el panel por la mitad, la cartera de mínima CVaR gana 493 y 322
+millones al 95 % y al 97,5 %, y **pierde 8 449 millones al 99 %** — y en las tres, la
+cartera declarada 30/20/25/25 sale mejor que las dos optimizadas—. El taller no da esas
+cifras: pide calcularlas y contrastarlas con tres particiones distintas.
+
+---
+
+### Fase 4 — Tarea 16: capítulo 11 · 2026-08-25
+
+Seis secciones más evaluación, **seis** bloques ejecutados en los dos lenguajes, seis gráficas
+y dos laboratorios. Las catorce reglas en verde y `--con-salidas` sin ninguna discrepancia: los
+doce bloques —seis por lenguaje— se escribieron y se corrieron fuera del capítulo, y se
+compararon en diff antes de entrar en él. Ninguna excepción de dos pestañas: el capítulo no
+simula nada. Se adelanta a las tareas 14 y 15 porque no necesita `curva_tes.csv`.
+
+**El hilo conductor se estrecha a una sola posición.** Los capítulos 7 y 8 optimizaban la
+cartera entera; aquí el objeto es el **30 % en Ecopetrol** —240 000 de los 800 000 millones,
+134,6801 millones de acciones al cierre de 1 782 del 30/12/2025—, que es sobre lo que se
+cotizaría un forward o se compraría un seguro. σ = **38,6492 %** sale del panel completo y la
+deriva medida es **9,0576 %**, que es la cifra que el capítulo existe para no usar.
+
+**Tres convenciones declaradas, y una es nueva.** La tasa va en logarítmicos, ln(1,07) =
+6,7659 %, la misma que declaró el capítulo 7. La ventana de σ se declara antes de estimar y con
+una alternativa, que es la cuarta convención del curso: con 250 ruedas σ sube a 44,0444 % y la
+put pasa de 171,2770 a 197,7071 — **3 560 millones** de prima sobre la posición. Y la nueva:
+**q = 0,00 % es una decisión declarada, no una estimación**, porque el panel congelado trae
+cierres ajustados y no un calendario de dividendos. El capítulo no finge que puede estimarla:
+la declara, mide qué cuesta —con q = 10 % el forward pasa de 8 258 millones por encima del
+contado a 3 850 por debajo— y su R8 pregunta si es defendible. La respuesta modelo dice que no
+lo es para Ecopetrol, y que lo defendible es declararla.
+
+**El hallazgo que ordena el capítulo es de forma, no de cifra: la paridad put-call se cumple
+con cualquier árbol.** Con un paso la call vale 259,0098 y con quinientos 213,1513 —45 pesos de
+diferencia—, y **C − P vale 41,8743 en las seis filas** de la tabla. Los errores del árbol se
+cancelan porque afectan a las dos opciones por igual, y por eso la paridad es lo único de una
+cotización que no depende del modelo que se está auditando. De ahí sale el R5, que la coloca
+después de tener un precio y antes de reportarlo.
+
+**El segundo hallazgo es el que da la gráfica más clara del capítulo: el precio no depende de
+la deriva.** Suponiéndole a Ecopetrol derivas de −20 %, 0 %, la medida, 20 % y 40 %, la p real
+recorre de 0,2601 a 0,8322 y el precio calculado con ella se va de 136,3204 a 436,0738; el
+precio por replicación **no se mueve ni un decimal**: 259,0098 en las cinco filas. La gráfica es
+una recta creciente y una horizontal, y es la respuesta visual a por qué la deriva se cancela.
+Y hay un puente estructural que conviene no perder: E_Q[S_T] = **1 843,3151**, que es
+exactamente el forward de la sección 1, mientras que E_P[S_T] = 1 864,5589.
+
+**El tercero desmiente lo que uno esperaría, y salió de barrer en vez de suponer.** La primera
+redacción del bloque 5 afirmaba que la sucesión se acerca «por arriba con n par y por abajo con
+n impar». Al barrer n de 1 a 400 uno por uno resultó falso: la horquilla se cierra sin
+ambigüedad —63,5655 pesos entre n = 1 y 10, y 0,1351 entre 201 y 400— pero **la sucesión no es
+monótona**. C(100) = 213,1501, C(200) = 213,1874 y C(400) = 213,1639: duplicar los pasos de 100
+a 200 **aleja** el precio 0,0373, y el salto mayor entre dos n seguidos en ese tramo es de
+0,2424 — cambiar de 100 a 101 pasos mueve el precio más que cambiar de 100 a 1 000. La causa es
+geométrica y el laboratorio la deja ver con el deslizador de K: al cambiar n los nodos finales
+se mueven y el ejercicio queda unas veces sobre un nodo y otras entre dos.
+
+**Y el cuarto es el que arma la sección 6.** Con q = 0 la call americana vale lo mismo que la
+europea **hasta el décimo decimal** —el bloque lo imprime con diez—, y la put americana vale
+6,2261 más: **839 millones** sobre la posición. La paridad, en consecuencia, deja de cumplirse
+para americanas y falla por exactamente esa prima. La frontera de ejercicio está en
+**1 243,0910**, un 30,24 % por debajo del contado. Y el capítulo declara q = 0, así que ese
+resultado es *consecuencia de una decisión declarada*: la tabla de la sección 6 muestra la prima
+de la call apareciendo en 0,2185 con q = 5 % y llegando a 22,6424 con q = 30 %.
+
+**La comparación que el capítulo deja cerrada con un número.** Vender el forward deja 1 843,3151
+fijos y no cuesta nada; comprar la put deja un piso de 1 622,8297 y conserva la subida, pero la
+prima son 23 068 millones hoy. Las dos se cruzan en **2 020,4854**, un 13,38 % arriba, y por
+debajo de ese punto el forward deja más. Con eso la pregunta del comité deja de ser «cuál cubre
+mejor» y pasa a ser una de apetito por el riesgo — que es de ellos y no del modelo. El taller la
+recoge y la hace calcular de tres maneras.
+
+**Lo que el navegador cazó y el verificador no**, que esta vez fueron cuatro cosas y una es de
+una familia nueva:
+
+1. **Una `usePlotly` sin su `ChartFrame` deja la gráfica sin existir, en silencio.** La sección 5
+   registraba `cap11-conv` y no había ningún contenedor con ese `id`: `usePlotly` comprueba
+   `if (el && window.Plotly)` y se va sin quejarse, así que no hay error de consola, el capítulo
+   compila, pasa las catorce reglas y la gráfica sencillamente no está. Es **zona ciega 13** y se
+   cierra con un `grep`: los `id` de `usePlotly` tienen que aparecer todos como `ChartFrame id=`
+   o como `id=` de un `Laboratorio`.
+2. **Un laboratorio puede contradecir a su propio bloque en una cifra que ninguno de los dos
+   declara como suya.** El de convergencia estimaba el límite promediando n de 191 a 200 y daba
+   **213,1801**, mientras el bloque lo promedia de 991 a 1 000 y da **213,0764**: una décima de
+   diferencia entre dos cifras que el estudiante ve a dos clics de distancia. Se alineó la
+   ventana del laboratorio con la del bloque —cuesta 11 ms— y ahora coinciden dígito a dígito.
+3. **La pregunta del laboratorio daba por supuesto un cruce que el barrido desmiente.** Preguntaba
+   cuántas veces cruza el precio el límite entre n = 90 y n = 120, y la respuesta es **ninguna**:
+   se queda todo el tramo por encima, variando seis veces de tamaño sin cambiar de signo. Es la
+   zona ciega 6 otra vez, y en su forma más barata de evitar — se barrió y se reescribió la
+   pregunta para que pregunte lo que de verdad pasa.
+4. **La zona ciega 4 volvió, y en la traza de un árbol la aritmética encadenada no aguanta.** La
+   primera versión del R1 de la sección 5 pedía cuatro decimales y encadenaba cada paso con el
+   anterior: calculando a mano desde los valores mostrados, la tercera fila ya se salía de la
+   tolerancia de `celdasIguales`, que es relativa de 1e-6. Se rehízo para que **cada fila traiga
+   sus dos operandos escritos** y no dependa de las anteriores, y se bajó a dos decimales. Las
+   seis filas se comprobaron a mano contra el bloque antes de escribirlas.
+
+**Reparto de letras (regla 14):** la primera pasada dejó **a:7 · b:2 · c:3 · d:3** — un 46,7 %,
+que pasa la regla pero empata el margen más estrecho del curso, el del capítulo 5. Se movieron
+de índice tres preguntas —la R2 de la sección 1, la R2 de la 4 y el `Comparador` de la 6— y
+quedó en **a:4 · b:4 · c:4 · d:3**, con un máximo del 26,7 %. Las tres se volvieron a responder
+en pantalla después de moverlas.
+
+**Comprobado en pantalla, servido por HTTP:** las ocho secciones, la consola **sin un solo
+error**, las seis gráficas con sus pies leídos al lado —incluida la de convergencia, que va con
+los dos ejes logarítmicos porque es la única forma de ver a la vez los 45,93 pesos de error de
+un paso y las centésimas de los árboles finos—, los dos laboratorios recorridos en sus extremos,
+las dos `TablaTraza` en **5/5 y 6/6** escritas con coma decimal y menos tipográfico, los dos R3
+respondidos **en los dos lenguajes**, el R4, el R5 en «¡Secuencia correcta!», el R6 en **4 de 4**,
+los cuatro `MCQ`, los dos `Reto` con sus soluciones revelándose y el cuestionario en **10/10**.
+
+**Entregado:** `Material html/11_TDR_Derivados.html` (317 KB) y `talleres/TDR-11.qmd`,
+renderizado con Quarto sin errores y reproduciendo las cifras del capítulo. El taller añade la
+pregunta que el capítulo se negó a contestar: **la probabilidad de superar el punto de cruce**,
+calculada de tres maneras —frecuencia histórica sobre ventanas solapadas, lognormal con la
+deriva real y lognormal neutral al riesgo—. Sobre el contrato del capítulo las tres quedan a
+menos de dos puntos porcentuales, y **eso es una coincidencia de este ejemplo**: el taller la
+hace repetir con Banco de Bogotá —deriva medida 0,3093 %— y a dos años, donde sí se separan.
+`index.html` quedó con el capítulo enlazado, la unidad 3 abierta y la lista de talleres al día,
+que se había quedado en el 06.
 
 ---
 

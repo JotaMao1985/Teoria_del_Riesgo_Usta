@@ -1,0 +1,302 @@
+---
+title: "Taller 8 · Optimizar la cola: el programa lineal y sus límites"
+subtitle: "Teoría del Riesgo · Unidad 2 · RA4"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-08-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use `cvxpy`
+donde el andamio usa `lpSolve`. El taller está escrito para las dos rutas y se
+califica igual por cualquiera de ellas: el capítulo comprueba que los dos
+solucionadores devuelven los mismos dígitos.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una optimización de cola antes del primer peso
+
+**Fijar la cola de antemano.** Calcular el VaR de la cartera actual, quedarse con
+los escenarios que lo superan y minimizar la pérdida media sobre ellos es
+optimizar el promedio de una cartera sobre los días malos de otra. La variable
+auxiliar ζ existe exactamente para eso: para que la cola se acomode a los pesos y
+no al revés.
+
+**Alimentar el programa con escenarios que no ocurrieron.** Simular de una normal
+ajustada a los mismos datos y llamar histórico al resultado no solo subestima la
+cola: bajo una normal, minimizar el CVaR y minimizar la varianza son el mismo
+problema, así que la simulación borra la razón de ser del método.
+
+**No contar cuántos escenarios hay en la cola.** Con α = 99 % y una ventana de 250
+ruedas, la cola son **2,5 escenarios**. Declare el nivel y la ventana **por
+escrito, en la parte 1**, y reporte ese conteo al lado de cada cifra. Se califica
+que estén fijados antes.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Antes del primer cálculo, declare en tres líneas: qué nivel α, qué ventana de
+escenarios, qué restricciones y qué convención de retornos va a usar. Todo lo que
+siga se juzga contra esa declaración.
+
+```{r}
+#| label: parte1-carga
+suppressPackageStartupMessages(library(lpSolve))
+suppressPackageStartupMessages(library(quadprog))
+
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w0 <- c(0.30, 0.20, 0.25, 0.25)          # la decisión declarada del curso (D-A)
+W  <- 800000                             # millones de pesos
+
+r <- diff(log(as.matrix(precios[, acciones])))
+R <- r * 100                             # escenarios de pérdida, en %
+S <- nrow(R)
+alfa <- 0.975
+
+# El programa de Rockafellar-Uryasev. zeta = zp - zm para que pueda ser negativo.
+min_cvar <- function(RR, a) {
+  n <- nrow(RR)
+  obj <- c(rep(0, 4), 1, -1, rep(1 / ((1 - a) * n), n))
+  A   <- rbind(cbind(RR, 1, -1, diag(n)), c(rep(1, 4), rep(0, 2 + n)))
+  sol <- lp("min", obj, A, c(rep(">=", n), "="), c(rep(0, n), 1))
+  list(w = sol$solution[1:4], zeta = sol$solution[5] - sol$solution[6], valor = sol$objval)
+}
+
+# CVaR exacto por orden, para verificar cualquier cartera
+cvar <- function(w_, a, RR = R) {
+  Ls <- sort(as.vector(-(RR %*% w_)), decreasing = TRUE)
+  k <- (1 - a) * nrow(RR); m <- floor(k)
+  (sum(Ls[1:m]) + (k - m) * Ls[m + 1]) / k
+}
+
+sol <- min_cvar(R, alfa)
+round(c(sol$w * 100, zeta = sol$zeta, cvar = sol$valor), 4)
+```
+
+**1.1** Compruebe que obtiene las cifras del capítulo: la cartera de mínima CVaR
+al 97,5 % es **19,36 · 34,61 · 16,43 · 29,60**, con un corte de **2,7215 %** y un
+CVaR de **4,5815 %**. Reporte también el CVaR de la cartera declarada
+(**4,7311 %**) y el de la de mínima varianza (**4,6067 %**), y las tres cifras en
+millones.
+
+**1.2** Verifique la solución como manda el procedimiento: el valor óptimo que
+devuelve el programa y el CVaR recalculado con `cvar()` sobre los pesos que
+entrega tienen que coincidir. Reporte los dos y diga en qué decimal se separan.
+
+**1.3** Repita 1.1 al **95 %** y al **99 %**. Reporte los tres juegos de pesos y
+diga cuántos escenarios caen en la cola en cada nivel. Al 99 %, compare el CVaR
+de la cartera de mínima varianza con el de la declarada: debe encontrar que la de
+mínima varianza es **peor**, y por 187 millones. Explique por qué en dos líneas.
+
+**1.4** Con la fórmula de Rockafellar-Uryasev evaluada a mano —sin optimizar—,
+dibuje F(ζ) para la cartera declarada al 97,5 % sobre al menos treinta cortes
+entre 1 % y 6 %, y marque el mínimo. Debe caer en el VaR, 2,9577 %, y valer
+4,7312 %.
+
+---
+
+## Parte 2 · Su propio nivel y su propia ventana
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d1 <- as.integer(substr(documento, nchar(documento), nchar(documento)))
+d2 <- as.integer(substr(documento, nchar(documento) - 1, nchar(documento) - 1))
+nivel   <- c(0.95, 0.975, 0.99, 0.995)[(d1 %% 4) + 1]
+ventana <- c(250, 500, 1000, 1916)[(d2 %% 4) + 1]
+c(nivel = nivel, ventana = ventana)
+```
+
+**2.1** Resuelva la cartera de mínima CVaR con **su** nivel y **su** ventana —las
+`ventana` ruedas más recientes—. Reporte los pesos, el corte, el CVaR y, sobre
+todo, **cuántos escenarios caen en la cola**: es `(1 − nivel) × ventana`, y es el
+número que decide si lo que sigue significa algo.
+
+**2.2** Resuelva sobre la misma ventana la cartera de **mínima varianza** y
+compare las dos: distancia máxima en puntos porcentuales, en millones, y CVaR de
+cada una medido con su nivel. Diga cuál de las dos elegiría y por qué.
+
+**2.3** Repita 2.1 con los otros tres niveles, dejando su ventana fija. Grafique
+cómo se mueven los cuatro pesos al subir el nivel y responda: ¿lo que ve es
+información sobre la cola o es lo que hacen pocas observaciones? Sostenga la
+respuesta con el conteo de 2.1, no con la intuición.
+
+**2.4** Con su ventana y su nivel, quite del panel el **par del 19 y 20 de febrero
+de 2025** y repita 2.1. Reporte cuánto se mueven el CVaR y los pesos. En el panel
+completo al 99 % ese par vale 3 777 millones de cola; diga si en su ventana pesa
+más o menos, y por qué.
+
+---
+
+## Parte 3 · Los dos errores que el capítulo audita
+
+**3.1** Reproduzca el error de la **cola fijada**: calcule el VaR al 97,5 % de la
+cartera declarada, quédese con los 48 escenarios que lo superan y minimice sobre
+ellos la pérdida media. Debe obtener **100 % Banco de Bogotá**. Reporte el valor
+que ese programa imprime como objetivo (**3,6982 %**) y el CVaR **real** de esa
+cartera (**6,8601 %**), y explique en tres líneas por qué el primero es menor que
+el óptimo verdadero y qué tiene eso de peligroso.
+
+**3.2** Reproduzca el error de los **escenarios simulados**: ajuste una normal
+multivariada a los retornos del panel, simule cien mil escenarios con semilla
+declarada y resuelva sobre ellos el mismo programa. Compare los pesos con los de
+la cartera de mínima varianza del capítulo 7 y reporte la distancia máxima.
+Explique por qué esa distancia es pequeña **por una razón teórica** y no por
+casualidad.
+
+**3.3** Con las cifras de 3.2, calcule cuánto subestima la cola la versión
+simulada: el CVaR que reporta contra el CVaR histórico de esa misma cartera.
+Exprese la diferencia en millones sobre los 800 000 del fondo.
+
+---
+
+## Parte 4 · Lo que ninguna de las dos formulaciones promete
+
+El capítulo compara las dos fronteras **dentro de la muestra**, que es donde el
+optimizador siempre gana. Esta parte mide qué pasa fuera.
+
+**4.1** Parta el panel por la mitad: las **primeras 958 ruedas** para optimizar y
+las **958 siguientes** para medir. Con la primera mitad, calcule tres carteras: la
+de mínima CVaR al 97,5 %, la de mínima varianza y la declarada 30/20/25/25.
+
+**4.2** Mida el CVaR al 97,5 % de las tres carteras **sobre la segunda mitad**, que
+ninguna de ellas vio. Reporte las tres cifras en millones y ordénelas. Diga si el
+orden coincide con el que tenían dentro de la muestra.
+
+**4.3** Repita 4.1 y 4.2 al **99 %** y vuelva a ordenar. Si el orden cambia
+respecto de 4.2, explique con el conteo de escenarios de la cola por qué cambia
+justo ahí — y no lo explique con la frase «sobreajuste» sin decir a qué.
+
+**4.4** Con las cifras de 4.2 y 4.3, responda a la pregunta que el capítulo deja
+abierta: **¿el trabajo adicional de optimizar la cola se paga fuera de la
+muestra?** La respuesta debe contener un número por nivel y una condición: bajo
+qué circunstancias esperaría usted que se pagara.
+
+**4.5** Un último control, que es el que separa una conclusión de una anécdota:
+repita 4.1–4.2 partiendo el panel en **2018–2021 contra 2022–2025** y otra vez
+tomando los años **pares** para optimizar y los **impares** para medir. Diga si su
+conclusión de 4.4 sobrevive a las tres particiones. Si no sobrevive, esa es la
+conclusión.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que *«optimice el CVaR al 97,5 % de una
+cartera de cuatro acciones a partir de un archivo de precios diarios y recomiende
+los pesos»*. Pegue aquí el prompt exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección, en pesos |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención seis cosas, que son los dos R3 del capítulo más lo que
+las partes 3 y 4 acaban de mostrar: si usó la **variable auxiliar** o fijó la cola
+de antemano; si los escenarios son **históricos** o simulados; si declaró el
+**nivel y la ventana** antes de optimizar; si dijo **cuántos escenarios** caen en
+la cola; si **verificó** que el valor óptimo coincide con el CVaR recalculado; y
+si comparó contra la cartera de mínima varianza, que es la alternativa barata.
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 7 · La recomendación, y el acta
+
+**7.1** Reproduzca la comparación del capítulo entre las dos fronteras: siete
+retornos objetivo, las dos carteras en cada uno y el CVaR de las dos medido con la
+misma vara. Debe encontrar diferencias de entre **23 y 219 millones**. Reporte la
+tabla.
+
+**7.2** El área de inversiones propone adoptar la optimización CVaR como criterio
+permanente. Escriba el **párrafo de la recomendación** —seis líneas— con las
+cifras de las partes 1, 4 y 7.1. Debe decir qué recomienda, qué le concede al
+argumento contrario y qué condición lo haría cambiar de opinión. No puede usar la
+palabra «coherente» sin explicar qué significa.
+
+**7.3** El comité pregunta por qué el fondo debería pagar un programa de 1 921
+variables si el de cuatro da casi lo mismo. Responda en **una página**, sin
+fórmulas y sin código, con la recomendación en la primera frase, la evidencia en
+cifras que un lector sin estadística pueda seguir, y —esto es lo que separa una
+nota defendible de una ingenua— qué tendría que haber en la cartera para que la
+respuesta fuera la contraria.
+
+Si la nota necesita la palabra «convexo» para entenderse, todavía no está
+terminada.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: nivel, ventana y restricciones declarados **antes**; las cifras del capítulo reproducidas y la solución verificada contra el CVaR recalculado | 15 % |
+| Parte 2: cartera con nivel y ventana propios, con el conteo de escenarios de la cola al lado de cada cifra y el efecto del par defectuoso medido | 15 % |
+| Parte 3: los dos errores reproducidos, con la explicación teórica de por qué la versión simulada devuelve la cartera de mínima varianza | 15 % |
+| Parte 4: partición honesta, las tres carteras medidas fuera de muestra a dos niveles, y la conclusión contrastada con tres particiones distintas | 25 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: tabla de las dos fronteras, recomendación con su condición de cambio y nota legible para quien no sabe estadística | 10 % |
+
+Se descuenta: fijar la cola antes de optimizar; presentar como histórico un
+resultado obtenido sobre escenarios simulados; reportar un CVaR sin decir sobre
+cuántos escenarios se calculó; concluir que una formulación es mejor con una sola
+partición de la muestra; y elegir el nivel o la ventana después de haber visto los
+pesos —lo cual, si la parte 1 está bien hecha, queda registrado en el propio
+documento—.

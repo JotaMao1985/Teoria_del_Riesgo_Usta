@@ -1,0 +1,321 @@
+---
+title: "Taller 7 · La frontera: elegir un punto y poder defenderlo"
+subtitle: "Teoría del Riesgo · Unidad 2 · RA4"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-07-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y use `cvxpy`
+donde el andamio usa `quadprog`. El taller está escrito para las dos rutas y se
+califica igual por cualquiera de ellas: todo es optimización convexa y las dos
+librerías devuelven los mismos dígitos, como el capítulo comprueba en sus seis
+bloques.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una optimización de cartera antes del primer peso
+
+**Optimizar con la matriz equivocada.** La de correlación y la de covarianzas
+contienen la misma información sobre la forma en que los activos se mueven
+juntos, y distinta sobre cuánto se mueve cada uno. Optimizar con la primera
+equivale a suponer que los cuatro emisores tienen la misma volatilidad, y produce
+pesos que suman uno y pasan cualquier revisión de forma.
+
+**Resolver sin las restricciones puestas.** El régimen de inversión se escribe
+**antes** de resolver. Descubrirlo después convierte el optimizador en un
+generador de propuestas que hay que ir podando a mano, y podar a mano es elegir
+el resultado.
+
+**Declarar la ventana después de ver los pesos.** Con este panel hay al menos
+ochenta ventanas defendibles y el peso del Banco de Bogotá va del 21,61 % al
+76,59 % entre ellas. Fije la ventana, la periodicidad de reestimación y el umbral
+de rebalanceo **por escrito, en la parte 1**, antes de correr nada. Se califica
+que estén fijados antes.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Antes del primer cálculo, declare en tres líneas: qué ventana de estimación, qué
+convención de retornos, qué restricciones y qué periodicidad de reestimación va a
+usar. Todo lo que siga se juzga contra esa declaración.
+
+```{r}
+#| label: parte1-carga
+suppressPackageStartupMessages(library(quadprog))
+
+precios  <- read.csv("../datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w0 <- c(0.30, 0.20, 0.25, 0.25)          # la decisión declarada del curso (D-A)
+W  <- 800000                             # millones de pesos
+
+r  <- diff(log(as.matrix(precios[, acciones])))
+mu <- colMeans(r) * 252
+S  <- cov(r) * 252
+
+# La frontera, con o sin retorno objetivo. Nunca con cortos.
+frontera <- function(objetivo = NULL, Sig = S, med = mu) {
+  A <- cbind(rep(1, 4), diag(4)); b <- c(1, rep(0, 4)); meq <- 1
+  if (!is.null(objetivo)) {
+    A <- cbind(A[, 1], med, A[, -1]); b <- c(1, objetivo, rep(0, 4)); meq <- 2
+  }
+  pmax(solve.QP(2 * Sig, rep(0, 4), A, b, meq = meq)$solution, 0)
+}
+vol <- function(w, Sig = S) sqrt(as.numeric(t(w) %*% Sig %*% w))
+
+wg <- frontera()
+round(rbind(declarada = c(w0 * 100, retorno = sum(w0 * mu) * 100, volatilidad = vol(w0) * 100),
+            minvar    = c(wg * 100, sum(wg * mu) * 100, vol(wg) * 100)), 2)
+```
+
+**1.1** Compruebe que obtiene las cifras del capítulo: la cartera declarada rinde
+**7,69 %** con una volatilidad del **25,02 %**, y la de mínima varianza mueve
+**23,93 %** con pesos **20,76 · 38,13 · 15,97 · 25,14**. Reporte además las seis
+correlaciones de pares y su promedio, que debe ser **0,227**.
+
+**1.2** Calcule el punto de la frontera **al mismo retorno** de la declarada
+—debe dar **24,40 %** de volatilidad, es decir **0,62 pp** menos— y el punto **al
+mismo riesgo** —**8,43 %** de retorno, **0,74 pp** más—. Exprese las dos brechas
+en millones sobre los 800 000 del fondo y diga, en una línea, por qué las dos
+cifras no son la misma cosa medida dos veces.
+
+**1.3** Traza la frontera con al menos veinte puntos y superpone los cuatro
+emisores, la cartera declarada y la de mínima varianza. Responda con la gráfica y
+con una frase: ¿alguno de los cuatro emisores, por sí solo, es eficiente?
+
+**1.4** Repita 1.1 usando la **matriz de correlación** en lugar de la de
+covarianzas, como hace la IA en el R3 de la sección 2 del capítulo. Reporte los
+pesos que salen y explique, con las volatilidades del panel en la mano, por qué se
+mueven en la dirección en que se mueven.
+
+---
+
+## Parte 2 · Su propia ventana y su propio tope
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+d1 <- as.integer(substr(documento, nchar(documento), nchar(documento)))
+d2 <- as.integer(substr(documento, nchar(documento) - 1, nchar(documento) - 1))
+ventana <- c(250, 500, 750, 1000)[(d1 %% 4) + 1]     # ruedas más recientes
+tope    <- c(0.25, 0.30, 0.35, 0.40)[(d2 %% 4) + 1]  # máximo por emisor
+c(ventana = ventana, tope = tope)
+```
+
+**2.1** Estime μ y Σ **solo con su ventana** —las `ventana` ruedas más recientes—
+y resuelva la mínima varianza con su tope. Reporte los pesos, la volatilidad y el
+retorno, y póngalos al lado de los del panel completo. Diga cuál es la diferencia
+mayor, en puntos porcentuales y en millones.
+
+**2.2** ¿Su tope **ata**? Resuelva el mismo problema sin tope y compare. Si no
+ata, dígalo con las dos soluciones puestas: una restricción inactiva no cuesta
+nada, y demostrarlo es parte de la respuesta.
+
+**2.3** Con su ventana, mida el **costo de su tope** en las dos monedas: cuánta
+volatilidad añade a la cartera de mínima varianza y cuánto le mueve la razón de
+Sharpe. En el panel completo, el tope del 30 % añade 0,19 pp de volatilidad y
+**sube** el Sharpe de −0,0188 a 0,0136. Explique en dos líneas cómo puede ser que
+una restricción mejore una medida y empeore la otra.
+
+**2.4** Trace su frontera y la del panel completo en el mismo par de ejes.
+Responda: si el comité hubiera aprobado su ventana en vez de las 1 916 ruedas,
+¿qué le habría recomendado usted al fondo, y en cuántos puntos porcentuales
+difiere de lo que recomienda el capítulo?
+
+---
+
+## Parte 3 · El activo libre de riesgo y la CML
+
+La tasa libre de riesgo del curso es el **7,00 % efectivo anual** (D-D). Este
+taller trabaja en logarítmicos, así que le corresponde `log(1.07)` = **6,7659 %**.
+Usar la otra conversión del capítulo 3 —6,7668 %— no cambia ninguna conclusión,
+pero se declara cuál se usa y no se mezclan.
+
+**3.1** Calcule la cartera tangente sin cortos con el cambio de variable del
+capítulo: minimizar `y'Sy` sujeto a `(mu-rf)'y = 1` e `y >= 0`, y normalizar.
+Debe obtener **5,52 · 0 · 0 · 94,48** con retorno **12,67 %**, volatilidad
+**35,28 %** y razón de Sharpe **0,1673**. Reporte también las razones de Sharpe de
+los cuatro emisores por separado.
+
+**3.2** Dos cifras del capítulo que conviene volver a producir con su propio
+código, porque son las que más incomodan: la razón de Sharpe de la cartera de
+mínima varianza es **negativa** (−0,0188) y la de Grupo Sura es −0,0000. Explique
+cada una en una línea, y diga qué le responde a alguien que concluya de la segunda
+que Grupo Sura debe salir del universo de inversión.
+
+**3.3** Sobre la CML, calcule qué retorno se consigue con la volatilidad de la
+cartera declarada (**25,02 %**) — debe dar **10,95 %**, esto es **3,26 pp** más—.
+Diga cuánto del fondo iría a la tangente y cuánto al TES, y por qué esa mezcla
+**no** es ejecutable para un fondo de pensiones.
+
+**3.4** Repita 3.1 con **su** tope de la parte 2. Reporte el Sharpe alcanzable y
+compárelo con el 0,1673 sin tope y con el **0,0714** del tope del 30 %. Ordene los
+cuatro topes posibles del taller —0,25, 0,30, 0,35 y 0,40— por el Sharpe que
+permiten y diga si el orden es monótono; si lo es, explique por qué tenía que
+serlo.
+
+---
+
+## Parte 4 · Lo que cuesta perseguir la frontera
+
+El capítulo mide que la frontera se mueve. Esta parte mide qué pasa si uno intenta
+seguirla, que es la pregunta que ningún libro de texto responde y todo comité
+pregunta.
+
+**4.1** Con ventana de 250 ruedas, reestime la cartera de mínima varianza **cada
+21 ruedas** sobre las últimas 1 000 y guarde la serie de pesos. Grafíquela como
+área apilada.
+
+**4.2** Calcule el ***turnover*** (rotación) de cada rebalanceo —la mitad de la
+suma de los cambios absolutos de peso— y anualícelo. El orden de magnitud que sale
+con esa ventana y esa periodicidad es un turnover anual de entre el 55 % y el
+60 %, con algún rebalanceo que solo por sí mismo mueve más del 30 % de la cartera;
+su cifra exacta depende del calendario de rebalanceo que usted declaró en la parte
+1, así que repórtela con ese calendario a la vista.
+
+**4.3** A un costo de transacción de **20 puntos básicos** sobre lo que se mueve,
+convierta ese turnover en millones al año sobre los 800 000 del fondo. Compárelo
+con los **0,74 pp de retorno** —unos 5 920 millones— que la frontera prometía en
+1.2. Responda con las dos cifras juntas: ¿sobrevive la ganancia al costo de
+perseguirla?
+
+**4.4** Repita 4.1 y 4.2 con ventana de 1 000 ruedas y reestimación semestral.
+Reporte el turnover y diga qué se pierde al alargar la ventana: dé el número, no
+la intuición.
+
+**4.5** Los dos defectos declarados del panel dejan huella distinta sobre esto.
+Quite el par del **19 y 20 de febrero de 2025** y repita 1.1 —los pesos se mueven
+unos 2 pp y la volatilidad 1,27 pp—; después mida el retorno **cada quinta rueda**
+en vez de cada rueda y repita 1.1 otra vez —la correlación media sube de 0,227 a
+**0,339** y Ecopetrol baja del 20,76 % al **12,79 %**—. Diga cuál de los dos
+defectos le preocuparía más si tuviera que firmar la recomendación, y por qué.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-warning}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede —debe— usar la IA para **generar** el material que va a auditar. La
+auditoría en sí la hace usted, sin asistencia.
+:::
+
+**5.1** Pídale a un modelo de lenguaje que *«construya la cartera óptima de un
+fondo de pensiones a partir de un archivo de precios diarios de cuatro acciones,
+con una tasa libre de riesgo del 7 % efectivo anual, y recomiende los pesos»*.
+Pegue aquí el prompt exacto y la respuesta completa, sin editarlas.
+
+**5.2** Audítela. Para cada defecto que encuentre:
+
+| Qué debe decir | Ejemplo de lo que se espera |
+|---|---|
+| **Dónde** está | La línea o el paso concreto |
+| **Qué tipo** de error es | Uno de los siete del capítulo: supuesto no verificado, confusión de medida, fuga de información, convención equivocada, estimador inconsistente, resultado sin incertidumbre, interpretación indebida |
+| **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección, en pesos |
+| **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
+
+Mire con especial atención seis cosas, que son los dos R3 del capítulo más lo que
+las partes 3 y 4 acaban de mostrar: si optimizó con la matriz de **covarianzas** o
+con la de correlación; si impuso `w >= 0` o usó la **fórmula cerrada** de la
+tangente —cuyo denominador, en este panel, es negativo—; si declaró la **ventana**
+antes de estimar; si convirtió bien el 7 % efectivo a la convención de sus
+retornos; si reportó un **punto** sin rango; y si mencionó siquiera el costo de
+rebalanceo.
+
+**5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Obligatoria. Una fila por intercambio con la IA, en orden cronológico. Si no usó
+IA en absoluto, escríbalo aquí y firme esa afirmación.
+
+| # | Parte | Prompt (resumido) | Qué devolvió | Qué hice con eso |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+---
+
+## Parte 7 · La recomendación, y el acta
+
+**7.1** Reproduzca la tabla de los tres regímenes del capítulo: máxima razón de
+Sharpe sin restricciones —debe salir **−147,15 · 927,45 · 28,04 · −708,34** con
+Sharpe **−0,2891**—, solo sin cortos y con tope del 30 %. Explique en dos líneas
+por qué la primera fila es un monstruo y no un error de cálculo.
+
+**7.2** Escoja **un punto** de la frontera para recomendárselo al fondo y
+justifíquelo con tres cosas: el criterio (mínima varianza, retorno objetivo,
+máximo Sharpe con tope, u otro), la restricción que lo hace ejecutable, y la
+banda de incertidumbre que le pone la parte 2 o la parte 4. Una recomendación sin
+las tres no se califica.
+
+**7.3** El comité de riesgos le pidió una nota de **una página**, sin fórmulas y
+sin código, que responda a *«¿cambiamos los pesos del fondo?»*. Debe contener la
+recomendación en la primera frase, la evidencia en cifras que un lector sin
+estadística pueda seguir, el costo de ejecutarla, qué se pierde con cada
+alternativa, y —esto es lo que separa una nota defendible de una ingenua— qué
+compromiso con fecha adquiere el área.
+
+Si la nota necesita la palabra «semidefinida» para entenderse, todavía no está
+terminada.
+
+**7.4** Un miembro del comité propone la ventana de 125 ruedas que deja al Banco
+de Bogotá con el **76,59 %** de la cartera. Escriba el **párrafo de la objeción**,
+con las cifras que la sostienen. Debe caber en seis líneas y no puede usar la
+palabra «sobreajuste» — tiene que explicarla.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: ventana, convención, restricciones y periodicidad declaradas **antes**; las cifras del capítulo reproducidas y las dos brechas convertidas a millones | 15 % |
+| Parte 2: frontera con ventana y tope propios, con la comparación contra el panel completo y la prueba de si el tope ata | 15 % |
+| Parte 3: tangente reproducida, las dos razones de Sharpe incómodas explicadas y el punto de la CML calculado | 15 % |
+| Parte 4: serie de pesos, turnover anualizado, su costo en millones y la comparación honesta contra la ganancia de 1.2 | 25 % |
+| Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: los tres regímenes reproducidos, la recomendación con sus tres partes y la nota legible para quien no sabe estadística | 10 % |
+
+Se descuenta: optimizar con la matriz de correlación; reportar pesos negativos sin
+decir que el régimen los prohíbe; usar la fórmula cerrada de la tangente sin mirar
+el signo del denominador; presentar un punto de la frontera sin la banda que
+producen otras ventanas; recomendar un rebalanceo sin su costo; y elegir la
+ventana después de haber visto los pesos —lo cual, si la parte 1 está bien hecha,
+queda registrado en el propio documento—.

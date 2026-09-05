@@ -17,18 +17,42 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
-| 3–5 · Unidad 2, unidad 3, portal y Quarto | pendientes |
+| 3 · Unidad 2 (T12–T15) | 🟡 a medias · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · T14 y T15 bloqueadas por `curva_tes.csv` |
+| 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16, capítulo 11, terminada el 2026-08-25** · los **nueve** capítulos pasan las catorce reglas con `--con-salidas` |
+| 5 · Portal y Quarto | pendiente |
 
-⚠️ **Lo siguiente es la fase 3, que empieza por el capítulo 7.** El punto de control C
+⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
+`curva_tes.csv`**, que hay que bajar a mano del Banco de la República. La 16 se adelantó por
+eso y ya está hecha; lo siguiente que no necesita datos externos es la **tarea 17, el capítulo
+12 (Black-Scholes, Montecarlo y griegas)**, que depende de C2 y C11 y tiene los dos hechos.
+Ojo con una cosa al escribirlo: el capítulo 11 deja el límite del árbol estimado en **213,0764**
+promediando n de 991 a 1 000 y anuncia que el 12 le pone fórmula cerrada — la de Black-Scholes
+da 213,0648, así que el 12 tiene que explicar la centésima, no esconderla. El punto de control C
 quedó aprobado el 2026-08-10 con las cuatro comprobaciones hechas con evidencia, y
 **D-D quedó ratificada**: la tasa libre de riesgo del curso es **7,00 % E.A.**, y la usan
-C3, C7, C11 y C12. Ojo con la convención — el 7,00 % es efectivo y el curso anualiza
-logarítmicos por 252, con lo que la misma tasa vale **6,7667 %**; el capítulo que la use
-declara cuál aplica.
+C3, C7, C11 y C12. Ojo con la convención, porque **hay dos y no una**, y el 7,00 % es
+efectivo. El capítulo 3 la baja a tasa **diaria efectiva** —`(1,07)^(1/252) − 1` = 2,6852 pb—
+y la anualiza por 252, con lo que vale **6,7668 %**. Un capítulo que trabaje en logarítmicos
+puros usa `ln(1,07)` = **6,7659 %**. La brecha entre las dos es de 0,0009 pp anuales y no
+mueve ninguna conclusión, pero **el capítulo que use la tasa declara cuál de las dos aplica**
+y no las mezcla dentro de una misma cifra.
 
-El instrumento calificado de la unidad 1 es **`talleres/TDR-U1.qmd`**, el taller VaR→ES con
-bitácora y backtest obligatorio. Los seis talleres de capítulo son práctica. Las unidades 2
-y 3 necesitan el suyo, y va en la tarea 22.
+⚠️ Y ojo con la aritmética al citarla: `ln(1,07)` = 6,7659 % **no** es «la versión correcta»
+de 6,7667 %, sino otra convención. El 6,7667 que aparece tres veces en el capítulo 3 es la
+primera de las dos, bien calculada y mal redondeada en el cuarto decimal —6,766773 redondea
+a 6,7668—. Es una diezmilésima y no se ha tocado.
+
+El instrumento calificado de la unidad 1 es **`Material html/T1_TDR_Taller_unidad_1.html`**
+—HTML interactivo, individualizado por número de documento, 7 bloques y 23 preguntas—, y está
+enlazado desde `index.html` desde el 2026-08-20. Su fuente, su clave y su rúbrica viven en
+`talleres/clave/`, que es **privado** y está en `.gitignore`; se retoma por
+`talleres/clave/ESTADO.md`.
+
+⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
+previa**; no se toca. Los **nueve** talleres de capítulo son práctica —`TDR-07.qmd` y
+`TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto, y
+`TDR-11.qmd`, del 2026-08-25, es el tercero—. Las unidades 2 y 3 necesitan el suyo de unidad,
+y va en la tarea 22.
 
 ## Publicación
 
@@ -91,6 +115,78 @@ ruedas que exceden el VaR**, no el ES exacto de la muestra. La brecha está medi
 (30 millones al 97,5 %, **884 al 99 %**), como la de agregación del capítulo 1. Cualquier
 capítulo que vuelva a calcular un ES —el 8, el 15— usa esa misma convención o declara por qué
 no.
+
+El **capítulo 8** minimiza la cola y trae **la primera excepción declarada a una convención
+del curso**: el ES del capítulo 5 es el promedio simple de las ruedas que exceden el VaR, y
+aquí no se puede usar, porque la función de Rockafellar-Uryasev **es** el CVaR exacto por
+construcción. La portada lo declara y el primer bloque imprime las dos columnas al lado: la
+brecha es de **30 millones al 97,5 %** y **884 al 99 %**, las mismas que midió el capítulo 5.
+Sus cifras de referencia: cartera declarada CVaR 97,5 % **4,7311 %** (37 849 millones),
+mínima varianza 4,6067 % y **mínima CVaR 4,5815 %** con 19,36 · 34,61 · 16,43 · 29,60 y
+ζ = 2,7215 %. Dos resultados que conviene no volver a descubrir: **minimizar la varianza
+empeora la cola al 99 %** —6,733 % contra el 6,710 % de la declarada, 187 millones— y las
+**dos fronteras casi coinciden**, con una brecha de 23 a 219 millones sobre siete retornos
+objetivo. El capítulo no termina con «adopte CVaR» a propósito.
+
+⚠️ **Y deja medido cuántos datos hay detrás de una cola**, que es lo que el capítulo 15
+volverá a necesitar: al 97,5 % sobre el panel entero son **47,9 escenarios**; con 250 ruedas,
+6,3; al 99 % con 250 ruedas, **2,5**. El par defectuoso de febrero de 2025 —dos ruedas de
+1 916— mueve el CVaR al 99 % en **3 777 millones**, contra 1,27 pp de volatilidad en el
+capítulo 7: una anomalía apenas toca la varianza y domina la cola. Todo capítulo que
+optimice o estime sobre una cola reporta ese conteo al lado de la cifra.
+
+El **capítulo 11** abre la unidad 3 y es el primero que **no optimiza nada**: su objeto es una
+sola posición del fondo —el 30 % en Ecopetrol, 240 000 millones, 134,6801 millones de acciones
+al cierre de **1 782** del 30/12/2025— y su asunto es que el precio de un derivado **no depende
+de lo que nadie crea que va a pasar**. σ = **38,6492 %** y la deriva medida es **9,0576 %**, que
+es justo la cifra que el capítulo existe para no usar: meterla en la probabilidad devuelve
+270,2980 donde la replicación da **259,0098**, y son 1 520 millones sobre la posición.
+
+Sus cifras de referencia, por si otro capítulo las cita: forward a seis meses **1 843,3151**
+(prima de 61,3151 sobre el contado, 8 258 millones); call europea K = 1 800 **213,1513** y put
+**171,2770**, con paridad **41,8743**; réplica de un período delta **0,549648** y B **−720,4636**;
+p neutral al riesgo **0,494274** contra p real 0,515815; árbol de tres pasos **228,5938** y
+límite **213,0764**; put americana **177,5030**, prima de ejercicio anticipado **6,2261** —839
+millones— y frontera de ejercicio en **1 243,0910**, un 30,24 % abajo.
+
+⚠️ **La quinta convención declarada del curso sale de aquí, y es sobre lo que NO está en el
+panel: q = 0,00 % es una decisión, no una estimación.** El panel congelado trae cierres
+ajustados y ningún calendario de dividendos, así que el capítulo declara la tasa de dividendo en
+cero, lo dice en la portada y **mide qué cuesta**: con q = 10 % el forward pasa de 8 258
+millones por encima del contado a 3 850 por debajo. Todo capítulo que valore un derivado sobre
+una acción hereda la regla — y hereda también la consecuencia, que no es cosmética: **con q = 0
+la call americana vale exactamente lo mismo que la europea**, y ese resultado del capítulo es
+consecuencia de la decisión declarada, no de la fórmula.
+
+**Tres resultados que conviene no volver a descubrir.** La **paridad put-call se cumple con
+cualquier árbol**: con un paso la call vale 259,0098 y con quinientos 213,1513, y C − P vale
+41,8743 en las seis filas — por eso es lo único de una cotización que no depende del modelo que
+se audita, y por eso aplicarla a una americana (donde falla por la prima de 6,2261) es el R3 de
+la sección 6. **La convergencia del árbol no es monótona**: C(100) = 213,1501, C(200) =
+213,1874 y C(400) = 213,1639, así que duplicar los pasos de 100 a 200 *aleja* el precio 0,0373,
+y el salto mayor entre dos n seguidos en ese tramo —0,2424— es mayor que la distancia de 100 a
+1 000. Y las dos coberturas de una misma posición **se cruzan en 2 020,4854**, un 13,38 % arriba:
+por debajo de ahí el forward vendido deja más que la put comprada, y el capítulo se detiene ahí
+a propósito porque la probabilidad de superarlo es pregunta del comité y no del modelo.
+
+El **capítulo 7** abre la unidad 2 y trae **la primera aplicación de la tasa libre de riesgo
+en logarítmicos** —`ln(1,07)` = 6,7659 %, declarada en su portada— y las cifras que los
+capítulos 8 a 10 van a tener que reproducir o discutir. Sobre el panel completo: cartera
+declarada 7,69 % de retorno y **25,02 %** de volatilidad; mínima varianza **23,93 %** con
+20,76 · 38,13 · 15,97 · 25,14; frontera al retorno declarado **24,40 %** —la brecha es de
+0,62 pp— y al riesgo declarado **8,43 %** de retorno —0,74 pp—; cartera tangente 5,52 · 0 · 0
+· **94,48** con Sharpe **0,1673**, y con tope del 30 % por emisor 30/10/30/30 con Sharpe
+**0,0714**. Dos cosas que conviene no volver a descubrir: la razón de Sharpe de la mínima
+varianza es **negativa** (−0,0188), porque rinde menos que el TES, y la de Grupo Sura es
+−0,0000, porque rindió 6,7655 % — cuatro diezmilésimas por debajo de la tasa del curso.
+
+⚠️ **La cuarta convención declarada del curso sale de aquí: la ventana de estimación se
+declara ANTES de estimar, y con ella se reporta al menos una alternativa.** No es retórica:
+con 250 ruedas la mínima varianza deja a Ecopetrol en 0 % y sube el Banco de Bogotá al
+65,70 %; con 1 000 reparte 24,59 · 30,68 · 17,40 · 27,33. Todo capítulo que estime una matriz
+de covarianzas —el 8, sobre todo— hereda la regla y la nombra. Y el tope del **30 % por
+emisor** es un criterio **declarado del curso** (el tercero de D-A), no una cifra de la norma:
+el régimen real está en el Decreto 2555 de 2010 y es más estricto.
 
 El **capítulo 6** cierra la unidad 1 y fija la tercera convención: **el backtest reestima el
 modelo rueda a rueda con las 250 anteriores**, nunca sobre la muestra completa. Todo capítulo
@@ -296,6 +392,59 @@ que no es de forma sino de sentido: las catorce reglas pasaban y las salidas era
     barrido desmiente a partir de h ≈ 68 —el brazo de las pérdidas se levanta—: zona ciega 6
     otra vez, en un laboratorio distinto.
 
+El capítulo 7 añadió la undécima, y a diferencia de las diez anteriores **está viva en dos
+capítulos ya publicados**:
+
+11. **Una casilla de `TablaTraza` con exactamente tres decimales no se puede acertar
+    escribiéndola con coma decimal.** `normalizarCelda` casa `0.167` con su expresión de
+    notación de miles —`^-?\d{1,3}(\.\d{3})+(,\d+)?$`— y la convierte en `0167`, mientras
+    que quien teclea `0,167`, que es como escribe la prosa del material, obtiene `0.167`. La
+    traza marca la celda en rojo e imprime debajo, en verde, la misma cifra. Es el gemelo
+    exacto del menos tipográfico que ya se cerró, en el mismo componente. **Casillas afectadas
+    hoy: `3.285` y `1.475` en el capítulo 5 y `0.048` en el capítulo 6**; el 7 se escribió
+    esquivándolo, con cuatro decimales. El arreglo de verdad es de TR-CORE —exigir dos grupos
+    de miles, o mirar el número de dígitos— y toca los siete capítulos y el taller calificado,
+    cuyo TR-CORE tiene que seguir siendo byte a byte el del capítulo 6. **Mientras no se haga:
+    ninguna casilla nueva con tres decimales.**
+
+El capítulo 8 añadió la duodécima, que es de gráfica y es barata de evitar:
+
+12. **Plotly lee un eje de fechas como eje TEMPORAL, aunque las categorías sean veinte.** La
+    gráfica de las veinte peores ruedas repartía sus barras sobre ocho años de calendario y
+    quedaban finísimas, con el pie describiendo una lectura —«ocho de 2020, siete de 2022»—
+    que no se veía. Se arregla con `xaxis: { type: 'category' }`. La familia es la de
+    siempre: **el pie afirma y solo lo comprueba quien mire**, y por eso el recorrido en
+    pantalla incluye abrir cada gráfica y leer su pie al lado.
+
+El capítulo 11 añadió la decimotercera, y es la más barata de cerrar de todas:
+
+13. **Una `usePlotly` sin su `ChartFrame` deja la gráfica sin existir, en silencio.** La
+    sección 5 del capítulo 11 registraba `cap11-conv` y no había ningún contenedor con ese
+    `id`. `usePlotly` comprueba `if (el && window.Plotly)` y se va sin quejarse: no hay error
+    de consola, el capítulo compila, pasa las catorce reglas y la gráfica sencillamente no
+    está. Se cierra con un `grep` antes de dar por terminado un capítulo — los `id` de
+    `usePlotly` tienen que aparecer todos como `ChartFrame id=` o como `id=` de un
+    `Laboratorio`:
+
+    ```bash
+    grep -o "usePlotly('[^']*'" cap.html | sed "s/.*('//;s/'//" | sort -u > /tmp/a
+    grep -oE 'id="[^"]+"' cap.html | sed 's/id="//;s/"//' | sort -u > /tmp/b
+    comm -23 /tmp/a /tmp/b     # lo que salga aquí no se dibuja
+    ```
+
+    El segundo `grep` va sin prefijo a propósito: filtrarlo por `cap[0-9]+-` parece más
+    preciso y deja fuera el taller calificado, cuyas gráficas se llaman `g-hist`, `g-qq` y
+    demás — y entonces la receta las reporta a las seis como rotas cuando están bien. Los
+    nueve capítulos y el taller pasan hoy esta comprobación.
+
+    Y de la misma pasada salieron dos recordatorios que no son zonas ciegas nuevas sino las
+    viejas mordiendo otra vez. **Un laboratorio puede contradecir a su bloque en una cifra que
+    ninguno declara como suya**: el de convergencia estimaba el límite promediando n de 191 a
+    200 —213,1801— mientras el bloque lo promedia de 991 a 1 000 —213,0764—, y el estudiante
+    ve las dos a dos clics de distancia. **Y la pregunta de un laboratorio puede dar por
+    supuesto un cruce que no ocurre**: preguntaba cuántas veces cruza el precio el límite entre
+    n = 90 y n = 120, y la respuesta es ninguna. Barra el rango antes de escribir la pregunta.
+
 ⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
 correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la
 **pregunta**, no en la opción). Las 90 de la unidad 1 ya están escritas. La regla editorial:
@@ -385,19 +534,31 @@ idéntica** —Yahoo reajusta los precios hacia atrás con cada dividendo—. Si
 `git diff` y vuelva a correr `verificar.py --con-salidas`.
 
 ⚠️ **`bvc_diario.csv` tiene dos defectos conocidos y NO se corrigen**: 101 ruedas de 1 916
-sin variación en ningún precio, y el par 19–20 de febrero de 2025, que es una cotización
-defectuosa (los cuatro emisores caen 10–20 % y el ETF que los replica sube). Están
-declarados en `datos/MANIFIESTO.md` y la sección 3 del capítulo 4 los diagnostica con
-código. Limpiar el panel en silencio rompería las cifras del capítulo 4 y el argumento del
-material.
+sin variación en ninguno de los **cuatro precios de los emisores** —no en ningún precio: el
+ETF sí cotiza esos días, y solo en 4 de las 101 se quedó quieto él también—, y el par 19–20
+de febrero de 2025, que es una cotización defectuosa (los cuatro emisores caen 10–20 % y el
+ETF que los replica sube). Están declarados en `datos/MANIFIESTO.md` y la sección 3 del
+capítulo 4 los diagnostica con código. Limpiar el panel en silencio rompería las cifras del
+capítulo 4 y el argumento del material.
 
 **Los dos defectos no estropean lo mismo, y eso ya está medido.** Excluir el par de febrero
 de 2025 mueve el VaR histórico un 1 %, la volatilidad un **5 %**, el VaR de la ventana de
-250 ruedas un **10 %** y la beta apenas un 0,5 %. Las ruedas sin variación no tocan a los
-tres primeros y en cambio se llevan **un tercio de la beta** —la del portafolio contra su
-propio índice sale 0,68 en vez de ~1, y sube a 0,95 midiendo el rendimiento por semanas—:
-es el sesgo de negociación no simultánea, y es la sección 5 del capítulo 3. Quien escriba un
-capítulo que estime una covarianza con datos diarios tiene que contarlo.
+250 ruedas un **10 %** y la beta apenas un 0,5 %. Las ruedas sin variación hacen lo
+contrario: dejan el VaR casi igual (+0,5 %), suben la volatilidad un 2,7 % —de 1,5764 % a
+1,6197 % diaria, como declara el manifiesto— y en cambio mueven la beta un **8,2 %**, que es
+el único de los cuatro estimadores al que le hacen daño de verdad.
+
+⚠️ **Pero el tercio de la beta que falta NO lo explican esas 101 ruedas, y confundirlo ya
+costó una justificación mal escrita.** La beta del portafolio contra su propio índice sale
+0,6779 en vez de ~1 y sube a **0,9486** midiendo el rendimiento por semanas; excluir las 97
+ruedas en que los cuatro emisores se quedaron quietos y el ETF no, en cambio, solo la lleva
+a **0,7333** — **un quinto** de esa brecha. El resto lo pone el ajuste rezagado de las ruedas
+en que los emisores sí cotizaron, y el mecanismo es por emisor y no por panel: Banco de
+Bogotá no cambia de precio el **16,2 %** de las ruedas y Grupo Sura el **15,1 %**, contra el
+**4,9 %** del ETF. Lo que se lleva el tercio es la negociación no simultánea entera, y lo
+demuestra la agregación temporal, no la exclusión de esas ruedas. Es la sección 5 del
+capítulo 3. Quien escriba un capítulo que estime una covarianza con datos diarios tiene que
+contarlo.
 
 ⚠️ **`curva_tes.csv` está pendiente** y bloquea los capítulos 9 y 10. Hay que bajarla a mano
 del Banco de la República. Ningún otro capítulo depende de ella.
