@@ -1,0 +1,329 @@
+---
+title: "Taller 12 · La fórmula, su margen de error y lo que cuesta sostenerla"
+subtitle: "Teoría del Riesgo · Unidad 3 · RA7"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/bvc_diario.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-12-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y traduzca el
+andamio: `numpy`, `pandas` y `scipy.stats` bastan para todo el taller. Black-Scholes
+es una línea con la normal acumulada, y ninguna parte de aquí necesita una
+librería de valoración.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una valoración antes del primer precio
+
+1. **Reportar un número simulado sin su error estándar.** Es el R3 de la sección 4
+   del capítulo y es la falta más barata de evitar de todo el curso: una línea más.
+   Aquí se penaliza en todas las partes, no solo donde se pide explícitamente.
+2. **Escalar la volatilidad diaria por la raíz del tiempo sin comprobar que se
+   puede.** El capítulo mide una razón de varianzas de 0,4170 a seis meses, y la
+   parte 3 de este taller existe para averiguar cuánto de eso es señal.
+3. **Mezclar las dos convenciones de la tasa.** El curso tiene dos y este taller
+   usa la logarítmica, `log(1.07)` = 6,7659 %, que es la del capítulo 7, del 11
+   y del 12. Si en algún bloque le aparece 6,7668 %, es la otra.
+:::
+
+## Parte 1 · Reproducir el capítulo
+
+Antes de extenderlo hay que llegar a sus cifras. Complete el andamio y compruebe
+que sus salidas coinciden **dígito a dígito** con las del capítulo: call 213,0648,
+put 171,1905, paridad 41,8743, delta 0,588487 y vega 4,902761.
+
+```{r}
+#| label: parte1-carga
+precios <- read.csv(ruta, stringsAsFactors = FALSE)
+r       <- diff(log(precios$ECOPETROL.CL))
+
+S0    <- precios$ECOPETROL.CL[nrow(precios)]
+sigma <- sd(r) * sqrt(252)
+rf    <- log(1.07)     # la convención logarítmica; la otra es 6,7668 %
+q     <- 0.00          # DECLARADO: el panel no trae dividendos
+T     <- 0.5
+K     <- 1800
+ACC   <- 240000e6 / S0
+
+cat(sprintf("S0 = %.0f   sigma = %.4f %%   rf = %.4f %%   acciones = %.4f millones\n",
+            S0, sigma * 100, rf * 100, ACC / 1e6))
+```
+
+```{r}
+#| label: parte1-bs
+# Black-Scholes, las dos ramas. `tipo` es "call" o "put".
+bs <- function(S, K, r_, q_, s, T_, tipo = "call") {
+  d1 <- (log(S / K) + (r_ - q_ + 0.5 * s^2) * T_) / (s * sqrt(T_))
+  d2 <- d1 - s * sqrt(T_)
+  if (tipo == "call") S * exp(-q_ * T_) * pnorm(d1) - K * exp(-r_ * T_) * pnorm(d2)
+  else                K * exp(-r_ * T_) * pnorm(-d2) - S * exp(-q_ * T_) * pnorm(-d1)
+}
+C <- bs(S0, K, rf, q, sigma, T)
+P <- bs(S0, K, rf, q, sigma, T, "put")
+cat(sprintf("call %.4f   put %.4f   C - P %.4f   (paridad: %.4f)\n",
+            C, P, C - P, S0 - K * exp(-rf * T)))
+```
+
+::: {.callout-tip}
+## 1.1 · Las griegas, y una comprobación que no es decorativa
+
+Escriba las cinco griegas analíticas —delta, gamma, vega, theta y rho, con las
+unidades del capítulo: vega y rho por punto porcentual, theta por día— y al lado
+las mismas por diferencias finitas centradas. Cuatro tienen que coincidir hasta
+la precisión de la máquina.
+
+**La quinta no, y su respuesta tiene que decir cuál y por qué**, en dos frases.
+Si las cinco le coinciden, revise el paso temporal antes de celebrar.
+:::
+
+```{r}
+#| label: parte1-griegas
+#| eval: false
+# ESCRIBA AQUÍ. Andamio:
+d1 <- (log(S0/K) + (rf - q + 0.5*sigma^2)*T) / (sigma*sqrt(T))
+d2 <- d1 - sigma*sqrt(T)
+analiticas <- c(delta = ...,
+                gamma = ...,
+                vega  = ...,   # por punto porcentual: divida entre 100
+                theta = ...,   # por día: divida entre 365
+                rho   = ...)
+# y las mismas por diferencias finitas, con una función de una sola variable
+```
+
+## Parte 2 · Su propio contrato
+
+::: {.callout-important}
+## Su emisor y su precio de ejercicio salen de su documento
+
+Ejecute el bloque con **su número de documento**. Todo lo que sigue se hace sobre
+ese contrato, no sobre el de Ecopetrol. Dos personas con documentos distintos
+entregan cifras distintas, y eso es a propósito.
+:::
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+DOCUMENTO <- 1234567890        # <-- SU documento, sin puntos
+
+set.seed(DOCUMENTO)
+emisores <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+mi_emisor <- emisores[(DOCUMENTO %% 4) + 1]
+mi_moneyness <- c(0.90, 0.95, 1.05, 1.10)[(DOCUMENTO %% 40) %/% 10 + 1]
+cat(sprintf("Su emisor: %s   ·   su K = %.2f x contado\n", mi_emisor, mi_moneyness))
+```
+
+::: {.callout-tip}
+## 2.1 · Su call, con la ventana declarada antes de estimar
+
+Valore una call europea a seis meses sobre **su** emisor, con **su** moneyness.
+La cuarta convención del curso exige que declare la ventana de estimación de σ
+**antes** de mirar el precio, y que reporte al menos una alternativa. Entregue
+una tabla con tres ventanas —250, 500 y el panel completo— y las tres primas
+resultantes, en pesos por acción y sobre una posición nocional de 240 000
+millones.
+
+Y conteste en tres frases: **¿cuál declara usted, y por qué esa y no la que da
+la prima más cómoda?**
+:::
+
+## Parte 3 · La pregunta que el capítulo dejó abierta
+
+El capítulo mide una razón de varianzas de **0,4170** a seis meses sobre
+Ecopetrol y dice, con todas sus letras, que la dirección del hallazgo está clara
+y su magnitud no: detrás hay **quince ventanas disjuntas**. Esta parte cierra esa
+frase con un número.
+
+```{r}
+#| label: parte3-vr
+# La razón de varianzas, tal como la calcula el capítulo.
+VR <- function(x, H) var(sapply(1:(length(x) - H + 1),
+                                function(i) sum(x[i:(i + H - 1)]))) / (var(x) * H)
+cat(sprintf("VR(126) sobre Ecopetrol = %.4f\n", VR(r, 126)))
+```
+
+::: {.callout-tip}
+## 3.1 · Un intervalo para el VR, por remuestreo por bloques
+
+Un remuestreo ingenuo —sortear ruedas sueltas con reemplazo— **destruye
+exactamente lo que se quiere medir**, porque rompe la dependencia temporal y
+devuelve un VR de 1 por construcción. Hay que remuestrear **bloques**.
+
+Implemente un *block bootstrap* con bloques de 126 ruedas, 2 000 réplicas, y
+entregue: el intervalo de percentiles 2,5 y 97,5 del VR, y si el 1 queda dentro
+o fuera. Reporte también, obligatoriamente, **cuántas ventanas disjuntas** hay
+detrás.
+
+Después conteste la pregunta que importa: **¿puede afirmar ante un comité que la
+raíz del tiempo falla en este mercado, o solo que los datos no la contradicen?**
+Su respuesta tiene que distinguir esas dos cosas.
+:::
+
+```{r}
+#| label: parte3-bootstrap
+#| eval: false
+# ESCRIBA AQUÍ. Pista sobre el andamio: no sortee ruedas, sortee POSICIONES DE
+# INICIO de bloques y péguelos. Y compruebe que su bootstrap ingenuo, el que
+# rompe la dependencia, efectivamente devuelve VR cerca de 1: esa comprobación
+# vale tanto como el intervalo, porque demuestra que su método mide algo.
+```
+
+::: {.callout-tip}
+## 3.2 · El mismo barrido, sobre su emisor y a cuatro horizontes
+
+Repita el VR para H = 21, 63, 126 y 252 sobre **su** emisor, con su intervalo, y
+ponga al lado el número de ventanas disjuntas de cada uno. El capítulo encontró
+que en Ecopetrol el VR baja de 0,9258 a 21 ruedas hasta 0,3046 a 252, mientras
+las ventanas disjuntas caen de 91 a 7.
+
+Conteste: **¿en qué horizonte presentaría usted la evidencia, y por qué el que da
+el VR más llamativo no es el que la sostiene mejor?**
+:::
+
+## Parte 4 · Sostener el precio, no solo calcularlo
+
+El capítulo cubre la call de Ecopetrol sobre las quince ventanas disjuntas del
+panel y encuentra una desviación de 53,5594 COP por acción contra los 15,0451
+que promete el mundo del modelo: un factor de 3,56.
+
+::: {.callout-tip}
+## 4.1 · La misma cobertura, sobre su emisor
+
+Corra la cobertura delta con rebalanceo diario sobre **su** contrato y las
+ventanas disjuntas de **su** emisor. Entregue: media, desviación, peor ventana, y
+la razón contra la desviación simulada bajo el propio modelo.
+
+**Ojo con la simulación**: si simula, la semilla va fija y el resultado va con su
+error. Y diga cuántas ventanas disjuntas tuvo, que en un panel de 1 916 ruedas
+son siempre quince.
+:::
+
+::: {.callout-tip}
+## 4.2 · Cuánto capital reservaría, y contra qué objeción
+
+Escriba la recomendación al comité en no más de 250 palabras, con una cifra, su
+unidad, su traducción a pesos y el conteo de datos que la sostiene. Tiene que
+incluir el costo de transacción, y tiene que decir explícitamente **por qué no
+sirve** dimensionar la reserva con la desviación que el modelo se atribuye.
+:::
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-important}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede ejecutar el código de abajo, medirlo y compararlo. Lo que no puede es
+pedirle a un modelo que lo audite: pedirle a una IA que audite a otra es
+circular, y es justo la competencia que este apartado evalúa.
+:::
+
+El siguiente bloque lo produjo un modelo de lenguaje al que se le pidió «el
+precio y el error estándar de la call por Montecarlo, con reducción de varianza».
+Corre, fija la semilla, usa la tasa libre de riesgo correcta y devuelve dos
+números plausibles.
+
+```{r}
+#| label: parte5-ia
+#| eval: false
+# --- generado por un modelo de lenguaje ---
+set.seed(2026)
+n  <- 100000
+z  <- rnorm(n / 2)
+za <- c(z, -z)                       # variables antitéticas
+ST <- S0 * exp((rf - 0.5 * sigma^2) * T + sigma * sqrt(T) * za)
+pago <- exp(-rf * T) * pmax(ST - K, 0)
+
+precio <- mean(pago)
+ee     <- sd(pago) / sqrt(n)         # error estandar
+cat(sprintf("call = %.4f +- %.4f\n", precio, ee))
+```
+
+::: {.callout-tip}
+## 5.1 · Señale el defecto, clasifíquelo y mídalo
+
+Hay **un** defecto y no está en la semilla, ni en la deriva, ni en el descuento,
+ni en el pago. Entregue tres cosas:
+
+1. **La línea**, y en una frase qué hace mal.
+2. **La clasificación**, con el vocabulario del curso: supuesto no verificado ·
+   confusión de medida · fuga de información · convención equivocada · estimador
+   inconsistente · resultado sin incertidumbre · interpretación indebida.
+3. **La medición**: corrija el defecto, corra las dos versiones y diga en cuánto
+   se equivoca la del modelo. Su respuesta tiene que traer las dos cifras y su
+   cociente, **y el signo del error**: no dé por hecho que un error estándar mal
+   calculado siempre sale demasiado pequeño.
+
+**Pista sobre lo que NO es**: el precio que devuelve está bien, y de hecho es
+exactamente el mismo que el del estimador correcto. Concéntrese en el segundo
+número, y pregúntese de cuántas observaciones *independientes* dispone de verdad
+ese promedio cuando la mitad de la muestra es el reflejo de la otra mitad.
+
+**Y la pregunta que separa el 15 del 8**: una vez medido el signo, diga qué se
+pierde exactamente. El bloque aplica una técnica de reducción de varianza y
+después reporta un margen que no la refleja — ¿para qué sirvió entonces la
+técnica, y qué habría que reportar para que sirviera?
+:::
+
+## Parte 6 · Bitácora de uso de IA {#sec-bitacora}
+
+::: {.callout-important}
+## Sin esta tabla, el taller se califica sobre cero
+
+Una fila por intercambio. Si no usó IA, escriba una sola fila que lo diga: eso
+también es una bitácora válida y no penaliza.
+:::
+
+| # | Qué le pidió | Qué devolvió | Qué corrigió usted | Parte |
+|---|---|---|---|---|
+| 1 |  |  |  |  |
+| 2 |  |  |  |  |
+
+## Rúbrica {.unnumbered}
+
+| Parte | Qué se evalúa | Puntos |
+|---|---|---|
+| 1 | Cifras del capítulo reproducidas dígito a dígito · la griega que no coincide, identificada y explicada | 15 |
+| 2 | Contrato propio valorado · tres ventanas con su tabla · ventana declarada con argumento | 15 |
+| 3 | Block bootstrap correcto · el ingenuo usado como control · intervalo reportado · la distinción entre «falla» y «no se puede descartar» | 25 |
+| 4 | Cobertura sobre el emisor propio · razón contra el modelo · recomendación con cifra, conteo y costo de transacción | 25 |
+| 5 | Línea, clasificación y medición del defecto | 15 |
+| 6 | Bitácora completa | requisito |
+| | **Total** | **95** |
+
+::: {.callout-note}
+## Los cinco puntos que faltan
+
+Se otorgan a quien encuentre y documente **una afirmación de este taller o del
+capítulo 12 que sus propios datos no sostengan**. Tiene que traer el código que lo
+demuestra, y la afirmación tiene que estar escrita, no supuesta. El capítulo deja
+al menos una puerta abierta a propósito: sus hallazgos sobre la raíz del tiempo
+se apoyan en quince ventanas disjuntas, y la parte 3 le da la herramienta para
+medir si eso alcanza.
+:::

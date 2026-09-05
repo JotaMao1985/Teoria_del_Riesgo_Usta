@@ -18,16 +18,21 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
 | 3 · Unidad 2 (T12–T15) | 🟡 a medias · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · T14 y T15 bloqueadas por `curva_tes.csv` |
-| 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16, capítulo 11, terminada el 2026-08-25** · los **nueve** capítulos pasan las catorce reglas con `--con-salidas` |
+| 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** · los **diez** capítulos pasan las catorce reglas con `--con-salidas` |
 | 5 · Portal y Quarto | pendiente |
 
 ⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
-`curva_tes.csv`**, que hay que bajar a mano del Banco de la República. La 16 se adelantó por
-eso y ya está hecha; lo siguiente que no necesita datos externos es la **tarea 17, el capítulo
-12 (Black-Scholes, Montecarlo y griegas)**, que depende de C2 y C11 y tiene los dos hechos.
-Ojo con una cosa al escribirlo: el capítulo 11 deja el límite del árbol estimado en **213,0764**
-promediando n de 991 a 1 000 y anuncia que el 12 le pone fórmula cerrada — la de Black-Scholes
-da 213,0648, así que el 12 tiene que explicar la centésima, no esconderla. El punto de control C
+`curva_tes.csv`**, que hay que bajar a mano del Banco de la República. Las tareas 16 y 17 se
+adelantaron por eso y ya están hechas; lo siguiente que no necesita datos externos es la
+**tarea 18, el capítulo 13 (riesgo de crédito con ML: PD y scorecards)**, que usa
+`datos/german_credit.csv` y no depende de la curva.
+
+✅ **La centésima que el 11 dejó pendiente quedó explicada, y no era un error de nadie.**
+El árbol promediado de 991 a 1 000 da 213,0764 y Black-Scholes 213,0648, pero esos diez
+árboles van de **213,0436 a 213,1089**: su amplitud, 0,0653, es **5,6 veces la brecha**, y la
+fórmula cae dentro del rango. De ahí sale una regla que vale para todo el curso: **un método
+aproximado reporta su aproximación al lado de su resultado** —el árbol su amplitud, el
+Montecarlo su error estándar, la diferencia finita su paso—. El punto de control C
 quedó aprobado el 2026-08-10 con las cuatro comprobaciones hechas con evidencia, y
 **D-D quedó ratificada**: la tasa libre de riesgo del curso es **7,00 % E.A.**, y la usan
 C3, C7, C11 y C12. Ojo con la convención, porque **hay dos y no una**, y el 7,00 % es
@@ -49,9 +54,9 @@ enlazado desde `index.html` desde el 2026-08-20. Su fuente, su clave y su rúbri
 `talleres/clave/ESTADO.md`.
 
 ⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
-previa**; no se toca. Los **nueve** talleres de capítulo son práctica —`TDR-07.qmd` y
-`TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto, y
-`TDR-11.qmd`, del 2026-08-25, es el tercero—. Las unidades 2 y 3 necesitan el suyo de unidad,
+previa**; no se toca. Los **diez** talleres de capítulo son práctica —`TDR-07.qmd` y
+`TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto;
+`TDR-11.qmd`, del 2026-08-25, es el tercero, y `TDR-12.qmd`, del 2026-09-05, el cuarto—. Las unidades 2 y 3 necesitan el suyo de unidad,
 y va en la tarea 22.
 
 ## Publicación
@@ -168,6 +173,48 @@ y el salto mayor entre dos n seguidos en ese tramo —0,2424— es mayor que la 
 1 000. Y las dos coberturas de una misma posición **se cruzan en 2 020,4854**, un 13,38 % arriba:
 por debajo de ahí el forward vendido deja más que la put comprada, y el capítulo se detiene ahí
 a propósito porque la probabilidad de superarlo es pregunta del comité y no del modelo.
+
+El **capítulo 12** le pone fórmula al árbol del 11 y después la somete a juicio, sobre la misma
+posición y sin mover un parámetro. Sus cifras: call **213,0648**, put **171,1905**, paridad
+**41,8743** —idéntica a la de los seis árboles del 11, porque no depende del modelo—, con
+**N(d₁) = 0,588487**, que es el delta, y **N(d₂) = 0,480206**, que es la probabilidad neutral al
+riesgo de ejercicio. Confundirlas es el error más común del capítulo. Griegas: gamma 0,000799,
+vega **4,902761** por punto porcentual (660 millones), theta **−0,674040** por día (91 millones),
+rho 4,178097.
+
+⚠️ **Su argumento central es que la elección de σ vale tres órdenes de magnitud más que la
+precisión del método.** La misma call vale **147,9580** con la volatilidad de 2019 y
+**293,8791** con la de 2020: **19 653 millones** sobre la posición. Compárelo con lo que cuesta
+todo el aparato numérico del capítulo —el error del árbol, 2 millones; el error estándar de un
+Montecarlo de un millón de sorteos, 47—. Cualquier capítulo que discuta métodos numéricos antes
+de declarar su ventana de estimación tiene el orden de prioridades al revés.
+
+⚠️ **Y deja medido que la raíz del tiempo NO se cumple en este panel, con la advertencia
+pegada.** La dispersión observada de Ecopetrol a seis meses es **17,6477 %** donde σ√T predice
+**27,3291 %**: razón de varianzas **0,4170**. Pero detrás hay **quince ventanas disjuntas**, no
+las 1 791 solapadas, así que la dirección está clara y la magnitud no. A 21 ruedas el VR sube a
+**0,9258** con **91** ventanas disjuntas, y a 252 baja a 0,3046 con **7**: el horizonte que da el
+VR más llamativo es el que menos datos tiene. Todo capítulo que escale una volatilidad por √T
+—el 15, sobre todo— hereda la comprobación.
+
+**Cuatro resultados que conviene no volver a descubrir.** La **sonrisa se descompone**: la
+inclinación (28,53 → 20,83 %) viene de la asimetría de −0,6610 y **sobrevive** a reescalar la
+distribución al nivel de σ (42,26 → 32,83 %), mientras el nivel lo explica el VR; corregir uno
+no toca el otro. **Una volatilidad implícita hereda el error de modelo del precio que se
+invirtió**: invertir con la fórmula los 239,5814 que el capítulo 11 sacó de un árbol de 500
+pasos devuelve 44,0626 % donde la σ era 44,0444 %, y esos 0,0181 pp son los 0,0888 COP del
+árbol disfrazados. **Las antitéticas reducen el error estándar un factor de 1,2644, no de
+diez**, porque el pago de una call no es lineal en z. Y **la cobertura real se desvía 3,56 veces
+más que la del mundo del modelo** —53,5594 contra 15,0451, 7 213 millones—, con **ninguna** de
+las quince ventanas dentro de ±1 desviación del modelo, donde bajo normalidad deberían caber
+unas diez. Rebalancear más no lo arregla: de 63 a 126 mejora 3,7240 COP y cuesta 195 millones
+más.
+
+⚠️ **La sexta convención declarada del curso sale de aquí: un método aproximado reporta su
+aproximación al lado de su resultado.** El árbol su amplitud, el Montecarlo su error estándar,
+la diferencia finita su paso. Y el capítulo 12 es el **segundo que simula de verdad** —el otro
+es el 4—: sus bloques de Montecarlo y de cobertura declaran cifras distintas en Python y en R
+a propósito, y lo que se exige que coincida son las conclusiones, no los dígitos.
 
 El **capítulo 7** abre la unidad 2 y trae **la primera aplicación de la tasa libre de riesgo
 en logarítmicos** —`ln(1,07)` = 6,7659 %, declarada en su portada— y las cifras que los
@@ -444,6 +491,37 @@ El capítulo 11 añadió la decimotercera, y es la más barata de cerrar de toda
     ve las dos a dos clics de distancia. **Y la pregunta de un laboratorio puede dar por
     supuesto un cruce que no ocurre**: preguntaba cuántas veces cruza el precio el límite entre
     n = 90 y n = 120, y la respuesta es ninguna. Barra el rango antes de escribir la pregunta.
+
+El capítulo 12 añadió la decimocuarta, y es la zona ciega 5 con la consecuencia de la 1:
+
+14. **Una propiedad con la FORMA equivocada deja la sección entera en blanco.** `Comparador`
+    recibe `a` y `b` como objetos `{ etiqueta, codigo }` —y `codigo` admite `{python, r}`—; al
+    pasarle los bloques como cadenas de texto, React lanzó
+    `Cannot read properties of undefined` y **la sección 4 del capítulo 12 no renderizó nada**,
+    con las catorce reglas en verde. El nombre de la propiedad existía; su forma, no. **Mire la
+    firma Y un uso real en un capítulo publicado antes de escribir un componente nuevo.**
+
+    De la misma pasada salieron tres recordatorios más. **`Eq` no admite `inline`**: es un
+    `<div>`, y la prosa del curso escribe los símbolos como texto. **`lineaCorrecta` hay que
+    leerla en pantalla, no contarla en el archivo** —el R3 de la sección 5 apuntaba a `h = 1e-4`
+    en vez de a la vega, en los dos lenguajes—. Y **un ayudante compartido se copia, no se
+    reinventa**: `miles` reescrito con `toLocaleString('es-CO')` imprime `1.800` con punto de
+    miles donde los capítulos 7 y 11 usan espacio.
+
+⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
+no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
+Award · HelpCircle · TrendingUp · BarChart · Activity · Layers · Table · Clock · Bug · Scale ·
+Sliders · ChevronLeft · ChevronRight`. **El capítulo 11 usa tres que no están —`ArrowDownUp`,
+`GitBranch` y `Workflow`— y tiene tres secciones sin icono desde el 2026-08-25.** Está
+detectado y sin corregir.
+
+⚠️ **La zona ciega 4 tiene un caso que no se arregla con más decimales: la cancelación.** El R1
+del capítulo 12 pedía al principio la probabilidad neutral al riesgo p\*, que es un cociente de
+dos diferencias pequeñas; calculada desde los valores redondeados que la tabla muestra se
+desvía en el cuarto decimal en cuanto n crece —con n = 200 el estudiante obtiene 0,4996 y la
+tabla guarda 0,4995— y **mostrar u con seis decimales no lo salva**. La salida fue trazar solo
+magnitudes estables y **mostrar p\* en vez de pedirla**. Regla: antes de esconder una casilla,
+compruebe que se recupera desde lo mostrado; si no, muéstrela.
 
 ⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
 correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la

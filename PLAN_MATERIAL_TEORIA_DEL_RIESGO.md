@@ -1137,7 +1137,7 @@ como pendiente separado.
 | Tarea | Capítulo | Alcance | Sesiones |
 |---|---|---|---|
 | ✅ 16 | C11 Derivados y binomial · **terminada 2026-08-25** | M-L | 1 |
-| 17 | C12 Black-Scholes y Montecarlo (a · b) | L | 2 |
+| ✅ 17 | C12 Black-Scholes y Montecarlo · **terminada 2026-09-05** | L | 2 |
 | 18 | C13 Crédito con ML (a · b) | L | 2 |
 | 19 | C14 Validación e interpretabilidad | M-L | 1 |
 | 20 | C15 EVT, cópulas y riesgo operativo | M-L | 1 |
@@ -2357,6 +2357,138 @@ hace repetir con Banco de Bogotá —deriva medida 0,3093 %— y a dos años, do
 que se había quedado en el 06.
 
 ---
+
+---
+
+### Fase 4 — Tarea 17: capítulo 12 · 2026-09-05
+
+Black-Scholes, Montecarlo y griegas sobre **la misma posición del capítulo 11**, sin mover
+un parámetro: contado 1 782, σ 38,6492 %, r = ln(1,07) = 6,7659 %, q = 0,00 % declarado,
+seis meses, K = 1 800, 134,6801 millones de acciones. Seis secciones, doce bloques
+ejecutados, ocho gráficas, 15 ejercicios y 15 justificaciones.
+
+**La reconciliación que el capítulo existía para hacer.** El capítulo 11 dejó el límite del
+árbol en **213,0764** promediando n de 991 a 1 000 y anunció fórmula cerrada; Black-Scholes da
+**213,0648**. La brecha es de 0,0116 —2 millones sobre la posición— y el resultado no es
+«corregir uno de los dos»: esos diez árboles van de **213,0436 a 213,1089**, así que su
+amplitud, 0,0653, es **5,6 veces la brecha** y la fórmula cae dentro del rango. Promediar
+árboles reduce el error de discretización y no lo anula. De ahí sale la regla que el capítulo
+generaliza: **un método aproximado reporta su aproximación al lado de su resultado** —el árbol
+su amplitud, el Montecarlo su error estándar, la diferencia finita su paso—.
+
+**Cifras de referencia, por si otro capítulo las cita.** Call **213,0648**, put **171,1905**,
+paridad **41,8743** —la misma de los seis árboles del capítulo 11, porque no depende del
+modelo—, d₁ 0,223655 y d₂ −0,049636, con **N(d₁) = 0,588487** (el delta) y
+**N(d₂) = 0,480206** (la probabilidad neutral al riesgo de ejercicio). Griegas: gamma
+0,000799, vega **4,902761** por punto porcentual, theta **−0,674040** por día, rho 4,178097.
+
+**Los cuatro supuestos, medidos contra el panel.** Exceso de curtosis **11,6501** y
+Jarque-Bera 10 974,8; la peor rueda de Ecopetrol es −22,4269 %, que son **9,21 sigmas** —una
+normal la da una vez cada 6,22 × 10¹⁹ ruedas—. La volatilidad anual va de **25,3810 %** (2019)
+a **55,1892 %** (2020), un factor de 2,17, con autocorrelación de |r| de 0,2666. Ecopetrol no
+cotiza el **9,8643 %** de las ruedas (189 de 1 916). Y la traducción a pesos, que es el
+argumento del capítulo: **la misma call vale 147,9580 con la σ de 2019 y 293,8791 con la de
+2020**, o sea **19 653 millones** sobre la posición — tres órdenes de magnitud más que todo
+el aparato numérico del capítulo junto (el error del árbol vale 2 millones y el error
+estándar de un Montecarlo de un millón de sorteos, 47).
+
+**La sección 3 trae dos hallazgos que hay que separar, y una advertencia.** Como el panel no
+trae opciones cotizadas, la sonrisa se construye invirtiendo la **distribución empírica de
+Ecopetrol a seis meses**, recentrada a neutral al riesgo como manda el capítulo 11. Sale
+inclinada —de 28,5314 % a 20,8337 %— y **muy por debajo** de la línea de 38,6492 %. Los dos
+efectos se separan reescalando la distribución al nivel de σ manteniendo su forma: la
+inclinación **sobrevive** (42,2594 → 32,8317, un recorrido de 9,4 pp contra 7,7), así que la
+causa es la asimetría de −0,6610 y no el nivel. El nivel lo explica otra cosa: la dispersión
+observada a seis meses es **17,6477 %** donde σ√T predice **27,3291 %**, con una razón de
+varianzas de **0,4170**. ⚠️ **Y la advertencia es la mitad del hallazgo**: detrás hay
+**quince ventanas disjuntas**, no las 1 791 solapadas. La dirección está clara; la magnitud,
+no. El taller 12 cierra esa frase con un *block bootstrap*.
+
+⚠️ **Y una lección de auditoría que ata la sección 3 con la 1.** Invertir con la fórmula el
+precio que el capítulo 11 obtuvo con un árbol de 500 pasos —239,5814, con σ de 44,0444 %—
+devuelve **44,0626 %**. Los 0,0181 pp no son mercado: son los 0,0888 COP en que el árbol
+cotiza por encima de la fórmula, reaparecidos como volatilidad. **Una implícita hereda el
+error de modelo de lo que se invirtió.**
+
+**El laboratorio de la sonrisa barre el horizonte, y ahí está la sorpresa.** A **21 ruedas**
+el VR vale **0,9258** —casi camino aleatorio— con **91 ventanas disjuntas**, y la curva es una
+sonrisa de verdad, en U, con su mínimo en K/S₀ = 1,05. A 252 ruedas el VR cae a **0,3046** con
+solo **7** ventanas. Es decir: el horizonte que da el VR más llamativo es justo el que menos
+datos tiene, y el laboratorio lo hace ver moviendo un deslizador.
+
+**Montecarlo es la segunda excepción declarada del curso**, y su lección es la del capítulo 4
+llevada a término: con un millón de sorteos Python da **213,1410** y R **212,9288**, y la
+fórmula cerrada, 213,0648, **cae entre las dos**. En las seis filas de las dos pestañas la
+última columna dice «si»: el intervalo del 95 % contiene la respuesta exacta. Lo que tiene que
+reproducirse entre lenguajes son las conclusiones. Las antitéticas se midieron en vez de
+prometerse: reducen el error estándar un factor de **1,2644** —1,60 veces menos sorteos—, no
+diez, porque el pago de una call no es lineal en z.
+
+**La sección 6 es el argumento más fuerte del capítulo.** La cobertura delta con rebalanceo
+diario sobre las quince ventanas disjuntas del panel se desvía **53,5594** COP por acción
+—7 213 millones, el 25,14 % de la prima— contra los **15,0451** que promete el mundo del
+modelo: un factor de **3,56**. Y el detalle que lo remata: **ninguna de las quince ventanas
+cae dentro de ±1 desviación del modelo**, donde bajo normalidad deberían caber unas diez; al
+ensanchar a ±2, donde deberían caber catorce, caben tres. Rebalancear más no lo arregla: pasar
+de 63 a 126 rebalanceos mejora la desviación real solo **3,7240** COP y cuesta **195 millones**
+más, con el costo diario total en 1 065 millones. La regla que sale: **un modelo puede ser
+buena herramienta de cotización y pésima herramienta de provisión**, y no se le puede pedir que
+mida su propio error.
+
+**Lo que el navegador cazó y el verificador no**, que esta vez fueron seis y una deja tarea
+pendiente en un capítulo publicado:
+
+1. **`Comparador` recibe `a` y `b` como objetos `{etiqueta, codigo}`, no como cadenas.**
+   Pasarle los bloques como plantillas de texto hizo que React lanzara
+   `Cannot read properties of undefined` y dejó **la sección 4 entera en blanco**. Las catorce
+   reglas pasaban. Es la zona ciega 5 —nombres y formas de propiedad que nadie valida—
+   produciendo el síntoma de la zona ciega 1.
+2. **`lineaCorrecta` mal contada, en los dos lenguajes.** El R3 de la sección 5 apuntaba a
+   `h = 1e-4` en vez de a la línea de la vega: 19 donde iba 20 en Python y 15 donde iba 16 en R.
+   Contar líneas en el archivo no sirve —los renglones en blanco cuentan y las listas empiezan
+   en cero—: hay que **leer los números en pantalla**, que es lo que hizo falta para cerrarlo.
+3. **`Eq` no admite `inline`**: es un `<div>`. La prosa del curso escribe los símbolos como
+   texto, y así se quedó.
+4. **Solo hay 17 iconos definidos, y no avisan.** `SectionHeader` hace `{Icon && <Icon/>}`, así
+   que un nombre inexistente **no dibuja nada, en silencio**. ⚠️ **El capítulo 11 usa tres que
+   no están —`ArrowDownUp`, `GitBranch` y `Workflow`— y por tanto tiene tres secciones sin
+   icono desde el 25 de agosto.** No se tocó aquí; queda anotado.
+5. **Reescribir un ayudante «equivalente» no es equivalente.** `miles` escrito con
+   `toLocaleString('es-CO')` imprime **1.800** con punto de miles, donde los capítulos 7 y 11
+   usan espacio. Se copió el de ellos. Un ayudante compartido se copia, no se reinventa.
+6. **La zona ciega 6, dos veces, y las dos antes de publicar.** La pregunta del laboratorio de
+   la vega afirmaba que la vega alcanza un máximo y baja: **el barrido de 1 a 60 meses la
+   muestra creciendo siempre** —su máximo real está en 88 meses—. Al barrer bien apareció algo
+   mejor: la vega de K = 2 600 **adelanta** a la del dinero a los **16,35 meses**, y a un mes no
+   tiene prácticamente ninguna. Y el MCQ de la sección 6 decía «once de las quince ventanas» y
+   son **diez**, y el pie de su gráfica decía «caben dos» donde **no cabe ninguna**.
+
+⚠️ **La zona ciega 4 mordió antes de llegar al navegador, y en un sitio nuevo.** La primera
+versión del R1 de la sección 1 pedía p\* a mano. No se puede: p\* es un cociente de dos
+diferencias pequeñas y, calculado desde los valores redondeados que la tabla muestra, se
+desvía en el cuarto decimal en cuanto n crece —con n = 200 el estudiante obtiene 0,4996 y la
+tabla guarda 0,4995—. Se rehízo para que se tracen Δt, σ√Δt y u, que son estables, y **p\* se
+muestra en vez de pedirse**, que además es lo que hay que ver converger a 0,5. La otra traza,
+la de la cobertura, se calculó **desde los valores mostrados** y no desde la precisión completa,
+que es la única forma de que las ocho casillas sean recuperables a mano.
+
+**Comprobado en pantalla, servido por HTTP:** las seis secciones y la evaluación, la consola
+**sin un solo error**, las ocho gráficas con sus pies leídos al lado, los dos laboratorios
+barridos en sus extremos —el de la sonrisa reproduce la malla dígito a dígito en los seis
+horizontes—, las dos `TablaTraza` en **4/4 y 8/8** escritas con coma decimal y menos
+tipográfico, los **dos R3 respondidos en los dos lenguajes** con «¡Diagnóstico correcto!», el
+`OrdenaPasos` en «¡Secuencia correcta!», el `Emparejamiento` en **5 de 5**, los `MCQ` en verde
+con su justificación, el cuestionario en **100 %** y los dos `Reto` revelando su solución.
+
+**Entregado:** `Material html/12_TDR_Black_Scholes.html` (331 KB) y `talleres/TDR-12.qmd`,
+renderizado con Quarto sin errores. El taller cierra la frase que el capítulo dejó abierta: un
+*block bootstrap* de la razón de varianzas, con el remuestreo ingenuo como control —porque
+sortear ruedas sueltas devuelve VR ≈ 1 por construcción— y la distinción entre «la raíz del
+tiempo falla» y «los datos no la contradicen». Su R3 es un Montecarlo con antitéticas que
+reporta `sd(pago)/sqrt(n)` tratando 100 000 sorteos dependientes como independientes: el
+precio está bien y el error estándar **sobra** un 26 % (1,1057 declarado contra 0,8747 real),
+con lo que la técnica de reducción de varianza queda anulada en el reporte. `index.html` quedó
+con el capítulo enlazado y la unidad 3 al día.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.
