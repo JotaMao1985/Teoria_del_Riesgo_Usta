@@ -358,12 +358,23 @@ leer entera la justificación antes de ampliarla.
 
 ⚠️ **Los repartos de letras de la regla 14, para cuando haya que tocar un enunciado.** Son
 **c1 a:3 · b:5 · c:4 · d:3**, **c2 a:4 · b:4 · c:4 · d:3**, **c3 a:1 · b:6 · c:4 · d:4**,
-**c4 a:1 · b:6 · c:3 · d:5**, **c5 a:3 · b:3 · c:2 · d:7** y **c6 a:1 · b:5 · c:3 · d:6**.
-Los seis pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo
-del 50 %— y el 3, el 4 y el 6 dejan la (a) con una sola aparición. Reescribir las opciones
+**c4 a:1 · b:6 · c:3 · d:5**, **c5 a:3 · b:3 · c:2 · d:7** y **c6 a:4 · b:4 · c:4 · d:3**
+—el del 6 se reequilibró el 2026-09-07 desde a:1 · b:5 · c:3 · d:6, y es hoy el único
+repartido a partes iguales—. Los seis pasan. El del 5 es el margen más estrecho —7 de 15 es
+el 46,7 % contra un techo del 50 %— y el 3 y el 4 dejan la (a) con una sola aparición. Reescribir las opciones
 no mueve ninguna letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver
 a mirar el reparto de su capítulo. La comprobación barata, si se dudó, es extraer los quince
 enunciados de antes y de después y contar cuántos cambiaron; en el 6 fueron cero.
+
+⚠️ **Y la posición no es la única pista de forma: la auditoría del capítulo 6 (2026-09-05)
+encontró dos más que ninguna regla vigila.** La primera, el **énfasis tipográfico**: en 3 de
+las 15 preguntas había exactamente una opción con versalita o raya, y en las tres era la
+correcta. La segunda, los **marcadores absolutistas** —«siempre», «nunca», «basta con», «da
+igual», «es la definición»—: 10 de los 45 distractores los llevaban y ninguna correcta, así
+que descartarlos eliminaba un distractor gratis en 9 de las 15. Sumado al reparto de letras,
+un estudiante que no leyera sacaba **7 de 15**. Las tres pistas se cerraron en el 6 (énfasis
+0 de 15, absolutismos 3 de 45 —y los tres son legítimos, donde absolutizar ES el error—), y
+**los otros ocho capítulos no se han mirado**.
 
 **Cómo se hizo en el capítulo 2, por si sirve de receta.** El objetivo por pregunta es
 `min(máximo de los distractores − 1, 1,30 × su media)`: la correcta deja de ser la más larga
@@ -448,8 +459,11 @@ capítulos ya publicados**:
     que quien teclea `0,167`, que es como escribe la prosa del material, obtiene `0.167`. La
     traza marca la celda en rojo e imprime debajo, en verde, la misma cifra. Es el gemelo
     exacto del menos tipográfico que ya se cerró, en el mismo componente. **Casillas afectadas
-    hoy: `3.285` y `1.475` en el capítulo 5 y `0.048` en el capítulo 6**; el 7 se escribió
-    esquivándolo, con cuatro decimales. El arreglo de verdad es de TR-CORE —exigir dos grupos
+    hoy: `3.285` y `1.475` en el capítulo 5**; el 7 se escribió esquivándolo, con cuatro
+    decimales, y el `0.048` del capítulo 6 se cerró el 2026-09-06 pasando la casilla a
+    `0.0480` y añadiendo «a cuatro decimales» a su instrucción — con eso aciertan `0,048`,
+    `0,0480` y `0.0480`, y el único formato que sigue fallando es `0.048` con punto, que es
+    justo el que la expresión de miles se traga. El arreglo de verdad es de TR-CORE —exigir dos grupos
     de miles, o mirar el número de dígitos— y toca los siete capítulos y el taller calificado,
     cuyo TR-CORE tiene que seguir siendo byte a byte el del capítulo 6. **Mientras no se haga:
     ninguna casilla nueva con tres decimales.**

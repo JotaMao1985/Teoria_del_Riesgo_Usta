@@ -3587,7 +3587,7 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                 '    es[k] = v[v > q].mean()          # Expected Shortfall al 99 %',
                 '',
                 '# Backtest del ES: se cuentan las ruedas cuya perdida supero el ES y se',
-                '# contrasta esa tasa con la prueba de Kupiec, igual que con el VaR.',
+                '# contrasta esa tasa con la prueba de Kupiec.',
                 'exc = L[VENT:] > es',
                 'p0 = 1 - ALFA                    # tasa de excedencia bajo el modelo',
                 'N, pi = int(exc.sum()), exc.mean()',
@@ -3612,7 +3612,7 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                 '}',
                 '',
                 '# Backtest del ES: se cuentan las ruedas cuya perdida supero el ES y se',
-                '# contrasta esa tasa con la prueba de Kupiec, igual que con el VaR.',
+                '# contrasta esa tasa con la prueba de Kupiec.',
                 'exc <- L[(VENT + 1):length(L)] > es',
                 'p0 <- 1 - ALFA                   # tasa de excedencia bajo el modelo',
                 'N <- sum(exc); pi <- mean(exc)',
@@ -3632,10 +3632,9 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                 <Motivacion icon="fa-gavel"
                     gancho="El modelo falló nueve veces en un año cuando debía fallar dos y media. ¿Es un mal modelo o fue un mal año? Hay una prueba para eso, y del resultado depende cuánto capital exige el regulador.">
                     El capítulo 4 entregó un número y el 5 entregó otro mejor. Ninguno de los dos vino
-                    con una garantía. Este capítulo la pide: toma el VaR que el fondo habría reportado
-                    cada una de las 1 666 ruedas de los últimos siete años, cuenta cuántas veces se
-                    quedó corto y decide, con una prueba estadística, si esa cuenta es compatible con
-                    lo que el modelo prometía. La respuesta cuesta 66 189 millones de pesos.
+                    con una garantía. Este capítulo la pide: pone a prueba, rueda a rueda, el VaR que
+                    el fondo habría reportado durante los últimos siete años, y decide si sus fallos
+                    son compatibles con lo que prometía. La respuesta cuesta 66 189 millones de pesos.
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
@@ -3648,9 +3647,10 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                         <Termino def="Backtesting o prueba retrospectiva: contrastar las predicciones que un modelo habría hecho en el pasado contra lo que realmente ocurrió, sin usar información posterior a cada predicción.">backtesting</Termino>{' '}
                         (prueba retrospectiva) sin fuga de información, aplicar las tres pruebas de
                         razón de verosimilitud —Kupiec, Christoffersen y la conjunta— y las dos de
-                        Acerbi-Székely para el ES, leer la zona semáforo de Basilea y traducirla a
+                        Acerbi-Székely para el <em>Expected Shortfall</em> (déficit esperado), que en adelante
+                        va como <strong>ES</strong>, leer la zona semáforo de Basilea y traducirla a
                         pesos de capital, y saber qué se hace con un modelo que falla. Sobre este
-                        fondo, ninguno de los cinco modelos ensayados pasa las cuatro pruebas, y ese
+                        fondo, ninguno de los cinco modelos ensayados —los cuatro del curso y el remedio de la sección 7— pasa las cuatro pruebas, y ese
                         resultado es el contenido del capítulo, no su fracaso.
                     </p>
                 </CalloutPro>
@@ -3665,8 +3665,8 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                 </Box>
 
                 <Timeline eventos={[
-                    { year: '1995', text: 'La enmienda de riesgo de mercado de Basilea autoriza modelos internos y, con ellos, inventa la zona semáforo: el supervisor no audita el modelo, audita su historial de fallos.' },
                     { year: '1995', text: 'Kupiec publica la prueba de proporción de fallos. Es una razón de verosimilitud de una línea y sigue siendo el primer control que corre cualquier área de riesgo.' },
+                    { year: '1996', text: 'La enmienda de riesgo de mercado de Basilea autoriza modelos internos y, con ellos, inventa la zona semáforo: el supervisor no audita el modelo, audita su historial de fallos.' },
                     { year: '1998', text: 'Christoffersen añade la pregunta que a Kupiec le falta: no basta con fallar el número correcto de veces, hay que fallar en desorden. Su prueba de independencia es la sección 3.' },
                     { year: '2014', text: 'Acerbi y Székely resuelven el backtesting del ES con dos estadísticos que no necesitan elicitabilidad. Sin ellos, el cambio de medida del capítulo 5 se quedaba sin control.' },
                 ]} />
@@ -3709,7 +3709,7 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                     excepciones sobre esa misma muestra produce un backtest que casi siempre pasa,
                     porque el modelo ya vio los días malos. Todos los bloques de este capítulo
                     reestiman el VaR <strong>1 666 veces</strong>, una por rueda, con las 250
-                    anteriores. Es el mismo tipo de error que la unidad 3 llamará fuga de información
+                    anteriores. Es el mismo error que en la unidad 3 volverá a aparecer, con el mismo nombre,
                     cuando aparezca en un modelo de crédito.
                 </Box>
 
@@ -3729,30 +3729,30 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                     <MCQ
                         pregunta="Un área de riesgo estima el GARCH del capítulo 2 sobre las 1 916 ruedas del panel, calcula con él la volatilidad de cada día y cuenta cuántas veces la pérdida superó el VaR resultante. Obtiene 19 excepciones de 1 916, casi exactamente el 1 %. ¿Qué está mal?"
                         opciones={[
+                            { texto: 'Que el GARCH se ajustó con la muestra completa, así que el VaR de cada rueda usa información posterior a esa rueda.', correcta: true, justificacion: 'Esta pregunta es la razón de ser de la tercera convención declarada del curso: el backtest reestima el modelo rueda a rueda con las 250 anteriores, nunca sobre la muestra completa. El modelo ya vio marzo de 2020 cuando predijo marzo de 2020. Con esa fuga cualquier modelo parece calibrado, y este da 0,99 % clavado. Reestimando de verdad, el VaR histórico da 26 excepciones sobre 1 666 ruedas —1,56 %— y Kupiec lo rechaza con LR_uc = 4,5175. La convención se hereda entera en el capítulo 14, donde el mismo error aparece al validar el modelo de crédito y cuesta lo mismo: un modelo que se valida solo.' },
                             { texto: 'Nada: 19 de 1 916 es 0,99 %, que es lo prometido, y el GARCH está bien especificado según el capítulo 2.', correcta: false },
-                            { texto: 'Que el GARCH se ajustó con la muestra completa, así que el VaR de cada rueda usa información posterior a esa rueda.', correcta: true, justificacion: 'Esta pregunta es la razón de ser de la tercera convención declarada del curso: el backtest reestima el modelo rueda a rueda con las 250 anteriores, nunca sobre la muestra completa. El modelo ya vio marzo de 2020 cuando predijo marzo de 2020. Con look-ahead cualquier modelo parece calibrado, y este da 0,99 % clavado. Reestimando de verdad, el VaR histórico da 26 excepciones sobre 1 666 ruedas —1,56 %— y Kupiec lo rechaza con LR_uc = 4,5175.' },
                             { texto: 'Que 1 916 ruedas son demasiadas: el marco de Basilea exige exactamente 250 y una ventana más larga infla artificialmente el número de excepciones.', correcta: false },
-                            { texto: 'Que la volatilidad condicional del GARCH no sirve para calcular un VaR: solo el VaR histórico admite prueba retrospectiva porque no supone ninguna distribución.', correcta: false },
+                            { texto: 'Que la volatilidad condicional del GARCH no sirve para calcular un VaR: solo el VaR histórico admite backtesting porque no supone ninguna distribución.', correcta: false },
                         ]}
                     />
                 </Ejercicio>
 
                 <OrdenaPasos
-                    titulo="R5 · El orden de una prueba retrospectiva"
+                    titulo="R5 · El orden de un backtesting"
                     enunciado="Reordene el procedimiento con el que un área de riesgo valida su modelo de VaR ante el supervisor. Hay pasos que si se hacen tarde invalidan todo lo anterior, y por lo menos uno que si se hace tarde convierte la prueba en la que más convenía."
                     pasos={[
                         'Fijar por política el modelo, el nivel, la ventana de estimación y el horizonte, y dejarlos por escrito antes de calcular ningún VaR',
-                        'Declarar de antemano qué pruebas se aplicarán y con qué nivel de significancia se rechazará, para no elegirlas después de ver los resultados',
-                        'Diagnosticar el panel de precios —ruedas sin variación, cotizaciones defectuosas, huecos— y documentar qué se hace con cada anomalía',
+                        'Declarar de antemano, sobre ese modelo y ese nivel ya fijados, qué pruebas se aplicarán y con qué nivel de significancia se rechazará, para no elegirlas después de ver los resultados',
+                        'Diagnosticar el panel de precios con el que se va a estimar esa ventana —ruedas sin variación, cotizaciones defectuosas, huecos— y documentar qué se hace con cada anomalía',
                         'Reestimar el VaR rueda a rueda usando únicamente información anterior a cada rueda, y guardar la serie completa de predicciones',
                         'Marcar las excepciones comparando la pérdida realizada de cada rueda con el VaR que se había predicho para ella',
                         'Contrastar la frecuencia de excepciones con la prueba de cobertura incondicional',
                         'Contrastar su independencia y, con las dos, la prueba conjunta de cobertura condicional',
-                        'Contrastar la magnitud de las excepciones contra el ES predicho, que es lo único que mide cuánto se falló y no solo cuántas veces',
-                        'Documentar cada excepción con su fecha, su magnitud y su causa, separando el fallo del modelo del dato defectuoso',
+                        'Contrastar la magnitud de las excepciones contra el ES predicho, que es lo que ninguna de las dos pruebas anteriores mira: cuánto se falló y no solo cuántas veces',
+                        'Documentar, para el expediente que acompaña esos tres veredictos, cada excepción con su fecha, su magnitud y su causa, separando el fallo del modelo del dato defectuoso',
                         'Decidir y dejar escrita la acción: recalibrar, cambiar de modelo, o sostenerlo con argumentos',
                     ]}
-                    pista="Dos trampas. La primera es el paso de las pruebas y el nivel de significancia: elegirlas después de ver los resultados es elegir el veredicto, y con cuatro pruebas disponibles siempre hay una que pasa. La segunda es el diagnóstico del panel, que va antes de cualquier cálculo y no cuando un número salga raro: sobre este fondo, una sola rueda defectuosa mueve la p de Kupiec de 0,0336 a 0,0552, es decir, cruza el 5 % en la dirección que le conviene a quien reporta."
+                    pista="Dos trampas. La primera es el paso de las pruebas y el nivel de significancia: elegirlas después de ver los resultados es elegir el veredicto, y con cuatro pruebas disponibles la tentación es reportar la que pase: aquí el paramétrico t pasa una —y es el que peor agrupa—, mientras que el histórico y el EWMA no pasan ninguna. La segunda es el diagnóstico del panel, que va antes de cualquier cálculo y no cuando un número salga raro: sobre este fondo, una sola cotización defectuosa —el par del 19 y 20 de febrero de 2025— mueve la p de Kupiec de 0,0336 a 0,0552, es decir, cruza el 5 % en la dirección que le conviene a quien reporta."
                 />
             </>
         );
@@ -3792,11 +3792,11 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                     separators: ',.',
                     margin: { t: 30, r: 16, b: 46, l: 54 },
                     xaxis: { title: 'Rueda de prueba (1 = 25 de enero de 2019)', range: [0, 1680] },
-                    yaxis: { title: 'Pérdida diaria del portafolio (%)', range: [-9, 19.5] },
+                    yaxis: { title: 'Pérdida diaria del portafolio (%)', range: [-19, 19.5] },
                     legend: { orientation: 'h', y: 1.14, x: 0, font: { size: 10 } },
                     annotations: [
-                        { x: 268, y: 18.6, text: 'marzo de 2020: siete excepciones en trece ruedas', showarrow: true, arrowhead: 0, ax: 95, ay: -6, font: { size: 10, color: '#B91C1C' } },
-                        { x: 1455, y: 13.9, text: '19 de febrero de 2025', showarrow: true, arrowhead: 0, ax: -70, ay: -14, font: { size: 10, color: '#B45309' } },
+                        { x: 268, y: 18.6, text: 'febrero–marzo de 2020: siete excepciones en catorce ruedas', showarrow: true, arrowhead: 0, ax: 95, ay: -6, font: { size: 10, color: '#B91C1C' } },
+                        { x: 1456, y: 13.9, text: '19 de febrero de 2025', showarrow: true, arrowhead: 0, ax: -70, ay: -14, font: { size: 10, color: '#B45309' } },
                     ],
                 }), []);
 
@@ -3804,11 +3804,11 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                 <>
                     <Motivacion icon="fa-calculator"
                         gancho="Veintiséis fallos donde el modelo prometía dieciséis con siete. La pregunta no es si es mucho: es si es tanto como para no poder atribuirlo a la suerte.">
-                        Diez ruedas de más en siete años no parecen gran cosa. Pero el modelo no dijo
-                        «unas dieciséis»: dijo que cada rueda tenía exactamente un 1 % de romperse, y
-                        de esa afirmación se deduce con qué probabilidad se ven 26 fallos si la
-                        afirmación es cierta. Kupiec convirtió esa deducción en una línea de código
-                        en 1995, y sigue siendo el primer control que corre cualquier área de riesgo.
+                        En el comité alguien pregunta si veintiséis es mucho, y la sala se parte entre
+                        los que dicen que sí y los que dicen que el año fue raro. Ninguno de los dos
+                        bandos trae un criterio. El modelo sí lo dio: dijo que cada rueda tenía
+                        exactamente un 1 % de romperse, y de ahí se deduce con qué probabilidad se ven
+                        26 fallos si eso es cierto. Kupiec lo puso en una línea de código en 1995.
                     </Motivacion>
 
                     <h3>La razón de verosimilitud, en cuatro pasos</h3>
@@ -3882,12 +3882,12 @@ pi <- N / T
                             { clave: 'valor', titulo: 'Valor' },
                         ]}
                         filas={[
-                            { paso: '1', instruccion: 'la tasa observada: 12 / 250', valor: '0.048' },
+                            { paso: '1', instruccion: 'la tasa observada: 12 / 250, a cuatro decimales', valor: '0.0480' },
                             { paso: '2', instruccion: '238 × ln(0.99) = 238 × (−0.0100503)', valor: '-2.3920' },
                             { paso: '3', instruccion: '12 × ln(0.01) = 12 × (−4.6051702)', valor: '-55.2620' },
                             { paso: '4', instruccion: 'ln L bajo la tasa prometida: paso 2 + paso 3', valor: '-57.6540' },
                             { paso: '5', instruccion: '238 × ln(0.952) = 238 × (−0.0491902)', valor: '-11.7073' },
-                            { paso: '6', instruccion: '12 × ln(0.048) = 12 × (−3.0365598)', valor: '-36.4387' },
+                            { paso: '6', instruccion: '12 × ln(0.048) = 12 × (−3.0365543)', valor: '-36.4387' },
                             { paso: '7', instruccion: 'ln L bajo la tasa observada: paso 5 + paso 6', valor: '-48.1460' },
                             { paso: '8', instruccion: 'LR_uc = −2 × (paso 4 − paso 7)', valor: '19.0160' },
                         ]}
@@ -3901,8 +3901,8 @@ pi <- N / T
                             opciones={[
                                 { texto: 'Que el modelo es excelente: cero excepciones es el mejor resultado posible y LR_uc vale cero cuando no hay fallos.', correcta: false },
                                 { texto: 'Que la prueba no se puede aplicar, porque con N = 0 el logaritmo de la tasa observada no está definido y el estadístico es infinito.', correcta: false },
-                                { texto: 'Que LR_uc = 5,025 y el modelo se RECHAZA al 5 %: la prueba es simétrica y cero fallos son tan incompatibles con el 1 % como siete.', correcta: true, justificacion: 'La simetría es lo que casi nadie espera: LR_uc = 5,025 contra un crítico de 3,84, así que cero excepciones se rechaza igual que siete. Lo que el rechazo dice es que el VaR está sobreestimado y que el fondo inmoviliza capital que no necesita. Y el capítulo añade la ironía cara — el semáforo de Basilea absuelve ese cero y le cobra el multiplicador mínimo, mientras empieza a cobrar recargo en la quinta excepción, donde Kupiec da p = 0,1619 y no rechaza nada—. Las dos herramientas discrepan en los dos extremos.' },
-                                { texto: 'Que el resultado es compatible con el 1 % prometido, porque lo esperado son 2,5 excepciones y cero está a menos de dos desviaciones de esa cifra.', correcta: false },
+                                { texto: 'Que LR_uc = 5,025 y el modelo se rechaza al 5 %: la prueba es simétrica y cero fallos son tan incompatibles con el 1 % como siete.', correcta: true, justificacion: 'La simetría es lo que casi nadie espera: LR_uc = 5,025 contra un crítico de 3,84, así que cero excepciones se rechaza igual que siete. Lo que el rechazo dice es que el VaR está sobreestimado y que el fondo inmoviliza capital que no necesita. Y el capítulo añade la ironía cara — el semáforo de Basilea absuelve ese cero y le cobra el multiplicador mínimo, mientras empieza a cobrar recargo en la quinta excepción, donde Kupiec da p = 0,1619 y no rechaza nada—. Las dos herramientas discrepan en los dos extremos. Conviene saber que el rechazo es del estadístico asintótico: la binomial exacta da p = 0,19 y no rechazaría, y esa discrepancia con solo 250 ruedas es una de las razones por las que Basilea no usa la prueba sino una tabla de conteos.' },
+                                { texto: 'Que el resultado es compatible con el 1 % prometido, porque lo esperado son 2,5 excepciones y cero está a menos de una desviación de esa cifra.', correcta: false },
                             ]}
                         />
                     </Ejercicio>
@@ -3953,8 +3953,8 @@ pi <- N / T
             return (
                 <>
                     <Motivacion icon="fa-layer-group"
-                        gancho="Siete de las veintiséis excepciones caen en trece ruedas de marzo de 2020. Un modelo que falla así no es un modelo con mala suerte: es un modelo que no se entera.">
-                        Repartir 26 fallos en siete años es tolerable. Amontonar siete en dos semanas
+                        gancho="Siete de las veintiséis excepciones caen en catorce ruedas, entre el 27 de febrero y el 18 de marzo de 2020. Un modelo que falla así no es un modelo con mala suerte: es un modelo que no se entera.">
+                        Repartir 26 fallos en siete años es tolerable. Amontonar siete en tres semanas
                         significa que cuando el mercado se rompió, el VaR siguió reportando el número
                         de la semana anterior mientras la pérdida lo atravesaba un día tras otro. Eso
                         es exactamente lo que no puede pasar: el capital tiene que estar antes del
@@ -3986,7 +3986,7 @@ pi <- N / T
                         Christoffersen observó que las dos hipótesis —la tasa correcta y la
                         independencia— son restricciones separadas sobre el mismo modelo, así que sus
                         estadísticos se suman y los grados de libertad también:{' '}
-                        <strong>LR<sub>cc</sub> = LR<sub>uc</sub> + LR<sub>ind</sub></strong>, con
+                        <strong>LR_cc = LR_uc + LR_ind</strong>, con
                         distribución χ² de <strong>dos</strong> grados de libertad y valor crítico
                         5,9915 al 5 %. La suma es lo que hace que la prueba conjunta sea más que la
                         yuxtaposición de las otras dos: un modelo puede pasar las dos por separado con
@@ -4009,12 +4009,12 @@ pi <- N / T
                             { celdas: ['Paramétrico t (4,23 gl)', '21', { v: '0,3044', lee: 'Pasa con holgura. Es el único de los cuatro que Kupiec no rechaza, y es también el que peor agrupa: quien se detenga en esta columna adopta el modelo con las excepciones más apiladas de los cuatro. Es el R3 de esta sección.' }, { v: '0,0000', lee: 'El peor de los cuatro: LR_ind = 22,2724, π₁₁ = 23,81 % contra π₀₁ = 0,97 %. Tras una excepción, la siguiente es 24,5 veces más probable.' }, '0,0000'] },
                             { celdas: ['EWMA (λ = 0,94)', '32', { v: '0,0008', lee: 'El que peor cuenta: 32 excepciones donde se esperaban 16,7. La volatilidad EWMA reacciona rápido y por eso baja el VaR en cuanto amaina, lo que produce fallos en los repuntes cortos.' }, { v: '0,0237', lee: 'Y a la vez el que mejor reparte: LR_ind = 5,1139, 3,5 veces menor que el del histórico. Es la contrapartida de reaccionar rápido, y es la pista de la sección 7.' }, '0,0003'] },
                         ]}
-                        nota="Las cifras subrayadas explican qué dicen. Ningún modelo pasa la prueba conjunta. El único que pasa Kupiec es el que peor pasa la independencia, y el único que se acerca en independencia es el que peor pasa Kupiec."
+                        nota="Ningún modelo pasa la prueba conjunta. El único que pasa Kupiec es el que peor pasa la independencia, y el único que se acerca en independencia es el que peor pasa Kupiec."
                     />
 
                     <TablaTraza
                         titulo="R1 · La prueba de independencia a mano"
-                        enunciado={<>El backtest de otro fondo, sobre 250 ruedas, produjo esta matriz de transición: <strong>n₀₀ = 230, n₀₁ = 8, n₁₀ = 8 y n₁₁ = 3</strong>. Complete LR<sub>ind</sub> paso a paso. Cada casilla es exactamente el producto o la suma de las de al lado; redondee las tres probabilidades a seis decimales y todo lo demás a cuatro.</>}
+                        enunciado={<>El backtest de otro fondo, sobre 250 ruedas, produjo esta matriz de transición: <strong>n₀₀ = 230, n₀₁ = 8, n₁₀ = 8 y n₁₁ = 3</strong>. Complete LR_ind paso a paso. Cada casilla es exactamente el producto o la suma de las de al lado; redondee las tres probabilidades a seis decimales y todo lo demás a cuatro.</>}
                         codigo={{
                             python: `n00, n01, n10, n11 = 230, 8, 8, 3
 
@@ -4045,12 +4045,12 @@ pi <- N / T
                             { paso: '8', instruccion: 'LR_ind = −2 × (paso 4 − (paso 5 + paso 6 + paso 7))', valor: '7.2328' },
                         ]}
                         ocultas={['valor']}
-                        pista="El denominador de π₀₁ es 238 y no 250: las transiciones son 249 y de ellas 238 arrancan en un día sin excepción. El paso 4 es la verosimilitud restringida —una sola probabilidad— y los pasos 5 a 7 son la libre, con dos. El resultado, 7,2328, supera 3,8415: se rechaza la independencia, aunque las 11 excepciones en 250 ruedas hagan que Kupiec pase sin problema."
+                        pista="El denominador de π₀₁ es 238 y no 250: las transiciones son 249 y de ellas 238 arrancan en un día sin excepción. El paso 4 es la verosimilitud restringida —una sola probabilidad— y los pasos 5 a 7 son la libre, con dos. El resultado, 7,2328, supera 3,8415: se rechaza la independencia. Y aquí Kupiec rechaza también, porque 11 excepciones en 250 ruedas son el 4,40 % contra el 1 % prometido —LR_uc = 15,8906—: este backtest falla por las dos razones a la vez, y con 11 excepciones la zona de Basilea sería roja. El caso en que solo falla la independencia está en el bloque de arriba: el paramétrico t pasa Kupiec con p = 0,3044 y es, de los cuatro, el que peor agrupa."
                     />
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · el conteo cuadra"
-                        enunciado="Se le pidió a un modelo de lenguaje que validara por prueba retrospectiva el VaR paramétrico t del capítulo 4 y que recomendara si adoptarlo. Escribió el backtest sin fuga de información, aplicó Kupiec correctamente y cerró con una recomendación. El código corre y sus dos cifras —21 excepciones de 1 666, p = 0,3044— son exactas. Señale la línea que no se sostiene y clasifique el error."
+                        enunciado="Se le pidió a un modelo de lenguaje que validara por backtesting el VaR paramétrico t del capítulo 4 y que recomendara si adoptarlo. Escribió el backtest sin fuga de información, aplicó Kupiec correctamente y cerró con una recomendación. El código corre y sus dos cifras —21 excepciones de 1 666, p = 0,3044— son exactas. Señale la línea que no se sostiene y clasifique el error."
                         lineas={IA_CONTEO_CUADRA}
                         lineaCorrecta={{ python: 29, r: 26 }}
                         tipos={TIPOS_ERROR_RIESGO}
@@ -4083,7 +4083,7 @@ pi <- N / T
                                     separators: ',.',
                                     margin: { t: 30, r: 16, b: 46, l: 54 },
                                     xaxis: { title: 'Rueda de prueba', range: [0, b.T + 20] },
-                                    yaxis: { title: 'Pérdida diaria (%)', range: [-9, 19.5] },
+                                    yaxis: { title: 'Pérdida diaria (%)', range: [-19, 19.5] },
                                     legend: { orientation: 'h', y: 1.14, x: 0, font: { size: 10 } },
                                 },
                             };
@@ -4091,7 +4091,7 @@ pi <- N / T
                         lectura={(s) => {
                             const b = backtestHistorico(s.vent, s.alfa);
                             const v = (p) => (p < 0.05 ? 'RECHAZA' : 'no rechaza');
-                            return `Ventana ${s.vent}, nivel ${dec(s.alfa * 100, 1)} %: ${b.T} ruedas de prueba, `
+                            return `Ventana ${s.vent}, nivel ${dec(s.alfa * 100, 1)} %: ${miles(b.T)} ruedas de prueba, `
                                 + `${b.N} excepciones donde se esperaban ${dec(b.T * (1 - s.alfa), 1)} `
                                 + `(${dec(b.tasa * 100, 2)} % contra ${dec((1 - s.alfa) * 100, 1)} %). `
                                 + `Kupiec LR_uc = ${dec(b.uc, 4)}, p = ${dec(b.puc, 4)} — ${v(b.puc)}. `
@@ -4099,7 +4099,7 @@ pi <- N / T
                                 + `(π₀₁ = ${dec(b.ch.p01 * 100, 2)} %, π₁₁ = ${dec(b.ch.p11 * 100, 2)} %). `
                                 + `Conjunta LR_cc = ${dec(b.cc, 4)}, p = ${dec(b.pcc, 4)} — ${v(b.pcc)}.`;
                         }}
-                        pregunta="Busque una combinación en la que Kupiec no rechace: hay 127 de las 170 que permiten los dos deslizadores. Ahora busque una en la que tampoco rechace la independencia: quedan cinco. Y una que además pase la conjunta: queda exactamente una, ventana de 175 ruedas al 99,5 %, con 14 excepciones. Explique por qué haberla encontrado NO valida el modelo, y diga qué paso del procedimiento de la sección 1 existe precisamente para impedir que ese resultado se reporte."
+                        pregunta="Busque una combinación en la que Kupiec no rechace: hay 127 de las 170 que permiten los dos deslizadores. La independencia la pasan cinco de esas 170, pero solo una está en las dos listas —ventana de 175 ruedas al 99,5 %, con 14 excepciones—, y es también la única que pasa la conjunta: a las otras cuatro las rechaza Kupiec. Explique por qué haberla encontrado NO valida el modelo, y diga qué paso del procedimiento de la sección 1 existe precisamente para impedir que ese resultado se reporte."
                         nota="Todo se calcula aquí con la misma aritmética del bloque, sobre la serie redondeada a cuatro decimales. En la posición de arranque —250 y 99 %— el laboratorio devuelve exactamente lo que el bloque declara: 26 excepciones, LR_uc = 4,5175, LR_ind = 17,6911 y LR_cc = 22,2086. Los valores p se calculan con las formas cerradas de la chi-cuadrado de uno y dos grados de libertad."
                     />
 
@@ -4138,8 +4138,8 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                         }}
                         pregunta="Las dos pruebas parten del mismo vector de excepciones. ¿Cuál es la afirmación correcta?"
                         opciones={[
-                            { texto: 'Que Christoffersen sustituye a Kupiec: al usar más información sobre la misma serie, su veredicto es siempre el más informativo y basta con reportar el suyo.', correcta: false },
-                            { texto: 'Que miden cosas distintas y ninguna implica a la otra: Kupiec resume la serie en el par (N, T) y Christoffersen en las cuatro transiciones.', correcta: true, justificacion: 'Kupiec es ciego al ORDEN —resume la serie en el par (N, T)— y Christoffersen es ciego al NIVEL de la tasa, porque resume en las cuatro transiciones; la prueba conjunta existe porque hacen falta las dos, y aquí da p = 0,0000. La independencia de los dos veredictos es el argumento del capítulo, y va con cifras: sobre las 1 666 ruedas de prueba, LR_uc = 4,5175 y LR_ind = 17,6911, casi cuatro veces mayor. Y el capítulo trae el caso opuesto para que no parezca casualidad — la t con 4,23 grados de libertad es la única que Kupiec no rechaza, con p = 0,3044, y la que peor pasa la independencia, con LR_ind = 22,2724—.' },
+                            { texto: 'Que miden cosas distintas y ninguna implica a la otra: Kupiec resume la serie en el par (N, T) y Christoffersen en las cuatro transiciones.', correcta: true, justificacion: 'Kupiec es ciego al ORDEN —resume la serie en el par (N, T)— y Christoffersen es ciego al NIVEL de la tasa, porque resume en las cuatro transiciones; la prueba conjunta existe porque hacen falta las dos, y aquí da p = 0,0000. La independencia de los dos veredictos es el argumento del capítulo, y va con cifras: sobre las 1 666 ruedas de prueba, LR_uc = 4,5175 y LR_ind = 17,6911, casi cuatro veces mayor. Y el capítulo trae el caso opuesto para que no parezca casualidad — la t con 4,23 grados de libertad es la única que Kupiec no rechaza, con p = 0,3044, y la que peor pasa la independencia, con LR_ind = 22,2724—. Y el agrupamiento se paga: las siete excepciones de la ventana regulatoria suman 133 410 millones de exceso sobre el VaR reportado, casi todas apiladas en unas pocas semanas.' },
+                            { texto: 'Que Christoffersen sustituye a Kupiec: al usar más información sobre la misma serie, su veredicto absorbe al del otro y basta con reportar el suyo.', correcta: false },
                             { texto: 'Que hay un error en B: con 21 excepciones las transiciones deberían sumar 21 y no 1 665, así que la matriz está mal construida y por eso el veredicto sale distinto.', correcta: false },
                             { texto: 'Que A es la prueba regulatoria y B es un refinamiento académico, de modo que ante veredictos opuestos prevalece A, que es la que respalda la zona semáforo de Basilea.', correcta: false },
                         ]}
@@ -4153,109 +4153,165 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
         /* ============================================================
            SECCIÓN 4 — BACKTESTING DEL ES: ACERBI-SZÉKELY
         ============================================================ */
-        const Seccion4 = () => (
-            <>
-                <Motivacion icon="fa-water"
-                    gancho="El capítulo 5 cambió de medida y dejó al fondo sin prueba. Contar excepciones ya no sirve: el ES no promete una frecuencia, promete una magnitud.">
-                    Adoptar el Expected Shortfall resolvió la coherencia y creó un problema nuevo. El
-                    VaR se contrasta contando —se superó o no se superó—, y esa cuenta la reproduce
-                    cualquiera. El ES no dice cuántas veces se rompe nada: dice cuánto se pierde en
-                    promedio cuando se rompe. Durante quince años la industria no supo contrastar esa
-                    afirmación, y en 2014 dos autores la contrastaron con dos líneas.
-                </Motivacion>
+        const Seccion4 = () => {
+            /* Las razones L/ES de cada excepción. Su MEDIA es exactamente Z₁ + 1,
+               así que esta gráfica y el estadístico de la tabla son el mismo
+               objeto visto de dos maneras: la nube y su altura promedio. */
+            usePlotly('cap6-les',
+                () => {
+                    const b = backtestHistorico(VENTANA, NIVEL);
+                    const dens = (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+                    const L = RP.map(v => -v), T = RP.length - VENTANA, Lt = b.L;
+                    const xh = [], rh = [];
+                    b.exc.forEach((e, i) => { if (e) { xh.push(i + 1); rh.push(Lt[i] / b.es[i]); } });
+                    // El ES del paramétrico normal: mu + sd * phi(z) / (1 - alfa).
+                    const xn = [], rn = [];
+                    for (let k = 0; k < T; k++) {
+                        const v = L.slice(k, k + VENTANA);
+                        const mu = media(v);
+                        const sd = Math.sqrt(v.reduce((a, c) => a + (c - mu) * (c - mu), 0) / (VENTANA - 1));
+                        const vr = mu + sd * Z99, es = mu + sd * dens(Z99) / (1 - NIVEL);
+                        if (Lt[k] > vr) { xn.push(k + 1); rn.push(Lt[k] / es); }
+                    }
+                    return [
+                        {
+                            x: xh, y: rh, type: 'scatter', mode: 'markers', name: 'histórico 250',
+                            marker: { color: '#3D008D', size: 7 },
+                            hovertemplate: 'rueda %{x} · L/ES %{y:.2f}<extra></extra>',
+                        },
+                        {
+                            x: xn, y: rn, type: 'scatter', mode: 'markers', name: 'paramétrico normal',
+                            marker: { color: '#B45309', size: 8, symbol: 'diamond-open', line: { width: 1.4 } },
+                            hovertemplate: 'rueda %{x} · L/ES %{y:.2f}<extra></extra>',
+                        },
+                    ];
+                },
+                () => ({
+                    separators: ',.',
+                    margin: { t: 30, r: 16, b: 46, l: 54 },
+                    xaxis: { title: 'Rueda de prueba (1 = 25 de enero de 2019)', range: [0, 1680] },
+                    yaxis: { title: 'Pérdida realizada / ES predicho', rangemode: 'tozero' },
+                    legend: { orientation: 'h', y: 1.16, x: 0, font: { size: 10 } },
+                    shapes: [{
+                        type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 1, y1: 1,
+                        line: { color: '#111827', width: 1.4, dash: 'dot' }, layer: 'below',
+                    }],
+                    annotations: [{
+                        x: 30, y: 1, xanchor: 'left', yanchor: 'bottom', text: 'la pérdida iguala al ES',
+                        showarrow: false, font: { size: 10, color: '#111827' },
+                    }],
+                }), []);
 
-                <h3>Por qué el ES es más difícil de validar</h3>
-                <p>
-                    Una medida es <Termino def="Elicitabilidad: propiedad de un estadístico que puede escribirse como el minimizador de la esperanza de una función de pérdida. Permite comparar y clasificar modelos con una puntuación, que es lo que el backtesting clásico hace.">elicitable</Termino>{' '}
-                    si existe una función de puntuación cuyo minimizador es esa medida. La media lo es,
-                    y el cuantil también: por eso el VaR se puede contrastar con una función de
-                    pérdida que solo mira si se superó el umbral. El <strong>ES no es elicitable por
-                    sí solo</strong>, y ese resultado —de 2011— se leyó durante un tiempo como que el
-                    ES no era contrastable. No era eso lo que decía. Acerbi y Székely mostraron en
-                    2014 que se puede contrastar perfectamente si se acepta lo que un supervisor
-                    acepta de todos modos: que el modelo entrega, además del ES, la distribución
-                    predictiva con la que lo calculó.
-                </p>
+            return (
+                <>
+                    <Motivacion icon="fa-water"
+                        gancho="El capítulo 5 cambió de medida y dejó al fondo sin prueba. Contar excepciones ya no sirve: el ES no promete una frecuencia, promete una magnitud.">
+                        Adoptar el Expected Shortfall resolvió la coherencia y creó un problema nuevo. El
+                        VaR se contrasta contando —se superó o no se superó—, y esa cuenta la reproduce
+                        cualquiera. El ES no dice cuántas veces se rompe nada: dice cuánto se pierde en
+                        promedio cuando se rompe. Durante los quince años que siguieron a su propuesta, la industria no supo contrastar esa
+                        afirmación, y en 2014 dos autores la contrastaron con dos líneas.
+                    </Motivacion>
 
-                <h3>Los dos estadísticos</h3>
-                <p>
-                    Los dos comparan la pérdida realizada con el ES que el modelo había predicho{' '}
-                    <em>para ese día</em>. El primero mira solo las ruedas en que hubo excepción; el
-                    segundo, todas.
-                </p>
+                    <h3>Por qué el ES es más difícil de validar</h3>
+                    <p>
+                        Una medida es <Termino def="Elicitabilidad: propiedad de un estadístico que puede escribirse como el minimizador de la esperanza de una función de pérdida. Permite comparar y clasificar modelos con una puntuación, que es lo que el backtesting clásico hace.">elicitable</Termino>{' '}
+                        si existe una función de puntuación cuyo minimizador es esa medida. La media lo es,
+                        y el cuantil también: por eso el VaR se puede contrastar con una función de
+                        pérdida que solo mira si se superó el umbral. El <strong>ES no es elicitable por
+                        sí solo</strong>, y ese resultado —de 2011— se leyó durante un tiempo como que el
+                        ES no era contrastable. No era eso lo que decía. Acerbi y Székely mostraron en
+                        2014 que se puede contrastar perfectamente si se acepta lo que un supervisor
+                        acepta de todos modos: que el modelo entrega, además del ES, la distribución
+                        predictiva con la que lo calculó.
+                    </p>
 
-                <Eq>{'$$Z_1 = \\frac{1}{N_T}\\sum_{t\\,:\\,L_t > \\mathrm{VaR}_t} \\frac{L_t}{\\mathrm{ES}_t} \\;-\\; 1$$'}</Eq>
+                    <h3>Los dos estadísticos</h3>
+                    <p>
+                        Los dos comparan la pérdida realizada con el ES que el modelo había predicho{' '}
+                        <em>para ese día</em>. El primero divide entre las excepciones que hubo; el
+                        segundo, entre las que debía haber. Conviene fijar aquí el vocabulario: una{' '}
+                        <strong>excepción</strong> es una rueda que superó el VaR y una{' '}
+                        <strong>excedencia</strong>, una que superó el ES — que está más arriba, así
+                        que son bastantes menos.
+                    </p>
 
-                <p>
-                    <strong>Z<sub>1</sub> mide severidad, no frecuencia.</strong> Divide entre el
-                    número de excepciones observadas, así que un modelo que falla el doble de veces
-                    pero con excesos del tamaño correcto le sale bien. Bajo la hipótesis nula vale
-                    cero en esperanza; positivo significa que la cola pesa más de lo que el modelo
-                    creía.
-                </p>
+                    <Eq>{'$$Z_1 = \\frac{1}{N_T}\\sum_{t\\,:\\,L_t > \\mathrm{VaR}_t} \\frac{L_t}{\\mathrm{ES}_t} \\;-\\; 1$$'}</Eq>
 
-                <Eq>{'$$Z_2 = \\frac{1}{T(1-\\alpha)}\\sum_{t=1}^{T} \\frac{L_t\\,\\mathbb{1}\\{L_t > \\mathrm{VaR}_t\\}}{\\mathrm{ES}_t} \\;-\\; 1$$'}</Eq>
+                    <p>
+                        <strong>Z₁ mide severidad, no frecuencia.</strong> Divide entre el
+                        número de excepciones observadas, así que un modelo que falla el doble de veces
+                        pero con excesos del tamaño correcto le sale bien. Bajo la hipótesis nula vale
+                        cero en esperanza; positivo significa que la cola pesa más de lo que el modelo
+                        creía.
+                    </p>
 
-                <p>
-                    <strong>Z<sub>2</sub> mide las dos cosas a la vez.</strong> El denominador es el
-                    número de excepciones <em>esperadas</em> y no el observado, de modo que fallar de
-                    más lo penaliza dos veces: una por cada exceso y otra por haber más excesos de la
-                    cuenta. Es la prueba que un supervisor querría, y también la más difícil de pasar.
-                </p>
+                    <Eq>{'$$Z_2 = \\frac{1}{T(1-\\alpha)}\\sum_{t=1}^{T} \\frac{L_t\\,\\mathbb{1}\\{L_t > \\mathrm{VaR}_t\\}}{\\mathrm{ES}_t} \\;-\\; 1$$'}</Eq>
 
-                <Box type="tip" label="De dónde salen los valores críticos, y por qué van literales">
-                    Ni Z<sub>1</sub> ni Z<sub>2</sub> tienen distribución conocida en forma cerrada:
-                    se obtiene por simulación bajo la distribución predictiva del propio modelo. Los
-                    del bloque —<strong>+0,0515</strong> y <strong>+0,4217</strong> al 5 %— se
-                    calcularon <strong>fuera</strong> del capítulo con 200 000 réplicas normales de
-                    1 666 ruedas y entran como constantes. Simular dentro del bloque haría que las dos
-                    pestañas dieran cifras distintas —<span className="inline-code">np.random.default_rng(2026)</span>{' '}
-                    y <span className="inline-code">set.seed(2026)</span> no dan la misma muestra—, y
-                    esa es exactamente la convención que el curso solo rompe donde el tema es la
-                    simulación, como en la sección 4 del capítulo 4. Se comprobó la estabilidad con
-                    tres semillas: los dos críticos coinciden hasta la tercera cifra.
-                </Box>
+                    <p>
+                        <strong>Z₂ mide las dos cosas a la vez.</strong> El denominador es el
+                        número de excepciones <em>esperadas</em> y no el observado, de modo que fallar de
+                        más lo penaliza dos veces: una por cada exceso y otra por haber más excesos de la
+                        cuenta. Es la prueba que un supervisor querría, y también la más difícil de pasar.
+                    </p>
 
-                <CodeTabs titulo="Z₁ y Z₂ sobre los cuatro modelos" bloques={EJ_ACERBI}
-                    nota="Los cuatro rechazan, y por mucho. El menos malo, el histórico, tiene un Z₁ casi cinco veces por encima del crítico; el peor, el paramétrico normal, doce veces. Todos los signos son positivos: las colas de este panel son más gruesas de lo que cualquiera de los cuatro modelos supone." />
+                    <Box type="tip" label="De dónde salen los valores críticos, y por qué van literales">
+                        Ni Z₁ ni Z₂ tienen distribución conocida en forma cerrada:
+                        sus distribuciones se obtienen por simulación bajo la distribución predictiva del propio modelo. Los
+                        del bloque —<strong>+0,0515</strong> y <strong>+0,4217</strong> al 5 %— se
+                        calcularon <strong>fuera</strong> del capítulo con 200 000 réplicas normales de
+                        1 666 ruedas y entran como constantes. Simular dentro del bloque haría que las dos
+                        pestañas dieran cifras distintas —<span className="inline-code">np.random.default_rng(2026)</span>{' '}
+                        y <span className="inline-code">set.seed(2026)</span> no dan la misma muestra—, y
+                        esa es exactamente la convención que el curso solo rompe donde el tema es la
+                        simulación, como en la sección 4 del capítulo 4. Se comprobó la estabilidad con
+                        tres semillas: los dos críticos coinciden hasta la tercera cifra.
+                    </Box>
 
-                <TablaResultados
-                    titulo="Lo que cada prueba puede y no puede distinguir"
-                    subtitulo="Los mismos cuatro modelos, las cuatro pruebas · 1 666 ruedas al 99 %"
-                    columnas={['Modelo', 'Kupiec', 'Independencia', 'Z₁', 'Z₂']}
-                    filas={[
-                        { celdas: ['Histórico 250', 'rechaza', 'rechaza', { v: '+0,2487', lee: 'Cuando el histórico falla, la pérdida es en promedio un 24,9 % mayor que el ES que había predicho. Es el menos malo de los cuatro, y aun así casi cinco veces el valor crítico.' }, '+0,9487'] },
-                        { celdas: ['Paramétrico normal', 'rechaza', 'rechaza', { v: '+0,6107', lee: 'Aquí está la separación que Kupiec y Christoffersen no podían hacer. El normal produce EXACTAMENTE el mismo LR_uc y la misma matriz de transición que el histórico, y sin embargo se queda 2,5 veces más corto en la cola: sus excepciones superan el ES predicho en un 61 % de media. La normal no tiene con qué predecir un día del 17,76 %.' }, '+1,5137'] },
-                        { celdas: ['Paramétrico t (4,23 gl)', { v: 'no rechaza', lee: 'La única casilla verde de la tabla, y es la del modelo que peor agrupa. Un informe que reporte solo esta columna recomienda el modelo equivocado: es el R3 de la sección 3.' }, 'rechaza', '+0,2977', '+0,6358'] },
-                        { celdas: ['EWMA (λ = 0,94)', 'rechaza', 'rechaza', '+0,3377', { v: '+1,5694', lee: 'El peor Z₂ de los cuatro pese a no tener el peor Z₁: el estadístico divide entre las excepciones ESPERADAS, así que las 32 observadas frente a 16,7 lo penalizan por partida doble. Es la diferencia de diseño entre Z₁ y Z₂, medida.' }] },
-                    ]}
-                    nota="Las cifras subrayadas explican qué dicen. Valores críticos al 5 %: +0,0515 para Z₁ y +0,4217 para Z₂. Ninguna combinación de las cuatro columnas da un modelo aprobado."
-                />
+                    <CodeTabs titulo="Z₁ y Z₂ sobre los cuatro modelos" bloques={EJ_ACERBI}
+                        nota="Los cuatro rechazan, y por mucho. El menos malo, el histórico, tiene un Z₁ casi cinco veces por encima del crítico; el peor, el paramétrico normal, doce veces. Todos los signos son positivos: las colas de este panel son más gruesas de lo que cualquiera de los cuatro modelos supone." />
 
-                <DetectaError
-                    titulo="R3 · Audita a la IA · la prueba equivocada para la medida"
-                    enunciado="Se le pidió a un modelo de lenguaje que hiciera la prueba retrospectiva del Expected Shortfall del fondo. Escribió el ES móvil sin fuga de información, contó las ruedas que lo superaron y aplicó Kupiec. Devuelve 10 excedencias de 1 666, una tasa del 0,60 %, LR_uc = 3,1383 y p = 0,0765: no rechaza. Señale la línea que no se sostiene y clasifique el error."
-                    lineas={IA_KUPIEC_AL_ES}
-                    lineaCorrecta={{ python: 20, r: 17 }}
-                    tipos={TIPOS_ERROR_RIESGO}
-                    tipoCorrecto={IDX_ERROR.medida}
-                    explicacion="La tasa 1 − α es la probabilidad de superar el VaR, no el ES. El ES está por construcción por encima del VaR, así que la probabilidad de excederlo es MENOR que 1 − α, y cuánto menor depende de la forma de la cola: bajo una normal, el ES al 99 % está a 2,6652 desviaciones de la media y la probabilidad de superarlo es 0,385 %; bajo una t de 4,23 grados de libertad estandarizada, 0,969 %. No hay un valor universal contra el que contrastar, y ese es justamente el motivo por el que el backtesting del ES necesitó una prueba propia. Lo que el código construye es un contraste contra una hipótesis nula que ningún modelo afirma, de modo que su valor p no significa nada — ni cuando pasa ni cuando falla."
-                    impacto="El resultado es peor que inútil: es tranquilizador. La tasa observada, 0,60 %, queda por DEBAJO del 1 % contra el que se la compara, así que la prueba mal planteada sugiere que el ES es conservador. Las dos pruebas que sí corresponden dicen lo contrario y con holgura: Z₁ = +0,2487 y Z₂ = +0,9487, contra críticos de +0,0515 y +0,4217. El área firmaría que el ES del capítulo 5 está validado cuando en realidad se queda corto un 24,9 % de media en los días en que se rompe, sobre un requerimiento de 37 820 millones."
-                />
+                    <ChartFrame id="cap6-les" height="chart-h-360"
+                        caption="Las 26 excepciones del VaR histórico y las 26 del paramétrico normal, cada una como la razón entre la pérdida realizada y el ES que el modelo había predicho para esa rueda. La media de cada nube es exactamente Z₁ + 1 —1,2487 la del histórico y 1,6107 la del normal—, de modo que el estadístico de Acerbi-Székely no es otra cosa que la altura promedio de estos puntos. Del histórico solo 10 de las 26 quedan por encima de la línea; del normal, 20 de 26: los dos fallan el mismo número de veces y el segundo se queda corto mucho más a menudo, que es lo que Kupiec y Christoffersen no pueden ver. El punto más alto, 5,74, es el 19 de febrero de 2025." />
 
-                <Ejercicio tipo="R2">
-                    <MCQ
-                        pregunta="Dos modelos se contrastan sobre la misma serie. El primero da 20 excepciones y Z₁ = +0,05; el segundo da 40 y Z₁ = +0,05 también. ¿Qué se puede afirmar?"
-                        opciones={[
-                            { texto: 'Que los dos están igual de bien calibrados, porque Z₁ es el estadístico que resume el backtesting del ES y el valor es el mismo.', correcta: false },
-                            { texto: 'Que el segundo es mejor, porque con el doble de excepciones y el mismo Z₁ su ES resulta más estable al estar estimado sobre más observaciones de la cola.', correcta: false },
-                            { texto: 'Que los dos aciertan la MAGNITUD —cuando fallan, la pérdida está donde el ES la pone— y que Z₁ no dice nada sobre la frecuencia.', correcta: true, justificacion: 'Es la división lo que engaña: Z₁ promedia sobre las excepciones observadas, de modo que mide magnitud condicionada a fallar y es ciego a la frecuencia. Con 40 en vez de 20 el segundo falla el doble de lo prometido, y eso lo detectan Kupiec y Z₂, no Z₁. Por eso el capítulo usa las dos familias y no una — Kupiec y Christoffersen cuentan, Acerbi-Székely mide—. El caso real de la sección 4 es el espejo de este: dos modelos con el mismo conteo, la misma matriz de transición y Z₁ de +0,2487 contra +0,6107.' },
-                            { texto: 'Que el primero es mejor porque tiene menos excepciones, y Z₁ solo se interpreta cuando el conteo ya pasó la prueba de Kupiec.', correcta: false },
+                    <TablaResultados
+                        titulo="Lo que cada prueba puede y no puede distinguir"
+                        subtitulo="Los mismos cuatro modelos, las cuatro pruebas · 1 666 ruedas al 99 %"
+                        columnas={['Modelo', 'Kupiec', 'Independencia', 'Z₁', 'Z₂']}
+                        filas={[
+                            { celdas: ['Histórico 250', 'rechaza', 'rechaza', { v: '+0,2487', lee: 'Cuando el histórico falla, la pérdida es en promedio un 24,9 % mayor que el ES que había predicho. Es el menos malo de los cuatro, y aun así casi cinco veces el valor crítico.' }, '+0,9487'] },
+                            { celdas: ['Paramétrico normal', 'rechaza', 'rechaza', { v: '+0,6107', lee: 'Aquí está la separación que Kupiec y Christoffersen no podían hacer. El normal produce EXACTAMENTE el mismo LR_uc y la misma matriz de transición que el histórico, y sin embargo se queda 2,5 veces más corto en la cola: sus excepciones superan el ES predicho en un 61 % de media. La normal no tiene con qué predecir un día del 17,76 %.' }, '+1,5137'] },
+                            { celdas: ['Paramétrico t (4,23 gl)', { v: 'no rechaza', lee: 'La única casilla verde de la tabla, y es la del modelo que peor agrupa. Un informe que reporte solo esta columna recomienda el modelo equivocado: es el R3 de la sección 3.' }, 'rechaza', '+0,2977', '+0,6358'] },
+                            { celdas: ['EWMA (λ = 0,94)', 'rechaza', 'rechaza', '+0,3377', { v: '+1,5694', lee: 'El peor Z₂ de los cuatro pese a no tener el peor Z₁: el estadístico divide entre las excepciones ESPERADAS, así que las 32 observadas frente a 16,7 lo penalizan por partida doble. Es la diferencia de diseño entre Z₁ y Z₂, medida.' }] },
                         ]}
+                        nota="Valores críticos al 5 %: +0,0515 para Z₁ y +0,4217 para Z₂. Ninguna combinación de las cuatro columnas da un modelo aprobado."
                     />
-                </Ejercicio>
-            </>
-        );
+
+                    <DetectaError
+                        titulo="R3 · Audita a la IA · la prueba equivocada para la medida"
+                        enunciado="Se le pidió a un modelo de lenguaje que hiciera el backtesting del Expected Shortfall del fondo. Escribió el ES móvil sin fuga de información, contó las ruedas que lo superaron y aplicó Kupiec. Devuelve 10 excedencias de 1 666, una tasa del 0,60 %, LR_uc = 3,1383 y p = 0,0765: no rechaza. Señale la línea que no se sostiene y clasifique el error."
+                        lineas={IA_KUPIEC_AL_ES}
+                        lineaCorrecta={{ python: 20, r: 17 }}
+                        tipos={TIPOS_ERROR_RIESGO}
+                        tipoCorrecto={IDX_ERROR.medida}
+                        explicacion="La tasa 1 − α es la probabilidad de superar el VaR, no el ES. El ES está por construcción por encima del VaR, así que la probabilidad de excederlo es MENOR que 1 − α, y cuánto menor depende de la forma de la cola: bajo una normal, el ES al 99 % está a 2,6652 desviaciones de la media y la probabilidad de superarlo es 0,385 %; bajo una t de 4,23 grados de libertad estandarizada el ES está a 3,6254 desviaciones y la probabilidad baja a 0,325 %, porque la cola más pesada empuja el ES más lejos de lo que engorda la cola. Ninguna de las dos es el 1 %, y las dos quedan por debajo del 0,60 % que el código observa. No hay un valor universal contra el que contrastar, y ese es justamente el motivo por el que el backtesting del ES necesitó una prueba propia. Lo que el código construye es un contraste contra una hipótesis nula que ningún modelo afirma, de modo que su valor p no significa nada — ni cuando pasa ni cuando falla."
+                        impacto="El resultado es peor que inútil: es tranquilizador. La tasa observada, 0,60 %, queda por DEBAJO del 1 % contra el que se la compara, así que la prueba mal planteada sugiere que el ES es conservador. Las dos pruebas que sí corresponden dicen lo contrario y con holgura: Z₁ = +0,2487 y Z₂ = +0,9487, contra críticos de +0,0515 y +0,4217. El área firmaría que el ES del capítulo 5 está validado cuando en realidad se queda corto un 24,9 % de media en los días en que se rompe, sobre un requerimiento de 37 820 millones."
+                    />
+
+                    <Ejercicio tipo="R2">
+                        <MCQ
+                            pregunta="Dos modelos se contrastan sobre la misma serie. El primero da 20 excepciones y Z₁ = +0,05; el segundo da 40 y Z₁ = +0,05 también. ¿Qué se puede afirmar?"
+                            opciones={[
+                                { texto: 'Que los dos están igual de bien calibrados, porque Z₁ es el estadístico que resume el backtesting del ES y el valor es el mismo.', correcta: false },
+                                { texto: 'Que el segundo es mejor, porque con el doble de excepciones y el mismo Z₁ su ES resulta más estable al estar estimado sobre más observaciones de la cola.', correcta: false },
+                                { texto: 'Que los dos aciertan la magnitud, porque cuando fallan la pérdida está donde el ES la pone, y que Z₁ no dice nada sobre la frecuencia.', correcta: true, justificacion: 'Es la división lo que engaña: Z₁ promedia sobre las excepciones observadas, de modo que mide magnitud condicionada a fallar y es ciego a la frecuencia. Con 40 en vez de 20 el segundo falla el doble de lo prometido, y eso lo detectan Kupiec y Z₂, no Z₁. Por eso el capítulo usa las dos familias y no una — Kupiec y Christoffersen cuentan, Acerbi-Székely mide—. El caso real de esta sección es el espejo de este: dos modelos con el mismo conteo, la misma matriz de transición y Z₁ de +0,2487 contra +0,6107.' },
+                                { texto: 'Que el primero es mejor porque tiene menos excepciones, y Z₁ solo se interpreta cuando el conteo ya pasó la prueba de Kupiec.', correcta: false },
+                            ]}
+                        />
+                    </Ejercicio>
+                </>
+            );
+        };
 
 
         /* ============================================================
@@ -4282,13 +4338,13 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                 () => ({
                     separators: ',.',
                     margin: { t: 30, r: 16, b: 46, l: 52 },
-                    xaxis: { title: 'Rueda de prueba en que se calcula la ventana regulatoria' },
-                    yaxis: { title: 'Excepciones en las 250 ruedas anteriores', range: [0, 12], dtick: 2 },
+                    xaxis: { title: 'Rueda de prueba en que se calcula la ventana (1 = 25 de enero de 2019)' },
+                    yaxis: { title: 'Excepciones en las 250 ruedas anteriores', range: [0, 12], dtick: 1 },
                     showlegend: false,
                     shapes: [
-                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 4.5, fillcolor: '#15803D', opacity: 0.10, line: { width: 0 } },
-                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 4.5, y1: 9.5, fillcolor: '#B45309', opacity: 0.13, line: { width: 0 } },
-                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 9.5, y1: 12, fillcolor: '#B91C1C', opacity: 0.13, line: { width: 0 } },
+                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 4.5, fillcolor: '#15803D', opacity: 0.16, line: { width: 0 }, layer: 'below' },
+                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 4.5, y1: 9.5, fillcolor: '#B45309', opacity: 0.18, line: { width: 0 }, layer: 'below' },
+                        { type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 9.5, y1: 12, fillcolor: '#B91C1C', opacity: 0.18, line: { width: 0 }, layer: 'below' },
                     ],
                     annotations: [
                         { xref: 'paper', x: 0.012, y: 2.2, text: 'zona verde · m = 3,00', showarrow: false, xanchor: 'left', font: { size: 10, color: '#15803D' } },
@@ -4364,15 +4420,15 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                                     },
                                 ],
                                 layout: {
-                                    separators: ',.',
+                                    separators: ',\u202f',
                                     margin: { t: 30, r: 16, b: 46, l: 74 },
                                     xaxis: { title: 'Excepciones en las últimas 250 ruedas', dtick: 1 },
                                     yaxis: { title: 'Capital exigido (millones)', rangemode: 'tozero' },
                                     showlegend: false,
                                     shapes: [
-                                        { type: 'rect', x0: -0.5, x1: 4.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#15803D', opacity: 0.08, line: { width: 0 } },
-                                        { type: 'rect', x0: 4.5, x1: 9.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#B45309', opacity: 0.11, line: { width: 0 } },
-                                        { type: 'rect', x0: 9.5, x1: 14.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#B91C1C', opacity: 0.11, line: { width: 0 } },
+                                        { type: 'rect', x0: -0.5, x1: 4.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#15803D', opacity: 0.14, line: { width: 0 }, layer: 'below' },
+                                        { type: 'rect', x0: 4.5, x1: 9.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#B45309', opacity: 0.16, line: { width: 0 }, layer: 'below' },
+                                        { type: 'rect', x0: 9.5, x1: 14.5, yref: 'paper', y0: 0, y1: 1, fillcolor: '#B91C1C', opacity: 0.16, line: { width: 0 }, layer: 'below' },
                                     ],
                                 },
                             };
@@ -4429,7 +4485,7 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                     norma="Sistema de Administración de Riesgo de Mercado (SARM)"
                     emisor="Superintendencia Financiera de Colombia"
                     referencia="Circular Básica Contable y Financiera (Circular Externa 100 de 1995), Capítulo XXI"
-                    exige="Que la entidad vigilada adopte un sistema —no un cálculo— con cuatro etapas: identificación, medición, control y monitoreo del riesgo de mercado. El sistema debe apoyarse en políticas aprobadas por la junta directiva, procedimientos documentados, una estructura organizacional con responsabilidades asignadas, órganos de control, infraestructura tecnológica y capacitación. La medición puede hacerse con el modelo estándar que la propia circular define o con un modelo interno, y este último requiere autorización previa de la Superintendencia y validación periódica, con pruebas retrospectivas y de tensión documentadas."
+                    exige="Que la entidad vigilada adopte un sistema —no un cálculo— con cuatro etapas: identificación, medición, control y monitoreo del riesgo de mercado. El sistema debe apoyarse en ocho elementos: políticas aprobadas por la junta directiva, procedimientos, documentación, una estructura organizacional con responsabilidades asignadas, órganos de control, infraestructura tecnológica, divulgación de información y capacitación. La medición puede hacerse con el modelo estándar que la propia circular define o con un modelo interno, y este último requiere autorización previa de la Superintendencia y validación periódica, con pruebas retrospectivas y de tensión documentadas."
                     enElCapitulo="El bloque de esta sección produce el anexo que sostiene la etapa de monitoreo: una fila por excepción de la ventana regulatoria, con la fecha, la pérdida, el VaR que se había reportado, el exceso en pesos y lo que hizo el índice ese día. La última columna no la pide la norma; la pide el sentido común, y es la que permite separar el fallo del modelo del dato defectuoso — que es la sección 7."
                 />
 
@@ -4468,7 +4524,53 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                 />
 
                 <Ejercicio tipo="R7">
-                    <Reto titulo="R7 · El informe trimestral al comité de riesgos">
+                    <Reto titulo="R7 · El informe trimestral al comité de riesgos"
+                        solucion={
+                            <div>
+                                <p>
+                                    <strong>Las cuatro frases, una versión posible.</strong> No es la
+                                    única redacción válida; sí es el contenido que cada frase tiene que
+                                    traer.
+                                </p>
+                                <p>
+                                    «Sobre 1 666 ruedas de prueba, el VaR histórico al 99 % produjo 26
+                                    excepciones donde el modelo prometía 16,7, y las tres pruebas de
+                                    razón de verosimilitud lo rechazan al 5 %: Kupiec con p = 0,0336,
+                                    independencia con p = 0,0000 y la conjunta con p = 0,0000.
+                                    El fallo no es de calibración sino de especificación: la frecuencia
+                                    está cerca de lo prometido y lo que falla es el reparto —tras una
+                                    excepción la siguiente es quince veces más probable—, y de las tres
+                                    pruebas solo la de independencia distingue esa diferencia, porque es
+                                    la única que mira el orden. El modelo cuesta hoy 66 189 millones de
+                                    sobrecosto de capital al año, sobre un requerimiento de 371 675, por
+                                    estar en zona amarilla con 7 excepciones y un multiplicador de 3,65.
+                                    Se sustituye el VaR histórico por una especificación con volatilidad
+                                    condicional y cola pesada antes del cierre del próximo trimestre, y
+                                    se trae al comité de abril el backtest de la candidata con las cuatro
+                                    pruebas y la zona resultante.»
+                                </p>
+                                <p>
+                                    <strong>Qué se está evaluando.</strong> La primera frase, que se
+                                    nombre la prueba y no solo el veredicto. La segunda es la que
+                                    separa un informe de un resumen: <em>calibración</em> es que el
+                                    modelo cuente mal y se arregla reestimando; <em>especificación</em>
+                                    es que le falte un ingrediente —aquí, que la volatilidad no es
+                                    constante— y ninguna reestimación lo arregla. La tercera exige
+                                    convertir un valor p en pesos. La cuarta, un compromiso con fecha:
+                                    «se seguirá monitoreando» es lo que se escribe cuando no se quiere
+                                    decidir, y por eso está prohibida en el enunciado.
+                                </p>
+                                <p>
+                                    <strong>Tres errores frecuentes.</strong> Escribir que «el modelo
+                                    falla» sin decir en qué prueba. Atribuir el fallo a marzo de 2020
+                                    como si fuera mala suerte, cuando el agrupamiento es justamente lo
+                                    que un modelo con volatilidad condicional habría anticipado. Y
+                                    prometer la sustitución sin decir por qué candidata: el capítulo ya
+                                    ensayó la suya —el EWMA-t de esta sección—, que mejora las cuatro
+                                    columnas del EWMA y aun así solo pasa una de las cuatro pruebas.
+                                </p>
+                            </div>
+                        }>
                         <p>
                             Le toca redactar la conclusión del informe trimestral de validación. Los
                             hechos son los del capítulo: sobre 1 666 ruedas, el VaR histórico al 99 %
@@ -4499,11 +4601,11 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                 <Motivacion icon="fa-screwdriver-wrench"
                     gancho="Un backtest que falla no dice qué hay que arreglar. Dice que hay cuatro cosas posibles y que hay que descartarlas en orden.">
                     El informe está firmado y las tres pruebas rechazan. La reacción natural es
-                    cambiar de modelo, y suele ser la equivocada: antes de tocar el modelo hay que
-                    descartar que el problema esté en el dato, en el nivel o en el horizonte. En este
-                    fondo, una de las siete excepciones del año no es un fallo del modelo — es una
-                    cotización defectuosa que el capítulo 4 ya había diagnosticado, y sola mueve el
-                    veredicto de Kupiec de un lado al otro del 5 %.
+                    cambiar de modelo, y suele ser la equivocada: antes hay que descartar que el
+                    problema esté en el dato, en el nivel o en el horizonte. Una de las 26 excepciones
+                    del backtest —y una de las siete de la ventana regulatoria— no es un fallo del
+                    modelo: es la cotización defectuosa que el capítulo 4 diagnosticó, y ella sola
+                    cruza la p de Kupiec por el 5 %.
                 </Motivacion>
 
                 <h3>Cuatro causas, en el orden en que se descartan</h3>
@@ -4536,12 +4638,12 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                 </p>
 
                 <CodeTabs titulo="El remedio, y hasta dónde llega" bloques={EJ_REMEDIO}
-                    nota="El EWMA-t mejora las cuatro columnas a la vez, que es lo que un remedio bien diagnosticado debería hacer, y aun así solo pasa una de las cuatro pruebas. Su Z₁ baja de +0,3377 a +0,0974 —3,5 veces— y sigue al doble del crítico." />
+                    nota="El EWMA-t mejora las cuatro columnas del EWMA a la vez —y todas menos Kupiec las de la t, cuya p baja de 0,3044 a 0,1399—, que es lo que un remedio bien diagnosticado debería hacer, y aun así solo pasa una de las cuatro pruebas. Su Z₁ baja de +0,3377 a +0,0974 —3,5 veces— y sigue al doble del crítico." />
 
                 <Box type="warn" label="Que ninguno pase es el resultado, no el fracaso del capítulo">
                     Los cinco modelos ensayados rechazan la prueba conjunta. No es que falte buscar
-                    mejor: es que este panel contiene <strong>marzo de 2020</strong> —cuatro pérdidas
-                    de dos dígitos en diez ruedas— y ninguna familia paramétrica calibrada sobre las
+                    mejor: es que este panel contiene <strong>marzo de 2020</strong> —tres pérdidas
+                    de dos dígitos en siete ruedas, de 12,77 %, 17,76 % y 11,24 %— y ninguna familia paramétrica calibrada sobre las
                     250 ruedas anteriores puede anticipar eso. Lo que el capítulo enseña no es cómo
                     encontrar el modelo que pasa, sino cómo saber que el suyo no pasa, cuánto cuesta
                     y qué se hace mientras tanto: subir el multiplicador por decisión propia, añadir
@@ -4625,12 +4727,12 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
 
                 <Quiz titulo="Cuestionario integrador del capítulo 6" preguntas={[
                     {
-                        pregunta: 'Un área de riesgo ajusta su modelo sobre las 1 916 ruedas del panel y cuenta las excepciones sobre esas mismas 1 916. ¿Qué tiene de malo?', justificacion: 'Es la tercera convención declarada del curso —el backtest reestima el modelo rueda a rueda con las 250 anteriores— y esta pregunta es su razón de ser. Con look-ahead el modelo daba 0,99 %, clavado; reestimando de verdad da 1,56 % y Kupiec lo rechaza. La prueba se hace reestimando rueda a rueda con información anterior a cada una.',
+                        pregunta: 'El marco de Basilea contrasta el VaR al 99 % sobre 250 ruedas, donde lo esperado son 2,5 excepciones. ¿Por qué este capítulo hace la prueba sobre 1 666?', justificacion: 'Las dos cifras del marco son convención regulatoria, no resultado estadístico, y el capítulo lo declara antes de calcular nada. Con 1 666 ruedas la misma prueba sí separa: 26 excepciones contra 16,7 esperadas dan p = 0,0336. El precio de la convención se ve en la sección 5, donde el semáforo cobra recargo desde la quinta excepción y Kupiec, con p = 0,1619, no rechaza nada. El capítulo 14 hereda el problema cuando valide el modelo de crédito.',
                         opciones: [
-                            { texto: 'Nada, siempre que el modelo esté bien especificado: el backtesting sobre la muestra completa es la práctica estándar cuando no hay datos suficientes para partirla.', correcta: false },
-                            { texto: 'Que el VaR de cada rueda usa información posterior a esa rueda, así que no es una predicción validada sino un ajuste medido sobre sí mismo.', correcta: true },
-                            { texto: 'Que 1 916 ruedas exceden el máximo de 250 que fija el marco de Basilea, y una ventana más larga infla el número de excepciones.', correcta: false },
-                            { texto: 'Que la muestra incluye marzo de 2020, y los periodos de tensión deben excluirse del backtesting y tratarse por separado con pruebas de tensión.', correcta: false },
+                            { texto: 'Porque el marco de Basilea fija las 250 ruedas para los bancos, y los fondos de pensiones contrastan sobre toda la serie disponible.', correcta: false },
+                            { texto: 'Porque con 2,5 excepciones esperadas la prueba casi no distingue entre un modelo bueno y uno malo.', correcta: true },
+                            { texto: 'Porque 250 ruedas no alcanzan para estimar el VaR histórico al 99 %, que necesita al menos mil observaciones en la ventana.', correcta: false },
+                            { texto: 'Porque alargar la ventana de prueba reduce el número de excepciones y acerca la tasa observada a la prometida.', correcta: false },
                         ],
                     },
                     {
@@ -4643,21 +4745,21 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                         ],
                     },
                     {
-                        pregunta: 'Un modelo no produce ninguna excepción en las 250 ruedas del año. ¿Qué dicen la prueba de Kupiec y la zona semáforo?', justificacion: 'Es el caso donde las dos herramientas discrepan más: Kupiec rechaza con LR_uc = 5,025 y el semáforo lo pinta de verde. El semáforo lo absuelve porque solo penaliza el exceso de excepciones: el modelo inmoviliza capital de más y la norma no lo detecta. Y discrepan también en el otro extremo — el recargo empieza en la quinta excepción, donde Kupiec da p = 0,1619 y no rechaza nada—.',
+                        pregunta: 'La gráfica de la sección 3 reparte los 25 huecos entre excepciones consecutivas y los compara con los que cabría esperar bajo independencia. ¿Qué se lee en ella?', justificacion: 'Esos pares son las n₁₁ = 5 de la matriz de transición, y el contraste es lo que la prueba de independencia formaliza: π₁₁ = 19,23 % contra π₀₁ = 1,28 %, quince veces más. La contrapartida está en la franja de 21 a 100 ruedas, que se vacía —cuatro huecos donde se esperaban 13—: el modelo no falla poco ni mucho, falla concentrado. El capítulo 15 volverá sobre cuántos datos hay realmente detrás de una cola.',
                         opciones: [
-                            { texto: 'Kupiec rechaza —LR_uc = 5,025— y el semáforo lo pinta de verde: cero fallos son tan incompatibles con el 1 % como siete.', correcta: true },
-                            { texto: 'Las dos lo aprueban: cero excepciones es el mejor resultado posible bajo cualquier criterio de validación.', correcta: false },
-                            { texto: 'Kupiec no se puede calcular porque el logaritmo de cero no está definido, y el semáforo lo clasifica en zona verde.', correcta: false },
-                            { texto: 'Kupiec lo aprueba porque la tasa observada, 0 %, está por debajo del 1 % prometido, y el semáforo lo penaliza por subestimar el riesgo.', correcta: false },
+                            { texto: 'Que los huecos observados siguen una geométrica, que es lo que predice la independencia, así que la gráfica confirma el supuesto.', correcta: false },
+                            { texto: 'Que los huecos se concentran en la franja de 21 a 100 ruedas, que es donde el modelo reparte sus fallos de manera más uniforme.', correcta: false },
+                            { texto: 'Que hay cinco pares de excepciones seguidas donde se esperaban 0,4: el modelo falla a rachas.', correcta: true },
+                            { texto: 'Que el número de excepciones supera al esperado, que es lo mismo que mide la prueba de Kupiec sobre esa serie.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El VaR histórico y el paramétrico normal del fondo producen 26 excepciones cada uno, con la misma matriz de transición y el mismo LR_uc. ¿Son el mismo modelo?', justificacion: 'Coinciden en 23 de las 26 y cada uno tiene tres días propios, con Z₁ de +0,2487 contra +0,6107: el normal se queda 2,5 veces más corto en la cola. Contar no distingue los modelos y medir sí, que es la tesis del capítulo: Kupiec y Christoffersen no pueden separarlos porque uno cuenta excepciones y el otro cuenta transiciones.',
+                        pregunta: 'El VaR histórico y el paramétrico normal del fondo producen 26 excepciones cada uno, con la misma matriz de transición y el mismo LR_uc. ¿Son el mismo modelo?', justificacion: 'Coinciden en 23 de las 26 y cada uno tiene tres días propios, con Z₁ de +0,2487 contra +0,6107: el normal se queda 2,5 veces más corto en la cola. Contar no distingue los modelos y medir sí, que es la tesis del capítulo: Kupiec y Christoffersen no pueden separarlos porque uno cuenta excepciones y el otro cuenta transiciones. Y la diferencia no es académica: los dos modelos caen en zonas distintas del semáforo —amarilla el histórico, verde el normal— y eso son 61 823 millones de capital, a favor precisamente del que peor mide la cola.',
                         opciones: [
-                            { texto: 'Sí en la práctica: si las tres pruebas de razón de verosimilitud dan lo mismo, los dos modelos son estadísticamente indistinguibles y da igual cuál se use.', correcta: false },
+                            { texto: 'Sí en la práctica: si las tres pruebas de razón de verosimilitud dan lo mismo, los dos modelos son estadísticamente indistinguibles a efectos del informe.', correcta: false },
                             { texto: 'No: solo coinciden en 23 de las 26 ruedas y cada uno tiene tres días propios. Kupiec y Christoffersen cuentan, y contar no los separa; Z₁ sí.', correcta: true },
-                            { texto: 'No, pero la diferencia es irrelevante: la agrupación es idéntica, así que las excepciones ocurren en las mismas rachas y el capital exigido coincide.', correcta: false },
-                            { texto: 'Sí: que dos métodos distintos produzcan la misma matriz de transición es la definición de equivalencia entre modelos de VaR.', correcta: false },
+                            { texto: 'No, pero la diferencia es irrelevante: el agrupamiento es idéntico, así que las excepciones ocurren en las mismas rachas y el capital exigido coincide.', correcta: false },
+                            { texto: 'Sí: que dos métodos distintos produzcan la misma matriz de transición los hace equivalentes a efectos de validación.', correcta: false },
                         ],
                     },
                     {
@@ -4679,30 +4781,30 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                         ],
                     },
                     {
-                        pregunta: 'Una analista cuenta las ruedas cuya pérdida superó el Expected Shortfall y las contrasta con Kupiec usando p = 1 %. ¿Qué está mal?', justificacion: 'Las dos cifras del bloque son el argumento: 0,385 % bajo una normal y 0,969 % bajo una t de 4,23 grados de libertad, para la misma medida y el mismo nivel. La tasa de excedencia del ES depende de la forma de la cola, así que contrastarla contra el 1 % es contrastar contra un número que nadie prometió.',
+                        pregunta: 'Una analista cuenta las ruedas cuya pérdida superó el Expected Shortfall y las contrasta con Kupiec usando p = 1 %. ¿Qué está mal?', justificacion: 'Las dos cifras son el argumento: 0,385 % bajo una normal y 0,325 % bajo una t de 4,23 grados de libertad, para la misma medida y el mismo nivel. La tasa de excedencia del ES depende de la forma de la cola, así que contrastarla contra el 1 % es contrastar contra un número que nadie prometió. Sobre el requerimiento de 37 820 millones del capítulo 5, firmar esa validación es dar por bueno un ES que se queda corto un 24,9 % los días en que se rompe. El capítulo 15 vuelve sobre la cola y sobre cuántos datos hay detrás de ella.',
                         opciones: [
                             { texto: 'Nada: el ES al 99 % promete una tasa de excedencia del 1 %, igual que el VaR al mismo nivel, así que la prueba es aplicable.', correcta: false },
-                            { texto: 'Que Kupiec solo se aplica al VaR histórico, porque es la única medida que no supone una distribución.', correcta: false },
+                            { texto: 'Que Kupiec se aplica al VaR histórico y no al paramétrico, porque es la medida que no supone una distribución.', correcta: false },
                             { texto: 'Que la probabilidad de superar el ES es menor que 1 − α y depende de la forma de la cola, no del nivel al que se calculó.', correcta: true },
                             { texto: 'Que hacen falta al menos 250 excedencias del ES para que la aproximación chi-cuadrado sea válida, y sobre este panel solo hubo 10.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'Dos modelos dan el mismo Z₁ pero uno tiene el doble de excepciones que el otro. ¿Qué prueba los separa?', justificacion: 'Z₁ divide entre las excepciones observadas y Z₂ entre las esperadas, y ahí está toda la diferencia: fallar de más lo penaliza dos veces en Z₂ y ninguna en Z₁. Es la razón de que el capítulo reporte las dos familias en vez de una: severidad y frecuencia son preguntas distintas y ningún estadístico contesta las dos a la vez.',
+                        pregunta: 'Z₁ y Z₂ suman los dos sobre las ruedas en que hubo excepción. ¿En qué se diferencian?', justificacion: 'De ahí que fallar de más penalice dos veces en Z₂: una por cada exceso y otra por haber más excesos de la cuenta. Sobre este fondo la distancia al crítico es mucho mayor en el segundo —el histórico da +0,2487 contra +0,0515, y +0,9487 contra +0,4217—, y por eso es la prueba que un supervisor querría y la más difícil de pasar. Un modelo que falle el doble de veces con excesos del tamaño correcto engaña al primero y no al segundo.',
                         opciones: [
-                            { texto: 'Ninguna: Z₁ es el estadístico de referencia para el ES y si coinciden, los modelos están igual de calibrados.', correcta: false },
-                            { texto: 'Kupiec y Z₂. Z₁ divide entre las excepciones observadas y por eso mide solo severidad; Z₂ divide entre las esperadas.', correcta: true },
-                            { texto: 'Christoffersen, porque el modelo con más excepciones tiene necesariamente más transiciones de uno a uno y por tanto más agrupamiento.', correcta: false },
-                            { texto: 'La zona semáforo, que es la única prueba sensible al número de excepciones cuando la magnitud coincide.', correcta: false },
+                            { texto: 'En el nivel: Z₁ se calcula al 99 % sobre el VaR y Z₂ al 97,5 % sobre el Expected Shortfall, como en el marco de Basilea III.', correcta: false },
+                            { texto: 'En la medida que contrastan: Z₁ contrasta el VaR predicho y Z₂ el Expected Shortfall, de modo que hacen falta los dos.', correcta: false },
+                            { texto: 'En el signo: Z₁ sale positivo cuando la cola pesa de más y Z₂ cuando pesa de menos, y por eso se leen juntos.', correcta: false },
+                            { texto: 'En el denominador: Z₁ divide entre las excepciones observadas y Z₂ entre las esperadas, así que solo Z₂ reacciona al número.', correcta: true },
                         ],
                     },
                     {
-                        pregunta: 'Sobre la ventana regulatoria del fondo, el VaR histórico tiene 7 excepciones y el paramétrico normal 4. El primero paga 371 675 millones de capital y el segundo 309 852, pero el segundo tiene peor Z₁. ¿Qué muestra el contraste?', justificacion: 'Los 61 823 millones son la diferencia entre 371 675 y 309 852. Se pagan por el modelo que peor predice lo que ocurre cuando el VaR se rompe. El marco premia el conteo y es ciego a la magnitud, que es exactamente el argumento con el que Basilea pasó del VaR al ES en el capítulo 5 — y que el semáforo todavía no ha recogido—.',
+                        pregunta: 'El fondo entra en zona amarilla el 9 de marzo de 2020 y no sale hasta el 23 de marzo de 2021: 250 ruedas seguidas pagando recargo. ¿Por qué exactamente 250?', justificacion: 'El recargo no mide el riesgo de hoy sino la memoria del sistema, y eso tiene precio: 66 189 millones de capital que no responden a que el riesgo haya subido, sino a que el modelo lo midió mal un año antes. En el 47,7 % de las ventanas del periodo el fondo habría estado pagando recargo, y aun así nunca llegó a zona roja: hacían falta diez excepciones en la ventana y el máximo fueron nueve.',
                         opciones: [
-                            { texto: 'Que las cifras son incompatibles: un modelo con peor Z₁ tiene un VaR más bajo y por tanto tiene que producir más excepciones, no menos.', correcta: false },
-                            { texto: 'Que la ventana de 250 ruedas es demasiado corta y sobre las 1 666 del panel los dos modelos caerían en la misma zona.', correcta: false },
-                            { texto: 'Que el semáforo cuenta excepciones y es ciego a su magnitud: se pagan 61 823 millones menos por el modelo que peor predice la cola.', correcta: true },
-                            { texto: 'Que el modelo normal es preferible: el capital exigido es la medida regulatoria de la calidad de un modelo y el ahorro lo demuestra.', correcta: false },
+                            { texto: 'Porque el marco de Basilea fija un año de permanencia mínima en la zona antes de revisar el multiplicador.', correcta: false },
+                            { texto: 'Porque el VaR tarda 250 ruedas en volver a su nivel previo, y hasta entonces la pérdida lo supera más a menudo.', correcta: false },
+                            { texto: 'Porque la ventana del semáforo son las 250 ruedas anteriores, y marzo de 2020 cuenta hasta salir de ella.', correcta: true },
+                            { texto: 'Porque el fondo siguió acumulando excepciones durante todo ese periodo, a un ritmo de aproximadamente una por mes.', correcta: false },
                         ],
                     },
                     {
@@ -4774,9 +4876,9 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                         content: (
                             <ul>
                                 <li><strong>26 excepciones de 1 666</strong> donde se esperaban 16,7. Kupiec rechaza por poco, p = 0,0336; independencia rechaza sin ambigüedad, p = 0,0000.</li>
-                                <li><strong>Siete de las 26 caen en trece ruedas de marzo de 2020.</strong> Cinco pares consecutivos donde se esperaban 0,4. Tras una excepción, la siguiente es entre 5 y 24 veces más probable.</li>
+                                <li><strong>Siete de las 26 caen en catorce ruedas, entre finales de febrero y marzo de 2020.</strong> Cinco pares consecutivos donde se esperaban 0,4. Tras una excepción, la siguiente es entre 5 y 24 veces más probable.</li>
                                 <li><strong>Los cuatro Z son positivos y grandes.</strong> El menos malo, el histórico, se queda corto un 24,9 % de media; el peor, la normal, un 61,1 %.</li>
-                                <li><strong>El remedio EWMA-t</strong> mejora las cuatro columnas y pasa una: la especificación importa más que la calibración, y aun así no basta.</li>
+                                <li><strong>El remedio EWMA-t</strong> mejora las cuatro columnas del EWMA y pasa una: la especificación importa más que la calibración, y aun así no basta.</li>
                             </ul>
                         ),
                     },
@@ -4805,7 +4907,7 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
             { id: 'sec3', title: '3. Christoffersen: independencia', icon: 'Activity', component: Seccion3 },
             { id: 'sec4', title: '4. Backtesting del ES: Acerbi-Székely', icon: 'Layers', component: Seccion4 },
             { id: 'sec5', title: '5. Zona semáforo y multiplicador', icon: 'Award', component: Seccion5 },
-            { id: 'sec6', title: '6. SARM: qué exige la Superfinanciera', icon: 'Table', component: Seccion6 },
+            { id: 'sec6', title: '6. SARM: qué exige la Superintendencia', icon: 'Table', component: Seccion6 },
             { id: 'sec7', title: '7. Qué hacer cuando el backtest falla', icon: 'Bug', component: Seccion7 },
             { id: 'eval', title: 'Evaluación', icon: 'HelpCircle', component: EvaluacionSection },
         ];
