@@ -2839,6 +2839,21 @@ for nom, w in [("Ecopetrol", np.eye(4)[0]), ("Banco de Bogota", np.eye(4)[1]),
 #> declarada           +7.69 %     25.02 %    0.0369
 #> tangente           +12.67 %     35.28 %    0.1673
 
+# CUIDADO: el retorno de arriba es w'mu con mu en logaritmicos. Es la convencion
+# declarada del curso y NO es el retorno de ninguna cartera, porque los
+# logaritmicos no agregan entre activos. Abajo, el logaritmico de verdad de la
+# cartera rebalanceada a diario, y la razon de Sharpe que sale con el.
+real = lambda w: np.log1p(np.expm1(r.values) @ w).mean() * 252
+
+print("                    w'mu  retorno real   brecha   Sharpe  Sharpe real")
+#>                     w'mu  retorno real   brecha   Sharpe  Sharpe real
+for nom, w in [("ISA", np.eye(4)[3]), ("tangente", wt), ("declarada", w0), ("minima varianza", wg)]:
+    print(f"{nom:16s} {w@mu*100:+6.2f} % {real(w)*100:+10.2f} % {(real(w)-w@mu)*100:7.2f} pp {sharpe(w):8.4f} {(real(w)-rf)/vol(w):12.4f}")
+#> ISA              +12.88 %     +12.88 %    0.00 pp   0.1670       0.1670
+#> tangente         +12.67 %     +13.18 %    0.52 pp   0.1673       0.1819
+#> declarada         +7.69 %     +11.83 %    4.14 pp   0.0369       0.2023
+#> minima varianza   +6.32 %     +10.22 %    3.91 pp  -0.0188       0.1445
+
 lam = vol(w0) / vol(wt)                 # cuanta tangente cabe en ese riesgo
 print(f"CML al riesgo de la declarada : {lam*100:.2f} % en la tangente, {(1-lam)*100:.2f} % a la tasa libre")
 #> CML al riesgo de la declarada : 70.93 % en la tangente, 29.07 % a la tasa libre
@@ -2847,7 +2862,17 @@ print(f"   retorno de esa mezcla : {(rf + lam*(wt@mu - rf))*100:+.2f} %")
 print(f"   retorno de la declarada : {w0@mu*100:+.2f} %")
 #>    retorno de la declarada : +7.69 %
 print(f"   diferencia : {((rf + lam*(wt@mu - rf)) - w0@mu)*100:.2f} pp")
-#>    diferencia : 3.26 pp`,
+#>    diferencia : 3.26 pp
+
+# y la misma comparacion sin la convencion: la mezcla rebalanceada a diario
+rf_d = 1.07**(1/252) - 1                # la misma tasa del curso, en base diaria
+mez  = lam * (np.expm1(r.values) @ wt) + (1 - lam) * rf_d
+print(f"   la misma mezcla, medida de verdad : {np.log1p(mez).mean()*252*100:+.2f} %")
+#>    la misma mezcla, medida de verdad : +12.60 %
+print(f"   contra la declarada, medida igual : {real(w0)*100:+.2f} %")
+#>    contra la declarada, medida igual : +11.83 %
+print(f"   diferencia : {(np.log1p(mez).mean()*252 - real(w0))*100:.2f} pp")
+#>    diferencia : 0.77 pp`,
             r: `suppressPackageStartupMessages(library(quadprog))
 
 precios  <- read.csv("datos/bvc_diario.csv")
@@ -2895,6 +2920,26 @@ for (nom in names(carteras)) {
 #> declarada           +7.69 %     25.02 %    0.0369
 #> tangente           +12.67 %     35.28 %    0.1673
 
+# CUIDADO: el retorno de arriba es w'mu con mu en logaritmicos. Es la convencion
+# declarada del curso y NO es el retorno de ninguna cartera, porque los
+# logaritmicos no agregan entre activos. Abajo, el logaritmico de verdad de la
+# cartera rebalanceada a diario, y la razon de Sharpe que sale con el.
+real <- function(w) mean(log1p(expm1(r) %*% w)) * 252
+
+cat("                    w'mu  retorno real   brecha   Sharpe  Sharpe real\\n")
+#>                     w'mu  retorno real   brecha   Sharpe  Sharpe real
+cs <- list("ISA" = diag(4)[, 4], "tangente" = wt, "declarada" = w0, "minima varianza" = wg)
+for (nom in names(cs)) {
+  w <- cs[[nom]]
+  cat(sprintf("%-16s %+6.2f %% %+10.2f %% %7.2f pp %8.4f %12.4f\\n",
+              nom, sum(w * mu) * 100, real(w) * 100, (real(w) - sum(w * mu)) * 100,
+              sharpe(w), (real(w) - rf) / vol(w)))
+}
+#> ISA              +12.88 %     +12.88 %    0.00 pp   0.1670       0.1670
+#> tangente         +12.67 %     +13.18 %    0.52 pp   0.1673       0.1819
+#> declarada         +7.69 %     +11.83 %    4.14 pp   0.0369       0.2023
+#> minima varianza   +6.32 %     +10.22 %    3.91 pp  -0.0188       0.1445
+
 lam <- vol(w0) / vol(wt)                # cuanta tangente cabe en ese riesgo
 cat(sprintf("CML al riesgo de la declarada : %.2f %% en la tangente, %.2f %% a la tasa libre\\n",
             lam * 100, (1 - lam) * 100))
@@ -2904,7 +2949,17 @@ cat(sprintf("   retorno de esa mezcla : %+.2f %%\\n", (rf + lam * (sum(wt * mu) 
 cat(sprintf("   retorno de la declarada : %+.2f %%\\n", sum(w0 * mu) * 100))
 #>    retorno de la declarada : +7.69 %
 cat(sprintf("   diferencia : %.2f pp\\n", ((rf + lam * (sum(wt * mu) - rf)) - sum(w0 * mu)) * 100))
-#>    diferencia : 3.26 pp`,
+#>    diferencia : 3.26 pp
+
+# y la misma comparacion sin la convencion: la mezcla rebalanceada a diario
+rf_d <- 1.07^(1/252) - 1                # la misma tasa del curso, en base diaria
+mez  <- lam * (expm1(r) %*% wt) + (1 - lam) * rf_d
+cat(sprintf("   la misma mezcla, medida de verdad : %+.2f %%\\n", mean(log1p(mez)) * 252 * 100))
+#>    la misma mezcla, medida de verdad : +12.60 %
+cat(sprintf("   contra la declarada, medida igual : %+.2f %%\\n", real(w0) * 100))
+#>    contra la declarada, medida igual : +11.83 %
+cat(sprintf("   diferencia : %.2f pp\\n", (mean(log1p(mez)) * 252 - real(w0)) * 100))
+#>    diferencia : 0.77 pp`,
         };
 
         const EJ_RESTRICCIONES = {
@@ -3405,6 +3460,17 @@ for (a in 2018:2025) linea(as.character(a), r[substr(fechas, 1, 4) == as.charact
                     da 6,7668 %— porque allí encaja con su regresión. Las separan 0,0009 puntos
                     porcentuales al año y ninguna conclusión de ninguno de los dos capítulos se mueve
                     con eso; lo que no se puede es mezclarlas dentro de una misma cifra.
+                    <br /><br />
+                    <strong>Y hay una segunda cara de la misma convención, que sí mueve conclusiones.</strong>{' '}
+                    El retorno de una cartera se calcula aquí como <strong>w′μ</strong>, y los
+                    logarítmicos <strong>no agregan entre activos</strong>: w′μ no es el retorno de
+                    ninguna cartera. Para la covarianza da igual —la volatilidad por esa vía y la real se
+                    separan un 0,16 %—, pero sobre el retorno la brecha vale el beneficio de
+                    diversificación, o sea <strong>cero para un activo solo y 4,14 pp para la cartera
+                    declarada</strong>. El bloque de la sección 4 imprime las dos columnas al lado y las
+                    lecturas de ese capítulo llevan la corrección puesta; es la regla que dejó escrita la
+                    auditoría del capítulo 1, y vale para los quince: <strong>toda magnitud que se
+                    reporte como un nivel se recalcula por la vía exacta y se compara</strong>.
                 </Box>
             </>
         );
@@ -3460,7 +3526,7 @@ for (a in 2018:2025) linea(as.character(a), r[substr(fechas, 1, 4) == as.charact
                         nota="Las dos pestañas dan exactamente lo mismo porque leen el mismo archivo y este capítulo no simula nada. Los cuatro retornos y las cuatro volatilidades salen de aquí, y son los que alimentan todas las gráficas del capítulo." />
 
                     <ChartFrame id="cap7-corr" height="chart-h-400"
-                        caption="Las seis correlaciones de los pares están entre 0,182 y 0,300 — bajas para cuatro emisores del mismo mercado, y esa es la razón de que el ahorro por diversificación salga tan grande. El capítulo 3 explica por qué son bajas y advierte que parte de esa bajura no es real: las 101 ruedas sin variación del panel diluyen las covarianzas medidas con datos diarios." />
+                        caption="Las seis correlaciones de los pares están entre 0,182 y 0,300 — bajas para cuatro emisores del mismo mercado, y esa es la razón de que el ahorro por diversificación salga tan grande. Pero parte de esa lectura no es real, y el mecanismo es por emisor y no por panel: cada acción deja de cotizar por su cuenta —el Banco de Bogotá el 16,2 % de las ruedas, Grupo Sura el 15,1 %—, y esa negociación no simultánea diluye las covarianzas diarias. Excluir las 101 ruedas en que los cuatro se quedaron quietos a la vez no cambia ni una diezmilésima; medir por semanas sube la correlación media de 0,227 a 0,273. Es la sección 5 del capítulo 3, y la sección 6 de este lo vuelve a medir sobre la cartera." />
 
                     <p>
                         Sumar las volatilidades ponderadas da <strong>38,02 %</strong>; el portafolio
@@ -3523,7 +3589,7 @@ ponderada   <- w * sE + w * sI`,
                             pregunta="Un fondo tiene dos activos con la misma volatilidad del 30 % y correlación cero, en partes iguales. ¿Cuál es la volatilidad del portafolio?"
                             opciones={[
                                 { texto: '30 %, porque la volatilidad de una mezcla de partes iguales es el promedio de las volatilidades.', correcta: false },
-                                { texto: '21,21 %, que es 30 dividido por la raíz de 2.', correcta: true, justificacion: 'Con ρ = 0 el término cruzado desaparece y queda σ² = 0,5²(30²) + 0,5²(30²) = 450, cuya raíz es 21,2132. La regla general —dividir entre la raíz de n activos independientes e igualmente ponderados— es la versión de manual de lo que el bloque de esta sección mide sobre el panel real: allí las correlaciones no son cero sino 0,18 a 0,30, y por eso el ahorro es de 12,99 pp y no de los 15,9 que darían cuatro activos independientes.' },
+                                { texto: '21,21 %, que es 30 sobre la raíz de 2: con correlación nula se promedian las varianzas.', correcta: true, justificacion: 'Con ρ = 0 el término cruzado desaparece y queda σ² = 0,5²(30²) + 0,5²(30²) = 450, cuya raíz es 21,2132. La regla general —dividir entre la raíz de n activos independientes e igualmente ponderados— es la versión de manual de lo que el bloque de esta sección mide sobre el panel real: allí las correlaciones no son cero sino 0,18 a 0,30, y por eso el ahorro es de 12,99 pp y no de los 15,9 que darían cuatro activos independientes.' },
                                 { texto: '15 %, porque al no estar correlacionados los riesgos se cancelan a la mitad.', correcta: false },
                                 { texto: '42,43 %, porque las varianzas se suman y la raíz de la suma es mayor que cada una.', correcta: false },
                             ]}
@@ -3598,7 +3664,7 @@ ponderada   <- w * sE + w * sI`,
                         opciones={[
                             { texto: 'Porque las restricciones son lineales, y la linealidad de las restricciones es lo que garantiza la unicidad del óptimo.', correcta: false },
                             { texto: 'Porque el número de activos es menor que el número de observaciones, de modo que el sistema queda sobredeterminado y admite una única respuesta.', correcta: false },
-                            { texto: 'Porque toda matriz de covarianzas es semidefinida positiva, así que el objetivo es convexo.', correcta: true, justificacion: 'Un objetivo convexo no puede tener mínimos locales distintos del global, y de ahí la unicidad. Es la propiedad que hace que `cvxpy` y `quadprog` —que usan algoritmos distintos— coincidan hasta el sexto decimal en este capítulo, y la que permite escribir «la» cartera de mínima varianza y no «una». La convexidad viene de Σ y no de las restricciones: un objetivo no convexo con restricciones lineales puede tener muchos mínimos locales, y es lo que ocurre en el capítulo 2 cuando se ajusta un GARCH por máxima verosimilitud.' },
+                            { texto: 'Porque la matriz de covarianzas de este panel es definida positiva, de modo que el objetivo es estrictamente convexo y su mínimo es único.', correcta: true, justificacion: 'Un objetivo convexo no puede tener mínimos locales distintos del global, y de ahí la unicidad. Es la propiedad que hace que `cvxpy` y `quadprog` —que usan algoritmos distintos— coincidan hasta el sexto decimal en este capítulo, y la que permite escribir «la» cartera de mínima varianza y no «una». La convexidad viene de Σ y no de las restricciones: un objetivo no convexo con restricciones lineales puede tener muchos mínimos locales, y es lo que ocurre en el capítulo 2 cuando se ajusta un GARCH por máxima verosimilitud.' },
                             { texto: 'Porque se impone que los pesos no sean negativos, y sin esa restricción el problema tendría infinitas soluciones equivalentes.', correcta: false },
                         ]}
                     />
@@ -3723,7 +3789,7 @@ ponderada   <- w * sE + w * sI`,
                         nota="Nueve problemas cuadráticos en Python y los mismos nueve en R, con dos solucionadores que no comparten una línea de código y devuelven las mismas dos cifras decimales en las 54 celdas de la tabla. La búsqueda del punto de igual riesgo es una bisección de 40 pasos escrita a mano en los dos lenguajes: `brentq` y `uniroot` habrían convergido a la misma raíz por caminos distintos, y este capítulo prefiere que las dos pestañas recorran la misma sucesión de candidatos." />
 
                     <ChartFrame id="cap7-frontera" height="chart-h-420"
-                        caption="La frontera, los cuatro emisores, la cartera declarada (rombo negro) y la de mínima varianza (estrella verde). Los cuatro emisores están todos a la derecha de la curva: ninguno, por sí solo, es eficiente. Los dos trazos punteados que salen del rombo son cortos por construcción y miden lo mismo en dos monedas: 0,62 pp hacia la izquierda hasta la curva —el riesgo que sobra— y 0,74 pp hacia arriba hasta ella —el retorno que falta—." />
+                        caption="La frontera, los cuatro emisores, la cartera declarada (rombo negro) y la de mínima varianza (estrella verde). Tres de los cuatro emisores quedan a la derecha de la curva, y el Banco de Bogotá además por debajo de donde la curva arranca: ninguno de los tres es eficiente por sí solo. ISA es la excepción, y no por casualidad: está SOBRE la curva, en su extremo superior, porque sin cortos ninguna mezcla alcanza el retorno del activo más rentable y la última fila del bloque es 100 % ISA. Los dos trazos punteados que salen del rombo son cortos por construcción y miden lo mismo en dos monedas: 0,62 pp hacia la izquierda hasta la curva —el riesgo que sobra— y 0,74 pp hacia arriba hasta ella —el retorno que falta—." />
 
                     <h3>Cuánto cuesta la decisión declarada</h3>
                     <p>
@@ -3753,7 +3819,7 @@ ponderada   <- w * sE + w * sI`,
                         <MCQ
                             pregunta="La cartera declarada rinde 7,69 % con una volatilidad del 25,02 %, y la frontera ofrece 24,40 % de volatilidad a ese mismo retorno. ¿Qué se puede afirmar con eso, y solo con eso?"
                             opciones={[
-                                { texto: 'Que la declarada es ineficiente: hay otra cartera con su mismo retorno y menos riesgo.', correcta: true, justificacion: 'Es la definición de ineficiencia y no exige nada más. Los 0,62 pp equivalen a unos 4 960 millones de desviación típica anual sobre los 800 000 del fondo, o —leídos por el otro eje— a 0,74 pp de retorno que el mismo riesgo compraba. Lo que la afirmación NO autoriza es a llamar equivocado al comité: la sección 5 muestra que parte de la brecha es el precio de restricciones que el régimen impone igual, y la 6, que la frontera contra la que se mide se mueve con la ventana de estimación.' },
+                                { texto: 'Que la declarada es ineficiente y nada más: existe otra cartera con su mismo retorno y menos riesgo, que es exactamente lo que significa quedar por dentro de la curva.', correcta: true, justificacion: 'Es la definición de ineficiencia y no exige nada más. Los 0,62 pp equivalen a unos 4 960 millones de desviación típica anual sobre los 800 000 del fondo, o —leídos por el otro eje— a 0,74 pp de retorno que el mismo riesgo compraba. Lo que la afirmación NO autoriza es a llamar equivocado al comité: la sección 5 muestra que parte de la brecha es el precio de restricciones que el régimen impone igual, y la 6, que la frontera contra la que se mide se mueve con la ventana de estimación.' },
                                 { texto: 'Que la cartera de mínima varianza domina a la declarada, porque mueve un 23,93 % frente a un 25,02 % y toda cartera con más volatilidad que ella está dominada por ella.', correcta: false },
                                 { texto: 'Que 0,62 pp es el ahorro máximo de riesgo alcanzable para este fondo, porque ninguna cartera puede situarse por debajo de la frontera eficiente.', correcta: false },
                                 { texto: 'Que el comité se equivocó al declarar 30/20/25/25, ya que la frontera demuestra cuáles eran los pesos correctos y el error se puede cuantificar en pesos.', correcta: false },
@@ -3766,13 +3832,28 @@ ponderada   <- w * sE + w * sI`,
                         caption="Composición de la cartera eficiente según el retorno que se le exija. Son las mismas nueve filas del bloque, apiladas. El Banco de Bogotá financia todo el primer tramo —del 38,13 % al 3,75 %— mientras ISA crece; Grupo Sura, en cambio, se queda entre el 15,50 % y el 15,97 % durante seis de los nueve puntos y solo desaparece al final." />
                     <p>
                         La lectura interesante de esta gráfica es la de Grupo Sura. Es el activo más
-                        volátil del panel —42,57 %— y con un retorno mediocre, y aun así el optimizador lo
-                        mantiene casi constante durante la mayor parte de la frontera. No lo tiene por lo
-                        que rinde ni por lo que se mueve, sino por{' '}
-                        <strong>con quién se mueve</strong>: sus correlaciones con los otros tres están
-                        entre 0,200 y 0,255, de las más bajas del panel. Es exactamente el término
-                        cruzado de la sección 1 haciendo su trabajo, y es la razón por la que descartar
-                        activos «malos» mirándolos de uno en uno destruye carteras.
+                        volátil del panel —42,57 %—, su retorno es mediocre y su razón de Sharpe
+                        individual está clavada en cero, y aun así el optimizador lo mantiene casi
+                        constante durante la mayor parte de la frontera. La tentación es explicarlo por
+                        sus correlaciones, y <strong>no se sostiene</strong>: las tres suyas —0,200 ·
+                        0,227 · 0,255— son los puestos tercero, cuarto y quinto de las seis del panel, y
+                        su media, 0,2270, es la media del panel. El activo menos correlacionado es el
+                        Banco de Bogotá, como ya dijo la sección 2. Y en covarianzas —que es lo que el
+                        optimizador minimiza, no en correlaciones— dos de las tres parejas de Sura están
+                        entre las tres más altas, justamente porque es el más volátil.
+                    </p>
+                    <p>
+                        Lo que lo mantiene dentro es más simple y más incómodo: <strong>el optimizador
+                        juzga la cartera y no el activo</strong>. Sacar a Grupo Sura del todo sube la
+                        volatilidad de la mínima varianza de 23,93 % a 24,84 % — 0,91 pp, unos 7 280
+                        millones de desviación típica anual. Es la menor de las cuatro penalizaciones
+                        —quitar el Banco de Bogotá cuesta 3,86 pp—, pero no es cero, y ninguna cifra
+                        individual de Sura la anticipa: por volatilidad y por Sharpe es el peor de los
+                        cuatro. <strong>Esa es la razón por la que descartar activos «malos» mirándolos
+                        de uno en uno destruye carteras</strong> — y el laboratorio de abajo la afila,
+                        porque enseña que las correlaciones no solo no lo sostienen sino que le{' '}
+                        <em>restan</em>: con κ = 0 el optimizador le daría 19,17 % y con la matriz real
+                        le da 15,97 %.
                     </p>
 
                     <Laboratorio
@@ -3935,37 +4016,66 @@ ponderada   <- w * sE + w * sI`,
                     <CodeTabs titulo="La cartera tangente, las razones de Sharpe y la mezcla con el TES" bloques={EJ_TANGENTE}
                         nota="Este es el primer bloque del capítulo que usa la tasa libre de riesgo, y usa la conversión logarítmica de D-D —ln(1,07) = 6,7659 %— porque todo el capítulo trabaja en logarítmicos. El capítulo 3 usa la otra, 6,7668 %, por la razón contraria y con la misma tasa detrás." />
 
+                    <Box type="warn" label="w′μ es la convención, y no es el retorno de ninguna cartera">
+                        La última tabla del bloque es la que hay que leer despacio, porque corrige a las
+                        otras. Este capítulo mide el retorno de una cartera como <strong>w′μ</strong> con
+                        μ en logarítmicos, que es la convención declarada en el capítulo 1, y para Σ está
+                        bien: la volatilidad por esa vía (25,0243 %) y la de la cartera de verdad
+                        (24,9850 %) se separan un 0,16 %. Pero los logarítmicos{' '}
+                        <strong>no agregan entre activos</strong>, así que w′μ no es el retorno de nadie,
+                        y la brecha vale exactamente el beneficio de diversificación: <strong>0,00 pp
+                        para un activo solo</strong>, 0,52 pp para la tangente —que es casi ISA sola— y{' '}
+                        <strong>4,14 pp para la declarada</strong>. Castiga justo a las carteras
+                        repartidas, que son las que este capítulo compara. Las tres lecturas de abajo
+                        llevan la corrección puesta, y es la regla que el capítulo 1 dejó escrita: toda
+                        magnitud que se reporte como un <em>nivel</em> se recalcula por la vía exacta y se
+                        compara.
+                    </Box>
+
                     <h3>Tres lecturas que el bloque deja servidas</h3>
                     <p>
-                        <strong>La primera es una coincidencia que conviene mirar dos veces.</strong> Grupo
-                        Sura rindió, en estos ocho años y en logarítmicos, un{' '}
-                        <strong>6,77 % anual</strong>, y la tasa libre de riesgo del curso vale{' '}
-                        <strong>{dec(RF, 4)} %</strong>. Su razón de Sharpe sale{' '}
-                        <span className="inline-code">−0.0000</span>: cuatro diezmilésimas por debajo de
-                        cero. Ocho años soportando una volatilidad del 42,57 % —la más alta del panel—
-                        para terminar donde habría terminado un TES. No es un argumento contra el activo,
-                        que la sección 3 mostró trabajando duro dentro de la cartera por sus
-                        correlaciones bajas; es un argumento contra mirar activos de uno en uno.
+                        <strong>La primera es una coincidencia que conviene mirar dos veces</strong>, y es
+                        la única de las tres a la que la convención no le hace nada: Grupo Sura es un
+                        activo solo, y ahí w′μ sí es su retorno — la tabla lo dice con 0,00 pp de brecha.
+                        Rindió <strong>6,7655 %</strong> en logarítmicos contra los{' '}
+                        <strong>{dec(RF, 4)} %</strong> de la tasa libre de riesgo: cuatro diezmilésimas
+                        de punto porcentual por debajo, o un 6,9996 % compuesto anual contra el 7,00 % del
+                        TES. Su razón de Sharpe sale <span className="inline-code">−0.0000</span> — y ojo,
+                        que las cuatro diezmilésimas son del <em>retorno</em>: la razón de Sharpe vale
+                        −0,0000094, que no llega a una cienmilésima. Ocho años soportando una volatilidad
+                        del 42,57 % —la más alta del panel— para terminar donde habría terminado un TES.
+                        No es un argumento contra el activo, que la sección 3 mostró ganándose su sitio
+                        dentro de la cartera —sacarlo cuesta 0,91 pp de volatilidad— pese a ser el peor de
+                        los cuatro mirado de uno en uno; es un argumento contra mirarlos de uno en uno.
                     </p>
                     <p>
-                        <strong>La segunda es incómoda para la sección 2.</strong> La cartera de mínima
-                        varianza tiene razón de Sharpe <strong>{dec(SHARPE.gmv, 4)}</strong>, que es
-                        negativa: rinde 6,32 % y la tasa libre de riesgo paga {dec(RF, 2)} %. Minimizar
-                        la varianza sin mirar el retorno llevó al fondo a un punto donde soporta un
-                        23,93 % de volatilidad para rendir menos que un papel del Gobierno. La cartera
-                        declarada, con su 0,0369, tampoco brilla, pero al menos es positiva.
+                        <strong>La segunda es incómoda para la sección 2, y la convención la exagera.</strong>{' '}
+                        Con w′μ la cartera de mínima varianza tiene razón de Sharpe{' '}
+                        <strong>{dec(SHARPE.gmv, 4)}</strong>, negativa, y parecería que soporta un
+                        23,93 % de volatilidad para rendir menos que un papel del Gobierno. <strong>No es
+                        así</strong>: esa cartera rindió <strong>10,22 %</strong> y su razón de Sharpe de
+                        verdad es <strong>+0,1445</strong>. Lo que sí sobrevive, y sigue siendo el reproche
+                        a la sección 2, es que minimizar la varianza sin mirar el retorno deja la elección
+                        del retorno al azar: medida sin la convención, la de mínima varianza es la{' '}
+                        <strong>peor de las cuatro</strong> carteras de la tabla, por detrás incluso de la
+                        declarada (0,2023).
                     </p>
                     <p>
                         <strong>Y la tercera es la que arma la sección 5.</strong> La cartera tangente
                         pone <strong>{dec(TAN.w[3], 2)} % en ISA</strong> y{' '}
-                        {dec(TAN.w[0], 2)} % en Ecopetrol, y nada en los otros dos. Su razón de Sharpe,
-                        {' '}{dec(TAN.sharpe, 4)}, apenas mejora la de ISA sola —{dec(SHARPE.isa, 4)}—:
-                        el optimizador encontró que la mejor forma de comprar retorno por unidad de
-                        riesgo en este panel era, casi, comprar un solo emisor. Sobre la recta, al riesgo
-                        de la cartera declarada —{dec(P_DECL.vol, 2)} %— la CML ofrece{' '}
-                        <strong>{dec(CML.ret, 2)} %</strong> de retorno contra el 7,69 %:{' '}
-                        {dec(CML.brecha, 2)} pp, unos {miles(VALOR * CML.brecha / 100)} millones al año.
-                        Con {dec(CML.lam, 2)} % del fondo en una cartera que es ISA con adornos.
+                        {dec(TAN.w[0], 2)} % en Ecopetrol, y nada en los otros dos. Aquí hace falta el
+                        mismo cuidado: su razón de Sharpe de {dec(TAN.sharpe, 4)} apenas mejora la de ISA
+                        sola —{dec(SHARPE.isa, 4)}—, pero medida de verdad la tangente rinde 13,18 % con
+                        razón 0,1819, y <em>la declarada la supera</em> con 0,2023. La ventaja de la
+                        tangente es, en buena parte, un artefacto de la convención. <strong>La
+                        concentración no lo es</strong>: la cartera de máximo Sharpe calculada sobre el
+                        retorno real sigue poniendo el <strong>51,19 % en ISA</strong>, muy por encima del
+                        tope del 30 % que la sección 5 va a imponer — y por eso esa sección sigue en pie.
+                        Sobre la recta, al riesgo de la declarada —{dec(P_DECL.vol, 2)} %— la CML ofrece{' '}
+                        {dec(CML.ret, 2)} % contra el 7,69 %: {dec(CML.brecha, 2)} pp por la convención,
+                        pero <strong>0,77 pp</strong> —unos {miles(VALOR * 0.77 / 100)} millones— cuando se
+                        miden los dos retornos de verdad, 12,60 % contra 11,83 %. La recta gana; gana
+                        cuatro veces menos de lo que la convención sugiere.
                     </p>
 
                     <ChartFrame id="cap7-cml" height="chart-h-420"
@@ -4020,9 +4130,9 @@ falta      <- 23.93 - vol_mez    # la GMV de la seccion 3`,
                         <MCQ
                             pregunta="Usted lleva al comité de riesgos la cartera tangente: 12,67 % de retorno y razón de Sharpe 0,1673, contra 7,69 % y 0,0369 de la cartera vigente. ¿Qué decisión sostiene ese par de números?"
                             opciones={[
-                                { texto: 'Ninguna todavía: la tangente concentra el 94,48 % en un solo emisor y el régimen del fondo no lo permite.', correcta: true, justificacion: 'El número es correcto y la decisión que parece implicar es inviable, que es la situación más frecuente en un área de riesgo. La sección 5 vuelve a resolver el mismo problema con las restricciones puestas y la razón de Sharpe alcanzable cae de 0,1673 a 0,0714 — menos de la mitad—, con una cartera que sí se puede ejecutar. Llevar al comité el 0,1673 sin decir de dónde sale es prometer un retorno que la mesa no puede comprar.' },
+                                { texto: 'Ninguna todavía: la tangente concentra el 94,48 % en un solo emisor, y el régimen del fondo no permite llevar al comité una cartera que después no se puede ejecutar.', correcta: true, justificacion: 'El número es correcto y la decisión que parece implicar es inviable, que es la situación más frecuente en un área de riesgo. La sección 5 vuelve a resolver el mismo problema con las restricciones puestas y la razón de Sharpe alcanzable cae de 0,1673 a 0,0714 — menos de la mitad—, con una cartera que sí se puede ejecutar. Llevar al comité el 0,1673 sin decir de dónde sale es prometer un retorno que la mesa no puede comprar.' },
                                 { texto: 'Rebalancear a la tangente de inmediato, porque una razón de Sharpe 4,5 veces mayor con datos de ocho años es una diferencia demasiado grande para atribuirla al azar de la estimación.', correcta: false },
-                                { texto: 'Rebalancear la mitad del fondo a la tangente y dejar la otra mitad como está, que es la forma habitual de capturar parte de la mejora sin asumir el riesgo de concentración completo.', correcta: false },
+                                { texto: 'Rebalancear la mitad del fondo a la tangente y dejar el resto como está, para capturar parte de la mejora sin la concentración completa.', correcta: false },
                                 { texto: 'Descartar la tangente y quedarse con la de mínima varianza, que es la única cartera del capítulo cuya composición no depende de los retornos esperados y por tanto la única defendible.', correcta: false },
                             ]}
                         />
@@ -4117,7 +4227,10 @@ falta      <- 23.93 - vol_mez    # la GMV de la seccion 3`,
                         la solución libre ya era positiva y la restricción no ata. <strong>El tope del
                         30 % sí ata</strong>, y cuesta 0,19 pp de volatilidad (23,93 % → 24,12 %); a
                         cambio, sube la razón de Sharpe de −0,0188 a 0,0136, porque al sacar peso del
-                        activo de peor retorno mete retorno en la cartera. <strong>Sobre la
+                        activo de peor retorno mete retorno en la cartera. Las dos son cifras de la
+                        convención de la sección 4, y el signo negativo es suyo: medidas con el retorno
+                        real de cada cartera valen 0,1445 y 0,1809, y lo que importa aquí —que el tope
+                        sube la razón— no cambia. <strong>Sobre la
                         tangente</strong>, en cambio, la prohibición de cortos lo es todo: sin ella el
                         resultado no es implementable ni es una cartera.
                     </Box>
@@ -4198,7 +4311,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         }}
                         pregunta="Al 25,02 % de volatilidad las dos versiones dan exactamente la misma cartera, y al 32 % B rinde 0,44 pp más que A. ¿Qué explica que la misma restricción no cueste nada en un caso y sí en el otro?"
                         opciones={[
-                            { texto: 'Que la restricción solo cuesta cuando ata: al 25,02 % la solución libre ya era positiva y al 32 % no.', correcta: true, justificacion: 'Es la diferencia entre una restricción activa y una inactiva, y se ve entera en este par de cifras: al 25,02 % las dos versiones devuelven 24,10 · 20,44 · 15,73 · 39,73 y un retorno de 8,43 %, y al 32 % la libre ya quiere vender prestado el 13,24 % del Banco de Bogotá. El costo crece con la exigencia: 0,00 pp al 28 %, 0,44 pp al 32 % y 1,06 pp al 35 %. Por eso «la restricción no importa en este panel» es una afirmación que solo vale para el punto donde se comprobó, y por eso la del régimen se escribe antes de resolver y no después de mirar el resultado.' },
+                            { texto: 'Que la restricción solo cuesta cuando ata: al 25,02 % la solución libre ya tenía los cuatro pesos positivos, y al objetivo del 32 % ya deja de tenerlos.', correcta: true, justificacion: 'Es la diferencia entre una restricción activa y una inactiva, y se ve entera en este par de cifras: al 25,02 % las dos versiones devuelven 24,10 · 20,44 · 15,73 · 39,73 y un retorno de 8,43 %, y al 32 % la libre ya quiere vender prestado el 13,24 % del Banco de Bogotá. El costo crece con la exigencia: 0,00 pp al 28 %, 0,44 pp al 32 % y 1,06 pp al 35 %. Por eso «la restricción no importa en este panel» es una afirmación que solo vale para el punto donde se comprobó, y por eso la del régimen se escribe antes de resolver y no después de mirar el resultado.' },
                             { texto: 'Que al 32 % la matriz de covarianzas está peor condicionada, y el solucionador de B aprovecha esa holgura numérica para encontrar una solución que A no alcanza.', correcta: false },
                             { texto: 'Que al 25,02 % el problema tiene solución única y al 32 % tiene varias, de modo que A y B convergen a dos óptimos distintos del mismo conjunto de soluciones.', correcta: false },
                             { texto: 'Que la restricción de no negatividad solo importa cuando el retorno objetivo supera el del activo más rentable, que es donde la cartera necesita apalancarse para llegar.', correcta: false },
@@ -4501,7 +4614,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'El analista suma las volatilidades ponderadas de los cuatro emisores y obtiene 38,02 %. La cartera movió 25,02 %. ¿De dónde salen los 12,99 puntos de diferencia?',
                         justificacion: 'La suma ponderada solo sería correcta si las seis correlaciones valieran 1. Valen entre 0,182 y 0,300, y ese término cruzado es el que se lleva los 12,99 pp — unos 103 920 millones de desviación típica anual sobre los 800 000 del fondo. El capítulo 5 vuelve sobre lo mismo desde la otra orilla: la varianza es la única medida de riesgo del curso que se puede repartir así, y el ES no admite esta aritmética.',
                         opciones: [
-                            { texto: 'Del término cruzado de la varianza: las seis correlaciones del panel son bajas.', correcta: true },
+                            { texto: 'Del término cruzado de la varianza: como las seis correlaciones del panel están entre 0,182 y 0,300, la raíz de la suma queda bastante por debajo de la suma.', correcta: true },
                             { texto: 'De que la suma ponderada usa volatilidades anualizadas por 252 mientras la cartera se mide sobre retornos diarios, y las dos escalas no son comparables entre sí.', correcta: false },
                             { texto: 'De que el peso del emisor más volátil es del 25 % y no del 30 %, con lo que la suma ponderada sobreestima la contribución de Grupo Sura al riesgo total.', correcta: false },
                             { texto: 'De las 101 ruedas sin variación del panel, que reducen artificialmente la volatilidad medida de la cartera respecto a la de sus componentes individuales.', correcta: false },
@@ -4511,7 +4624,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'En este capítulo cvxpy y quadprog coinciden hasta el sexto decimal, y en el capítulo 2 arch y rugarch discrepan sobre la misma verosimilitud. ¿Cuál es la diferencia relevante?',
                         justificacion: 'La convexidad viene de Σ, que es semidefinida positiva siempre, y no de las restricciones. Por eso aquí se puede escribir «la» cartera de mínima varianza y en el capítulo 2 hay que declarar cuál implementación se usó: ajustar un GARCH por máxima verosimilitud es un problema no convexo, con óptimos locales y dependencia del punto de arranque.',
                         opciones: [
-                            { texto: 'Que este problema es convexo y aquel no, así que aquí el óptimo es único.', correcta: true },
+                            { texto: 'Que este problema es convexo y la verosimilitud de un GARCH no lo es, así que aquí los dos solucionadores tienen que llegar al mismo punto y allá no tienen ninguna obligación.', correcta: true },
                             { texto: 'Que cvxpy y quadprog son ambos solucionadores de programación cuadrática mientras arch y rugarch implementan familias de modelos distintas, con parametrizaciones que no se corresponden.', correcta: false },
                             { texto: 'Que aquí los datos están congelados en un CSV y en el capítulo 2 cada paquete descarga su propia serie, de modo que las dos discrepancias tienen la misma causa: los datos.', correcta: false },
                             { texto: 'Que la matriz de covarianzas se estima con un solo comando y un GARCH necesita optimización numérica, así que la discrepancia del capítulo 2 es un error de tolerancia acumulada.', correcta: false },
@@ -4519,19 +4632,19 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                     },
                     {
                         pregunta: 'Grupo Sura es el activo más volátil del panel —42,57 %— y con un retorno del 6,77 %, y aun así el optimizador le da entre el 15,50 % y el 15,97 % en seis de los nueve puntos de la frontera. ¿Por qué?',
-                        justificacion: 'Sus correlaciones con los otros tres están entre 0,200 y 0,255, de las más bajas del panel: entra por el término cruzado y no por lo que hace solo. Es la razón por la que descartar activos «malos» mirándolos de uno en uno destruye carteras, y la razón por la que su razón de Sharpe individual —clavada en −0,0000— no es un argumento para sacarlo.',
+                        justificacion: 'Ojo con la explicación cómoda: las correlaciones de Grupo Sura —0,200 · 0,227 · 0,255— son los puestos tercero, cuarto y quinto de las seis del panel, y su media es la media del panel; el menos correlacionado es el Banco de Bogotá. El laboratorio de κ lo remata: con las correlaciones apagadas el optimizador le daría 19,17 % y con la matriz real le da 15,97 %, o sea que le restan. Lo que lo sostiene es que la cuenta se hace sobre la cartera entera. El capítulo 8 repite el ejercicio minimizando la cola en vez de la varianza, y el reparto vuelve a no parecerse al ranking individual.',
                         opciones: [
-                            { texto: 'Porque el optimizador reparte el peso entre todos los activos disponibles cuando ninguno domina claramente, y con cuatro emisores el reparto natural ronda el 25 % menos un ajuste por volatilidad.', correcta: false },
+                            { texto: 'Porque covaría poco con los otros tres, que es lo que el optimizador compra: sus correlaciones son las más bajas del panel y por eso el término cruzado de la sección 1 lo premia.', correcta: false },
                             { texto: 'Porque su volatilidad alta se compensa con la del Banco de Bogotá, que es la más baja del panel, y el optimizador empareja activos volátiles con activos estables.', correcta: false },
-                            { texto: 'Porque covaría poco con los otros tres, y eso es lo que el optimizador compra.', correcta: true },
+                            { texto: 'Porque el optimizador juzga la cartera y no el activo suelto: quitarlo subiría la volatilidad de la mínima varianza en 0,91 pp, y ninguna cifra suya lo anticipa.', correcta: true },
                             { texto: 'Porque la restricción de no negatividad impide dejarlo en cero, y el 15,8 % es el mínimo que el problema con cuatro activos y esa restricción puede asignarle.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'La cartera de mínima varianza del fondo tiene razón de Sharpe −0,0188. ¿Qué está diciendo ese signo?',
-                        justificacion: 'Rinde 6,32 % y la tasa libre de riesgo del curso paga 6,7659 % en logarítmicos: el fondo soportaría un 23,93 % de volatilidad para terminar por debajo de un TES. No es un error del cálculo ni de la tasa: es lo que ocurre cuando se minimiza varianza sin mirar el retorno, y es el argumento de por qué la mínima varianza es una respuesta legítima a una pregunta parcial.',
+                        justificacion: 'El signo es de la convención y no de la cartera: con w′μ el numerador sale −0,0188, pero esa cartera rindió 10,22 % de verdad contra el 6,7659 % del TES, y su razón es +0,1445. Lo que el ejercicio deja en pie es lo que importa: minimizar varianza sin mirar el retorno no garantiza un buen cociente, y medida sin la convención la de mínima varianza es la peor de las cuatro carteras del bloque, por detrás de la declarada. El capítulo 8 cambia el objetivo por el CVaR y se topa con la misma pregunta.',
                         opciones: [
-                            { texto: 'Que esa cartera rindió menos que la tasa libre de riesgo en el periodo medido.', correcta: true },
+                            { texto: 'Que el numerador se armó con la convención del capítulo: medido con el retorno real de la cartera, 10,22 %, la razón de Sharpe es +0,1445 y el signo se da vuelta.', correcta: true },
                             { texto: 'Que la tasa libre de riesgo del curso está mal convertida: con la conversión del capítulo 3 —6,7668 %— el signo cambiaría y la razón de Sharpe pasaría a ser positiva.', correcta: false },
                             { texto: 'Que la cartera está por dentro de la frontera eficiente, y una razón de Sharpe negativa es la forma en que esa ineficiencia se manifiesta en la métrica.', correcta: false },
                             { texto: 'Que la razón de Sharpe no se puede aplicar a carteras de mínima varianza, porque su construcción no usa los retornos esperados y el numerador queda indefinido.', correcta: false },
@@ -4541,7 +4654,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'La mitad del fondo en el TES y la mitad en la cartera tangente da una mezcla que mueve 17,64 % y rinde 9,72 %. La cartera de acciones menos volátil de todas mueve 23,93 % y rinde 6,32 %. ¿Qué muestra esa comparación?',
                         justificacion: 'La recta domina a la curva en todos sus puntos salvo el de tangencia, y esta comparación lo hace tangible: 6,29 pp menos de volatilidad y 3,40 pp más de retorno que la mejor cartera de acciones por ese lado. Lo que la comparación NO dice es que sea ejecutable: la tangente pone el 94,48 % en un solo emisor, y ahí es donde entra la sección 5.',
                         opciones: [
-                            { texto: 'Que hay puntos de la recta que ninguna cartera de acciones puede alcanzar.', correcta: true },
+                            { texto: 'Que hay puntos de la recta que ninguna cartera de acciones alcanza: con 17,64 % de volatilidad no existe ninguna cartera, porque la menos volátil de todas mueve 23,93 %.', correcta: true },
                             { texto: 'Que la cartera de mínima varianza está mal calculada, porque una cartera eficiente no puede quedar dominada en las dos dimensiones a la vez por otra cartera del mismo problema.', correcta: false },
                             { texto: 'Que el activo libre de riesgo desplaza la frontera eficiente hacia arriba y hacia la izquierda, de modo que la nueva frontera es la antigua trasladada por el retorno del TES.', correcta: false },
                             { texto: 'Que mezclar con el activo libre de riesgo reduce la volatilidad de forma proporcional y el retorno de forma menos que proporcional, y de ahí sale la ganancia en las dos dimensiones.', correcta: false },
@@ -4549,9 +4662,9 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                     },
                     {
                         pregunta: 'La cartera tangente pone el 94,48 % en ISA y su razón de Sharpe, 0,1673, apenas mejora la de ISA sola, 0,1670. ¿Qué se concluye del criterio de máximo Sharpe en este panel?',
-                        justificacion: 'El criterio no premia repartir: premia el mejor cociente, y aquí lo tiene un solo emisor. La diversificación entra en el problema por las restricciones y por la aversión al riesgo de concentración, no por el numerador de la razón de Sharpe. Con el tope del 30 % la razón alcanzable cae a 0,0714 — menos de la mitad—, y esa caída es el precio explícito de no apostar a un emisor.',
+                        justificacion: 'El criterio no premia repartir: premia el mejor cociente, y aquí lo tiene casi un solo emisor. La diversificación entra por las restricciones y por la aversión a la concentración, no por el numerador. Cuidado con el tamaño del precio, eso sí: con la convención el tope del 30 % hunde la razón de 0,1673 a 0,0714, un 57 %, pero medida con el retorno real va de 0,2563 a 0,2261, un 11,8 %. El tope cuesta cinco veces menos de lo que la convención sugiere, y devuelve la misma cartera: 30/10/30/30.',
                         opciones: [
-                            { texto: 'Que maximizar el Sharpe puede llevar a concentrar, y por eso necesita restricciones.', correcta: true },
+                            { texto: 'Que maximizar el Sharpe empuja a concentrar y por eso necesita restricciones: incluso midiendo el retorno de verdad, la cartera de máximo Sharpe pone el 51,19 % en ISA.', correcta: true },
                             { texto: 'Que la razón de Sharpe está mal calculada para la tangente, porque una cartera de dos activos no puede tener un cociente casi igual al del mejor de los dos si hay algo de diversificación.', correcta: false },
                             { texto: 'Que ISA es el único activo eficiente del panel y los otros tres deberían salir del universo de inversión, ya que ninguno aporta al cociente que el criterio maximiza.', correcta: false },
                             { texto: 'Que la ventana de ocho años es demasiado corta para estimar retornos esperados, y con una ventana más larga la tangente repartiría el peso entre los cuatro emisores.', correcta: false },
@@ -4561,7 +4674,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'Sobre la cartera de mínima varianza, prohibir los cortos no cambia ni un dígito: las dos filas del bloque dan 20,76 · 38,13 · 15,97 · 25,14. Sobre la tangente, en cambio, lo cambia todo. ¿Por qué la misma restricción cuesta cosas tan distintas?',
                         justificacion: 'Una restricción solo cuesta cuando está activa. La solución libre de la mínima varianza ya era positiva, así que la restricción no ata; la de la tangente pide vender prestado el 708 % en ISA, así que ata en cuatro componentes a la vez. Y el costo crece con la exigencia: en el comparador de la sección 5 la restricción vale 0,00 pp al 28 % de volatilidad, 0,44 pp al 32 % y 1,06 pp al 35 %.',
                         opciones: [
-                            { texto: 'Porque en el primer caso la restricción no ata y en el segundo sí.', correcta: true },
+                            { texto: 'Porque en el primer caso la restricción no ata y en el segundo sí: al 25,02 % la solución libre ya era positiva, y al 32 % hay que vender prestado el Banco de Bogotá.', correcta: true },
                             { texto: 'Porque la mínima varianza no usa el vector de retornos esperados y la tangente sí, y los retornos esperados son el insumo que produce los pesos negativos en cualquier optimización de carteras.', correcta: false },
                             { texto: 'Porque la mínima varianza se resuelve con un programa cuadrático y la tangente con una fórmula cerrada, y las fórmulas cerradas no pueden incorporar restricciones de desigualdad.', correcta: false },
                             { texto: 'Porque prohibir los cortos reduce el conjunto factible siempre, pero solo se nota cuando el problema tiene más activos que observaciones, que es el caso de la tangente al usar el exceso de retorno.', correcta: false },
@@ -4571,7 +4684,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'Un modelo de lenguaje aplica la fórmula cerrada de la cartera tangente y devuelve −708 % en ISA, +927 % en el Banco de Bogotá y una razón de Sharpe de −0,2891, con pesos que suman exactamente uno. ¿Cómo se clasifica ese error?',
                         justificacion: 'La fórmula describe la solución del problema SIN restricciones, y su condición de uso nadie la comprobó: aquí el denominador que usa para normalizar vale −0,0784, y al dividir por un número negativo la cartera entera cambia de rama. Σ y μ están bien estimados, así que no es un estimador inconsistente; y el número no está bien para concluir mal, así que tampoco es una interpretación indebida.',
                         opciones: [
-                            { texto: 'Supuesto no verificado: la fórmula resuelve un problema sin las restricciones del fondo.', correcta: true },
+                            { texto: 'Supuesto no verificado: la fórmula cerrada resuelve un problema sin restricciones, y nadie comprobó que su solución cumpliera el régimen de inversión del fondo.', correcta: true },
                             { texto: 'Estimador inconsistente: la matriz de covarianzas anualizada por 252 no es el estadístico que la fórmula cerrada de la cartera tangente necesita como insumo.', correcta: false },
                             { texto: 'Interpretación indebida: los pesos son correctos para el problema planteado y lo único incorrecto es presentarlos como una recomendación de inversión ejecutable.', correcta: false },
                             { texto: 'Confusión de medida: se reporta una razón de Sharpe calculada sobre retornos logarítmicos como si fuera la de una cartera medida en retornos aritméticos.', correcta: false },
@@ -4583,7 +4696,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         opciones: [
                             { texto: 'La ventana que mejor se ajuste al horizonte de inversión del fondo, ya que es la única elección defendible ante el supervisor y la que resuelve la discrepancia entre las dos estimaciones.', correcta: false },
                             { texto: 'El promedio de los pesos obtenidos con las dos ventanas, que es el estimador de mínima varianza del peso verdadero cuando no hay razón para preferir una ventana sobre la otra.', correcta: false },
-                            { texto: 'El rango de pesos que producen otras ventanas, junto con la ventana declarada de antemano.',  correcta: true },
+                            { texto: 'El rango de pesos que producen las otras ventanas, junto con la ventana declarada de antemano y el compromiso de volver a reportarlo en cada reestimación.',  correcta: true },
                             { texto: 'La ventana más larga disponible y solo esa, porque con más observaciones el error de estimación de la matriz de covarianzas es menor y las demás ventanas son ruido.', correcta: false },
                         ],
                     },
@@ -4591,7 +4704,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         pregunta: 'Midiendo el retorno cada quinta rueda en lugar de cada rueda, la correlación media del panel sube de 0,227 a 0,339 y el peso de Ecopetrol en la mínima varianza baja del 20,76 % al 12,79 %. ¿Qué está pasando?',
                         justificacion: 'Es el sesgo de negociación no simultánea, y es el mismo que la sección 5 del capítulo 3 mide sobre la beta —0,6779 con datos diarios contra 0,9486 con datos semanales—. Que cada emisor deje de cotizar por su cuenta —Banco de Bogotá el 16,2 % de las ruedas, Grupo Sura el 15,1 %, contra el 4,9 % del ETF— diluye las covarianzas diarias, el optimizador se cree esa dilución y reparte más de lo que debería. Los dos defectos del panel están declarados en el manifiesto y no se corrigen: lo que se hace es medir cuánto mueven cada conclusión.',
                         opciones: [
-                            { texto: 'Que parte de la diversificación que muestran los datos diarios es un artefacto de medición.', correcta: true },
+                            { texto: 'Que parte de la diversificación que muestran los datos diarios es un artefacto de medición: los emisores no cotizan a la vez y eso diluye las covarianzas medidas día a día.', correcta: true },
                             { texto: 'Que al usar una de cada cinco ruedas la muestra se reduce a 383 observaciones, y con tan pocos datos la matriz de covarianzas queda mal condicionada y sus correlaciones se inflan.', correcta: false },
                             { texto: 'Que la anualización por 252 no es válida para retornos de cinco días, y el factor correcto —50,4— introduce el sesgo que se observa en las correlaciones y en los pesos.', correcta: false },
                             { texto: 'Que el par de cotizaciones defectuosas de febrero de 2025 pesa cinco veces más al muestrear cada quinta rueda, y ese peso extra es el que mueve la correlación media y los pesos.', correcta: false },
