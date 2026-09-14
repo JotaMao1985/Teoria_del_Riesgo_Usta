@@ -132,6 +132,14 @@ PESO_MAXIMO_KB = 400
 FRACCION_DELATADAS_MAXIMA = 0.34
 RAZON_LONGITUD_MAXIMA = 1.30
 
+# …y la misma regla por abajo, que faltaba. La versión de un solo lado dejó en
+# verde a los capítulos 7, 8, 11 y 12 con la correcta más corta en 15 de 15 y
+# razones de hasta 0,08: marcar la más corta sin leer sacaba la nota completa,
+# que es exactamente el defecto que la mitad de arriba existe para impedir.
+# Corregir hacia abajo abrió el espejo del defecto de agosto, y por eso el
+# umbral es el recíproco del de arriba, redondeado a la baja.
+RAZON_LONGITUD_MINIMA = 0.75
+
 # Regla 14. Con cuatro opciones lo esperable es una cuarta parte por letra. Se
 # tolera hasta la mitad —redactar contra la casualidad de un hash no es trabajo
 # de nadie— y se exige que ninguna letra se quede sin salir, que es la pista
@@ -698,9 +706,41 @@ def grupos_de_opciones(cuerpo):
                     break
 
 
+# Una opción que no declara `correcta` no casa con RE_OPCION, y hasta hoy eso
+# la hacía invisible: el capítulo 12 escribía sus distractores como
+# `{ texto: '…' }` a secas y las reglas 13 y 14 auditaban 10 preguntas de 15
+# creyendo que eran todas. Las cinco que se saltaban llevaban desde agosto con
+# la correcta como la MÁS LARGA —el defecto que la regla 13 existe para cazar—.
+RE_TEXTO_OPCION = re.compile(r"\{\s*texto:\s*'(?:[^'\\]|\\.)*'")
+
+
+def opciones_incompletas(texto, cuerpo, desplazamiento):
+    """Toda opción tiene que declarar `correcta`, o la regla no la ve."""
+    fallos = []
+    for m in re.finditer(r"\bopciones\s*(?:=\{\[|:\s*\[)", cuerpo):
+        i = cuerpo.rfind("[", m.start(), m.end())
+        prof = 0
+        for j in range(i, len(cuerpo)):
+            if cuerpo[j] == "[":
+                prof += 1
+            elif cuerpo[j] == "]":
+                prof -= 1
+                if prof == 0:
+                    trozo = cuerpo[i:j]
+                    declaradas = len(RE_OPCION.findall(trozo))
+                    escritas = len(RE_TEXTO_OPCION.findall(trozo))
+                    if escritas > declaradas:
+                        fallos.append(
+                            f"línea {linea_de(texto, desplazamiento + i)}: "
+                            f"{escritas - declaradas} de {escritas} opciones no declaran "
+                            f"`correcta`, así que las reglas 13 y 14 no las auditan")
+                    break
+    return fallos
+
+
 def opciones_delatadas(texto, cuerpo, desplazamiento):
-    """La correcta no puede ser sistemáticamente la más larga de su pregunta."""
-    fallos, delatadas, total = [], 0, 0
+    """La correcta no se delata por su longitud, ni por arriba ni por abajo."""
+    fallos, delatadas, cortas, total = [], 0, 0, 0
     for grupo, _ in grupos_de_opciones(cuerpo):
         correctas = [t for t, c, _ in grupo if c]
         otras = [t for t, c, _ in grupo if not c]
@@ -720,9 +760,20 @@ def opciones_delatadas(texto, cuerpo, desplazamiento):
             fallos.append(
                 f"línea {linea_de(texto, desplazamiento + pos)}: la opción correcta mide "
                 f"{larga / media:.1f} veces la media de sus distractores")
+        elif larga / media < RAZON_LONGITUD_MINIMA:
+            fallos.append(
+                f"línea {linea_de(texto, desplazamiento + pos)}: la opción correcta mide "
+                f"{larga / media:.2f} veces la media de sus distractores ({larga} caracteres "
+                f"contra {media:.0f}). Complete el enunciado de la opción o recorte los "
+                f"distractores: una correcta llamativamente corta delata igual que una larga")
+        if larga < min(len(o) for o in otras):
+            cortas += 1
     if total and delatadas / total > FRACCION_DELATADAS_MAXIMA:
         fallos.insert(0, f"la correcta es la más larga en {delatadas} de {total} preguntas — "
                          f"marcar la más larga sin leer basta para aprobar")
+    if total and cortas / total > FRACCION_DELATADAS_MAXIMA:
+        fallos.insert(0, f"la correcta es la más corta en {cortas} de {total} preguntas — "
+                         f"marcar la más corta sin leer basta para aprobar")
     return fallos
 
 
@@ -875,7 +926,9 @@ def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
             f"peso — el capítulo ocupa {kb:.0f} KB y el máximo es {PESO_MAXIMO_KB} KB. "
             f"Reduzca las series de las gráficas a 1500 puntos o parta el capítulo")
 
-    # 13 · la opción correcta no se delata por ser la más larga
+    # 13 · la opción correcta no se delata por su longitud, ni larga ni corta
+    for f in opciones_incompletas(texto, cuerpo, desplazamiento):
+        problemas.append(f"opciones — {f}")
     for f in opciones_delatadas(texto, cuerpo, desplazamiento):
         problemas.append(f"opciones — {f}")
 

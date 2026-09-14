@@ -3818,13 +3818,13 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         pregunta="La gráfica muestra que el error del árbol cambia de signo según la paridad de n. ¿Qué implica eso para quien tenga que cotizar con un árbol y no con la fórmula?"
                         opciones={[
                             {
-                                texto: 'Que conviene promediar dos árboles de n consecutivos, porque sus errores tienden a cancelarse.',
+                                texto: 'Que conviene promediar varios n consecutivos, porque sus errores se cancelan.',
                                 correcta: true,
                                 justificacion: 'Es exactamente lo que hizo el capítulo 11 al promediar de 991 a 1 000, y por eso su estimación quedó a una centésima de la fórmula en vez de a la décima que da un árbol suelto de esa zona. Lo que este capítulo añade es la letra pequeña: promediar reduce el error pero no lo anula, y el promedio conserva un sesgo de +0,0116 con una amplitud residual de 0,0653. La técnica es buena; reportarla sin su amplitud, no.',
                             },
-                            { texto: 'Que el árbol está mal implementado y hay que revisar la recursión hacia atrás.' },
-                            { texto: 'Que hay que usar siempre el n más grande que aguante la máquina.' },
-                            { texto: 'Que el precio del árbol no converge y la fórmula cerrada es la única válida.' },
+                            { texto: 'Que el árbol está mal implementado y hay que revisar la recursión hacia atrás.', correcta: false },
+                            { texto: 'Que hay que usar siempre el n más grande que aguante la máquina.', correcta: false },
+                            { texto: 'Que el precio del árbol no converge y la fórmula cerrada es la única válida.', correcta: false },
                         ]}
                     />
                 </>
@@ -4010,14 +4010,14 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         <MCQ
                             pregunta="La gráfica muestra la misma call valorada con la volatilidad de cada año. ¿Qué se concluye de que el rango vaya de 147,9580 a 293,8791?"
                             opciones={[
-                                { texto: 'Que la fórmula es inestable y conviene sustituirla por un método numérico más robusto.' },
+                                { texto: 'Que la fórmula es inestable y conviene sustituirla por un método numérico más robusto.', correcta: false },
                                 {
-                                    texto: 'Que el precio de una opción es sobre todo una afirmación sobre σ, y por eso la ventana se declara antes.',
+                                    texto: 'Que el precio de una opción es sobre todo una afirmación sobre σ, y esa se declara antes.',
                                     correcta: true,
                                     justificacion: 'Los otros cuatro parámetros se leen en una pantalla y no admiten discusión; σ hay que decidirlo, y esa decisión mueve el precio 19 653 millones sobre la posición del fondo. Compárelo con lo que mueve todo el aparato numérico de este capítulo: el error de discretización del árbol vale 2 millones y el error estándar de un Montecarlo de un millón de sorteos, 47. La precisión del método es tres órdenes de magnitud más barata que la elección del insumo, y ese orden de prioridades es el que la cuarta convención del curso protege.',
                                 },
-                                { texto: 'Que hay que usar siempre la volatilidad del panel completo, porque promedia los ocho años.' },
-                                { texto: 'Que la opción no se puede valorar en un mercado con esta liquidez.' },
+                                { texto: 'Que hay que usar siempre la volatilidad del panel completo, porque promedia los ocho años.', correcta: false },
+                                { texto: 'Que la opción no se puede valorar en un mercado con esta liquidez.', correcta: false },
                             ]}
                         />
                     </Ejercicio>
@@ -4199,14 +4199,14 @@ p = (exp(rf * dt) - d) / (u - d)`}
                     <MCQ
                         pregunta="La línea naranja de la gráfica reescala la distribución empírica al nivel de σ del panel y la inclinación no desaparece. ¿Qué demuestra eso?"
                         opciones={[
-                            { texto: 'Que el reescalado está mal hecho, porque debería haber aplanado la curva.' },
-                            { texto: 'Que la volatilidad de Ecopetrol es más alta de lo que el panel indica.' },
+                            { texto: 'Que el reescalado está mal hecho, porque debería haber aplanado la curva.', correcta: false },
+                            { texto: 'Que la volatilidad de Ecopetrol es más alta de lo que el panel indica.', correcta: false },
                             {
-                                texto: 'Que la inclinación viene de la asimetría de la distribución y no del nivel de σ, que son dos defectos separables.',
+                                texto: 'Que la inclinación viene de la asimetría y no del nivel de σ: son separables.',
                                 correcta: true,
                                 justificacion: 'Es una descomposición, y sin ella los dos hallazgos se confunden en uno. Forzar el nivel a 38,6492 % sube toda la curva —de 28,53–20,83 % a 42,26–32,83 %— y deja la caída casi intacta: 9,4 puntos porcentuales de recorrido contra 7,7. El nivel lo explica la razón de varianzas de 0,4170 y la inclinación la asimetría de −0,6610; corregir uno no toca el otro. Un modelo que solo arregle el nivel, como reestimar σ con otra ventana, seguirá cobrando de menos el seguro contra caídas.',
                             },
-                            { texto: 'Que la sonrisa es un artefacto de usar ventanas solapadas en vez de disjuntas.' },
+                            { texto: 'Que la sonrisa es un artefacto de usar ventanas solapadas en vez de disjuntas.', correcta: false },
                         ]}
                     />
                 </>
@@ -4381,14 +4381,14 @@ C <- mean(pago); EE <- sd(pago)/sqrt(1e6)
                         }}
                         pregunta="Para esta opción concreta, ¿qué justifica usar B en vez de A?"
                         opciones={[
-                            { texto: 'Que B no supone que los rendimientos sean lognormales, y por eso es más realista.' },
+                            { texto: 'Que B no supone que los rendimientos sean lognormales, y por eso es más realista.', correcta: false },
                             {
-                                texto: 'Nada: para esta opción B es A con ruido añadido, y su valor es servir de banco de pruebas.',
+                                texto: 'Nada: para esta opción B es A con ruido añadido, y sirve de banco de pruebas.',
                                 correcta: true,
                                 justificacion: 'B sortea exactamente la misma lognormal que A integra en forma cerrada, así que no puede saber nada que A no sepa: la diferencia de 0,0762 es ruido de simulación, no información. Lo que justifica escribirlo es que aquí existe la respuesta contra la que calibrar el método, y eso permite aprender su error estándar, sus antitéticas y su costo en un caso donde se puede verificar. En cuanto el pago dependa del camino —una barrera, una asiática— A deja de existir y B es lo único que queda, ya sin red de seguridad. Es el mismo argumento con el que el capítulo 4 justificó su Montecarlo bajo normalidad.',
                             },
-                            { texto: 'Que B es más rápido cuando hay que valorar muchas opciones a la vez.' },
-                            { texto: 'Que B permite usar la volatilidad de cada año en vez de una sola.' },
+                            { texto: 'Que B es más rápido cuando hay que valorar muchas opciones a la vez.', correcta: false },
+                            { texto: 'Que B permite usar la volatilidad de cada año en vez de una sola.', correcta: false },
                         ]}
                     />
                 </>
@@ -4827,14 +4827,14 @@ desembolso = compra * S[i]`}
                     <MCQ
                         pregunta="Con rebalanceo diario, la desviación del P&L es 15,0451 en las trayectorias simuladas y 53,5594 sobre los precios reales. ¿Qué explica mejor esa brecha?"
                         opciones={[
-                            { texto: 'Que las trayectorias simuladas usaron una semilla poco representativa del comportamiento del activo.' },
+                            { texto: 'Que las trayectorias simuladas usaron una semilla poco representativa del comportamiento del activo.', correcta: false },
                             {
-                                texto: 'Que el mercado da saltos y se queda quieto, y contra eso rebalancear más no sirve.',
+                                texto: 'Que el mercado da saltos y luego se queda quieto, y contra eso rebalancear más no sirve.',
                                 correcta: true,
                                 justificacion: 'La simulación cumple los cuatro supuestos por construcción, así que su único error es la discretización, y esa cae como 1/√n. El mercado añade lo que la sección 2 midió: exceso de curtosis de 11,6501, una rueda de −22,43 % que son 9,21 sigmas, y el 9,86 % de ruedas sin cotización. La tabla de costos lo confirma por el otro lado — duplicar los rebalanceos de 63 a 126 mejora la desviación real solo 3,7240 COP y cuesta 195 millones más—: si la brecha fuera de discretización, esa columna habría caído a la mitad.',
                             },
-                            { texto: 'Que la volatilidad usada para cubrir era la del panel completo y no la de cada ventana.' },
-                            { texto: 'Que quince ventanas disjuntas no bastan para estimar una desviación con precisión.' },
+                            { texto: 'Que la volatilidad usada para cubrir era la del panel completo y no la de cada ventana.', correcta: false },
+                            { texto: 'Que quince ventanas disjuntas no bastan para estimar una desviación con precisión.', correcta: false },
                         ]}
                     />
                 </>
@@ -4859,7 +4859,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'El árbol da 213,1501 con cien pasos y 213,1874 con doscientos, alejándose de la fórmula. ¿Por qué?',
                         justificacion: 'El error del árbol no decrece de forma monótona: cambia de signo según dónde caiga el precio de ejercicio entre dos nodos del último paso, y eso depende de la paridad de n. La gráfica de la sección 1 lo muestra como dientes que se van achicando pero que cruzan la línea una y otra vez. Por eso duplicar el trabajo puede alejar el resultado, y por eso el capítulo 11 tuvo que promediar diez árboles en vez de confiar en uno solo.',
                         opciones: [
-                            { texto: 'Porque el error del árbol oscila con la paridad de n en vez de decrecer.', correcta: true },
+                            { texto: 'Porque el error del árbol oscila con la paridad de n en vez de decrecer de forma monótona, así que duplicar los pasos puede alejar el precio del límite en lugar de acercarlo.', correcta: true },
                             { texto: 'Porque con doscientos pasos la acumulación de errores de redondeo en punto flotante empieza a dominar sobre el error de discretización, y la recursión hacia atrás amplifica esa acumulación en cada nivel del árbol.', correcta: false },
                             { texto: 'Porque la probabilidad neutral al riesgo se aleja de 0,5 al aumentar n, y esa asimetría creciente sesga el valor esperado del pago en las ramas superiores del árbol.', correcta: false },
                             { texto: 'Porque el árbol converge a una distribución distinta de la lognormal cuando el número de pasos supera el centenar, de modo que su límite no es exactamente el de Black-Scholes.', correcta: false },
@@ -4869,7 +4869,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'El capítulo 11 estimó el límite en 213,0764 promediando n de 991 a 1 000, y la fórmula da 213,0648. ¿Qué hay que concluir?',
                         justificacion: 'Que no hay nada que corregir y sí algo que reportar. Esos diez árboles van de 213,0436 a 213,1089: su amplitud es 0,0653, unas 5,6 veces la brecha de 0,0116 que separa el promedio de la fórmula, y la fórmula cae dentro del rango. Promediar reduce el error de discretización pero no lo anula, así que el promedio conserva un sesgo del mismo orden que el ruido residual. La regla que sale de aquí vale para todo el curso: un método aproximado reporta su aproximación al lado de su resultado.',
                         opciones: [
-                            { texto: 'Que el promedio conserva un sesgo menor que la propia oscilación del árbol.', correcta: true },
+                            { texto: 'Que el promedio conserva un sesgo de +0,0116, más pequeño que la amplitud de 0,0653 que tienen los diez árboles promediados: la brecha cabe dentro de su propio ruido.', correcta: true },
                             { texto: 'Que la fórmula cerrada de Black-Scholes tiene un error de aproximación en la normal acumulada que se hace visible a partir de la cuarta cifra decimal del precio resultante.', correcta: false },
                             { texto: 'Que el capítulo 11 debió usar un número impar de árboles en el promedio para que los errores de signo contrario se cancelaran de forma exacta en vez de aproximada.', correcta: false },
                             { texto: 'Que la diferencia proviene de que el árbol usa la tasa libre de riesgo en capitalización discreta mientras la fórmula la usa en tiempo continuo, y ambas convenciones difieren en el cuarto decimal.', correcta: false },
@@ -4879,7 +4879,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'En la fórmula, N(d₁) = 0,588487 y N(d₂) = 0,480206. ¿Cuál de las dos es la probabilidad de que la opción se ejerza?',
                         justificacion: 'N(d₂), y solo bajo la probabilidad neutral al riesgo. N(d₁) es el delta: el número de acciones que hay que tener para replicar la opción, 79,2575 millones sobre la posición del fondo. Confundirlas se equivoca en 10,83 puntos porcentuales al afirmar con qué frecuencia se ejerce, y es el error más común del capítulo porque las dos salen de la misma d y difieren solo en σ√T. Una cuenta estados del mundo; la otra cuenta acciones.',
                         opciones: [
-                            { texto: 'N(d₂); N(d₁) es el delta y no es una probabilidad.', correcta: true },
+                            { texto: 'N(d₂), que vale 0,480206; N(d₁) es el delta de la cobertura, 0,588487, y no es una probabilidad de nada: confundirlas es el error más común de este capítulo.', correcta: true },
                             { texto: 'N(d₁), porque es la que multiplica al precio de contado y por tanto pondera el estado del mundo en el que se recibe efectivamente la acción subyacente al vencimiento.', correcta: false },
                             { texto: 'Ninguna de las dos: la probabilidad de ejercicio bajo la medida real se obtiene sustituyendo la tasa libre de riesgo por la deriva medida en el panel, que para Ecopetrol es 9,0576 %.', correcta: false },
                             { texto: 'Las dos, según el numerario que se use: N(d₁) bajo la medida asociada a la acción y N(d₂) bajo la asociada al bono, y ambas son igualmente válidas para responder la pregunta.', correcta: false },
@@ -4889,7 +4889,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'La misma call vale 147,9580 con la volatilidad de 2019 y 293,8791 con la de 2020. ¿Qué muestra ese rango?',
                         justificacion: 'Que el precio de una opción es sobre todo una afirmación sobre σ. Los otros cuatro parámetros se leen en una pantalla; σ hay que decidirlo, y esa decisión mueve 19 653 millones sobre la posición del fondo. Compárelo con lo que cuesta la precisión numérica del capítulo entero: el error de discretización del árbol vale 2 millones y el error estándar de un Montecarlo de un millón de sorteos, 47. Tres órdenes de magnitud separan la elección del insumo de la calidad del método.',
                         opciones: [
-                            { texto: 'Que el precio es, sobre todo, una afirmación sobre σ.', correcta: true },
+                            { texto: 'Que el precio es, sobre todo, una afirmación sobre σ: las dos ventanas separan la misma call en 19 653 millones sobre la posición, mil veces lo que cuesta el aparato numérico.', correcta: true },
                             { texto: 'Que la fórmula de Black-Scholes es numéricamente inestable cuando la volatilidad supera el 50 % anual, y por eso conviene sustituirla por un método de simulación en mercados emergentes.', correcta: false },
                             { texto: 'Que hay que usar siempre la volatilidad del panel completo, porque al promediar los ocho años se obtiene el estimador insesgado de la volatilidad verdadera del activo subyacente.', correcta: false },
                             { texto: 'Que la volatilidad de 2020 está contaminada por el par de ruedas defectuosas de febrero de 2025 que el manifiesto de datos declara, y por eso conviene excluirla del cálculo.', correcta: false },
@@ -4899,7 +4899,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'Invertir con la fórmula el precio que el capítulo 11 obtuvo con un árbol de 500 pasos devuelve 44,0626 % donde la σ era 44,0444 %. ¿Qué son esos 0,0181 puntos?',
                         justificacion: 'El error de discretización del árbol, reaparecido como volatilidad. El árbol cotiza 0,0888 COP por encima de la fórmula, y al invertir ese precio con la fórmula ese sobreprecio tiene que salir por algún lado: sale como volatilidad que nadie sintió. La lección es de auditoría y vale para cualquier implícita: hereda el error de modelo de lo que se invirtió, así que reportarla sin decir con qué modelo se produjo el precio es reportar una mezcla de mercado y método.',
                         opciones: [
-                            { texto: 'El error del árbol, leído como si fuera volatilidad del mercado.', correcta: true },
+                            { texto: 'El error del árbol de 500 pasos, 0,0888 pesos, leído como si fuera volatilidad del mercado: una implícita hereda el error de modelo del precio que se invirtió.', correcta: true },
                             { texto: 'La prima de riesgo de volatilidad que el mercado cobra por encima de la volatilidad realizada, que en mercados emergentes suele situarse entre uno y dos puntos porcentuales anuales.', correcta: false },
                             { texto: 'El efecto de haber redondeado la volatilidad a cuatro decimales antes de valorar, que se amplifica al invertir porque la función precio-volatilidad es muy plana cerca del dinero.', correcta: false },
                             { texto: 'La diferencia entre la volatilidad estimada con 250 ruedas y la del panel completo, que el capítulo 7 declaró como la cuarta convención del curso al hablar de ventanas de estimación.', correcta: false },
@@ -4909,7 +4909,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'La dispersión observada de Ecopetrol a seis meses es 17,6477 % y σ√T predice 27,3291 %, con una razón de varianzas de 0,4170. ¿Qué supuesto se está rompiendo?',
                         justificacion: 'El de que los rendimientos son independientes entre ruedas, que es lo que sostiene la regla de la raíz del tiempo. Con VR = 0,4170 el activo revierte: acumula mucha menos dispersión de la que su volatilidad diaria anuncia. Sobre esta call son 71,1434 COP de sobreprecio, unos 9 581 millones. Y la letra pequeña es la mitad del hallazgo: detrás hay quince ventanas disjuntas, no las 1 791 solapadas, así que la dirección está clara y la magnitud no está fijada.',
                         opciones: [
-                            { texto: 'El de independencia entre ruedas, que es lo que sostiene la raíz del tiempo.', correcta: true },
+                            { texto: 'El de independencia entre ruedas, que es lo que sostiene la raíz del tiempo — aunque detrás de ese 0,4170 hay solo quince ventanas disjuntas, así que la dirección está clara y la magnitud no.', correcta: true },
                             { texto: 'El de normalidad de los rendimientos, porque una distribución con exceso de curtosis de 11,6501 no puede escalarse por la raíz del tiempo sin sesgar la dispersión acumulada a horizontes largos.', correcta: false },
                             { texto: 'El de ausencia de costos de transacción, ya que en un mercado ilíquido el diferencial de compraventa introduce un ruido que reduce artificialmente la varianza medida a plazos largos.', correcta: false },
                             { texto: 'El de que la tasa libre de riesgo es constante, porque el descuento a seis meses acumula el efecto de las variaciones de tasa que el panel no registra al no traer la curva de TES.', correcta: false },
@@ -4919,7 +4919,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'Con la misma semilla y el mismo código, la pestaña de Python da 214,4535 y la de R 214,5378. ¿Qué hay que concluir?',
                         justificacion: 'Que son la misma respuesta. Los errores estándar del bloque, 3,4477 y 3,5765, hacen que una diferencia de 0,0843 sea una fracción de un error estándar: compatible con el ruido de simulación y no con un defecto. Es la excepción declarada del curso a la regla de que las dos pestañas coinciden, y su lección es la del R3 de la sección 4: lo que tiene que reproducirse entre lenguajes son las conclusiones, y sin el error estándar al lado no hay manera de saber si dos cifras simuladas se contradicen o coinciden.',
                         opciones: [
-                            { texto: 'Que coinciden: la diferencia cabe holgadamente en el error estándar.', correcta: true },
+                            { texto: 'Que coinciden: la diferencia cabe holgadamente en el error estándar del Montecarlo, y lo que se exige que coincida entre las dos pestañas son las conclusiones y no los dígitos de cada una.', correcta: true },
                             { texto: 'Que uno de los dos generadores de números aleatorios está mal calibrado y produce una muestra sesgada, lo que se puede comprobar contrastando la media de los sorteos contra cero.', correcta: false },
                             { texto: 'Que hay que promediar las dos cifras para obtener una estimación combinada más precisa, ya que dos muestras independientes del mismo estimador se combinan reduciendo la varianza a la mitad.', correcta: false },
                             { texto: 'Que la semilla 2026 no es adecuada para este problema y conviene repetir el ejercicio con varias semillas distintas hasta que las dos implementaciones converjan a la misma cifra.', correcta: false },
@@ -4929,7 +4929,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'Las variables antitéticas reducen el error estándar en un factor de 1,2644, no de diez. ¿Por qué tan poco?',
                         justificacion: 'Porque las antitéticas cancelan bien cuando la magnitud simulada es aproximadamente lineal en z, y el pago de una call no lo es: se aplana en cero para media recta. Cuando z es muy negativo, tanto el sorteo como su antitético informan poco y la cancelación no ocurre. El factor de 1,2644 equivale a 1,60 veces menos sorteos para la misma precisión: útil y gratis, pero muy lejos de la fama que la técnica arrastra. La técnica no es mala; el supuesto bajo el que se vende no se cumple aquí.',
                         opciones: [
-                            { texto: 'Porque el pago de una call no es lineal en z: se aplana en cero.', correcta: true },
+                            { texto: 'Porque el pago de una call no es lineal en z: se aplana en cero, y la antitética solo cancela la parte lineal del sorteo, que aquí es una fracción del total.', correcta: true },
                             { texto: 'Porque el número de pares utilizado, cincuenta mil, es insuficiente para que la correlación negativa entre cada sorteo y su antitético se manifieste plenamente en la varianza de la media.', correcta: false },
                             { texto: 'Porque la técnica solo reduce la varianza cuando el subyacente sigue un movimiento browniano aritmético, y aquí la lognormalidad rompe la simetría de la que depende la cancelación.', correcta: false },
                             { texto: 'Porque el generador de números aleatorios ya produce muestras cuasi-equilibradas, de modo que añadir los antitéticos aporta poca información nueva sobre la que el sorteo original ya contenía.', correcta: false },
@@ -4939,7 +4939,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'La theta analítica vale −0,674040 y por diferencias finitas −0,674810, mientras las otras cuatro griegas coinciden. ¿Es un error de implementación?',
                         justificacion: 'No. La fórmula da la derivada instantánea y la diferencia finita mide un día entero de calendario: son dos magnitudes ligeramente distintas y su brecha de 7,71e-04 es exactamente la curvatura de la función precio en el tiempo dentro de ese día. Las otras cuatro coinciden porque se calcularon con diferencias centradas y pasos minúsculos. Reconocerlo importa: la diferencia finita es el procedimiento con el que se auditan las griegas de un instrumento sin fórmula, y saber qué discrepancias son normales evita perseguir defectos que no existen.',
                         opciones: [
-                            { texto: 'No: una es la derivada instantánea y la otra, un día completo.', correcta: true },
+                            { texto: 'No: una es la derivada instantánea y la otra el cambio sobre un día completo, así que la brecha es el paso de la diferencia finita, y un método aproximado reporta su aproximación al lado del resultado.', correcta: true },
                             { texto: 'Sí: el paso temporal de un día es demasiado grande para una diferencia finita, y usando un paso de una hora las dos cifras coincidirían hasta la precisión de la máquina como ocurre con las demás.', correcta: false },
                             { texto: 'Sí: la theta analítica está mal dividida, porque el convenio del mercado colombiano usa 252 días hábiles y no 365 de calendario para expresar el decaimiento temporal de una opción.', correcta: false },
                             { texto: 'No, pero por otra razón: la theta es la única griega que depende del signo de la posición, y la diferencia finita la calcula desde la perspectiva del comprador mientras la fórmula lo hace desde la del vendedor.', correcta: false },
@@ -4949,7 +4949,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'La cobertura delta se desvía 53,5594 sobre los precios reales y 15,0451 en las trayectorias simuladas. ¿Qué se sigue para el capital que hay que reservar?',
                         justificacion: 'Que la reserva se calibra sobre el P&L observado de la estrategia y no sobre el error que el modelo se atribuye a sí mismo. El modelo se equivoca por un factor de 3,56 sobre este panel: reservar según su promesa deja la mesa corta justo cuando hace falta. Puede usarse para cotizar y para cubrir, no para dimensionar su propio error. Y el número se reporta con su conteo al lado —quince ventanas disjuntas—, porque quince observaciones no permiten estimar un percentil.',
                         opciones: [
-                            { texto: 'Que se calibra sobre el P&L observado, no sobre el error del modelo.', correcta: true },
+                            { texto: 'Que se calibra sobre el P&L observado y no sobre el error del modelo: la desviación real es 3,56 veces la simulada, unos 7 213 millones sobre la posición del fondo.', correcta: true },
                             { texto: 'Que hay que rebalancear con más frecuencia hasta que la desviación real converja a la simulada, ya que la teoría garantiza que el error de cobertura cae como el inverso de la raíz del número de rebalanceos.', correcta: false },
                             { texto: 'Que conviene cubrir con el forward del capítulo 11 en lugar de con acciones, porque un contrato a plazo elimina por completo el error de cobertura al fijar de antemano el precio de venta.', correcta: false },
                             { texto: 'Que la volatilidad usada para cubrir debe ser la implícita de la sección 3 y no la histórica, con lo que el error de cobertura se reduciría al nivel que el modelo predice para sus propias trayectorias.', correcta: false },
