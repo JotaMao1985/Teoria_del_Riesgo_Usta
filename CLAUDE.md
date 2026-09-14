@@ -18,8 +18,12 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
 | 3 · Unidad 2 (T12–T15) | 🟡 a medias · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · T14 y T15 bloqueadas por `curva_tes.csv` |
-| 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** · los **diez** capítulos pasan las catorce reglas con `--con-salidas` |
+| 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
+| Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | 5 · Portal y Quarto | pendiente |
+
+Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-13 son **quince**:
+la 13 se volvió simétrica y se le sumó la que exige que toda opción declare `correcta`.
 
 ⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
 `curva_tes.csv`**, que hay que bajar a mano del Banco de la República. Las tareas 16 y 17 se
@@ -223,9 +227,36 @@ declarada 7,69 % de retorno y **25,02 %** de volatilidad; mínima varianza **23,
 20,76 · 38,13 · 15,97 · 25,14; frontera al retorno declarado **24,40 %** —la brecha es de
 0,62 pp— y al riesgo declarado **8,43 %** de retorno —0,74 pp—; cartera tangente 5,52 · 0 · 0
 · **94,48** con Sharpe **0,1673**, y con tope del 30 % por emisor 30/10/30/30 con Sharpe
-**0,0714**. Dos cosas que conviene no volver a descubrir: la razón de Sharpe de la mínima
-varianza es **negativa** (−0,0188), porque rinde menos que el TES, y la de Grupo Sura es
-−0,0000, porque rindió 6,7655 % — cuatro diezmilésimas por debajo de la tasa del curso.
+**0,0714**. La razón de Sharpe de Grupo Sura es **−0,0000**, porque rindió 6,7655 %: cuatro
+diezmilésimas de punto porcentual por debajo de la tasa del curso, o un 6,9996 % compuesto
+contra el 7,00 % del TES. Ojo con esa cifra — **las cuatro diezmilésimas son del RETORNO**;
+la razón de Sharpe vale −0,0000094, cien veces menos, y el capítulo llegó a atribuírselas a
+ella.
+
+⚠️ **Y la séptima convención declarada del curso sale de aquí, que es la más incómoda:
+`w′μ` es la convención y NO es el retorno de ninguna cartera.** Los logarítmicos no agregan
+entre activos, y la brecha vale exactamente el beneficio de diversificación: **0,00 pp para
+un activo solo, 0,52 para la tangente y 4,14 para la declarada**. Castiga justo a las
+carteras repartidas. Para Σ da igual —la volatilidad se separa un 0,16 %—, pero sobre el
+retorno **da la vuelta a las conclusiones**: la mínima varianza no tiene Sharpe negativo
+(rindió 10,22 % y su razón real es **+0,1445**), la declarada supera a la tangente medida de
+verdad (0,2023 contra 0,1819), y la CML no gana 3,26 pp sobre la declarada sino **0,77**
+(12,60 % contra 11,83 %). Lo que **sí** sobrevive: maximizar Sharpe concentra —la cartera de
+máximo Sharpe real sigue poniendo el **51,19 % en ISA**, por encima del tope del 30 %—. Es la
+zona ciega 10 otra vez, y se cerró como en el capítulo 1: **la convención se queda y se añade
+la columna exacta**, que el bloque de la sección 4 ahora imprime al lado. Todo capítulo que
+compare un `w′μ` contra una tasa de financiación o lo convierta a pesos hereda el problema.
+
+⚠️ **Grupo Sura NO entra en la cartera por sus correlaciones**, aunque sea la explicación
+cómoda y el capítulo la diera por buena hasta el 2026-09-13. Sus tres correlaciones —0,200 ·
+0,227 · 0,255— son los puestos **tercero, cuarto y quinto** de las seis del panel, y su media
+es la media del panel; el activo menos correlacionado es el **Banco de Bogotá** (0,1931). En
+covarianzas, que es lo que el optimizador minimiza, dos de sus tres parejas están entre las
+tres más altas. Y el laboratorio de κ lo remata: con las correlaciones apagadas le daría
+**19,17 %** y con la matriz real **15,97 %**, o sea que le **restan**. Lo que lo sostiene es
+que quitarlo sube la volatilidad de la mínima varianza **0,91 pp** — la menor de las cuatro
+penalizaciones, pero no cero. El argumento de fondo (no se juzgan activos de uno en uno) se
+sostiene; el mecanismo que se le atribuía, no.
 
 ⚠️ **La cuarta convención declarada del curso sale de aquí: la ventana de estimación se
 declara ANTES de estimar, y con ella se reporta al menos una alternativa.** No es retórica:
@@ -356,15 +387,21 @@ su auditoría; el 3, el 4 y el 5 el mismo día; y el **6 el 2026-08-14**, que er
 abajo se ha aplicado seis veces sin variarla, y las seis veces el trabajo real estuvo en
 leer entera la justificación antes de ampliarla.
 
-⚠️ **Los repartos de letras de la regla 14, para cuando haya que tocar un enunciado.** Son
-**c1 a:3 · b:5 · c:4 · d:3**, **c2 a:4 · b:4 · c:4 · d:3**, **c3 a:1 · b:6 · c:4 · d:4**,
-**c4 a:1 · b:6 · c:3 · d:5**, **c5 a:3 · b:3 · c:2 · d:7** y **c6 a:4 · b:4 · c:4 · d:3**
-—el del 6 se reequilibró el 2026-09-07 desde a:1 · b:5 · c:3 · d:6, y es hoy el único
-repartido a partes iguales—. Los seis pasan. El del 5 es el margen más estrecho —7 de 15 es
-el 46,7 % contra un techo del 50 %— y el 3 y el 4 dejan la (a) con una sola aparición. Reescribir las opciones
-no mueve ninguna letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver
-a mirar el reparto de su capítulo. La comprobación barata, si se dudó, es extraer los quince
-enunciados de antes y de después y contar cuántos cambiaron; en el 6 fueron cero.
+⚠️ **Los repartos de letras de la regla 14, para cuando haya que tocar un enunciado.**
+Medidos el 2026-09-13 sobre las 15 preguntas de cada capítulo: **c1 a:3 · b:5 · c:4 · d:3**,
+**c2 a:4 · b:5 · c:3 · d:3**, **c3 a:3 · b:5 · c:4 · d:3**, **c4 a:1 · b:6 · c:3 · d:5**,
+**c5 a:3 · b:3 · c:2 · d:7**, **c6 a:4 · b:4 · c:4 · d:3**, **c7 a:5 · b:3 · c:3 · d:4**,
+**c8 a:4 · b:3 · c:3 · d:5**, **c11 a:4 · b:4 · c:4 · d:3** y **c12 a:3 · b:4 · c:4 · d:4**.
+Los diez pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo del
+50 %— y el 4 deja la (a) con una sola aparición. Reescribir las opciones no mueve ninguna
+letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver a mirar el
+reparto de su capítulo. La comprobación barata, si se dudó, es extraer los quince enunciados
+de antes y de después y contar cuántos cambiaron; en el 6 fueron cero.
+
+⚠️ **Ojo: los de c2 y c3 que este archivo traía escritos estaban desactualizados**, y nadie
+lo notó porque los dos seguían pasando. Es la advertencia de arriba cobrándose: alguien tocó
+un enunciado y no volvió a medir. **Mídalos, no los copie de aquí** —`verificar.py` los
+imprime cuando la regla 14 falla, y `permutacion()` está disponible para medirlos a mano—.
 
 ⚠️ **Y la posición no es la única pista de forma: la auditoría del capítulo 6 (2026-09-05)
 encontró dos más que ninguna regla vigila.** La primera, el **énfasis tipográfico**: en 3 de
@@ -453,20 +490,22 @@ que no es de forma sino de sentido: las catorce reglas pasaban y las salidas era
 El capítulo 7 añadió la undécima, y a diferencia de las diez anteriores **está viva en dos
 capítulos ya publicados**:
 
-11. **Una casilla de `TablaTraza` con exactamente tres decimales no se puede acertar
-    escribiéndola con coma decimal.** `normalizarCelda` casa `0.167` con su expresión de
-    notación de miles —`^-?\d{1,3}(\.\d{3})+(,\d+)?$`— y la convierte en `0167`, mientras
-    que quien teclea `0,167`, que es como escribe la prosa del material, obtiene `0.167`. La
-    traza marca la celda en rojo e imprime debajo, en verde, la misma cifra. Es el gemelo
-    exacto del menos tipográfico que ya se cerró, en el mismo componente. **Casillas afectadas
-    hoy: `3.285` y `1.475` en el capítulo 5**; el 7 se escribió esquivándolo, con cuatro
-    decimales, y el `0.048` del capítulo 6 se cerró el 2026-09-06 pasando la casilla a
-    `0.0480` y añadiendo «a cuatro decimales» a su instrucción — con eso aciertan `0,048`,
-    `0,0480` y `0.0480`, y el único formato que sigue fallando es `0.048` con punto, que es
-    justo el que la expresión de miles se traga. El arreglo de verdad es de TR-CORE —exigir dos grupos
-    de miles, o mirar el número de dígitos— y toca los siete capítulos y el taller calificado,
-    cuyo TR-CORE tiene que seguir siendo byte a byte el del capítulo 6. **Mientras no se haga:
-    ninguna casilla nueva con tres decimales.**
+11. ✅ **CERRADA el 2026-09-13.** Una casilla de `TablaTraza` con exactamente tres decimales
+    no se podía acertar. `normalizarCelda` casaba `0.167` con su expresión de notación de
+    miles —`^-?\d{1,3}(\.\d{3})+(,\d+)?$`— y la convertía en `0167`: la traza marcaba la
+    celda en rojo e imprimía debajo, en verde, la misma cifra. Con coma nunca falló; el
+    defecto era del **punto**, que es como lo escriben los bloques de código.
+
+    **El arreglo no tocó la expresión**, que también acierta con `1.916` = 1916 y con
+    `1.234.567`. `celdasIguales` reconoce ahora que `0.167` es **ambiguo** y prueba las dos
+    lecturas —decimal y miles—, y las prueba **por los dos lados**, porque el valor esperado
+    de la tabla se escribe igual y sufría lo mismo. Eso último no salió de leer el código
+    sino de **probarlo**: el primer intento arreglaba al que teclea con punto y seguía
+    fallándole al que teclea con coma. Comprobado con 22 casos y en pantalla sobre las ocho
+    casillas del R1 de la sección 3 del capítulo 5, con coma y con punto.
+
+    Ya se pueden escribir casillas de tres decimales. Y quedó el método: **un arreglo de
+    TR-CORE se prueba contra una tabla de casos antes de estamparlo en once archivos.**
 
 El capítulo 8 añadió la duodécima, que es de gráfica y es barata de evitar:
 
@@ -522,6 +561,33 @@ El capítulo 12 añadió la decimocuarta, y es la zona ciega 5 con la consecuenc
     reinventa**: `miles` reescrito con `toLocaleString('es-CO')` imprime `1.800` con punto de
     miles donde los capítulos 7 y 11 usan espacio.
 
+La auditoría del capítulo 7 (2026-09-13) añadió la decimoquinta, y es la más cara de las
+quince porque **la abrió el arreglo de otra**:
+
+15. **Toda regla que vigile un extremo hay que escribirla simétrica, o se corrige el defecto
+    hacia su espejo.** La regla 13 fallaba si la correcta era la MÁS LARGA y no decía nada del
+    otro lado. Los capítulos escritos después de la corrección de agosto se redactaron
+    apuntando a corto, y en el **7, el 8 y el 11 la correcta acabó siendo la más corta en 15 de
+    15**, con razones de hasta **0,08**. Comprobado en pantalla: marcar la más corta sin leer
+    sacaba **10/10** en el cuestionario. La pista había cambiado de signo y seguía valiendo la
+    nota entera.
+
+    **La regla 13 ya es de dos lados** (`RAZON_LONGITUD_MINIMA = 0,75` y el mismo tercio del
+    techo aplicado a «la correcta es la más corta»). Los diez capítulos están hoy en razones
+    **0,75–1,12** y con la correcta como la más corta en **2 a 5 de 15**, que es el azar: la
+    regla prohíbe que sea la más larga en **ninguna** pregunta, así que una de cada tres es lo
+    máximo que puede parecer aleatorio. La comprobación que vale es la de pantalla:
+    **responder el cuestionario marcando siempre la más corta tiene que dar 3 o 4 de 10.**
+
+    Y hay un corolario que costó descubrir: **una regla que no ve algo no protege de nada.**
+    `RE_OPCION` exigía `{ texto, correcta }` y el capítulo 12 escribía sus distractores como
+    `{ texto: '…' }` a secas, así que las reglas 13 y 14 auditaban **10 de sus 15 preguntas
+    creyendo que eran todas**. Las cinco invisibles llevaban desde agosto con la correcta como
+    la **más larga** —el defecto original, razones de 1,26 a 1,53—: sobrevivieron a su propia
+    corrección por no estar en la lista. Ahora una opción sin `correcta` **falla** en vez de
+    saltarse. Antes de fiarse del recuento de una regla, compruebe **cuántas preguntas dice
+    haber mirado**.
+
 ⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
 no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
 Award · HelpCircle · TrendingUp · BarChart · Activity · Layers · Table · Clock · Bug · Scale ·
@@ -573,7 +639,7 @@ auditoría; los dos afectaban a los quince capítulos):
 conda activate teoria-riesgo
 python3 "Material html/_plantilla/ensamblar.py"                    # fuentes → tr-base.html
 python3 "Material html/_plantilla/migrar.py"                       # plantilla → capítulos
-python3 "Material html/_plantilla/verificar.py" --con-salidas      # las catorce reglas
+python3 "Material html/_plantilla/verificar.py" --con-salidas      # las quince reglas
 ```
 
 ⚠️ **La regla 9 ejecuta los bloques de Python con el mismo intérprete que corre el
