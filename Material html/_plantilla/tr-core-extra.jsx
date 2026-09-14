@@ -424,13 +424,40 @@
             return s;
         };
 
+        // `0.167` es AMBIGUO: puede ser un decimal escrito con punto o, para la
+        // expresión de miles de `normalizarCelda`, un `0167`. Hasta aquí ganaba
+        // siempre la lectura de miles, y por eso una casilla de tres decimales
+        // no se podía acertar: quien tecleaba `0.167` obtenía `0167` y la traza
+        // se lo marcaba en rojo mientras imprimía debajo, en verde, esa misma
+        // cifra. (Con coma —`0,167`— nunca hubo problema; el defecto era del
+        // punto, que es como lo escriben los bloques de código.) La salida no es
+        // tocar la expresión, que también acierta con `1.916` = 1916, sino
+        // ofrecer las DOS lecturas y aceptar la celda si alguna coincide.
+        const lecturasCelda = (v) => {
+            const base = normalizarCelda(v);
+            const s = String(v === null || v === undefined ? '' : v).trim().toLowerCase()
+                .replace(/\s+/g, '').replace(/[−–—]/g, '-')
+                .replace(/\$/g, '').replace(/\bcop\b/g, '');
+            // un solo grupo de tres dígitos tras el punto y nada más: ambiguo
+            if (/^-?\d{1,3}\.\d{3}$/.test(s)) return [s, s.replace('.', '')];
+            return [base];
+        };
+
+        // La ambigüedad es de los DOS lados: el valor esperado de la tabla se
+        // escribe `'0.167'`, que la expresión de miles convierte igualmente en
+        // `0167`. Comparar solo las lecturas del estudiante contra esa única
+        // lectura del esperado dejaba fuera al que teclea `0,167`, que es como
+        // lo escribe la prosa del curso. Se cruzan las dos por las dos.
         const celdasIguales = (a, b) => {
-            const na = normalizarCelda(a), nb = normalizarCelda(b);
-            if (na === nb) return true;
-            const fa = parseFloat(na), fb = parseFloat(nb);
-            if (Number.isFinite(fa) && Number.isFinite(fb)) {
-                const tol = Math.max(1e-6, Math.abs(fb) * 1e-6);
-                return Math.abs(fa - fb) <= tol;
+            for (const na of lecturasCelda(a)) {
+                for (const nb of lecturasCelda(b)) {
+                    if (na === nb) return true;
+                    const fa = parseFloat(na), fb = parseFloat(nb);
+                    if (Number.isFinite(fa) && Number.isFinite(fb)) {
+                        const tol = Math.max(1e-6, Math.abs(fb) * 1e-6);
+                        if (Math.abs(fa - fb) <= tol) return true;
+                    }
+                }
             }
             return false;
         };
@@ -1257,7 +1284,8 @@
            cuantil empírico, la recursión EWMA, la frontera de dos activos,
            la fórmula de Black-Scholes—. Ajustar un GARCH o resolver un
            programa cuadrático no cabe: eso se precomputa en Python sobre
-           una malla de parámetros, se embebe, y el deslizador interpola.
+           una malla de parámetros y se embebe; si algún control cae entre dos
+           nodos, el deslizador interpola.
            `modo` declara cuál de los dos es, para que quien lea el código
            del capítulo no tenga que deducirlo.
         ============================================================ */
@@ -1335,8 +1363,12 @@
                             <i className="fas fa-rotate-left mr-1"></i>Valores iniciales
                         </button>
                         <span className="text-[0.68rem] text-gray-400 italic">
+                            {/* «Interpola» era una afirmación de más: cuando los controles caen
+                                siempre sobre un nodo —que es el caso de los laboratorios del curso—
+                                no hay interpolación ninguna, y la nota del capítulo lo decía dos
+                                líneas más abajo, contradiciendo a este texto fijo. */}
                             {modo === 'malla'
-                                ? 'Los valores vienen de una malla precomputada en Python; el deslizador interpola.'
+                                ? 'Los valores vienen de una malla precomputada en Python.'
                                 : 'El cálculo se hace en el navegador con los mismos datos del capítulo.'}
                         </span>
                     </div>
