@@ -2,7 +2,7 @@
 """
 Verificador estructural de los capítulos de Teoría del Riesgo.
 
-Comprueba catorce cosas sobre cada archivo HTML de capítulo:
+Comprueba quince cosas sobre cada archivo HTML de capítulo:
 
   1. DERIVA — que el bloque TR-CORE (la librería de componentes) sea byte a
      byte idéntico al de `_plantilla/tr-base.html`.
@@ -54,6 +54,18 @@ Comprueba catorce cosas sobre cada archivo HTML de capítulo:
      arregla moviendo la correcta de índice en el fuente, y esta regla dice a
      cuáles. Solo se aplica a las preguntas cuyo enunciado es una cadena
      literal: si es JSX, la semilla no se puede reconstruir aquí y se omiten.
+ 16. MARCAS DE FORMA — que ninguna marca tipográfica señale a la correcta, ni
+     al revés. Es la tercera vuelta del mismo defecto: la regla 14 cerró la
+     POSICIÓN, la 13 la LONGITUD por arriba y después por abajo, y al alargar
+     las correctas para salir de ese suelo se les añadió un segundo tramo
+     detrás de DOS PUNTOS —«Que la restricción solo cuesta cuando ata: al
+     25,02 %…»— mientras los distractores encadenaban con «porque». En el
+     capítulo 7 marcar la única opción con «:» daba 7 de 10 en pantalla, y en
+     el 11 la única con cifra decimal daba 8 de 15. Por eso esta regla nace
+     sobre una LISTA de marcadores y en los DOS sentidos, que es lo que la 13
+     aprendió tarde: vigilar una sola forma en un solo extremo corrige el
+     defecto hacia su espejo. El arreglo no es quitarle la marca a la correcta
+     sino dársela a uno o dos distractores, que además los mejora.
 
 Uso:
     python3 _plantilla/verificar.py                 # todos los capítulos
@@ -147,6 +159,29 @@ RAZON_LONGITUD_MINIMA = 0.75
 # El mínimo de preguntas evita que un capítulo a medias falle por tener cuatro.
 FRACCION_POSICION_MAXIMA = 0.50
 MINIMO_PREGUNTAS_POSICION = 8
+
+# Regla 16. La longitud fue la pista de agosto y la posición la de julio; en
+# septiembre, al alargar las correctas para salir del suelo de la regla 13, se
+# les añadió un segundo tramo detrás de dos puntos —«Que la restricción solo
+# cuesta cuando ata: al 25,02 %…»— mientras los distractores encadenaban con
+# «porque». La pista cambió de disfraz: en el capítulo 7 marcar la única opción
+# con «:» daba 7 de 10 en pantalla, y en el 11 la única con cifra decimal daba
+# 8 de 15. Por eso esta regla se escribe DESDE EL PRIMER DÍA sobre una lista de
+# marcadores y en los dos sentidos, que es lo que la regla 13 aprendió tarde:
+# vigilar un solo extremo de una sola forma corrige el defecto hacia su espejo.
+MARCADORES_FORMA = {
+    "dos puntos «:»": lambda t: ":" in t,
+    "raya «—»": lambda t: "—" in t,
+    "punto y coma «;»": lambda t: ";" in t,
+    "cifra decimal": lambda t: re.search(r"\d,\d", t) is not None,
+}
+
+# La medida que vale NO es «cuántas preguntas tienen una sola opción marcada»:
+# ese conteo sube por azar en cuanto el marcador es prosa corriente. Lo que
+# decide es comparar P(marca | correcta) contra P(marca | distractor), y el
+# conteo de «la única marcada es la correcta», que es la regla que un estudiante
+# puede aplicar sin leer. Los diez capítulos están hoy en brechas de 0,00 a 0,31.
+BRECHA_MARCADOR_MAXIMA = 0.35
 
 # Etiquetas que no son componentes React definidos por nosotros.
 IGNORAR = {"React", "ReactDOM", "Fragment", "Math", "Object", "JSON", "Array",
@@ -850,6 +885,49 @@ def posiciones_delatadas(texto, cuerpo, desplazamiento):
     return fallos
 
 
+def marcadores_delatados(texto, cuerpo, desplazamiento):
+    """Ninguna marca tipográfica puede señalar a la correcta, ni al revés."""
+    grupos = [(g, e) for g, e in grupos_de_opciones(cuerpo)
+              if sum(1 for _, c, _ in g if c) == 1 and len(g) > 1]
+    fallos = []
+    if len(grupos) < MINIMO_PREGUNTAS_POSICION:
+        return fallos
+    for nombre, marca in MARCADORES_FORMA.items():
+        nc = nd = cc = cd = 0
+        unica_corr = unica_dist = 0
+        for grupo, _ in grupos:
+            marcadas = [i for i, (x, _, _) in enumerate(grupo) if marca(x)]
+            for x, c, _ in grupo:
+                if c:
+                    nc += 1
+                    cc += marca(x)
+                else:
+                    nd += 1
+                    cd += marca(x)
+            if len(marcadas) == 1:
+                if grupo[marcadas[0]][1]:
+                    unica_corr += 1
+                else:
+                    unica_dist += 1
+        n = len(grupos)
+        pc, pd = cc / nc, cd / nd
+        if unica_corr / n > FRACCION_DELATADAS_MAXIMA:
+            fallos.append(
+                f"{nombre}: es la única opción marcada y es la correcta en {unica_corr} de "
+                f"{n} preguntas — marcarla sin leer basta para aprobar")
+        if unica_dist / n > FRACCION_DELATADAS_MAXIMA:
+            fallos.append(
+                f"{nombre}: es la única opción marcada y NO es la correcta en {unica_dist} "
+                f"de {n} preguntas — descartarla sin leer regala un distractor")
+        if abs(pc - pd) > BRECHA_MARCADOR_MAXIMA:
+            lado = "las correctas" if pc > pd else "los distractores"
+            fallos.append(
+                f"{nombre}: aparece en el {pc:.0%} de las correctas y en el {pd:.0%} de los "
+                f"distractores. Dé la misma forma a uno o dos distractores por pregunta, o "
+                f"quítesela a algunas de {lado}")
+    return fallos
+
+
 def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
     texto = ruta.read_text(encoding="utf-8")
     cuerpo = cuerpo_capitulo(texto)
@@ -935,6 +1013,10 @@ def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
     # 14 · ni por la letra en la que acaba saliendo
     for f in posiciones_delatadas(texto, cuerpo, desplazamiento):
         problemas.append(f"posición — {f}")
+
+    # 16 · ni por una marca tipográfica que la señale (o que señale al resto)
+    for f in marcadores_delatados(texto, cuerpo, desplazamiento):
+        problemas.append(f"forma — {f}")
 
     total = sum(conteo.values())
     resumen = " ".join(f"{t}:{conteo[t]}" for t in sorted(conteo))
