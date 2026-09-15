@@ -605,9 +605,17 @@ quince porque **la abrió el arreglo de otra**:
 ⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
 no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
 Award · HelpCircle · TrendingUp · BarChart · Activity · Layers · Table · Clock · Bug · Scale ·
-Sliders · ChevronLeft · ChevronRight`. **El capítulo 11 usa tres que no están —`ArrowDownUp`,
-`GitBranch` y `Workflow`— y tiene tres secciones sin icono desde el 2026-08-25.** Está
-detectado y sin corregir.
+Sliders · ChevronLeft · ChevronRight`. ✅ **Corregido el 2026-09-14**: el capítulo 11 llevaba
+tres que no existen desde el 2026-08-25 —`ArrowDownUp`, `GitBranch` y `Workflow`— y sus
+secciones 1, 3 y 5 salían sin icono. Pasaron a `TrendingUp`, `Layers` y `Activity`, ninguno
+repetido dentro del capítulo. **Los once archivos están hoy barridos y no queda ninguno sin
+definir**; el barrido es de dos líneas y conviene repetirlo al cerrar un capítulo, porque es
+la familia de defectos que ni React ni el verificador señalan:
+
+```bash
+grep -oE "icon: '\w+'" cap.html | sort -u        # lo que usa
+sed -n '/const Icons = {/,/^        };/p' cap.html | grep -oE '^ {12}\w+'   # lo que existe
+```
 
 ⚠️ **La zona ciega 4 tiene un caso que no se arregla con más decimales: la cancelación.** El R1
 del capítulo 12 pedía al principio la probabilidad neutral al riesgo p\*, que es un cociente de
