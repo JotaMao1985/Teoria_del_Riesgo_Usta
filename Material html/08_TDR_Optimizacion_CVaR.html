@@ -4234,7 +4234,7 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                         justificacion: 'La cola es una función de los pesos: al cambiar w cambian los días peores. Fijarla de antemano optimiza el promedio de una cartera sobre los días malos de otra. En este panel devuelve 100 % Banco de Bogotá, cuyo CVaR real es 6,8601 % contra el 4,5815 % del óptimo, y encima imprime como objetivo un 3,6982 % que parece mejor que el óptimo verdadero.',
                         opciones: [
                             { texto: 'Que al cambiar los pesos cambia cuáles son los 48 días peores, así que a partir de la primera iteración optimiza sobre la cola de una cartera que ya no existe.', correcta: true },
-                            { texto: 'Que 48 escenarios son muy pocos para estimar un promedio de cola con precisión, y el error de estimación domina cualquier diferencia entre las carteras candidatas.', correcta: false },
+                            { texto: 'Que 48 escenarios son muy pocos para estimar un promedio de cola con precisión, y el error de estimación pesa más que la diferencia entre las carteras candidatas.', correcta: false },
                             { texto: 'Que usa el VaR en lugar del CVaR para delimitar la cola, y el VaR no es una medida coherente, de modo que la cartera resultante hereda esa incoherencia.', correcta: false },
                             { texto: 'Que promedia las 48 ruedas enteras en vez de las 47,9 que el nivel pide, y esa diferencia de una décima de rueda sesga el resultado hacia carteras concentradas.', correcta: false },
                         ],

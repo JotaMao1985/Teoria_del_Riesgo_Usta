@@ -411,7 +411,21 @@ igual», «es la definición»—: 10 de los 45 distractores los llevaban y ning
 que descartarlos eliminaba un distractor gratis en 9 de las 15. Sumado al reparto de letras,
 un estudiante que no leyera sacaba **7 de 15**. Las tres pistas se cerraron en el 6 (énfasis
 0 de 15, absolutismos 3 de 45 —y los tres son legítimos, donde absolutizar ES el error—), y
-**los otros ocho capítulos no se han mirado**.
+**los diez capítulos quedaron medidos el 2026-09-14**.
+
+⚠️ **La medida que vale NO es «cuántas preguntas tienen una sola opción marcada».** La raya es
+prosa corriente del material, así que ese conteo sube por azar; lo que decide es comparar
+**P(raya | correcta) contra P(raya | distractor)**. Con esa medida el énfasis solo correlacionaba
+en el **capítulo 11** —3 de 15 correctas contra 1 de 45 distractores, y la marcada era la correcta
+en **tres** de sus cuatro preguntas—, y la causa era la regla 13 con otro disfraz: la correcta
+arrastraba un inciso entre rayas con la cifra en pesos («—unos 839 millones—», «—un 30,24 % bajo
+el contado—», «—2 020,4854—»). Los tres se movieron a su `justificacion`, donde la regla editorial
+ya decía que van, compensando la longitud para no caer por debajo del suelo de 0,75. El **8**
+estaba en 2 de 4 —cara o sello— y en 3 de 45 absolutismos, el nivel con que cerró el 6; se suavizó
+el único de los tres que no era legítimo («domina **cualquier** diferencia», donde absolutizar no
+era el error sino un intensificador de redacción). Los otros siete no correlacionan: c3 1 de 3,
+c5 0 de 3, c7 0 de 3. **El 8 y el 11 no tienen ninguna versalita**; donde las hay —2, 3, 5, 6,
+7 y 12— son vocabulario del capítulo y aparecen más en los distractores que en las correctas.
 
 **Cómo se hizo en el capítulo 2, por si sirve de receta.** El objetivo por pregunta es
 `min(máximo de los distractores − 1, 1,30 × su media)`: la correcta deja de ser la más larga
