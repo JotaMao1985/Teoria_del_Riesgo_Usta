@@ -22,8 +22,9 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | 5 · Portal y Quarto | pendiente |
 
-Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-13 son **quince**:
-la 13 se volvió simétrica y se le sumó la que exige que toda opción declare `correcta`.
+Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-15 son
+**dieciséis**: la 13 se volvió simétrica, se le sumó la que exige que toda opción declare
+`correcta`, y la **16** vigila que ninguna marca tipográfica señale a la correcta.
 
 ⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
 `curva_tes.csv`**, que hay que bajar a mano del Banco de la República. Las tareas 16 y 17 se
@@ -601,6 +602,46 @@ quince porque **la abrió el arreglo de otra**:
     corrección por no estar en la lista. Ahora una opción sin `correcta` **falla** en vez de
     saltarse. Antes de fiarse del recuento de una regla, compruebe **cuántas preguntas dice
     haber mirado**.
+
+El arreglo de la regla 13 abrió la decimosexta el 2026-09-15, y es la **tercera vuelta del
+mismo defecto**:
+
+16. **La pista no vive en la longitud ni en la posición: vive en la FORMA, y cambia de disfraz
+    cada vez que se cierra una.** Al alargar las correctas en septiembre para salir del suelo
+    nuevo de la regla 13, se les añadió un segundo tramo explicativo detrás de **dos puntos**
+    —«Que la restricción solo cuesta cuando ata**:** al 25,02 %…»— mientras los distractores
+    encadenaban con «porque», «ya que», «de modo que». Comprobado en pantalla: **marcar la
+    única opción con «:» sacaba 7 de 10** en el capítulo 7. Medido sobre los diez capítulos,
+    el acierto de esa estrategia era 4,3–6,1 de 15 en la unidad 1 y **10,75 · 7,75 · 8,75 ·
+    9,83** en el 7, el 8, el 11 y el 12 — los cuatro escritos o corregidos después de agosto,
+    y en los cuatro el «:» solitario acertaba el **100 %** de las veces que aparecía.
+
+    Y no es solo el «:». En el capítulo 11 la **cifra decimal** hacía lo mismo: aparecía en el
+    47 % de las correctas y en el 4 % de los distractores, y marcarla daba **8 de 15**. Por eso
+    **la regla 16 nace sobre una lista de marcadores —«:», raya, punto y coma, cifra decimal— y
+    en los dos sentidos**, que es lo que la 13 aprendió tarde: vigilar una sola forma en un solo
+    extremo corrige el defecto hacia su espejo. Falla si «la única opción marcada es la correcta»
+    pasa en más de un tercio de las preguntas, si pasa lo mismo con un distractor, o si la marca
+    aparece en las correctas con más de **0,35** de diferencia sobre los distractores.
+
+    ⚠️ **El arreglo NO es quitarle la marca a la correcta**, que es lo primero que se ocurre y
+    deja la prosa peor: es **dársela a uno o dos distractores**, lo que además los mejora. En el
+    capítulo 11 se hizo dándoles una cifra del propio capítulo usada de forma falsa pero
+    plausible. Solo cinco correctas de las cuatro capítulos perdieron su «:», y dos de ellas
+    porque la frase mejoraba igual.
+
+    **Cómo quedó** (acierto en pantalla del cuestionario de 10, con el azar en 2,5): dos puntos
+    **3,0 · 3,5 · 3,1 · 4,0** en c7, c8, c11 y c12, contra 7/10 antes. Y la comprobación que
+    vale sigue siendo la de pantalla: **responder marcando la opción con dos puntos tiene que
+    dar 3 o 4 de 10.**
+
+    ⚠️ **Y ojo al medirlo en el navegador**: el panel sirve el capítulo desde caché y una
+    recarga a la misma URL puede devolver la versión vieja — la medición sale idéntica a la de
+    antes del arreglo y parece que no sirvió de nada. Añada `?v=` con la hora al recargar.
+
+    **Queda medido y sin cerrar**: la cifra decimal sigue dando **4,8 de 10 en el capítulo 8** y
+    **5,1 en el 12** (el azar es 2,5). Los dos pasan la regla 16 —brechas de 0,20 y 0,27— y están
+    en el nivel del resto del material, pero es la misma familia y conviene saberlo.
 
 ⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
 no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
