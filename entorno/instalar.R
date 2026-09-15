@@ -35,6 +35,17 @@ paquetes <- c(
 
   # Unidad 3 — derivados, crédito y valores extremos
   "pROC",        # ROC, AUC y Gini
+  # El capítulo 13 pone gradient boosting frente a la logística, y la regla 1
+  # del curso exige las dos pestañas: sin este paquete la sección 7 se queda
+  # sin su lado en R. Se compila desde fuente —este R es el de Homebrew y su
+  # `pkgType` es "source"—, tarda unos minutos y no necesita cmake; `Matrix`,
+  # `data.table` y `jsonlite` vienen con tidyverse. Y no da igual cómo se
+  # invoque: el paquete de R va por detrás del de Python en versión menor
+  # (3.2.1.1 contra 3.3.0), así que las dos pestañas solo coinciden con todo
+  # sorteo apagado —`subsample=1`, `colsample_bytree=1`, `tree_method="exact"`
+  # y sobre todo `nthread=1`, porque el reparto entre hilos cambia el orden de
+  # acumulación—. Comprobado así: mismo AUC y mismas PD a la sexta cifra.
+  "xgboost",
   "extRemes",    # GEV y POT; el equivalente de `pyextremes`
   "evir"         # trae `danish`, la serie de cola pesada del capítulo 15
 )
