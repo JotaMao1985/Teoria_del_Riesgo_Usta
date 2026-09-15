@@ -3801,7 +3801,7 @@ cat("con q = 0 la prima es exactamente cero: adelantar el ejercicio solo adelant
                         <MCQ
                             pregunta="El comité pregunta si vender un forward sobre los 240 000 millones en Ecopetrol «asegura» la posición. ¿Qué hay que responderle?"
                             opciones={[
-                                { texto: 'Que sí, y que además es gratis, porque firmar un forward no cuesta nada al inicio y por tanto la cobertura no consume presupuesto.', correcta: false },
+                                { texto: 'Que sí, y que además es gratis, porque la prima de 61,3151 sobre el contado se cobra al vencimiento y no consume presupuesto hoy.', correcta: false },
                                 { texto: 'Que no asegura nada, porque un forward no elimina el riesgo de mercado sino que lo traslada al riesgo de contraparte, que es mayor.', correcta: false },
                                 { texto: 'Que fija el precio de venta de la posición en 1 843,3151 y, a cambio, renuncia a toda subida por encima de esa cifra en junio.', correcta: true, justificacion: 'Un forward vendido convierte una posición incierta en una cifra cierta: 1 843,3151 por acción, 248 258 millones. Eso protege de la caída y cancela la subida en la misma operación, y es la diferencia con la put de la sección 2, que protege abajo y deja abierto arriba — y por eso cuesta 23 068 millones y el forward no cuesta nada al firmarse. La pregunta que el comité tiene que contestar no es cuál es más barato, sino si está dispuesto a renunciar a la subida a cambio de no pagar prima.' },
                                 { texto: 'Que conviene esperar a que el forward cotice por debajo del contado, momento en el cual la cobertura resulta más barata para el fondo que la tiene.', correcta: false },
@@ -3931,7 +3931,7 @@ cat("con q = 0 la prima es exactamente cero: adelantar el ejercicio solo adelant
                         <MCQ
                             pregunta="La tabla del bloque muestra que C − P vale 41,8743 con uno, dos, tres, diez, cincuenta y quinientos pasos, mientras que C pasa de 259,0098 a 213,1513. ¿Qué explica que la diferencia no se mueva?"
                             opciones={[
-                                { texto: 'Que con n grande el árbol converge y los precios de call y put se estabilizan a la vez, de modo que su diferencia deja de moverse antes que cada uno por separado.', correcta: false },
+                                { texto: 'Que con n grande el árbol converge y los precios de call y put se estabilizan a la vez: su diferencia deja de moverse antes que cada uno por separado.', correcta: false },
                                 { texto: 'Que el árbol comete exactamente el mismo error en la call y en la put, y al restarlas se cancela: la paridad no depende del modelo con que se calculen.', correcta: true, justificacion: 'La paridad sale de que call menos put paga S_T − K en todos los estados, y eso vale para cualquier modelo que descuente al mismo tipo y no permita arbitraje: es un teorema sobre pagos, no un resultado de la binomial. Con un solo paso el árbol es una caricatura y la call se equivoca en más de 45 COP, pero la put se equivoca en la misma cantidad y en el mismo sentido. Por eso la paridad es la primera comprobación que se le hace a una pantalla de precios, y por eso el R3 de la sección 6 duele: aplicarla donde no vale rompe la única herramienta que no dependía de nada.' },
                                 { texto: 'Que la volatilidad entra en la call y en la put con signo contrario, así que al restarlas se cancela y queda una expresión que solo depende del contado y de la tasa.', correcta: false },
                                 { texto: 'Que ambas opciones están en el dinero con K = 1 800 y S₀ = 1 782, y cerca del dinero la call y la put tienen aproximadamente el mismo valor temporal.', correcta: false },
@@ -4176,7 +4176,7 @@ precio <- delta * S0 + B`,
                             opciones={[
                                 { texto: 'La probabilidad de que Ecopetrol suba, estimada a partir de la volatilidad del panel en lugar de la deriva.', correcta: false },
                                 { texto: 'Un cambio de variable que aparece al reagrupar el precio de la réplica, y nada más: no es la creencia de nadie sobre la subida.', correcta: true, justificacion: 'El precio se obtuvo primero sin ella, resolviendo dos ecuaciones con dos incógnitas; p es lo que queda al reordenar ΔS₀ + B. Que caiga entre 0 y 1 y sume 1 con su complemento la hace parecer una probabilidad, y bajo ella el valor esperado de la acción es el forward, 1 843,3151. Pero nadie cree que Ecopetrol suba con probabilidad 0,494274: la probabilidad medida en el panel es 0,515815, y usar esa es justo el error del R3 de esta sección, que cuesta 1 520 millones.' },
-                                { texto: 'La probabilidad que tendría la subida si todos los inversionistas fueran indiferentes al riesgo y no exigieran prima alguna por soportarlo.', correcta: false },
+                                { texto: 'La probabilidad que tendría la subida en un mundo concreto: aquel en que nadie exigiera prima alguna por soportar el riesgo.', correcta: false },
                                 { texto: 'La probabilidad de subida que hace que el valor esperado descontado de la acción coincida con su precio de mercado observado hoy.', correcta: false },
                             ]}
                         />
@@ -4627,7 +4627,7 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                         justificacion: 'La paridad no depende del modelo, así que sirve de auditoría externa: si una pantalla de precios no la cumple, uno de los dos está mal y no hace falta discutir de volatilidades para saberlo. En el bloque, un dealer que cotice la put a 165,00 deja 6,2770 por acción de utilidad cierta, 845 millones sobre la posición. Su límite es el terreno: vale para europeas, y aplicarla a americanas es el R3 de la sección 6.',
                         opciones: [
                             { texto: 'Para auditar un par de precios sin comprometerse con ningún modelo: si C − P no da 41,8743, el error está en la cotización que le pasaron y no en el número de pasos.', correcta: true },
-                            { texto: 'Para elegir el número de pasos del árbol: se aumenta n hasta que la paridad se cumpla con la precisión deseada, y ese es el n que se usa para cotizar el contrato.', correcta: false },
+                            { texto: 'Para elegir el número de pasos del árbol: se aumenta n hasta que C − P se estabilice en 41,8743, y ese es el n que se usa para cotizar el contrato.', correcta: false },
                             { texto: 'Para estimar la volatilidad implícita a partir de dos precios observados, ya que la paridad relaciona la call y la put a través del parámetro de dispersión del subyacente.', correcta: false },
                             { texto: 'Para verificar que la probabilidad neutral al riesgo calculada por el árbol esté entre cero y uno, condición sin la cual el modelo admitiría oportunidades de arbitraje.', correcta: false },
                         ],
@@ -4636,9 +4636,9 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                         pregunta: 'La réplica de la call de un período compra 0,549648 acciones y toma prestados 720,4636 pesos. ¿Qué significa que B sea negativo?',
                         justificacion: 'Que la réplica se financia con deuda: se compran acciones con dinero prestado, y eso es exactamente lo que hace que una call apalanque. Cuesta 259,0098 controlar media acción de 1 782, y por eso una call sube en porcentaje mucho más que la acción. La delta, 0,549648, es además la respuesta operativa a «cuántas acciones cubren una call vendida»: 54,9648 de cada 100.',
                         opciones: [
-                            { texto: 'Que la réplica se arma con acciones compradas a crédito: se toman prestados 720,4636 pesos para pagar parte de las 0,549648 acciones.', correcta: true },
-                            { texto: 'Que el precio de ejercicio supera al contado, de modo que la opción está fuera del dinero y su valor intrínseco es cero mientras que su valor temporal es positivo.', correcta: false },
-                            { texto: 'Que la posición replicante exige vender el activo en descubierto, y por eso su costo de montaje resulta inferior al precio de mercado de la propia opción que replica.', correcta: false },
+                            { texto: 'Que la réplica se arma con acciones compradas a crédito, porque se toman prestados 720,4636 pesos para pagar parte de las 0,549648 acciones.', correcta: true },
+                            { texto: 'Que el precio de ejercicio supera al contado: la opción está fuera del dinero y su valor intrínseco es cero mientras que su valor temporal es positivo.', correcta: false },
+                            { texto: 'Que la posición replicante exige vender en descubierto 0,549648 acciones, y por eso su costo de montaje resulta inferior al precio de la opción que replica.', correcta: false },
                             { texto: 'Que la tasa libre de riesgo se aplica con signo contrario en el árbol binomial, porque el descuento actúa sobre un flujo que se recibe y no sobre uno que se paga.', correcta: false },
                         ],
                     },
@@ -4648,16 +4648,16 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                         opciones: [
                             { texto: 'Que cuenta dos veces la prima de riesgo, porque el contado de 1 782 ya la incorpora, y por eso devuelve 270,2980 donde la replicación da 259,0098: 1 520 millones.', correcta: true },
                             { texto: 'Que la probabilidad real está estimada sobre ocho años de datos históricos y por tanto arrastra un error de estimación grande, que se propaga al precio de la opción amplificado por la delta.', correcta: false },
-                            { texto: 'Que la probabilidad real no suma uno con su complemento bajo la medida neutral al riesgo, de modo que el valor esperado calculado con ella no es un promedio ponderado legítimo.', correcta: false },
-                            { texto: 'Que al usar la deriva real habría que descontar también a la tasa exigida por el activo y no a la libre de riesgo, y hecho así el resultado sería correcto.', correcta: false },
+                            { texto: 'Que la probabilidad real, 0,515815, no suma uno con el complemento de la neutral al riesgo, de modo que el valor esperado calculado con ella no es un promedio legítimo.', correcta: false },
+                            { texto: 'Que al usar la deriva real habría que descontar a la tasa exigida por el activo y no a la libre de riesgo: hecho así, el resultado sería correcto.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'El bloque supone derivas de −20 %, 0 %, 9,0576 %, 20 % y 40 % y el precio por replicación no se mueve ni un decimal. ¿Qué demuestra?',
                         justificacion: 'Que la deriva se cancela al replicar, y por tanto no es un parámetro del problema. Es lo que permite que dos analistas con pronósticos opuestos coticen el mismo precio: si no fuera así, el más optimista sería arbitrado por el otro. Lo que sí mueve el precio es σ, que no describe hacia dónde va la acción sino cuánto se mueve — y por eso la ventana con la que se estima hay que declararla antes.',
                         opciones: [
-                            { texto: 'Que la deriva no es un parámetro del modelo: se cancela entera al montar la réplica, y por eso el precio no depende de lo que nadie crea que vaya a pasar con la acción.', correcta: true },
-                            { texto: 'Que la deriva influye poco sobre el precio en plazos cortos, y que en horizontes de varios años sí habría que incorporarla explícitamente en la valoración del contrato.', correcta: false },
+                            { texto: 'Que la deriva no es un parámetro del modelo, porque se cancela entera al montar la réplica, y el precio no depende de lo que nadie crea que vaya a pasar con la acción.', correcta: true },
+                            { texto: 'Que la deriva influye poco sobre el precio en plazos cortos: en horizontes de varios años sí habría que incorporarla explícitamente en la valoración del contrato.', correcta: false },
                             { texto: 'Que el árbol de un solo período es demasiado tosco para recoger el efecto de la deriva, y que con quinientos pasos la columna de la derecha sí mostraría variación apreciable.', correcta: false },
                             { texto: 'Que la deriva y la volatilidad están correlacionadas en el panel, de modo que su efecto conjunto sobre el precio de la opción se compensa dentro del rango explorado.', correcta: false },
                         ],
@@ -4676,7 +4676,7 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                         pregunta: 'El bloque imprime que la call americana y la europea valen lo mismo con diez decimales. ¿Por qué?',
                         justificacion: 'Porque ejercer una call antes adelanta el pago de K sin adelantar ningún ingreso, y además tira la protección de no estar obligado. Esperar siempre es al menos tan bueno, así que el derecho extra no vale nada. Pero es un teorema condicional: depende de que no haya dividendo, y este capítulo declaró q = 0. La última tabla lo confirma al revés — con q = 10 % la prima aparece y vale 3,8728, y con q = 30 %, 22,6424.',
                         opciones: [
-                            { texto: 'Porque la call está fuera del dinero —K = 1 800 contra un contado de 1 782— y una opción sin valor intrínseco nunca se ejerce antes de tiempo, de modo que el derecho extra no aporta nada aquí.', correcta: false },
+                            { texto: 'Porque la call está fuera del dinero, con K = 1 800 contra un contado de 1 782: una opción sin valor intrínseco nunca se ejerce antes de tiempo, y el derecho extra no aporta nada aquí.', correcta: false },
                             { texto: 'Porque el árbol de 500 pasos es tan fino que la diferencia entre las dos versiones cae por debajo de la precisión numérica con la que se imprime el resultado en pantalla.', correcta: false },
                             { texto: 'Porque adelantar el ejercicio de una call adelanta un pago y no adelanta ningún ingreso, y aquí no hay dividendo que cobrar: q se declaró en cero, y esa decisión produce el resultado.', correcta: true },
                             { texto: 'Porque la paridad put-call obliga a que las dos versiones de la call coincidan siempre que la put americana y la europea difieran exactamente en la prima de ejercicio anticipado.', correcta: false },
@@ -4698,7 +4698,7 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                         opciones: [
                             { texto: 'Cuánta probabilidad le dan a que Ecopetrol suba más del 13,38 % en seis meses, que es el punto en el que las dos coberturas se cruzan y cambia cuál de las dos conviene.', correcta: true },
                             { texto: 'Cuál de los dos instrumentos tiene menor riesgo de contraparte, dado que el forward es bilateral y la opción también se negociaría fuera de bolsa en el mercado colombiano.', correcta: false },
-                            { texto: 'Cuál de las dos coberturas resulta más barata de montar hoy, comparando la prima de la put con el desembolso inicial que exige la venta del forward a seis meses.', correcta: false },
+                            { texto: 'Cuál de las dos coberturas resulta más barata de montar hoy, comparando los 171,2770 de la put con el desembolso inicial que exige vender el forward.', correcta: false },
                             { texto: 'Cuál de las dos protege mejor frente a una caída fuerte del precio, que es el riesgo que el comité declaró querer cubrir cuando aprobó la operación en primer lugar.', correcta: false },
                         ],
                     },

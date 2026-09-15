@@ -4231,7 +4231,7 @@ p = (exp(rf * dt) - d) / (u - d)`}
                     <MCQ
                         pregunta="La línea naranja de la gráfica reescala la distribución empírica al nivel de σ del panel y la inclinación no desaparece. ¿Qué demuestra eso?"
                         opciones={[
-                            { texto: 'Que el reescalado está mal hecho, porque debería haber aplanado la curva.', correcta: false },
+                            { texto: 'Que el reescalado está mal hecho: debería haber aplanado la curva.', correcta: false },
                             { texto: 'Que la volatilidad de Ecopetrol es más alta de lo que el panel indica.', correcta: false },
                             {
                                 texto: 'Que la inclinación viene de la asimetría y no del nivel de σ: son separables.',
@@ -4413,9 +4413,9 @@ C <- mean(pago); EE <- sd(pago)/sqrt(1e6)
                         }}
                         pregunta="Para esta opción concreta, ¿qué justifica usar B en vez de A?"
                         opciones={[
-                            { texto: 'Que B no supone que los rendimientos sean lognormales, y por eso es más realista.', correcta: false },
+                            { texto: 'Que B no supone que los rendimientos sean lognormales: por eso es más realista.', correcta: false },
                             {
-                                texto: 'Nada: para esta opción B es A con ruido añadido, y sirve de banco de pruebas.',
+                                texto: 'Nada, porque aquí B es A con ruido añadido y sirve de banco de pruebas.',
                                 correcta: true,
                                 justificacion: 'B sortea exactamente la misma lognormal que A integra en forma cerrada, así que no puede saber nada que A no sepa: la diferencia de 0,0762 es ruido de simulación, no información. Lo que justifica escribirlo es que aquí existe la respuesta contra la que calibrar el método, y eso permite aprender su error estándar, sus antitéticas y su costo en un caso donde se puede verificar. En cuanto el pago dependa del camino —una barrera, una asiática— A deja de existir y B es lo único que queda, ya sin red de seguridad. Es el mismo argumento con el que el capítulo 4 justificó su Montecarlo bajo normalidad.',
                             },
@@ -4902,7 +4902,7 @@ desembolso = compra * S[i]`}
                         justificacion: 'Que no hay nada que corregir y sí algo que reportar. Esos diez árboles van de 213,0436 a 213,1089: su amplitud es 0,0653, unas 5,6 veces la brecha de 0,0116 que separa el promedio de la fórmula, y la fórmula cae dentro del rango. Promediar reduce el error de discretización pero no lo anula, así que el promedio conserva un sesgo del mismo orden que el ruido residual. La regla que sale de aquí vale para todo el curso: un método aproximado reporta su aproximación al lado de su resultado.',
                         opciones: [
                             { texto: 'Que el promedio conserva un sesgo de +0,0116, más pequeño que la amplitud de 0,0653 que tienen los diez árboles promediados: la brecha cabe dentro de su propio ruido.', correcta: true },
-                            { texto: 'Que la fórmula cerrada de Black-Scholes tiene un error de aproximación en la normal acumulada que se hace visible a partir de la cuarta cifra decimal del precio resultante.', correcta: false },
+                            { texto: 'Que la fórmula cerrada de Black-Scholes tiene un error de aproximación en la normal acumulada: se hace visible a partir de la cuarta cifra decimal del precio resultante.', correcta: false },
                             { texto: 'Que el capítulo 11 debió usar un número impar de árboles en el promedio para que los errores de signo contrario se cancelaran de forma exacta en vez de aproximada.', correcta: false },
                             { texto: 'Que la diferencia proviene de que el árbol usa la tasa libre de riesgo en capitalización discreta mientras la fórmula la usa en tiempo continuo, y ambas convenciones difieren en el cuarto decimal.', correcta: false },
                         ],
@@ -4923,7 +4923,7 @@ desembolso = compra * S[i]`}
                         opciones: [
                             { texto: 'Que el precio es, sobre todo, una afirmación sobre σ: las dos ventanas separan la misma call en 19 653 millones sobre la posición, mil veces lo que cuesta el aparato numérico.', correcta: true },
                             { texto: 'Que la fórmula de Black-Scholes es numéricamente inestable cuando la volatilidad supera el 50 % anual, y por eso conviene sustituirla por un método de simulación en mercados emergentes.', correcta: false },
-                            { texto: 'Que hay que usar siempre la volatilidad del panel completo, porque al promediar los ocho años se obtiene el estimador insesgado de la volatilidad verdadera del activo subyacente.', correcta: false },
+                            { texto: 'Que hay que usar siempre la volatilidad del panel completo: al promediar los ocho años se obtiene el estimador insesgado de la volatilidad verdadera del activo subyacente.', correcta: false },
                             { texto: 'Que la volatilidad de 2020 está contaminada por el par de ruedas defectuosas de febrero de 2025 que el manifiesto de datos declara, y por eso conviene excluirla del cálculo.', correcta: false },
                         ],
                     },
@@ -4933,7 +4933,7 @@ desembolso = compra * S[i]`}
                         opciones: [
                             { texto: 'El error del árbol de 500 pasos, 0,0888 pesos, leído como si fuera volatilidad del mercado: una implícita hereda el error de modelo del precio que se invirtió.', correcta: true },
                             { texto: 'La prima de riesgo de volatilidad que el mercado cobra por encima de la volatilidad realizada, que en mercados emergentes suele situarse entre uno y dos puntos porcentuales anuales.', correcta: false },
-                            { texto: 'El efecto de haber redondeado la volatilidad a cuatro decimales antes de valorar, que se amplifica al invertir porque la función precio-volatilidad es muy plana cerca del dinero.', correcta: false },
+                            { texto: 'El efecto de haber redondeado la volatilidad a cuatro decimales antes de valorar: se amplifica al invertir porque la función precio-volatilidad es muy plana cerca del dinero.', correcta: false },
                             { texto: 'La diferencia entre la volatilidad estimada con 250 ruedas y la del panel completo, que el capítulo 7 declaró como la cuarta convención del curso al hablar de ventanas de estimación.', correcta: false },
                         ],
                     },
@@ -4952,7 +4952,7 @@ desembolso = compra * S[i]`}
                         justificacion: 'Que son la misma respuesta. Los errores estándar del bloque, 3,4477 y 3,5765, hacen que una diferencia de 0,0843 sea una fracción de un error estándar: compatible con el ruido de simulación y no con un defecto. Es la excepción declarada del curso a la regla de que las dos pestañas coinciden, y su lección es la del R3 de la sección 4: lo que tiene que reproducirse entre lenguajes son las conclusiones, y sin el error estándar al lado no hay manera de saber si dos cifras simuladas se contradicen o coinciden.',
                         opciones: [
                             { texto: 'Que coinciden: la diferencia cabe holgadamente en el error estándar del Montecarlo, y lo que se exige que coincida entre las dos pestañas son las conclusiones y no los dígitos de cada una.', correcta: true },
-                            { texto: 'Que uno de los dos generadores de números aleatorios está mal calibrado y produce una muestra sesgada, lo que se puede comprobar contrastando la media de los sorteos contra cero.', correcta: false },
+                            { texto: 'Que uno de los dos generadores de números aleatorios está mal calibrado y produce una muestra sesgada: se puede comprobar contrastando la media de los sorteos contra cero.', correcta: false },
                             { texto: 'Que hay que promediar las dos cifras para obtener una estimación combinada más precisa, ya que dos muestras independientes del mismo estimador se combinan reduciendo la varianza a la mitad.', correcta: false },
                             { texto: 'Que la semilla 2026 no es adecuada para este problema y conviene repetir el ejercicio con varias semillas distintas hasta que las dos implementaciones converjan a la misma cifra.', correcta: false },
                         ],
@@ -4961,8 +4961,8 @@ desembolso = compra * S[i]`}
                         pregunta: 'Las variables antitéticas reducen el error estándar en un factor de 1,2644, no de diez. ¿Por qué tan poco?',
                         justificacion: 'Porque las antitéticas cancelan bien cuando la magnitud simulada es aproximadamente lineal en z, y el pago de una call no lo es: se aplana en cero para media recta. Cuando z es muy negativo, tanto el sorteo como su antitético informan poco y la cancelación no ocurre. El factor de 1,2644 equivale a 1,60 veces menos sorteos para la misma precisión: útil y gratis, pero muy lejos de la fama que la técnica arrastra. La técnica no es mala; el supuesto bajo el que se vende no se cumple aquí.',
                         opciones: [
-                            { texto: 'Porque el pago de una call no es lineal en z: se aplana en cero, y la antitética solo cancela la parte lineal del sorteo, que aquí es una fracción del total.', correcta: true },
-                            { texto: 'Porque el número de pares utilizado, cincuenta mil, es insuficiente para que la correlación negativa entre cada sorteo y su antitético se manifieste plenamente en la varianza de la media.', correcta: false },
+                            { texto: 'Porque el pago de una call no es lineal en z, ya que se aplana en cero, y la antitética solo cancela la parte lineal del sorteo, que aquí es una fracción del total.', correcta: true },
+                            { texto: 'Porque el número de pares es insuficiente: con cincuenta mil, la correlación negativa entre cada sorteo y su antitético no se manifiesta plenamente en la varianza de la media.', correcta: false },
                             { texto: 'Porque la técnica solo reduce la varianza cuando el subyacente sigue un movimiento browniano aritmético, y aquí la lognormalidad rompe la simetría de la que depende la cancelación.', correcta: false },
                             { texto: 'Porque el generador de números aleatorios ya produce muestras cuasi-equilibradas, de modo que añadir los antitéticos aporta poca información nueva sobre la que el sorteo original ya contenía.', correcta: false },
                         ],
@@ -4982,7 +4982,7 @@ desembolso = compra * S[i]`}
                         justificacion: 'Que la reserva se calibra sobre el P&L observado de la estrategia y no sobre el error que el modelo se atribuye a sí mismo. El modelo se equivoca por un factor de 3,56 sobre este panel: reservar según su promesa deja la mesa corta justo cuando hace falta. Puede usarse para cotizar y para cubrir, no para dimensionar su propio error. Y el número se reporta con su conteo al lado —quince ventanas disjuntas—, porque quince observaciones no permiten estimar un percentil.',
                         opciones: [
                             { texto: 'Que se calibra sobre el P&L observado y no sobre el error del modelo: la desviación real es 3,56 veces la simulada, unos 7 213 millones sobre la posición del fondo.', correcta: true },
-                            { texto: 'Que hay que rebalancear con más frecuencia hasta que la desviación real converja a la simulada, ya que la teoría garantiza que el error de cobertura cae como el inverso de la raíz del número de rebalanceos.', correcta: false },
+                            { texto: 'Que hay que rebalancear con más frecuencia hasta que la desviación real converja a la simulada: la teoría garantiza que el error de cobertura cae como el inverso de la raíz del número de rebalanceos.', correcta: false },
                             { texto: 'Que conviene cubrir con el forward del capítulo 11 en lugar de con acciones, porque un contrato a plazo elimina por completo el error de cobertura al fijar de antemano el precio de venta.', correcta: false },
                             { texto: 'Que la volatilidad usada para cubrir debe ser la implícita de la sección 3 y no la histórica, con lo que el error de cobertura se reduciría al nivel que el modelo predice para sus propias trayectorias.', correcta: false },
                         ],
