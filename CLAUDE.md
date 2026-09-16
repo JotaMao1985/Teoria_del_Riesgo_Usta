@@ -259,6 +259,22 @@ que quitarlo sube la volatilidad de la mínima varianza **0,91 pp** — la menor
 penalizaciones, pero no cero. El argumento de fondo (no se juzgan activos de uno en uno) se
 sostiene; el mecanismo que se le atribuía, no.
 
+⚠️ **Una brecha de RETORNO se pasa a pesos componiendo, no multiplicando** (decidido el
+2026-09-16 en el cierre de la revisión del 7). Lo que el fondo cobra es 800 000 × (e^r₁ − e^r₂);
+multiplicar los puntos logarítmicos por el fondo se queda entre un 8 % y un 12 % corto. Así, los
+0,47 pp reales de la frontera al mismo riesgo son **4 232 millones** —no 3 751—, los 0,77 pp de
+la CML **6 990** —no 6 160— y los 3,46 pp de la mínima varianza sobre el TES **30 125**. Las
+brechas de DISPERSIÓN (volatilidad) y de PESOS de cartera se siguen multiplicando, que es
+exacto. Y una cifra de la convención `w′μ` no se convierte a pesos: no es dinero de nadie.
+
+⚠️ **Una correlación medida «cada quinta rueda» depende de en qué rueda se empiece.** El bloque
+de la sección 6 del 7 usa `iloc[::5]` y da 0,339, pero las otras cuatro fases dan de 0,226 a
+0,325 —una no sube nada respecto de la diaria—; por semanas de calendario, 0,273. No es el par
+de febrero de 2025: quitarlo apenas mueve ninguna fase. Es ruido de muestreo con 383
+observaciones. Lo que resiste las cinco fases es el peso de Ecopetrol en la mínima varianza
+(11,28–13,76 %, siempre lejos del 20,76 %). Todo capítulo que submuestree una serie reporta la
+fase o el rango de las fases.
+
 ⚠️ **La cuarta convención declarada del curso sale de aquí: la ventana de estimación se
 declara ANTES de estimar, y con ella se reporta al menos una alternativa.** No es retórica:
 con 250 ruedas la mínima varianza deja a Ecopetrol en 0 % y sube el Banco de Bogotá al
@@ -639,9 +655,17 @@ mismo defecto**:
     recarga a la misma URL puede devolver la versión vieja — la medición sale idéntica a la de
     antes del arreglo y parece que no sirvió de nada. Añada `?v=` con la hora al recargar.
 
-    **Queda medido y sin cerrar**: la cifra decimal sigue dando **4,8 de 10 en el capítulo 8** y
-    **5,1 en el 12** (el azar es 2,5). Los dos pasan la regla 16 —brechas de 0,20 y 0,27— y están
-    en el nivel del resto del material, pero es la misma familia y conviene saberlo.
+    **Queda medido y sin cerrar**: la cifra decimal da **5,25 de 10 en el cuestionario del
+    capítulo 8** y **5,00 en el del 12** (el azar es 2,5). Los dos pasan la regla 16 —brechas de
+    0,20 y 0,27— y están en el nivel del resto del material, pero es la misma familia. En el 7 se
+    cerró el 2026-09-16 (de 4,75 a 3,25) y en el 11 el 2026-09-15.
+
+    ⚠️ **Mida estas pistas con el valor ESPERADO exacto, no repitiendo en pantalla.** Marcar al
+    azar entre las opciones marcadas tiene varianza, y con seis repeticiones el capítulo 7 salió
+    en 3,5 cuando su valor esperado era 4,75: se dio por limpio un capítulo que no lo estaba. El
+    cálculo es exacto y barato —por pregunta, la fracción de opciones marcadas que son la
+    correcta, o 1/4 si no hay ninguna—; la pantalla sirve para confirmar que el fuente es lo que
+    se ve, no para estimar.
 
 ⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
 no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
