@@ -62,6 +62,30 @@ de rebalanceo **por escrito, en la parte 1**, antes de correr nada. Se califica
 que estén fijados antes.
 :::
 
+::: {.callout-warning}
+## `w′μ` es la convención del capítulo, y no es el retorno de ninguna cartera
+
+Todo este taller trabaja en logarítmicos, y el andamio calcula el retorno de una
+cartera como `sum(w * mu)`. Esa es la convención del capítulo 7 y se usa tal cual,
+**pero los logarítmicos no agregan entre activos**: el sesgo vale exactamente el
+beneficio de diversificación, así que castiga a las carteras repartidas y deja casi
+intactas a las concentradas. Son 0,00 pp para un activo solo, 0,52 pp para la
+tangente y **4,14 pp** para la declarada.
+
+Para **Σ** da igual —la volatilidad se separa un 0,16 %—, y por eso la frontera, las
+brechas de riesgo y toda la parte 4 no se resienten. Sobre el **retorno**, en cambio,
+da la vuelta a varias conclusiones. El andamio le deja las dos columnas calculadas;
+la regla del taller es que **cada vez que un retorno se compare contra la tasa libre
+de riesgo o se convierta a pesos, aparezcan las dos**.
+
+| cartera | `w′μ` | retorno real |
+|---|---:|---:|
+| declarada 30/20/25/25 | 7,69 % | 11,83 % |
+| mínima varianza | 6,32 % | 10,22 % |
+| tangente 5,52/0/0/94,48 | 12,67 % | 13,18 % |
+| tope 30 % por emisor | 8,64 % | 12,70 % |
+:::
+
 ---
 
 ## Parte 1 · Reproducir el capítulo
@@ -83,6 +107,12 @@ r  <- diff(log(as.matrix(precios[, acciones])))
 mu <- colMeans(r) * 252
 S  <- cov(r) * 252
 
+# Dos retornos, no uno. ret_conv es la convencion del capitulo (w'mu); ret_real es
+# el de la cartera rebalanceada a diario, que es el unico que se puede comparar
+# contra el TES o convertir a pesos. Ver el recuadro de arriba.
+ret_conv <- function(w) sum(w * mu)
+ret_real <- function(w) mean(log(1 + (exp(r) - 1) %*% w)) * 252
+
 # La frontera, con o sin retorno objetivo. Nunca con cortos.
 frontera <- function(objetivo = NULL, Sig = S, med = mu) {
   A <- cbind(rep(1, 4), diag(4)); b <- c(1, rep(0, 4)); meq <- 1
@@ -94,8 +124,10 @@ frontera <- function(objetivo = NULL, Sig = S, med = mu) {
 vol <- function(w, Sig = S) sqrt(as.numeric(t(w) %*% Sig %*% w))
 
 wg <- frontera()
-round(rbind(declarada = c(w0 * 100, retorno = sum(w0 * mu) * 100, volatilidad = vol(w0) * 100),
-            minvar    = c(wg * 100, sum(wg * mu) * 100, vol(wg) * 100)), 2)
+round(rbind(declarada = c(w0 * 100, conv = ret_conv(w0) * 100,
+                          real = ret_real(w0) * 100, vol = vol(w0) * 100),
+            minvar    = c(wg * 100, ret_conv(wg) * 100,
+                          ret_real(wg) * 100, vol(wg) * 100)), 2)
 ```
 
 **1.1** Compruebe que obtiene las cifras del capítulo: la cartera declarada rinde
@@ -109,9 +141,25 @@ mismo riesgo** —**8,43 %** de retorno, **0,74 pp** más—. Exprese las dos br
 en millones sobre los 800 000 del fondo y diga, en una línea, por qué las dos
 cifras no son la misma cosa medida dos veces.
 
-**1.3** Traza la frontera con al menos veinte puntos y superpone los cuatro
+**Ojo, que a pesos no se pasan igual.** La de **riesgo** es dispersión y se
+multiplica: 0,62 pp sobre 800 000 son **4 960 millones** de desviación típica anual,
+y esa cuenta es exacta. La de **retorno** se pasa **componiendo** —`800000 * (exp(r1)
+- exp(r2))`— y no multiplicando: multiplicar puntos logarítmicos por el fondo se
+queda entre un 8 % y un 12 % corto. Y antes de convertirla hay que medirla sin la
+convención, porque los 0,74 pp son cifra de `w′μ`: con los dos retornos de verdad son
+**0,47 pp**, que compuestos dan **4 232 millones** al año. Reporte las tres cifras
+—4 960, 0,47 pp y 4 232— y diga cuál de ellas es la que puede ir a un acta de comité.
+
+**1.3** Trace la frontera con al menos veinte puntos y superponga los cuatro
 emisores, la cartera declarada y la de mínima varianza. Responda con la gráfica y
 con una frase: ¿alguno de los cuatro emisores, por sí solo, es eficiente?
+
+Mire el extremo superior de la curva antes de contestar «ninguno», porque hay
+exactamente uno que sí lo es, y la razón no está en este panel sino en la
+restricción: sin cortos, ninguna mezcla puede superar el retorno del activo más
+rentable, así que ese activo **es** el extremo de la frontera, siempre. Diga cuál es,
+y diga también dónde queda el Banco de Bogotá, que no está a la derecha de la curva
+sino por debajo de donde la curva arranca.
 
 **1.4** Repita 1.1 usando la **matriz de correlación** en lugar de la de
 covarianzas, como hace la IA en el R3 de la sección 2 del capítulo. Reporte los
@@ -171,14 +219,39 @@ los cuatro emisores por separado.
 
 **3.2** Dos cifras del capítulo que conviene volver a producir con su propio
 código, porque son las que más incomodan: la razón de Sharpe de la cartera de
-mínima varianza es **negativa** (−0,0188) y la de Grupo Sura es −0,0000. Explique
-cada una en una línea, y diga qué le responde a alguien que concluya de la segunda
-que Grupo Sura debe salir del universo de inversión.
+mínima varianza es **negativa** (−0,0188) y la de Grupo Sura es −0,0000. Las dos
+tienen trampa, y no es la misma trampa.
+
+**La primera es de la convención y no de la cartera.** Con `w′μ` el numerador sale
+negativo, pero esa cartera rindió **10,22 %** de verdad contra el 6,7659 % del TES,
+y su razón real es **+0,1445**. Produzca las dos columnas y diga qué parte del
+reproche a la mínima varianza sobrevive a la corrección, porque algo sobrevive.
+
+**La segunda no es de convención** —Grupo Sura es un activo solo, y ahí `w′μ` sí es
+su retorno— pero es de magnitud: las cuatro diezmilésimas de punto porcentual son
+del **retorno** (6,7655 % contra 6,7659 %), y la razón de Sharpe vale
+**−0,0000094**, cien veces menos. Escriba la cifra que corresponde a cada cosa.
+
+Después responda a quien concluya de la segunda que Grupo Sura debe salir del
+universo de inversión. **No lo defienda por sus correlaciones**, que es la
+explicación cómoda y es falsa: las tres suyas ocupan los puestos tercero, cuarto y
+quinto de las seis del panel, y en covarianzas —que es lo que el optimizador
+minimiza— dos de sus tres parejas están entre las tres más altas. Con las
+correlaciones apagadas le tocaría **19,17 %** y con la matriz real recibe
+**15,97 %**: le **restan**. Lo que sí lo sostiene es lo que cuesta sacarlo, así que
+mida cuánto sube la volatilidad de la mínima varianza sin él, haga lo mismo con los
+otros tres y ordene las cuatro exclusiones.
 
 **3.3** Sobre la CML, calcule qué retorno se consigue con la volatilidad de la
 cartera declarada (**25,02 %**) — debe dar **10,95 %**, esto es **3,26 pp** más—.
 Diga cuánto del fondo iría a la tangente y cuánto al TES, y por qué esa mezcla
 **no** es ejecutable para un fondo de pensiones.
+
+Y mida esos 3,26 pp otra vez sin la convención, que es donde la promesa se encoge:
+con los dos retornos de verdad la recta ofrece **12,60 %** contra **11,83 %**, o sea
+**0,77 pp**, unos **6 990 millones** al año ya compuestos. La recta gana, y gana
+cuatro veces menos de lo que la convención sugiere. Diga cuál de las dos cifras le
+llevaría al comité y por qué la otra no.
 
 **3.4** Repita 3.1 con **su** tope de la parte 2. Reporte el Sharpe alcanzable y
 compárelo con el 0,1673 sin tope y con el **0,0714** del tope del 30 %. Ordene los
@@ -206,10 +279,14 @@ su cifra exacta depende del calendario de rebalanceo que usted declaró en la pa
 1, así que repórtela con ese calendario a la vista.
 
 **4.3** A un costo de transacción de **20 puntos básicos** sobre lo que se mueve,
-convierta ese turnover en millones al año sobre los 800 000 del fondo. Compárelo
-con los **0,74 pp de retorno** —unos 5 920 millones— que la frontera prometía en
-1.2. Responda con las dos cifras juntas: ¿sobrevive la ganancia al costo de
-perseguirla?
+convierta ese turnover en millones al año sobre los 800 000 del fondo. Compárelo con
+lo que la frontera prometía en 1.2, que **ya no son los 0,74 pp**: medidos sin la
+convención son **0,47 pp**, y compuestos sobre el fondo, **4 232 millones** al año.
+Responda con las dos cifras juntas: ¿sobrevive la ganancia al costo de perseguirla?
+
+Y añada una línea sobre de qué lado está el sesgo de esa comparación: los 0,47 pp
+están medidos sobre la misma muestra con la que se estimó la frontera, y el costo de
+rebalanceo no.
 
 **4.4** Repita 4.1 y 4.2 con ventana de 1 000 ruedas y reestimación semestral.
 Reporte el turnover y diga qué se pierde al alargar la ventana: dé el número, no
@@ -221,6 +298,14 @@ unos 2 pp y la volatilidad 1,27 pp—; después mida el retorno **cada quinta ru
 en vez de cada rueda y repita 1.1 otra vez —la correlación media sube de 0,227 a
 **0,339** y Ecopetrol baja del 20,76 % al **12,79 %**—. Diga cuál de los dos
 defectos le preocuparía más si tuviera que firmar la recomendación, y por qué.
+
+**El 0,339 es de una fase, y hay cinco.** Medir «cada quinta rueda» obliga a decidir
+en qué rueda se empieza, y el capítulo empieza en la primera. Repita la medición con
+las otras cuatro: la correlación media sale entre **0,226 y 0,325** —en una de ellas
+no sube nada respecto de la diaria— y por semanas de calendario da 0,273. Reporte
+las cinco, diga cuál de los dos resultados de arriba resiste el cambio de fase y
+cuál no, y deje escrita, como regla suya para lo que queda del curso, qué tiene que
+declarar de ahora en adelante quien submuestree una serie.
 
 ---
 
@@ -247,13 +332,14 @@ Pegue aquí el prompt exacto y la respuesta completa, sin editarlas.
 | **Cuánto cuesta** | Qué decisión cambiaría, y en qué dirección, en pesos |
 | **Cómo se arregla** | El cálculo correcto, ejecutado sobre sus datos |
 
-Mire con especial atención seis cosas, que son los dos R3 del capítulo más lo que
+Mire con especial atención siete cosas, que son los dos R3 del capítulo más lo que
 las partes 3 y 4 acaban de mostrar: si optimizó con la matriz de **covarianzas** o
 con la de correlación; si impuso `w >= 0` o usó la **fórmula cerrada** de la
 tangente —cuyo denominador, en este panel, es negativo—; si declaró la **ventana**
 antes de estimar; si convirtió bien el 7 % efectivo a la convención de sus
-retornos; si reportó un **punto** sin rango; y si mencionó siquiera el costo de
-rebalanceo.
+retornos; si comparó un retorno `w′μ` contra esa tasa, o lo convirtió a pesos, **sin
+decir que es una convención**; si reportó un **punto** sin rango; y si mencionó
+siquiera el costo de rebalanceo.
 
 **5.3** Si la respuesta de la IA resultó correcta, dígalo y demuéstrelo.
 
@@ -294,10 +380,15 @@ compromiso con fecha adquiere el área.
 Si la nota necesita la palabra «semidefinida» para entenderse, todavía no está
 terminada.
 
-**7.4** Un miembro del comité propone la ventana de 125 ruedas que deja al Banco
-de Bogotá con el **76,59 %** de la cartera. Escriba el **párrafo de la objeción**,
-con las cifras que la sostienen. Debe caber en seis líneas y no puede usar la
-palabra «sobreajuste» — tiene que explicarla.
+**7.4** Un miembro del comité propone una ventana de **125 ruedas** que deja al
+Banco de Bogotá con el **76,59 %** de la cartera. Cuidado al reproducirlo: no son
+las 125 ruedas **más recientes**, que dan un 50,49 % —también alto y también
+inestable—, sino 125 ruedas que terminan **100 ruedas antes del final** del panel.
+Que la misma longitud de ventana devuelva 50,49 % o 76,59 % según dónde se la corte
+es parte de la objeción, y conviene que aparezca en ella.
+
+Escriba el **párrafo de la objeción**, con las cifras que la sostienen. Debe caber
+en seis líneas y no puede usar la palabra «sobreajuste» — tiene que explicarla.
 
 ---
 
@@ -305,9 +396,9 @@ palabra «sobreajuste» — tiene que explicarla.
 
 | Criterio | Peso |
 |---|---:|
-| Parte 1: ventana, convención, restricciones y periodicidad declaradas **antes**; las cifras del capítulo reproducidas y las dos brechas convertidas a millones | 15 % |
+| Parte 1: ventana, convención, restricciones y periodicidad declaradas **antes**; las cifras del capítulo reproducidas y las dos brechas convertidas a millones **por la vía que le corresponde a cada una** | 15 % |
 | Parte 2: frontera con ventana y tope propios, con la comparación contra el panel completo y la prueba de si el tope ata | 15 % |
-| Parte 3: tangente reproducida, las dos razones de Sharpe incómodas explicadas y el punto de la CML calculado | 15 % |
+| Parte 3: tangente reproducida, las dos razones de Sharpe incómodas explicadas con la columna exacta al lado, y el punto de la CML calculado en las dos monedas | 15 % |
 | Parte 4: serie de pesos, turnover anualizado, su costo en millones y la comparación honesta contra la ganancia de 1.2 | 25 % |
 | Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
 | Parte 6: bitácora completa y honesta | 5 % |
@@ -316,6 +407,9 @@ palabra «sobreajuste» — tiene que explicarla.
 Se descuenta: optimizar con la matriz de correlación; reportar pesos negativos sin
 decir que el régimen los prohíbe; usar la fórmula cerrada de la tangente sin mirar
 el signo del denominador; presentar un punto de la frontera sin la banda que
-producen otras ventanas; recomendar un rebalanceo sin su costo; y elegir la
-ventana después de haber visto los pesos —lo cual, si la parte 1 está bien hecha,
-queda registrado en el propio documento—.
+producen otras ventanas; recomendar un rebalanceo sin su costo; convertir una brecha
+de retorno a pesos multiplicando puntos logarítmicos por el fondo, o llevar una
+cifra de `w′μ` a un acta sin su columna exacta; reportar una correlación
+submuestreada sin declarar la fase; y elegir la ventana después de haber visto los
+pesos —lo cual, si la parte 1 está bien hecha, queda registrado en el propio
+documento—.

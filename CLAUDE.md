@@ -97,9 +97,16 @@ callejón sin salida. Es la 1.9.38 y no está en el `PATH`, así que se invoca p
 
 ```bash
 export PATH="/Applications/RStudio.app/Contents/Resources/app/quarto/bin:$PATH"
+export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 cd talleres && quarto render
 ```
 
+⚠️ **Las dos líneas de locale no son adorno: sin ellas el render falla** (comprobado el
+2026-09-19). La ruta del proyecto lleva la tilde de «Teoría» en forma **descompuesta**
+(NFD, `i` + U+0301), y dentro de un agente el entorno llega con `LC_CTYPE="C"`, así que
+R no puede traducirla y aborta antes del primer bloque con `unable to translate
+'…/Teori<U+0301>a del riesgo/talleres' to native encoding`. No es un defecto del `.qmd`
+ni de Quarto, y el mensaje no lo parece.
 La salida va a `talleres/_salida/`, que **está en `.gitignore`**: son artefactos: un solo
 `TDR-01.html` pesa 1,9 MB porque `_quarto.yml` embebe todo con `embed-resources: true`. Lo
 que se versiona es el `.qmd`.
