@@ -64,6 +64,50 @@ previa**; no se toca. Los **diez** talleres de capítulo son práctica —`TDR-0
 `TDR-11.qmd`, del 2026-08-25, es el tercero, y `TDR-12.qmd`, del 2026-09-05, el cuarto—. Las unidades 2 y 3 necesitan el suyo de unidad,
 y va en la tarea 22.
 
+⚠️ **El taller 7 se revisó el 2026-09-19 y el 8 el 2026-09-26, y por razones distintas: no dé
+por supuesto que un taller viejo está desincronizado.** El 7 lo estaba —el capítulo le había
+cambiado seis cifras debajo—. El 8 **no**: sus diecisiete cifras siguen saliendo exactas contra
+el panel congelado, comprobadas ejecutándolas. Lo que tenía eran dos defectos propios, los dos
+de la familia de la zona ciega 6:
+
+- **Pedía un mínimo que su propia malla no puede contener.** La parte 1.4 mandaba minimizar
+  F(ζ) «sobre al menos treinta cortes entre 1 % y 6 %» y declaraba que el mínimo cae en el VaR,
+  2,9577 %. Con treinta cortes el paso es de 0,1724 pp y el mínimo de la malla sale en
+  **2,8966 %**, valiendo 4,7337 %: el minimizador verdadero es el estadístico de orden 48
+  —**2,9601 %**, F = 4,731146— y **ninguna malla uniforme lo contiene**. De paso quedó medido
+  que la convergencia **no es monótona**, igual que en el árbol del capítulo 11: 60 cortes dan
+  4,731345 y 120 dan 4,731423, peor.
+- **Ofrecía como control una partición que ya había usado.** La parte 4.5 pedía contrastar la
+  conclusión «con tres particiones distintas», y la primera —2018–2021 contra 2022–2025— **es**
+  la de 4.1: las primeras 958 ruedas son exactamente esos cuatro años (235 + 236 + 242 + 245).
+  Eran dos. Quien ofrezca varias particiones como control tiene que comprobar que son distintas.
+
+⚠️ **Un bloque que el capítulo muestra sin ejecutar puede ser inejecutable, y el taller que lo
+manda correr hereda eso.** El R3 de la sección 5 del capítulo 8 simula cien mil escenarios y los
+mete en el programa lineal — y está bien que lo haga, porque es un ejercicio de lectura de código
+y D3 prohíbe simular en un bloque de dos pestañas, así que **nunca se ejecutó**. El taller sí
+mandaba correrlo, y **en R no corre**: el andamio de `lpSolve` es denso y crece una variable y una
+restricción por escenario, así que su identidad sola pide del orden de **80 GB** y R aborta antes
+de llegar al solucionador. En Python `cvxpy` arma la matriz dispersa y los cien mil salen en un
+segundo — o sea que la promesa de «se califica igual por cualquiera de las dos rutas» estaba rota
+de un solo lado. El taller pasó a **10 000 en R** (3,9 s), que es donde el resultado teórico
+aparece: sobre cuatro semillas la distancia a la mínima varianza queda en **1–3 pp**, contra
+**4–8 pp** con 2 000, que ya es ruido de simulación.
+
+✅ **Y quedó medido lo que la parte 4 del taller 8 solo preguntaba: optimizar la cola NO se paga
+fuera de muestra en este panel.** Sobre cuatro particiones —las dos mitades en los dos sentidos y
+los años pares contra los impares— y a los dos niveles, la mínima CVaR **nunca** gana; la
+declarada gana cuatro veces y la mínima varianza las otras cuatro. Lo que sí se da la vuelta es el
+orden **entre esas dos**, y por eso el enunciado ahora distingue «sobrevive el orden completo» de
+«sobrevive lo que usted afirmó».
+
+⚠️ **Lo que esa revisión dejó abierto a propósito: las conversiones a pesos del capítulo 8
+multiplican.** Pasa 4,7311 % a 37 849 millones y la peor rueda, 17,760 %, a 142 080. Componiendo
+—que es lo que el cierre del 7 decidió el 2026-09-16 para las brechas de retorno— serían 36 967 y
+**130 178**, un 9,1 % menos en la segunda. Un CVaR es un nivel de pérdida en logarítmicos, así que
+por la letra de esa regla le toca componer. El taller no se tocó porque **va primero el capítulo**:
+si se cambia, los 187 millones del 99 % pasan a 175.
+
 ## Publicación
 
 El repositorio **está en GitHub y es público** desde el 2026-08-11:

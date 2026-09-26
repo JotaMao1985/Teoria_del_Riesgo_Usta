@@ -119,9 +119,26 @@ de la cartera de mínima varianza con el de la declarada: debe encontrar que la 
 mínima varianza es **peor**, y por 187 millones. Explique por qué en dos líneas.
 
 **1.4** Con la fórmula de Rockafellar-Uryasev evaluada a mano —sin optimizar—,
-dibuje F(ζ) para la cartera declarada al 97,5 % sobre al menos treinta cortes
-entre 1 % y 6 %, y marque el mínimo. Debe caer en el VaR, 2,9577 %, y valer
-4,7312 %.
+dibuje F(ζ) para la cartera declarada al 97,5 % y búsquele el mínimo sobre cuatro
+mallas uniformes entre 1 % y 6 %: **30, 60, 120 y 300 cortes**. Reporte una tabla
+con el paso de cada malla, el corte que la minimiza y el valor del mínimo. Con
+treinta cortes el paso es de 0,1724 pp, el mínimo cae en **2,8966 %** y vale
+**4,7337 %**.
+
+**1.5** Esa tabla no converge como uno esperaría, y en eso consiste el ejercicio:
+al pasar de 60 a 120 cortes el mínimo **empeora**. Explique por qué en dos líneas
+—mire dónde están los quiebres de F y cuánto vale su pendiente entre dos de
+ellos—. Después evalúe F, con seis decimales, en tres puntos concretos: el VaR
+interpolado que usa el capítulo, **2,9577 %**; la pérdida número **48** de la cola,
+**2,9601 %**; y la número **49**, **2,9574 %**. El mínimo verdadero está en uno de
+los tres, los tres valores se separan en el **sexto decimal** —cuatro centésimas de
+millón sobre el fondo— y ninguna malla uniforme lo va a contener nunca. Diga cuál
+es y por qué.
+
+Al reportar el mínimo de una malla escriba **su paso al lado**, que es la
+convención del curso para todo método aproximado —el árbol reporta su amplitud, el
+Montecarlo su error estándar y una malla su paso—. Es lo que separa «el mínimo es
+4,7337 %» de «el mínimo está por debajo de 4,7337 %, con un paso de 0,1724 pp».
 
 ---
 
@@ -170,15 +187,33 @@ cartera (**6,8601 %**), y explique en tres líneas por qué el primero es menor 
 el óptimo verdadero y qué tiene eso de peligroso.
 
 **3.2** Reproduzca el error de los **escenarios simulados**: ajuste una normal
-multivariada a los retornos del panel, simule cien mil escenarios con semilla
-declarada y resuelva sobre ellos el mismo programa. Compare los pesos con los de
-la cartera de mínima varianza del capítulo 7 y reporte la distancia máxima.
-Explique por qué esa distancia es pequeña **por una razón teórica** y no por
-casualidad.
+multivariada a los retornos del panel, simule escenarios con semilla declarada y
+resuelva sobre ellos el mismo programa. Compare los pesos con los de la cartera de
+mínima varianza del capítulo 7 —**20,76 · 38,13 · 15,97 · 25,14**— y reporte la
+distancia máxima. Explique por qué esa distancia es pequeña **por una razón
+teórica** y no por casualidad.
+
+Cuántos escenarios simular no es libre, y conviene saberlo antes de lanzar el
+bloque: el programa crece **una variable y una restricción por escenario**. Con
+cien mil, la matriz del andamio de `lpSolve` —que es densa— pide del orden de
+80 GB solo para su identidad, y R aborta sin llegar al solucionador. En la ruta de
+R simule **10 000**, que se resuelve en unos cuatro segundos; en la de Python,
+`cvxpy` arma la matriz dispersa y los cien mil salen en uno. **Declare cuántos
+usó**, porque la distancia depende de eso y bastante: sobre cuatro semillas, con
+10 000 escenarios queda entre 1 y 3 pp, y con 2 000 se va a entre 4 y 8 pp, que es
+ruido de simulación y no el resultado teórico que la pregunta persigue.
 
 **3.3** Con las cifras de 3.2, calcule cuánto subestima la cola la versión
 simulada: el CVaR que reporta contra el CVaR histórico de esa misma cartera.
 Exprese la diferencia en millones sobre los 800 000 del fondo.
+
+Y ponga **el error estándar del CVaR simulado al lado de la cifra**, que es lo que
+el curso exige de todo método aproximado. Calcúlelo como la desviación típica de
+las pérdidas de la cola dividida por la raíz de cuántas son, y **diga cuántas
+son** —con 10 000 escenarios al 97,5 % son 250—. Después responda a la única
+pregunta que eso permite contestar: la brecha que acaba de medir, ¿es mayor que
+esa incertidumbre o cabe dentro de ella? Un resultado de simulación sin su error
+estándar al lado no se califica.
 
 ---
 
@@ -204,11 +239,22 @@ abierta: **¿el trabajo adicional de optimizar la cola se paga fuera de la
 muestra?** La respuesta debe contener un número por nivel y una condición: bajo
 qué circunstancias esperaría usted que se pagara.
 
-**4.5** Un último control, que es el que separa una conclusión de una anécdota:
-repita 4.1–4.2 partiendo el panel en **2018–2021 contra 2022–2025** y otra vez
-tomando los años **pares** para optimizar y los **impares** para medir. Diga si su
-conclusión de 4.4 sobrevive a las tres particiones. Si no sobrevive, esa es la
-conclusión.
+**4.5** Un último control, que es el que separa una conclusión de una anécdota.
+Antes de repetir nada, compruebe algo: las **primeras 958 ruedas** de 4.1 son
+exactamente **2018–2021** —235 + 236 + 242 + 245—, así que partir el panel por esos
+años no es una partición nueva, es la misma de antes con otro nombre. Las dos que
+sí lo son:
+
+- **La invertida.** Optimice sobre **2022–2025** y mida sobre **2018–2021**, al
+  revés que en 4.1.
+- **Los años alternos.** Optimice sobre los **pares** (955 ruedas) y mida sobre los
+  **impares** (961).
+
+Reporte las tres tablas juntas —la de 4.2 y estas dos— y diga si su conclusión de
+4.4 sobrevive a las tres. Fíjese en dos cosas que no son la misma: si sobrevive el
+**orden completo** de las tres carteras, y si sobrevive solo aquello que usted
+afirmó en 4.4. Es probable que una de las dos cambie y la otra no, y distinguirlas
+es el ejercicio. Si su conclusión no sobrevive, esa es la conclusión.
 
 ---
 
@@ -277,6 +323,11 @@ cifras que un lector sin estadística pueda seguir, y —esto es lo que separa u
 nota defendible de una ingenua— qué tendría que haber en la cartera para que la
 respuesta fuera la contraria.
 
+Las **1 921** son las del programa tal como se escribe: cuatro pesos, el corte ζ y
+una variable por escenario. Si resolvió en R habrá contado **1 922**, porque
+`lpSolve` no admite variables libres y el andamio parte ζ en dos no negativas. Es
+el mismo programa; si menciona el número, diga cuál de los dos está contando.
+
 Si la nota necesita la palabra «convexo» para entenderse, todavía no está
 terminada.
 
@@ -286,9 +337,9 @@ terminada.
 
 | Criterio | Peso |
 |---|---:|
-| Parte 1: nivel, ventana y restricciones declarados **antes**; las cifras del capítulo reproducidas y la solución verificada contra el CVaR recalculado | 15 % |
+| Parte 1: nivel, ventana y restricciones declarados **antes**; las cifras del capítulo reproducidas, la solución verificada contra el CVaR recalculado y el mínimo de cada malla reportado con su paso | 15 % |
 | Parte 2: cartera con nivel y ventana propios, con el conteo de escenarios de la cola al lado de cada cifra y el efecto del par defectuoso medido | 15 % |
-| Parte 3: los dos errores reproducidos, con la explicación teórica de por qué la versión simulada devuelve la cartera de mínima varianza | 15 % |
+| Parte 3: los dos errores reproducidos, con la explicación teórica de por qué la versión simulada devuelve la cartera de mínima varianza, y el CVaR simulado con su conteo de escenarios y su error estándar | 15 % |
 | Parte 4: partición honesta, las tres carteras medidas fuera de muestra a dos niveles, y la conclusión contrastada con tres particiones distintas | 25 % |
 | Parte 5: auditoría con los cuatro elementos (dónde, qué tipo, cuánto, cómo se arregla) | 15 % |
 | Parte 6: bitácora completa y honesta | 5 % |
@@ -296,7 +347,8 @@ terminada.
 
 Se descuenta: fijar la cola antes de optimizar; presentar como histórico un
 resultado obtenido sobre escenarios simulados; reportar un CVaR sin decir sobre
-cuántos escenarios se calculó; concluir que una formulación es mejor con una sola
-partición de la muestra; y elegir el nivel o la ventana después de haber visto los
+cuántos escenarios se calculó; reportar el resultado de una simulación o el mínimo
+de una malla sin su incertidumbre al lado —el error estándar, el paso—; concluir
+que una formulación es mejor con una sola partición de la muestra; y elegir el nivel o la ventana después de haber visto los
 pesos —lo cual, si la parte 1 está bien hecha, queda registrado en el propio
 documento—.
