@@ -10,7 +10,7 @@ format:
     toc: true
     toc-depth: 3
     number-sections: true
-    code-fold: false
+    code-fold: true
     code-tools: true
     # Autocontenido, igual que los capítulos: el estudiante entrega UN archivo
     # y el docente lo abre con doble clic, sin carpeta de recursos al lado.

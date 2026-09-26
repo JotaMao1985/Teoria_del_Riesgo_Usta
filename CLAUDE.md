@@ -155,6 +155,13 @@ La salida va a `talleres/_salida/`, que **está en `.gitignore`**: son artefacto
 `TDR-01.html` pesa 1,9 MB porque `_quarto.yml` embebe todo con `embed-resources: true`. Lo
 que se versiona es el `.qmd`.
 
+Desde el 2026-09-26 los bloques salen **plegados** (`code-fold: true` en `_quarto.yml`, que
+vale para los once): el HTML muestra la salida y esconde el código detrás de un «Código» que
+se despliega, y el menú de arriba trae «Mostrar todo el código» para quien califique. Los
+rótulos salen en español solos, por el `lang: es`. Los andamios de Python de los talleres 1 y
+4 no son celdas sino cercas planas, así que `code-fold` no los toca — ya estaban dentro de un
+`callout-tip` con `collapse="true"`, que hace lo mismo.
+
 ⚠️ **`git add -A` en este repositorio barre la salida de Quarto si alguien acaba de
 renderizar.** Ya pasó una vez, el artefacto de 1,9 MB llegó al repositorio público y hubo
 que reescribir el historial con `filter-repo` y forzar el push. Mire `git status` antes de
