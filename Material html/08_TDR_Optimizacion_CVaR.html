@@ -2542,6 +2542,15 @@
             { nombre: 'Mínima CVaR', w: [19.36, 34.61, 16.43, 29.60], cvar: 4.5815, mill: 36652, vol: 24.00, ret: 6.78 },
         ];
         const GANANCIA = 201;                          // millones, contra la mínima varianza
+        /* La columna exacta. Los escenarios `R @ w` son la convención w′μ rueda a
+           rueda —los logarítmicos no agregan entre activos—, así que las cifras en
+           millones de `CARTERAS` no son dinero de nadie. Estas sí: salen de los
+           retornos simples, que es lo que el fondo cobra. Las produce el bloque de
+           la sección 3, con sus dos pestañas. */
+        const EXACTO = {
+            decl: 35982, minvar: 35016, mincvar: 34870, ganancia: 147,
+            decidir: 49, reportar: 1783, w: [17.93, 33.44, 17.80, 30.83],
+        };
 
         // [retorno objetivo, CVaR y vol de media-CVaR, CVaR y vol de media-varianza, brecha]
         const FRONTERAS = [
@@ -2862,7 +2871,45 @@ for nombre, x in (("declarada", w0), ("minima varianza", wg), ("minima CVaR", wc
 #> minima CVaR       4.5815 % ( 36,652)    24.00 %    +6.78 %
 print(f"lo que gana optimizar la cola frente a optimizar la varianza: "
       f"{(cvar(wg, alfa)-cvar(wc, alfa))/100*W:,.0f} millones")
-#> lo que gana optimizar la cola frente a optimizar la varianza: 201 millones`,
+#> lo que gana optimizar la cola frente a optimizar la varianza: 201 millones
+
+# ---- LA COLUMNA EXACTA ----
+# Los escenarios R @ w son la convencion w'mu rueda a rueda: los logaritmicos no
+# agregan entre activos, asi que esas cifras en millones no son dinero de nadie.
+# La perdida que el fondo cobra usa retornos simples -- y sigue siendo LINEAL en
+# w, de modo que el mismo programa admite la vara exacta sin dejar de ser lineal.
+Rx = (np.exp(r.values) - 1) * 100
+
+def cvar_x(w_, a):
+    Ls = np.sort(-(Rx @ w_))[::-1]
+    k = (1 - a) * S
+    m = int(np.floor(k))
+    return (Ls[:m].sum() + (k - m) * Ls[m]) / k
+
+print("cartera             conv %  convencion    exacto %      EXACTO")
+#> cartera             conv %  convencion    exacto %      EXACTO
+for nombre, x in (("declarada", w0), ("minima varianza", wg), ("minima CVaR", wc)):
+    print(f"{nombre:16s}  {cvar(x, alfa):6.4f} %   {cvar(x, alfa)/100*W:>9,.0f}    "
+          f"{cvar_x(x, alfa):6.4f} %   {cvar_x(x, alfa)/100*W:>9,.0f}")
+#> declarada         4.7311 %      37,849    4.4977 %      35,982
+#> minima varianza   4.6067 %      36,854    4.3770 %      35,016
+#> minima CVaR       4.5815 %      36,652    4.3587 %      34,870
+print(f"gana optimizar la cola: {(cvar(wg, alfa)-cvar(wc, alfa))/100*W:,.0f} millones "
+      f"en la convencion, {(cvar_x(wg, alfa)-cvar_x(wc, alfa))/100*W:,.0f} exactos")
+#> gana optimizar la cola: 201 millones en la convencion, 147 exactos
+
+# El mismo programa sobre la vara exacta: que costo tuvo DECIDIR con la convencion
+wx = cp.Variable(4)
+zx = cp.Variable()
+ux = cp.Variable(S)
+cp.Problem(cp.Minimize(zx + cp.sum(ux) / ((1 - alfa) * S)),
+           [ux >= -(Rx @ wx) - zx, ux >= 0, cp.sum(wx) == 1, wx >= 0]).solve(solver="HIGHS")
+we = np.maximum(np.array(wx.value).ravel(), 0)
+print("optima sobre la vara exacta:  " + "  ".join(f"{x*100:.2f}" for x in we))
+#> optima sobre la vara exacta:  17.93  33.44  17.80  30.83
+print(f"decidir con la convencion cuesta {(cvar_x(wc, alfa)-cvar_x(we, alfa))/100*W:,.0f} millones, "
+      f"y reportar con ella se equivoca en {(cvar(wc, alfa)-cvar_x(wc, alfa))/100*W:,.0f}")
+#> decidir con la convencion cuesta 49 millones, y reportar con ella se equivoca en 1,783`,
             r: `suppressPackageStartupMessages(library(lpSolve))
 suppressPackageStartupMessages(library(quadprog))
 
@@ -2919,7 +2966,48 @@ for (nombre in names(carteras)) {
 }
 cat(sprintf("lo que gana optimizar la cola frente a optimizar la varianza: %s millones\\n",
             mil((cvar(wg, alfa) - cvar(wc, alfa)) / 100 * W)))
-#> lo que gana optimizar la cola frente a optimizar la varianza: 201 millones`,
+#> lo que gana optimizar la cola frente a optimizar la varianza: 201 millones
+
+# ---- LA COLUMNA EXACTA ----
+# Los escenarios R %*% w son la convencion w'mu rueda a rueda: los logaritmicos
+# no agregan entre activos, asi que esas cifras en millones no son dinero de
+# nadie. La perdida que el fondo cobra usa retornos simples -- y sigue siendo
+# LINEAL en w, de modo que el mismo programa admite la vara exacta.
+Rx <- (exp(r) - 1) * 100
+
+cvar_x <- function(w_, a) {
+  Ls <- sort(as.vector(-(Rx %*% w_)), decreasing = TRUE)
+  k <- (1 - a) * S
+  m <- floor(k)
+  (sum(Ls[1:m]) + (k - m) * Ls[m + 1]) / k
+}
+
+cat("cartera             conv %  convencion    exacto %      EXACTO\\n")
+#> cartera             conv %  convencion    exacto %      EXACTO
+for (nombre in names(carteras)) {
+  x <- carteras[[nombre]]
+  cat(sprintf("%-16s  %6.4f %%   %9s    %6.4f %%   %9s\\n",
+              nombre, cvar(x, alfa), mil(cvar(x, alfa) / 100 * W),
+              cvar_x(x, alfa), mil(cvar_x(x, alfa) / 100 * W)))
+#> declarada         4.7311 %      37,849    4.4977 %      35,982
+#> minima varianza   4.6067 %      36,854    4.3770 %      35,016
+#> minima CVaR       4.5815 %      36,652    4.3587 %      34,870
+}
+cat(sprintf("gana optimizar la cola: %s millones en la convencion, %s exactos\\n",
+            mil((cvar(wg, alfa) - cvar(wc, alfa)) / 100 * W),
+            mil((cvar_x(wg, alfa) - cvar_x(wc, alfa)) / 100 * W)))
+#> gana optimizar la cola: 201 millones en la convencion, 147 exactos
+
+# El mismo programa sobre la vara exacta: que costo tuvo DECIDIR con la convencion
+Ax <- rbind(cbind(Rx, 1, -1, diag(S)), c(rep(1, 4), rep(0, 2 + S)))
+we <- lp("min", obj, Ax, c(rep(">=", S), "="), c(rep(0, S), 1))$solution[1:4]
+cat(sprintf("optima sobre la vara exacta:  %s\\n",
+            paste(sprintf("%.2f", we * 100), collapse = "  ")))
+#> optima sobre la vara exacta:  17.93  33.44  17.80  30.83
+cat(sprintf("decidir con la convencion cuesta %s millones, y reportar con ella se equivoca en %s\\n",
+            mil((cvar_x(wc, alfa) - cvar_x(we, alfa)) / 100 * W),
+            mil((cvar(wc, alfa) - cvar_x(wc, alfa)) / 100 * W)))
+#> decidir con la convencion cuesta 49 millones, y reportar con ella se equivoca en 1,783`,
         };
 
         const EJ_FRONTERAS = {
@@ -3379,7 +3467,7 @@ for (a in c(0.95, 0.975, 0.99)) {
                     </p>
                 </CalloutPro>
 
-                <Box type="info" label="Dos convenciones que este capítulo declara antes de calcular">
+                <Box type="info" label="Tres convenciones que este capítulo declara antes de calcular">
                     <p style={{ margin: '0 0 0.6rem' }}>
                         <strong>El nivel es el 97,5 %</strong>, que es el de Basilea III y el del capítulo
                         5. Donde el capítulo compara niveles lo dice; donde no, es ese.
@@ -3394,6 +3482,16 @@ for (a in c(0.95, 0.975, 0.99)) {
                         respuesta. La brecha entre las dos ya está medida en el capítulo 5 y es de{' '}
                         <strong>30 millones al 97,5 %</strong> y 884 al 99 %; este capítulo la vuelve a
                         imprimir en su primer bloque, con las dos columnas al lado.
+                    </p>
+                    <p style={{ margin: '0.6rem 0 0' }}>
+                        <strong>Y los escenarios son w′μ rueda a rueda, así que una cifra suya en
+                        millones no es dinero de nadie.</strong> Es la convención que declaró el
+                        capítulo 7: los logarítmicos no agregan entre activos. Este capítulo la
+                        mantiene, porque es lo que el programa lineal minimiza, y hace lo que hicieron
+                        el capítulo 1 y el 7 — <strong>imprimir la columna exacta al lado</strong>, en
+                        el bloque de la sección 3. La brecha no es cosmética: la cola de la cartera
+                        declarada son 37 849 millones en la convención y{' '}
+                        <strong>35 982</strong> de verdad.
                     </p>
                 </Box>
             </>
@@ -3731,6 +3829,35 @@ F(15000); F(26000); F(48000); F(60000)`,
                         {dec(CARTERAS[2].vol - CARTERAS[1].vol, 2)} pp de dispersión para ganar{' '}
                         {miles(GANANCIA)} millones de cola. Si esa permuta compensa es la pregunta de la
                         sección 5, y la respuesta no es obvia.
+                    </p>
+
+                    <p>
+                        Antes de llevarse esas cifras en millones a ninguna parte, la advertencia que el
+                        bloque de arriba ya imprime en su segunda tabla. Los escenarios son{' '}
+                        <strong>R w</strong>, o sea w′μ rueda a rueda, y los logarítmicos no agregan entre
+                        activos: <strong>una cifra de esa columna no es dinero de nadie</strong>. Lo que
+                        el fondo cobra sale de los retornos simples, y medida así la cola de la declarada
+                        no son {miles(CARTERAS[0].mill)} millones sino{' '}
+                        <strong>{miles(EXACTO.decl)}</strong>, y lo que gana optimizarla frente a la
+                        varianza no son {miles(GANANCIA)} sino <strong>{miles(EXACTO.ganancia)}</strong>,
+                        un 27 % menos. La convención se queda —es la que el programa lineal minimiza y la
+                        que declaró el capítulo 7—, pero la columna exacta va al lado, como en el
+                        capítulo 1 y en el 7.
+                    </p>
+
+                    <p>
+                        Y ahí aparece el resultado que de verdad importa, porque separa dos cosas que se
+                        confunden todo el tiempo. La pérdida exacta <em>también</em> es lineal en w —los
+                        exponenciales no dependen de los pesos—, así que el mismo programa se puede
+                        resolver sobre ella, y devuelve{' '}
+                        <strong>{EXACTO.w.map(x => dec(x, 2)).join(' · ')}</strong> donde la convención
+                        daba {LP.w.map(x => dec(x, 2)).join(' · ')}. Haber <strong>decidido</strong> con
+                        la convención cuesta {miles(EXACTO.decidir)} millones; haber{' '}
+                        <strong>reportado</strong> con ella se equivoca en{' '}
+                        <strong>{miles(EXACTO.reportar)}</strong>. Treinta y seis veces más. La convención
+                        es barata para elegir la cartera y cara para contar cuánto se pierde con ella, y
+                        es el mismo hallazgo del capítulo 1 con su acumulado: lo que sale barato sobre una
+                        dispersión puede ser ruinoso sobre un nivel.
                     </p>
 
                     <DetectaError

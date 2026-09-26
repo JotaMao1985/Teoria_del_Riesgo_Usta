@@ -107,7 +107,10 @@ round(c(sol$w * 100, zeta = sol$zeta, cvar = sol$valor), 4)
 al 97,5 % es **19,36 · 34,61 · 16,43 · 29,60**, con un corte de **2,7215 %** y un
 CVaR de **4,5815 %**. Reporte también el CVaR de la cartera declarada
 (**4,7311 %**) y el de la de mínima varianza (**4,6067 %**), y las tres cifras en
-millones.
+millones — **en las dos lecturas**, la de la convención y la exacta, como hace la
+segunda tabla del bloque del capítulo. Los escenarios son `R %*% w`, o sea w′μ
+rueda a rueda, y una cifra de esa columna no es dinero de nadie: la cola de la
+declarada son 37 849 millones en la convención y **35 982** de verdad.
 
 **1.2** Verifique la solución como manda el procedimiento: el valor óptimo que
 devuelve el programa y el CVaR recalculado con `cvar()` sobre los pesos que

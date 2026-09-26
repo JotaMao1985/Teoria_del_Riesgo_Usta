@@ -101,12 +101,39 @@ declarada gana cuatro veces y la mínima varianza las otras cuatro. Lo que sí s
 orden **entre esas dos**, y por eso el enunciado ahora distingue «sobrevive el orden completo» de
 «sobrevive lo que usted afirmó».
 
-⚠️ **Lo que esa revisión dejó abierto a propósito: las conversiones a pesos del capítulo 8
-multiplican.** Pasa 4,7311 % a 37 849 millones y la peor rueda, 17,760 %, a 142 080. Componiendo
-—que es lo que el cierre del 7 decidió el 2026-09-16 para las brechas de retorno— serían 36 967 y
-**130 178**, un 9,1 % menos en la segunda. Un CVaR es un nivel de pérdida en logarítmicos, así que
-por la letra de esa regla le toca componer. El taller no se tocó porque **va primero el capítulo**:
-si se cambia, los 187 millones del 99 % pasan a 175.
+✅ **Las conversiones a pesos del capítulo 8 se cerraron el 2026-09-26, y el hallazgo fue que
+no había una capa sino dos.** La primera es la regla del 2026-09-16: el capítulo multiplicaba
+(4,7311 % → 37 849 millones) donde tocaba componer (36 968). La segunda es la séptima
+convención, y es la que manda: los escenarios son `R @ w`, o sea **w′μ rueda a rueda**, así que
+esas cifras no son dinero de nadie. Medido con retornos simples, la cola de la declarada son
+**35 982** millones.
+
+⚠️ **Componer NO arregla el problema, y creerlo habría sido peor que no tocar nada.** Sobre la
+cifra que sostiene el argumento del capítulo —lo que gana optimizar la cola frente a la
+varianza— multiplicar da 201, componer 193 y lo exacto es **147**: la regla del 16 cierra un
+15 % de una brecha del 27 %. En los niveles sí ayuda (la peor rueda, 142 079 → 130 177, contra
+128 963 exactos), pero el capítulo habría quedado *pareciendo* corregido. Antes de aplicar una
+regla de conversión, compruebe si la magnitud es de la convención.
+
+Se cerró **como el capítulo 1 y como el 7: la convención se queda y se añade la columna
+exacta.** La portada declara la tercera convención, el bloque de la sección 3 imprime las dos
+columnas al lado y la prosa lleva la brecha. No se tocó ninguna cifra de la convención, así que
+el taller 8, el capítulo 7 y este archivo siguen citando lo mismo.
+
+✅ **Y de ahí salió el resultado que justifica el capítulo entero, que no estaba medido.** La
+pérdida exacta **también es lineal en w** —los exponenciales no dependen de los pesos—, así que
+el mismo programa se resuelve sobre ella: devuelve **17,93 · 33,44 · 17,80 · 30,83** contra
+19,36 · 34,61 · 16,43 · 29,60. O sea que **decidir** con la convención cuesta **49 millones** y
+**reportar** con ella se equivoca en **1 783**: treinta y seis veces más. La convención es barata
+para elegir la cartera y cara para contar lo que se pierde con ella — la zona ciega 10 en su
+forma más limpia. Al 99 % el costo de decidir sube a 408 millones y la cartera se separa 3,97 pp.
+
+⚠️ **Lo que NO se convirtió, y está cubierto por la declaración, no corregido:** la tabla de las
+veinte peores ruedas, los 18 200 del R3 de la cola fijada, los 3 777 del par de febrero y los
+23–219 de las dos fronteras siguen siendo de la convención. Los signos y las conclusiones
+sobreviven todos —comprobado—: la mínima varianza sigue siendo peor al 99 % (86 millones
+exactos contra 188 de la convención) y el par de febrero sigue dominando la cola (3 475 contra
+3 777).
 
 ## Publicación
 
