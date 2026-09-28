@@ -1,9 +1,81 @@
         const { useState, useEffect, useRef } = React;
 
+        /* ============================================================
+           AJUSTE DE ANCHO DE LAS FÓRMULAS
+           MathJax 3 con salida SVG **no parte una ecuación en varias
+           líneas** —eso llegó en la 4—, así que una fórmula más ancha que
+           su caja se queda detrás de una barra de desplazamiento que nadie
+           usa. Medido el 2026-09-28: a 1024 px de ventana, doce ecuaciones
+           del capítulo 7 y cuatro del 8 se salían, la peor **241 px sobre
+           una caja de 447**; en un teléfono ese mismo paso mostraba
+           `ρᵢⱼ = 1 para t…` y escondía el resto, que era todo su contenido.
+
+           Aquí se mide y se baja el `font-size` del contenedor justo lo
+           necesario. Funciona porque la salida SVG dimensiona todo en `ex`:
+           reducir el tamaño de letra reescala la fórmula, el alto se ajusta
+           solo y no hace falta ningún `transform` —ni se pierde nitidez,
+           porque es vectorial—.
+
+           Hay un SUELO, porque encoger sin límite no es legible. Por debajo
+           de él se deja la barra, pero la caja queda marcada con
+           `data-desborda`, y el CSS le dibuja una sombra en el borde por el
+           lado que esconde fórmula. Una fórmula que se corta tiene que
+           parecerlo: cortarse en silencio es lo que había.
+
+           Es idempotente —vuelve a cero antes de medir— y se reejecuta al
+           cambiar el ancho de la ventana, que es de lo que depende todo
+           esto. Mide el `<svg>` y no el `mjx-container`, que es un bloque y
+           siempre devuelve el ancho de la caja.
+        ============================================================ */
+        const ESCALA_MINIMA_EQ = 0.68;
+
+        const ajustarFormulas = (root) => {
+            const ambito = root || document;
+            ambito.querySelectorAll('mjx-container[display="true"]').forEach(mjx => {
+                const caja = mjx.closest('.eq-fit');
+                if (!caja) return;
+                mjx.style.fontSize = '';
+                caja.removeAttribute('data-desborda');
+                if (!caja.clientWidth) return;          // la sección está oculta: nada que medir
+
+                /* Se mide `scrollWidth` de la CAJA y no el ancho del `<svg>`.
+                   El `<svg>` escala limpiamente con el tamaño de letra, pero
+                   entre él y la caja hay relleno y márgenes que no escalan, y
+                   contarlo mal deja una franja escondida sin marcar: en la
+                   primera versión quedaron dos de 16 px. Así el criterio es el
+                   que se ve. Converge en una o dos vueltas —la fórmula es casi
+                   toda la caja—, y el tope de tres evita cualquier ciclo si un
+                   navegador redondea distinto. */
+                let k = 1;
+                for (let intento = 0; intento < 3; intento++) {
+                    const sobra = caja.scrollWidth - caja.clientWidth;
+                    if (sobra <= 1) break;
+                    const nuevo = Math.max(k * caja.clientWidth / caja.scrollWidth, ESCALA_MINIMA_EQ);
+                    if (nuevo >= k) break;              // ya está en el suelo
+                    k = nuevo;
+                    mjx.style.fontSize = (k * 100).toFixed(1) + '%';
+                }
+                if (caja.scrollWidth > caja.clientWidth + 1) caja.setAttribute('data-desborda', '1');
+            });
+        };
+
+        /* Un solo oyente para toda la página, con freno de un cuadro: el
+           `resize` de arrastrar una ventana dispara decenas de eventos y
+           cada ajuste fuerza una medición del diseño. */
+        let _ajusteEnCola = false;
+        const reajustarFormulas = () => {
+            if (_ajusteEnCola) return;
+            _ajusteEnCola = true;
+            requestAnimationFrame(() => { _ajusteEnCola = false; ajustarFormulas(document); });
+        };
+        window.addEventListener('resize', reajustarFormulas);
+
         const typesetMath = (retries = 25) => {
             if (window.MathJax && window.MathJax.typesetPromise) {
                 try { window.MathJax.typesetClear && window.MathJax.typesetClear(); } catch (e) { }
-                window.MathJax.typesetPromise().catch(() => { });
+                window.MathJax.typesetPromise()
+                    .then(() => ajustarFormulas(document))
+                    .catch(() => { });
             } else if (retries > 0) {
                 setTimeout(() => typesetMath(retries - 1), 200);
             }
@@ -13,7 +85,9 @@
             useEffect(() => {
                 const t = setTimeout(() => {
                     if (ref.current && window.MathJax && window.MathJax.typesetPromise) {
-                        window.MathJax.typesetPromise([ref.current]).catch(() => { });
+                        window.MathJax.typesetPromise([ref.current])
+                            .then(() => ajustarFormulas(ref.current))
+                            .catch(() => { });
                     }
                 }, 40);
                 return () => clearTimeout(t);
@@ -198,8 +272,12 @@
             );
         };
 
+        /* `eq-fit` marca la caja que `ajustarFormulas` mide; `eq-scroll`
+           le pone las sombras de desplazamiento. Las dos van juntas
+           siempre: sin la primera la fórmula no se encoge, y sin la
+           segunda lo que no quepa se corta sin avisar. */
         const Eq = ({ children }) => (
-            <div className="eq-block my-4 text-center">{children}</div>
+            <div className="eq-block eq-scroll eq-fit my-4 text-center">{children}</div>
         );
 
         const SectionHeader = ({ title, icon: Icon }) => (

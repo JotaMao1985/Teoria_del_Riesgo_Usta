@@ -1165,21 +1165,34 @@
                             const abierto = abiertos.has(i);
                             return (
                                 <li key={i} className="rounded-xl border" style={{ borderColor: abierto ? '#ED1E7955' : '#E5E7EB' }}>
-                                    <div className="flex items-start gap-3 px-3 py-2">
-                                        <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold text-white tr-gradient mt-1">
+                                    {/* El número y el botón van en una fila propia y la fórmula
+                                        debajo, a todo el ancho de la tarjeta. Cuando los tres
+                                        compartían fila, el botón le quitaba unos 90 px a la
+                                        ecuación en TODA anchura: a 1024 px la dejaba en 447 y a
+                                        375 px en 134, que es donde el paso 5 de la sección 1 del
+                                        capítulo 7 mostraba `ρᵢⱼ = 1 para t…` y nada más. Cuesta
+                                        una línea corta por paso y devuelve la tarjeta entera. */}
+                                    <div className="flex items-center gap-2 px-3 pt-2">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold text-white tr-gradient">
                                             {i + 1}
                                         </span>
-                                        <div className="flex-1 min-w-0 overflow-x-auto">
-                                            <div className="text-center py-1">{p.eq}</div>
-                                        </div>
                                         <button onClick={() => alternar(i)} aria-expanded={abierto}
-                                            className="flex-shrink-0 mt-1 text-[0.7rem] font-semibold px-2 py-1 rounded-lg border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/40 transition-colors">
+                                            className="ml-auto flex-shrink-0 text-[0.7rem] font-semibold px-2 py-1 rounded-lg border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/40 transition-colors">
                                             <i className={`fas fa-chevron-down mr-1 transition-transform duration-200 ${abierto ? 'rotate-180' : ''}`}></i>
                                             porqué
                                         </button>
                                     </div>
+                                    <div className="px-3 pb-2">
+                                        {/* `Eq` YA trae su propia caja con `eq-fit` y `eq-scroll`.
+                                            Envolverla en otra igual anidaba dos contenedores con
+                                            desbordamiento: el de fuera tapaba al de dentro, así que
+                                            medir el de fuera devolvía siempre «cabe» y la sombra se
+                                            pintaba dos veces. Aquí solo se normaliza el tipo, como
+                                            hace `Anatomia` con el suyo. */}
+                                        {typeof p.eq === 'string' ? <Eq>{p.eq}</Eq> : p.eq}
+                                    </div>
                                     {abierto && (
-                                        <div className="px-3 pb-3 pl-12 animate-fade-in">
+                                        <div className="px-3 pb-3 animate-fade-in">
                                             <p className="text-[0.88rem] text-gray-600 border-l-2 pl-3" style={{ borderColor: '#ED1E79', margin: 0 }}>
                                                 {p.porque}
                                             </p>

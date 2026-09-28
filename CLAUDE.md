@@ -260,6 +260,9 @@ lo acompaña—. La segunda: **una fórmula con `aligned` y las restricciones en
 por la derecha**, y `eq-block` lo tapa con una barra de desplazamiento que nadie usa. Partirla en
 «objetivo de cada uno» y «restricciones de los dos» cabe entera y además dice mejor lo que la
 sección quiere decir.
+Desde el 2026-09-28 TR-CORE encoge sola la fórmula que no cabe (ver abajo, «las fórmulas se
+salían de su caja»), así que en escritorio ya no hace falta partir por ancho; **en un teléfono
+sí**, y las que siguen sin caber quedan marcadas con `data-desborda`.
 
 ⚠️ **Y al probar en pantalla: MathJax tipografía en asíncrono, así que una captura tomada justo
 después de desplazarse muestra el chip del símbolo VACÍO.** Parece un defecto del componente y no
@@ -833,6 +836,37 @@ grep -nE '(^|[^\\])\\[;,a-zA-Z]' cap.html | grep -E '<Eq>|simbolo:|eq: '
 Lo que salga ahí tiene una contrabarra donde necesita dos. Ojo al filtrar: TR-CORE tiene
 contrabarras sueltas legítimas en sus expresiones regulares (`\n`, `\d`, `\s`), y por eso el
 barrido se restringe a las líneas de fórmula.
+
+✅ **Las fórmulas se salían de su caja, y se arregló en TR-CORE para los diez (2026-09-28).**
+MathJax 3 con salida SVG no parte ecuaciones, y `Derivacion` ponía el botón «porqué» en la misma
+fila que la fórmula, quitándole unos 90 px a cualquier ancho. A **1024 px** —un portátil, o media
+pantalla— doce ecuaciones del 7 y cuatro del 8 escondían parte de sí, la peor **241 px sobre una
+caja de 447**; en un **teléfono**, 122 de 135 en los diez capítulos, y el paso 5 de la derivación
+de la sección 1 del 7 mostraba `ρᵢⱼ = 1 para t…` y nada más. Ningún aviso: una barra que no se ve.
+El arreglo tiene tres piezas —`ajustarFormulas` encoge hasta un suelo de 0,68, `Derivacion` baja
+la fórmula a su propia fila y `.eq-scroll` pinta una sombra por el lado que esconde algo— y está
+documentado en `Material html/README.md`. Quedó así, medido con los porqués abiertos:
+
+| | 1024 px | 375 px |
+|---|---|---|
+| antes | 16 escondiendo algo en el 7 y el 8, peor 241 px (los otros ocho no se midieron) | 122 de 135, peor 554 px, **ninguna avisada** |
+| después | **0 de 130** | 60 de 132, peor 237 px, **las 60 con sombra** |
+
+⚠️ **Tres trampas que costó ver, por si se vuelve a tocar.**
+
+- **`.eq-scroll` está en el `<head>`, que `migrar.py` no estampa.** Se copió a mano a los diez,
+  como las clases `chart-h-*`. Quien la cambie tiene que volver a copiarla.
+- **No envuelva un `<Eq>` en otra caja con desbordamiento.** La primera versión lo hacía en
+  `Derivacion`: el contenedor de fuera tapaba al de dentro, así que medir el de fuera devolvía
+  siempre «cabe», la sombra se pintaba dos veces y el conteo salía casi doble (212 donde había 130).
+- **Mida el `scrollWidth` de la caja, no el `<svg>`.** Entre los dos hay relleno que no escala, y
+  medir el `<svg>` dejó dos fórmulas con 16 px escondidos y sin marcar.
+
+Y una de método, que casi da el resultado al revés: **«Ver todos los porqués» es un interruptor.**
+Un barrido que lo pulsa sin mirar la etiqueta cierra lo que ya estaba abierto, las fórmulas
+quedan ocultas, el filtro `offsetParent !== null` las descarta y el ancho «pasa» sin haber medido
+nada. Así salieron dos ceros, a 1 100 y a 1 024 px, que no medían nada. Pulse solo si el rótulo
+dice «Ver».
 
 ⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
 correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la

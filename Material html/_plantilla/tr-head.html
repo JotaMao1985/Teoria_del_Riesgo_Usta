@@ -246,11 +246,37 @@
         }
 
         .eq-block {
-            background: #FAF8FF;
+            --eq-bg: #FAF8FF;
             border: 1px solid rgba(61, 0, 141, 0.12);
             border-radius: 12px;
             padding: 0.6rem 1rem;
             overflow-x: auto;
+        }
+
+        /* Sombras de desplazamiento de las fórmulas.
+           `ajustarFormulas` encoge la ecuación hasta que quepa, pero tiene un
+           suelo legible; lo que aun así se sale se queda detrás de una barra
+           que en un teléfono no se ve. Estas cuatro capas la delatan, y SOLO
+           por el lado que esconde fórmula: las dos primeras van ancladas al
+           contenido (`local`) y tapan a las dos siguientes, ancladas al marco
+           (`scroll`), así que al llegar a un extremo su sombra desaparece
+           sola. Es CSS puro — no hay que escuchar el `scroll` de cada caja.
+
+           El color de fondo viaja en `--eq-bg` CON VALOR POR OMISIÓN en cada
+           uso, y no declarado aquí, a propósito: si se declarara, el orden de
+           las dos reglas decidiría el color de `.eq-block` y bastaría mover
+           una para dejarle el blanco de las derivaciones. */
+        .eq-scroll {
+            background-color: var(--eq-bg, #FFFFFF);
+            background-image:
+                linear-gradient(to right, var(--eq-bg, #FFFFFF), var(--eq-bg, #FFFFFF)),
+                linear-gradient(to left, var(--eq-bg, #FFFFFF), var(--eq-bg, #FFFFFF)),
+                linear-gradient(to right, rgba(61, 0, 141, 0.20), rgba(61, 0, 141, 0)),
+                linear-gradient(to left, rgba(61, 0, 141, 0.20), rgba(61, 0, 141, 0));
+            background-position: left center, right center, left center, right center;
+            background-repeat: no-repeat;
+            background-size: 24px 100%, 24px 100%, 16px 100%, 16px 100%;
+            background-attachment: local, local, scroll, scroll;
         }
 
         .tr-range {

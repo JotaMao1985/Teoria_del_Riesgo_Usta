@@ -193,7 +193,7 @@ pedirá ajustar un GARCH a…») y marcarla haría que el verificador mintiera.
 | `Motivacion` | **Apertura obligatoria de cada sección** (escena + gancho) |
 | `CodeBlock` · `CodeTabs` | Bloque de un lenguaje · los dos con pestaña propia y preferencia recordada |
 | `Box` · `CalloutPro` | Avisos (`info`, `tip`, `warn`, `danger`) y destacados |
-| `Eq` · `Termino` | Fórmula destacada · término con definición emergente |
+| `Eq` · `Termino` | Fórmula destacada, que se encoge sola si no cabe · término con definición emergente |
 | `Derivacion` | **Propio del curso.** Fórmula paso a paso, cada paso con su porqué plegable |
 | `Anatomia` | **Propio del curso.** Qué es cada pieza de una fórmula y cuánto vale en el capítulo |
 | `FichaNorma` | **Propio del curso.** Qué exige la norma y qué cálculo del capítulo la satisface |
@@ -223,6 +223,36 @@ mirando. Los disponibles son:
 Para añadir uno, se edita `tr-core-base.jsx`, se regenera y se estampa. Dentro del contenido
 —no en el `curriculum`— los iconos son de Font Awesome (`icon="fa-clock"` en `Motivacion`,
 por ejemplo) y ahí la lista es la de la librería completa.
+
+### Las fórmulas se ajustan solas al ancho, y lo que no cabe se marca
+
+MathJax 3 con salida SVG no parte una ecuación en varias líneas, así que una fórmula más
+ancha que su caja se quedaba detrás de una barra de desplazamiento que nadie ve. Desde el
+2026-09-28 lo resuelve la librería, en tres piezas:
+
+- **`Eq` lleva dos clases además de `eq-block`**: `eq-fit`, que marca la caja que se mide, y
+  `eq-scroll`, que le dibuja la sombra. Van juntas siempre.
+- **`ajustarFormulas`** corre después de cada `typesetPromise` y en cada `resize`. Baja el
+  `font-size` del `mjx-container` justo lo necesario para que quepa, con un **suelo de 0,68**;
+  como el SVG se dimensiona en `ex`, la fórmula se reescala sin perder nitidez. Mide el
+  `scrollWidth` de la caja y no el ancho del `<svg>`, porque entre los dos hay relleno que no
+  escala.
+- **Lo que no cabe ni en el suelo** conserva su barra, pero con sombra por el lado que esconde
+  fórmula —CSS puro, desaparece al llegar al extremo— y con `data-desborda` en la caja.
+
+Dos reglas para quien escriba:
+
+1. **En `Derivacion`, el campo `eq` recibe un `<Eq>`** (o una cadena, que se envuelve sola).
+   No lo meta en otra caja con desbordamiento: el contenedor de fuera tapa al de dentro,
+   medirlo devuelve siempre «cabe» y la sombra se pinta dos veces. Pasó al escribir el arreglo.
+2. **`data-desborda` es la lista de fórmulas que conviene partir.** A 375 px quedan unas sesenta
+   en los diez capítulos, y ninguna cortada en silencio. Para listarlas en un capítulo, con el
+   panel en móvil, recorra las secciones con los porqués abiertos y ejecute en la consola:
+   `[...document.querySelectorAll('[data-desborda]')].length`.
+
+⚠️ **La regla `.eq-scroll` vive en `tr-head.html`, que `migrar.py` no estampa.** Se añadió a mano
+a los diez capítulos; uno nuevo la hereda al nacer de `tr-base.html`, pero si se toca, hay que
+copiarla otra vez a los diez.
 
 ---
 

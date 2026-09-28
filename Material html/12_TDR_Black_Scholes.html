@@ -246,12 +246,39 @@
         }
 
         .eq-block {
-            background: #FAF8FF;
+            --eq-bg: #FAF8FF;
             border: 1px solid rgba(61, 0, 141, 0.12);
             border-radius: 12px;
             padding: 0.6rem 1rem;
             overflow-x: auto;
         }
+
+        /* Sombras de desplazamiento de las fórmulas.
+           `ajustarFormulas` encoge la ecuación hasta que quepa, pero tiene un
+           suelo legible; lo que aun así se sale se queda detrás de una barra
+           que en un teléfono no se ve. Estas cuatro capas la delatan, y SOLO
+           por el lado que esconde fórmula: las dos primeras van ancladas al
+           contenido (`local`) y tapan a las dos siguientes, ancladas al marco
+           (`scroll`), así que al llegar a un extremo su sombra desaparece
+           sola. Es CSS puro — no hay que escuchar el `scroll` de cada caja.
+
+           El color de fondo viaja en `--eq-bg` CON VALOR POR OMISIÓN en cada
+           uso, y no declarado aquí, a propósito: si se declarara, el orden de
+           las dos reglas decidiría el color de `.eq-block` y bastaría mover
+           una para dejarle el blanco de las derivaciones. */
+        .eq-scroll {
+            background-color: var(--eq-bg, #FFFFFF);
+            background-image:
+                linear-gradient(to right, var(--eq-bg, #FFFFFF), var(--eq-bg, #FFFFFF)),
+                linear-gradient(to left, var(--eq-bg, #FFFFFF), var(--eq-bg, #FFFFFF)),
+                linear-gradient(to right, rgba(61, 0, 141, 0.20), rgba(61, 0, 141, 0)),
+                linear-gradient(to left, rgba(61, 0, 141, 0.20), rgba(61, 0, 141, 0));
+            background-position: left center, right center, left center, right center;
+            background-repeat: no-repeat;
+            background-size: 24px 100%, 24px 100%, 16px 100%, 16px 100%;
+            background-attachment: local, local, scroll, scroll;
+        }
+
 
         .tr-range {
             -webkit-appearance: none;
@@ -422,10 +449,82 @@
         /* === TR-CORE INICIO — no editar a mano: se genera con ensamblar.py === */
         const { useState, useEffect, useRef } = React;
 
+        /* ============================================================
+           AJUSTE DE ANCHO DE LAS FÓRMULAS
+           MathJax 3 con salida SVG **no parte una ecuación en varias
+           líneas** —eso llegó en la 4—, así que una fórmula más ancha que
+           su caja se queda detrás de una barra de desplazamiento que nadie
+           usa. Medido el 2026-09-28: a 1024 px de ventana, doce ecuaciones
+           del capítulo 7 y cuatro del 8 se salían, la peor **241 px sobre
+           una caja de 447**; en un teléfono ese mismo paso mostraba
+           `ρᵢⱼ = 1 para t…` y escondía el resto, que era todo su contenido.
+
+           Aquí se mide y se baja el `font-size` del contenedor justo lo
+           necesario. Funciona porque la salida SVG dimensiona todo en `ex`:
+           reducir el tamaño de letra reescala la fórmula, el alto se ajusta
+           solo y no hace falta ningún `transform` —ni se pierde nitidez,
+           porque es vectorial—.
+
+           Hay un SUELO, porque encoger sin límite no es legible. Por debajo
+           de él se deja la barra, pero la caja queda marcada con
+           `data-desborda`, y el CSS le dibuja una sombra en el borde por el
+           lado que esconde fórmula. Una fórmula que se corta tiene que
+           parecerlo: cortarse en silencio es lo que había.
+
+           Es idempotente —vuelve a cero antes de medir— y se reejecuta al
+           cambiar el ancho de la ventana, que es de lo que depende todo
+           esto. Mide el `<svg>` y no el `mjx-container`, que es un bloque y
+           siempre devuelve el ancho de la caja.
+        ============================================================ */
+        const ESCALA_MINIMA_EQ = 0.68;
+
+        const ajustarFormulas = (root) => {
+            const ambito = root || document;
+            ambito.querySelectorAll('mjx-container[display="true"]').forEach(mjx => {
+                const caja = mjx.closest('.eq-fit');
+                if (!caja) return;
+                mjx.style.fontSize = '';
+                caja.removeAttribute('data-desborda');
+                if (!caja.clientWidth) return;          // la sección está oculta: nada que medir
+
+                /* Se mide `scrollWidth` de la CAJA y no el ancho del `<svg>`.
+                   El `<svg>` escala limpiamente con el tamaño de letra, pero
+                   entre él y la caja hay relleno y márgenes que no escalan, y
+                   contarlo mal deja una franja escondida sin marcar: en la
+                   primera versión quedaron dos de 16 px. Así el criterio es el
+                   que se ve. Converge en una o dos vueltas —la fórmula es casi
+                   toda la caja—, y el tope de tres evita cualquier ciclo si un
+                   navegador redondea distinto. */
+                let k = 1;
+                for (let intento = 0; intento < 3; intento++) {
+                    const sobra = caja.scrollWidth - caja.clientWidth;
+                    if (sobra <= 1) break;
+                    const nuevo = Math.max(k * caja.clientWidth / caja.scrollWidth, ESCALA_MINIMA_EQ);
+                    if (nuevo >= k) break;              // ya está en el suelo
+                    k = nuevo;
+                    mjx.style.fontSize = (k * 100).toFixed(1) + '%';
+                }
+                if (caja.scrollWidth > caja.clientWidth + 1) caja.setAttribute('data-desborda', '1');
+            });
+        };
+
+        /* Un solo oyente para toda la página, con freno de un cuadro: el
+           `resize` de arrastrar una ventana dispara decenas de eventos y
+           cada ajuste fuerza una medición del diseño. */
+        let _ajusteEnCola = false;
+        const reajustarFormulas = () => {
+            if (_ajusteEnCola) return;
+            _ajusteEnCola = true;
+            requestAnimationFrame(() => { _ajusteEnCola = false; ajustarFormulas(document); });
+        };
+        window.addEventListener('resize', reajustarFormulas);
+
         const typesetMath = (retries = 25) => {
             if (window.MathJax && window.MathJax.typesetPromise) {
                 try { window.MathJax.typesetClear && window.MathJax.typesetClear(); } catch (e) { }
-                window.MathJax.typesetPromise().catch(() => { });
+                window.MathJax.typesetPromise()
+                    .then(() => ajustarFormulas(document))
+                    .catch(() => { });
             } else if (retries > 0) {
                 setTimeout(() => typesetMath(retries - 1), 200);
             }
@@ -435,7 +534,9 @@
             useEffect(() => {
                 const t = setTimeout(() => {
                     if (ref.current && window.MathJax && window.MathJax.typesetPromise) {
-                        window.MathJax.typesetPromise([ref.current]).catch(() => { });
+                        window.MathJax.typesetPromise([ref.current])
+                            .then(() => ajustarFormulas(ref.current))
+                            .catch(() => { });
                     }
                 }, 40);
                 return () => clearTimeout(t);
@@ -620,8 +721,12 @@
             );
         };
 
+        /* `eq-fit` marca la caja que `ajustarFormulas` mide; `eq-scroll`
+           le pone las sombras de desplazamiento. Las dos van juntas
+           siempre: sin la primera la fórmula no se encoge, y sin la
+           segunda lo que no quepa se corta sin avisar. */
         const Eq = ({ children }) => (
-            <div className="eq-block my-4 text-center">{children}</div>
+            <div className="eq-block eq-scroll eq-fit my-4 text-center">{children}</div>
         );
 
         const SectionHeader = ({ title, icon: Icon }) => (
@@ -2250,21 +2355,34 @@
                             const abierto = abiertos.has(i);
                             return (
                                 <li key={i} className="rounded-xl border" style={{ borderColor: abierto ? '#ED1E7955' : '#E5E7EB' }}>
-                                    <div className="flex items-start gap-3 px-3 py-2">
-                                        <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold text-white tr-gradient mt-1">
+                                    {/* El número y el botón van en una fila propia y la fórmula
+                                        debajo, a todo el ancho de la tarjeta. Cuando los tres
+                                        compartían fila, el botón le quitaba unos 90 px a la
+                                        ecuación en TODA anchura: a 1024 px la dejaba en 447 y a
+                                        375 px en 134, que es donde el paso 5 de la sección 1 del
+                                        capítulo 7 mostraba `ρᵢⱼ = 1 para t…` y nada más. Cuesta
+                                        una línea corta por paso y devuelve la tarjeta entera. */}
+                                    <div className="flex items-center gap-2 px-3 pt-2">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[0.7rem] font-bold text-white tr-gradient">
                                             {i + 1}
                                         </span>
-                                        <div className="flex-1 min-w-0 overflow-x-auto">
-                                            <div className="text-center py-1">{p.eq}</div>
-                                        </div>
                                         <button onClick={() => alternar(i)} aria-expanded={abierto}
-                                            className="flex-shrink-0 mt-1 text-[0.7rem] font-semibold px-2 py-1 rounded-lg border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/40 transition-colors">
+                                            className="ml-auto flex-shrink-0 text-[0.7rem] font-semibold px-2 py-1 rounded-lg border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/40 transition-colors">
                                             <i className={`fas fa-chevron-down mr-1 transition-transform duration-200 ${abierto ? 'rotate-180' : ''}`}></i>
                                             porqué
                                         </button>
                                     </div>
+                                    <div className="px-3 pb-2">
+                                        {/* `Eq` YA trae su propia caja con `eq-fit` y `eq-scroll`.
+                                            Envolverla en otra igual anidaba dos contenedores con
+                                            desbordamiento: el de fuera tapaba al de dentro, así que
+                                            medir el de fuera devolvía siempre «cabe» y la sombra se
+                                            pintaba dos veces. Aquí solo se normaliza el tipo, como
+                                            hace `Anatomia` con el suyo. */}
+                                        {typeof p.eq === 'string' ? <Eq>{p.eq}</Eq> : p.eq}
+                                    </div>
                                     {abierto && (
-                                        <div className="px-3 pb-3 pl-12 animate-fade-in">
+                                        <div className="px-3 pb-3 animate-fade-in">
                                             <p className="text-[0.88rem] text-gray-600 border-l-2 pl-3" style={{ borderColor: '#ED1E79', margin: 0 }}>
                                                 {p.porque}
                                             </p>
