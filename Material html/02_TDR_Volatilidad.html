@@ -2284,6 +2284,66 @@
         };
 
         /* ============================================================
+           ANATOMÍA DE UNA FÓRMULA
+           `Eq` muestra la fórmula y `Derivacion` cuenta de dónde sale.
+           Faltaba la tercera pregunta, que es la que el estudiante hace
+           primero: QUÉ ES CADA PIEZA y CUÁNTO VALE AQUÍ.
+
+           Tres campos por pieza —símbolo, qué es, cuánto vale— y el
+           tercero es el que hace el trabajo: ata la letra a una cifra del
+           capítulo, que es lo que convierte una fórmula en un enunciado
+           sobre este fondo y no sobre un fondo cualquiera. Es opcional,
+           porque no toda letra tiene número (S sí, w no).
+
+           NO se pliega, a diferencia de `Derivacion`. Allí el porqué es
+           una profundización que quien ya la sabe se salta; aquí la
+           lectura ES el contenido, y esconderla dejaría el componente
+           mostrando lo mismo que un `Eq` a secas.
+
+           Y llama a `useTypeset`: `TablaResultados` no lo hace, y por eso
+           no sirve de glosario aunque su forma de tabla lo pareciera. El
+           símbolo se escribe en línea —`\\(\\zeta\\)`—, que es el
+           delimitador que `tr-head.html` configura.
+        ============================================================ */
+        const Anatomia = ({ titulo = 'Anatomía de la fórmula',
+            subtitulo = 'Cada pieza, qué hace y cuánto vale en este capítulo.',
+            eq, piezas, nota }) => {
+            const ref = useRef(null);
+            useTypeset(ref, [eq, piezas]);
+
+            return (
+                <div ref={ref} className="my-6 rounded-2xl border p-4 bg-white shadow-sm" style={{ borderColor: '#ED1E7933' }}>
+                    <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-white px-2 py-1 rounded-lg tr-gradient text-xs"><i className="fas fa-magnifying-glass-plus"></i></span>
+                        <h4 className="text-base font-bold text-navy" style={{ margin: 0 }}>{titulo}</h4>
+                    </div>
+                    {subtitulo && <p className="text-xs text-gray-500 italic mb-2" style={{ margin: '0 0 0.6rem' }}>{subtitulo}</p>}
+                    {eq && (typeof eq === 'string' ? <Eq>{eq}</Eq> : eq)}
+                    <ul className="space-y-2" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {piezas.map((p, i) => (
+                            <li key={i} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-gray-200 px-3 py-2">
+                                <span className="flex-shrink-0 rounded-lg px-2 py-1 text-center"
+                                    style={{ background: '#F5F0FB', color: '#3D008D', minWidth: '3.25rem' }}>
+                                    {p.simbolo}
+                                </span>
+                                <span className="flex-1 text-[0.9rem] text-gray-700 leading-relaxed" style={{ minWidth: '13rem' }}>
+                                    {p.que}
+                                </span>
+                                {p.vale && (
+                                    <span className="flex-shrink-0 text-[0.82rem] font-semibold rounded-lg px-2 py-1"
+                                        style={{ background: '#FDF2F8', color: '#9D174D' }}>
+                                        {p.vale}
+                                    </span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                    {nota && <p className="text-xs text-gray-500 italic" style={{ margin: '0.6rem 0 0' }}>{nota}</p>}
+                </div>
+            );
+        };
+
+        /* ============================================================
            TABLA DE RESULTADOS DE UN MODELO
            La salida de un `arch_model` o las métricas de un scorecard son
            el OBJETO DE ESTUDIO, no decoración. Una celda puede traer su

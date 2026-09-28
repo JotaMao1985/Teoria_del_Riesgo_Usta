@@ -230,6 +230,48 @@ volverá a necesitar: al 97,5 % sobre el panel entero son **47,9 escenarios**; c
 capítulo 7: una anomalía apenas toca la varianza y domina la cola. Todo capítulo que
 optimice o estime sobre una cola reporta ese conteo al lado de la cifra.
 
+✅ **Y el 8 es el piloto de la explicación de las fórmulas (2026-09-28), que es una decisión
+editorial nueva y NO alcanza todavía a los otros nueve.** El material tenía las fórmulas y la
+prosa, y nada en medio: ningún capítulo usa matemática en línea, y el 8 llegaba a la auditoría
+con **tres fórmulas de sección para cinco secciones** —la 4 y la 5 no tenían ninguna, aunque la
+4 compara dos problemas de optimización—. Se cerró en tres capas, y las tres tienen componente:
+
+- **De dónde sale → `Derivacion`**, que ya existía. El hueco más caro era el de la sección 3: su
+  propia motivación dice «lo difícil era darse cuenta de que se podía **escribir así**» y el
+  capítulo mostraba el antes y el después sin el paso. Ahora lleva la linealización del máximo en
+  cuatro pasos, y el cuarto es el que casi nunca se escribe: el cambio es **exacto y no una
+  relajación** porque cada u entra en el objetivo con coeficiente positivo y el problema se
+  minimiza. Con coeficiente negativo, o maximizando, el mismo truco devuelve otra cosa.
+- **Cómo se lee → `Anatomia`, componente nuevo** (ver `Material html/README.md`). Tres campos por
+  pieza —símbolo, qué es, cuánto vale aquí— y el tercero es el que hace el trabajo: ata la letra a
+  una cifra del capítulo. No se pliega, a diferencia de `Derivacion`, porque ahí la lectura **es**
+  el contenido. Llama a `useTypeset`; `TablaResultados` no lo hace y por eso no servía de glosario
+  aunque su forma de tabla lo pareciera.
+- **De dónde viene → una línea en el `cierre` de la derivación**, sin componente. Se descartó una
+  ficha propia tipo `FichaNorma` por no meter un segundo componente en diez archivos.
+
+El 8 pasó de **7 fórmulas a 16** (8 de sección y 8 en dos derivaciones), 5 anatomías y 18 KB más.
+
+⚠️ **Dos cosas que salieron de hacerlo y valen para el siguiente capítulo.** La primera: la
+fórmula tiene que decir lo que el bloque hace. La sección 4 se escribió con `μ′w ≥ R` y el código
+del capítulo usa `mu @ w == objetivo`, o sea **igualdad**; se corrigió a `= R`. Es la zona ciega 9
+en una forma nueva —la regla 9 ejecuta el código y compara las salidas, y no mira la fórmula que
+lo acompaña—. La segunda: **una fórmula con `aligned` y las restricciones en la misma fila se sale
+por la derecha**, y `eq-block` lo tapa con una barra de desplazamiento que nadie usa. Partirla en
+«objetivo de cada uno» y «restricciones de los dos» cabe entera y además dice mejor lo que la
+sección quiere decir.
+
+⚠️ **Y al probar en pantalla: MathJax tipografía en asíncrono, así que una captura tomada justo
+después de desplazarse muestra el chip del símbolo VACÍO.** Parece un defecto del componente y no
+lo es — el DOM ya trae el `mjx-container` con su ancho—. Espere a que pinte antes de juzgar, o
+compruébelo por el DOM y no por la imagen.
+
+**Queda pendiente llevarlo a los otros nueve.** El 7 y el 12 son los siguientes candidatos: el 7
+tiene **cinco** fórmulas y **ninguna** `Derivacion`, y el 12 tiene cinco para un capítulo que vive
+de una fórmula cerrada. No se ha escrito ninguna regla del verificador para esto a propósito: no
+se puede vigilar un patrón que solo existe en un capítulo.
+
+
 El **capítulo 11** abre la unidad 3 y es el primero que **no optimiza nada**: su objeto es una
 sola posición del fondo —el 30 % en Ecopetrol, 240 000 millones, 134,6801 millones de acciones
 al cierre de **1 782** del 30/12/2025— y su asunto es que el precio de un derivado **no depende

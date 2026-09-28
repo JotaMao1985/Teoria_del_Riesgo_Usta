@@ -195,6 +195,7 @@ pedirá ajustar un GARCH a…») y marcarla haría que el verificador mintiera.
 | `Box` · `CalloutPro` | Avisos (`info`, `tip`, `warn`, `danger`) y destacados |
 | `Eq` · `Termino` | Fórmula destacada · término con definición emergente |
 | `Derivacion` | **Propio del curso.** Fórmula paso a paso, cada paso con su porqué plegable |
+| `Anatomia` | **Propio del curso.** Qué es cada pieza de una fórmula y cuánto vale en el capítulo |
 | `FichaNorma` | **Propio del curso.** Qué exige la norma y qué cálculo del capítulo la satisface |
 | `TablaResultados` | **Propio del curso.** Salida de un modelo con lectura por celda |
 | `NivelIA` | **Propio del curso.** Insignia AIAS, por capítulo o por ejercicio |

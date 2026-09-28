@@ -2284,6 +2284,66 @@
         };
 
         /* ============================================================
+           ANATOMÍA DE UNA FÓRMULA
+           `Eq` muestra la fórmula y `Derivacion` cuenta de dónde sale.
+           Faltaba la tercera pregunta, que es la que el estudiante hace
+           primero: QUÉ ES CADA PIEZA y CUÁNTO VALE AQUÍ.
+
+           Tres campos por pieza —símbolo, qué es, cuánto vale— y el
+           tercero es el que hace el trabajo: ata la letra a una cifra del
+           capítulo, que es lo que convierte una fórmula en un enunciado
+           sobre este fondo y no sobre un fondo cualquiera. Es opcional,
+           porque no toda letra tiene número (S sí, w no).
+
+           NO se pliega, a diferencia de `Derivacion`. Allí el porqué es
+           una profundización que quien ya la sabe se salta; aquí la
+           lectura ES el contenido, y esconderla dejaría el componente
+           mostrando lo mismo que un `Eq` a secas.
+
+           Y llama a `useTypeset`: `TablaResultados` no lo hace, y por eso
+           no sirve de glosario aunque su forma de tabla lo pareciera. El
+           símbolo se escribe en línea —`\\(\\zeta\\)`—, que es el
+           delimitador que `tr-head.html` configura.
+        ============================================================ */
+        const Anatomia = ({ titulo = 'Anatomía de la fórmula',
+            subtitulo = 'Cada pieza, qué hace y cuánto vale en este capítulo.',
+            eq, piezas, nota }) => {
+            const ref = useRef(null);
+            useTypeset(ref, [eq, piezas]);
+
+            return (
+                <div ref={ref} className="my-6 rounded-2xl border p-4 bg-white shadow-sm" style={{ borderColor: '#ED1E7933' }}>
+                    <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-white px-2 py-1 rounded-lg tr-gradient text-xs"><i className="fas fa-magnifying-glass-plus"></i></span>
+                        <h4 className="text-base font-bold text-navy" style={{ margin: 0 }}>{titulo}</h4>
+                    </div>
+                    {subtitulo && <p className="text-xs text-gray-500 italic mb-2" style={{ margin: '0 0 0.6rem' }}>{subtitulo}</p>}
+                    {eq && (typeof eq === 'string' ? <Eq>{eq}</Eq> : eq)}
+                    <ul className="space-y-2" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {piezas.map((p, i) => (
+                            <li key={i} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-gray-200 px-3 py-2">
+                                <span className="flex-shrink-0 rounded-lg px-2 py-1 text-center"
+                                    style={{ background: '#F5F0FB', color: '#3D008D', minWidth: '3.25rem' }}>
+                                    {p.simbolo}
+                                </span>
+                                <span className="flex-1 text-[0.9rem] text-gray-700 leading-relaxed" style={{ minWidth: '13rem' }}>
+                                    {p.que}
+                                </span>
+                                {p.vale && (
+                                    <span className="flex-shrink-0 text-[0.82rem] font-semibold rounded-lg px-2 py-1"
+                                        style={{ background: '#FDF2F8', color: '#9D174D' }}>
+                                        {p.vale}
+                                    </span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                    {nota && <p className="text-xs text-gray-500 italic" style={{ margin: '0.6rem 0 0' }}>{nota}</p>}
+                </div>
+            );
+        };
+
+        /* ============================================================
            TABLA DE RESULTADOS DE UN MODELO
            La salida de un `arch_model` o las métricas de un scorecard son
            el OBJETO DE ESTUDIO, no decoración. Una celda puede traer su
@@ -3535,15 +3595,52 @@ for (a in c(0.95, 0.975, 0.99)) {
 
                     <h3>La varianza no distingue el lado</h3>
                     <p>
-                        La varianza eleva al cuadrado la desviación respecto de la media, y el cuadrado
-                        borra el signo: un día de +5 % contribuye exactamente lo mismo que uno de −5 %.
-                        Para una distribución simétrica eso no importa, porque las dos colas son la misma;
-                        para la serie de este fondo —con una curtosis de exceso de 25,77, medida en el
-                        capítulo 5— importa bastante. El <Termino def="Conditional Value at Risk, también llamado Expected Shortfall: el promedio de las pérdidas que superan el VaR de nivel α. Responde a «cuánto se pierde cuando se pierde», mientras que el VaR responde a «hasta cuánto se pierde el 97,5 % de los días».">CVaR</Termino>{' '}
+                        La medida del capítulo 7, escrita sobre los escenarios del panel en vez de
+                        sobre la matriz de covarianzas, es esta:
+                    </p>
+                    <Eq>{'$$\\sigma_p^2(w) \\;=\\; \\frac{1}{S}\\sum_{s=1}^{S} \\underbrace{\\left(w^\\top r_s - \\bar{r}_p\\right)^{2}}_{\\text{el cuadrado borra el signo}} \\qquad\\text{con}\\qquad \\bar{r}_p = \\frac{1}{S}\\sum_{s=1}^{S} w^\\top r_s$$'}</Eq>
+                    <p>
+                        Ahí está el problema, a la vista: la desviación entra elevada al cuadrado, y el
+                        cuadrado borra el signo. Un día de +5 % contribuye exactamente lo mismo que uno
+                        de −5 %. Para una distribución simétrica eso no importa, porque las dos colas son
+                        la misma; para la serie de este fondo —con una curtosis de exceso de 25,77, medida
+                        en el capítulo 5— importa bastante. El <Termino def="Conditional Value at Risk, también llamado Expected Shortfall: el promedio de las pérdidas que superan el VaR de nivel α. Responde a «cuánto se pierde cuando se pierde», mientras que el VaR responde a «hasta cuánto se pierde el 97,5 % de los días».">CVaR</Termino>{' '}
                         (<em>Conditional Value at Risk</em>, valor en riesgo condicional) mira un solo lado
                         y solo el peor:
                     </p>
                     <Eq>{'$$\\mathrm{CVaR}_\\alpha(w) \\;=\\; \\mathbb{E}\\left[\\,L(w) \\;\\middle|\\; L(w) \\geq \\mathrm{VaR}_\\alpha(w)\\right] \\qquad\\text{con}\\qquad L(w) = -w^\\top r$$'}</Eq>
+
+                    <Anatomia
+                        titulo="Las piezas de las dos fórmulas, y qué valen aquí"
+                        subtitulo="Estas seis letras son las del capítulo entero: no cambian de significado en ninguna de las cinco secciones."
+                        piezas={[
+                            { simbolo: '\\(w\\)', que: 'Los pesos de la cartera, uno por emisor. Es lo que se decide; todo lo demás viene del panel o del comité.', vale: '30 · 20 · 25 · 25 %' },
+                            { simbolo: '\\(r_s\\)', que: 'Los cuatro retornos del escenario s. Un escenario es una rueda del panel congelado, y todas pesan igual.', vale: 'S = 1 916 ruedas' },
+                            { simbolo: '\\(w^\\top r_s\\)', que: 'El retorno de la cartera en ese escenario: un solo número por rueda. Es la séptima convención del curso y no es el retorno de ninguna cartera —los logarítmicos no agregan entre activos—.', vale: 'la convención w′μ' },
+                            { simbolo: '\\(L_s\\)', que: 'La pérdida de ese escenario, que es el retorno con el signo cambiado. El cambio de signo es lo que deja la cola mala a la derecha, que es donde la mira todo el capítulo.', vale: '17,760 % el 16/03/2020' },
+                            { simbolo: '\\(\\alpha\\)', que: 'El nivel: qué fracción de los días quedan por fuera de la cola. Se declara antes de estimar, no se elige mirando el resultado.', vale: '97,5 %' },
+                            { simbolo: '\\(\\mathrm{VaR}_\\alpha\\)', que: 'El corte que separa la cola del resto. Aquí no es el objetivo: es la frontera del promedio que sí lo es.', vale: '2,958 %' },
+                        ]}
+                        nota="Las cifras de la derecha son de la cartera declarada al 97,5 %. La pérdida del 16 de marzo de 2020, la peor de las 1 916, vale 142 079 millones sobre los 800 000 del fondo en la convención que la portada declara."
+                    />
+
+                    <h3>Dos promedios de la misma cola, y no son el mismo número</h3>
+                    <p>
+                        El capítulo 5 fijó que el ES es <strong>el promedio simple de las ruedas que
+                        exceden el VaR</strong>. Este capítulo minimiza otra cosa —la función de la
+                        sección 2 <strong>es</strong> el CVaR exacto por construcción—, y es la primera
+                        excepción declarada a una convención del curso. La diferencia entre las dos
+                        está en el divisor:
+                    </p>
+                    <Eq>{'$$\\begin{aligned} \\mathrm{ES}_\\alpha &= \\frac{1}{|\\mathcal{C}|}\\sum_{s \\in \\mathcal{C}} L_s, \\qquad \\mathcal{C} = \\{\\,s :\\, L_s > \\mathrm{VaR}_\\alpha\\,\\} &&\\quad |\\mathcal{C}| \\ \\text{es entero} \\\\[4pt] \\mathrm{CVaR}_\\alpha &= \\mathrm{VaR}_\\alpha + \\frac{1}{(1-\\alpha)S}\\sum_{s=1}^{S}\\left(L_s - \\mathrm{VaR}_\\alpha\\right)^{+} &&\\quad (1-\\alpha)S \\ \\text{no lo es} \\end{aligned}$$'}</Eq>
+                    <p>
+                        El primero divide entre las ruedas que hay; el segundo, entre las que el nivel
+                        pide. Al 97,5 % son 48 contra 47,9, y esa décima de rueda vale 30 millones;
+                        al 99 %, 20 contra 19,2, y vale 884. Es el mismo defecto que el capítulo 5 midió
+                        y la razón por la que aquí no se puede usar su convención: un promedio sobre un
+                        conjunto que cambia de tamaño a saltos no es una función continua de los pesos,
+                        y un optimizador no sabe qué hacer con eso.
+                    </p>
 
                     <CodeTabs titulo="La cola de la cartera declarada y la de mínima varianza, a tres niveles" bloques={EJ_COLA}
                         nota="La columna «ES simple» es la convención del capítulo 5 —el promedio de las ruedas que exceden el corte— y la columna «CVaR exacto» es la que este capítulo va a minimizar. Las dos se imprimen juntas a propósito: la diferencia entre ellas es de 30 millones al 97,5 % y de 884 al 99 %, y es el precio de que la cola pedida —47,9 ruedas, 19,2 ruedas— casi nunca sea un número entero." />
@@ -3670,6 +3767,18 @@ brecha <- exacto - simple`,
                         <strong>exactamente</strong> el CVaR.
                     </p>
 
+                    <Anatomia
+                        titulo="Anatomía de F, término a término"
+                        subtitulo="La fórmula de arriba tiene dos sumandos y cada uno hace un trabajo distinto. Los valores son los del mínimo, sobre la cartera declarada al 97,5 %."
+                        piezas={[
+                            { simbolo: '\\(\\zeta\\)', que: 'El primer sumando, y el corte que uno propone. Entra en el objetivo con coeficiente 1: proponer un corte alto cuesta caro por sí solo, y eso es lo que impide que el mínimo se vaya a infinito.', vale: 'ζ* = 2,9577 %' },
+                            { simbolo: '\\((L_s - \\zeta)^{+}\\)', que: 'Cuánto se pasa del corte el escenario s, y cero si no se pasa. Escrito con el máximo porque un exceso negativo no es un exceso: la parte buena de la distribución no debe restar.', vale: '48 ruedas aportan' },
+                            { simbolo: '\\((1-\\alpha)S\\)', que: 'El divisor: cuántas ruedas pide el nivel. No cuántas hay por encima del corte —eso cambiaría con ζ y rompería la convexidad—, sino cuántas debería haber.', vale: '47,9 ruedas' },
+                            { simbolo: '\\(\\min_\\zeta F_\\alpha(w,\\zeta)\\)', que: 'El valor de la función en su mínimo, que es el resultado que la derivación de abajo demuestra: no una aproximación al CVaR, sino el CVaR.', vale: '4,7312 %' },
+                        ]}
+                        nota="Fíjese en que α y S no son variables del problema: son la declaración del capítulo. Lo que el optimizador mueve son w y ζ, y ζ es la pieza que la formulación aporta —el corte deja de estimarse antes para pasar a resolverse dentro—."
+                    />
+
                     <Derivacion
                         titulo="Por qué el mínimo de F es el CVaR"
                         pasos={[
@@ -3690,7 +3799,7 @@ brecha <- exacto - simple`,
                                 porque: 'Sustituyendo ζ* = VaR: el promedio de los excesos sobre el VaR, sumado al VaR, es el promedio de las pérdidas de la cola. Y esta versión trae la rueda fraccionaria incluida, que es por lo que da el CVaR exacto y no el promedio simple del capítulo 5.',
                             },
                         ]}
-                        cierre="El truco vale para cualquier distribución de escenarios: no supone normalidad, no supone simetría y no necesita una fórmula cerrada. Lo único que pide es una lista de escenarios equiprobables — que puede venir de la historia, de una simulación o de un panel de estrés."
+                        cierre="El truco vale para cualquier distribución de escenarios: no supone normalidad, no supone simetría y no necesita una fórmula cerrada. Lo único que pide es una lista de escenarios equiprobables — que puede venir de la historia, de una simulación o de un panel de estrés. Es de Rockafellar y Uryasev, «Optimization of conditional value-at-risk», Journal of Risk, 2000; lo que hizo época no fue la medida, que ya existía, sino esta función auxiliar, que la volvió optimizable."
                     />
 
                     <CodeTabs titulo="La función evaluada a mano sobre la cartera declarada" bloques={EJ_RU}
@@ -3799,6 +3908,36 @@ F(15000); F(26000); F(48000); F(60000)`,
                         podía escribir así.
                     </Motivacion>
 
+                    <h3>El paso que cuesta ver: cómo se quita el máximo</h3>
+                    <p>
+                        La función de la sección 2 tiene 1 916 máximos dentro, y un máximo no es lineal.
+                        Sin embargo el programa de abajo no tiene ninguno. Lo que pasa en medio son
+                        cuatro pasos, y el tercero es el que hay que entender:
+                    </p>
+
+                    <Derivacion
+                        titulo="De 1 916 máximos a 1 916 pares de desigualdades"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\max(0,\\,x) \\;=\\; \\min\\,\\{\\,u \\;:\\; u \\geq x,\\;\\; u \\geq 0\\,\\}$$'}</Eq>,
+                                porque: 'El máximo entre cero y x es, dicho al revés, el MENOR número que es a la vez mayor o igual que x y mayor o igual que cero. Es una identidad exacta, no una aproximación, y mirarla en esa dirección —un máximo como el mínimo de un conjunto— es todo el truco del capítulo.',
+                            },
+                            {
+                                eq: <Eq>{'$$F_\\alpha(w,\\zeta) \\;=\\; \\min_{u}\\;\\Big\\{\\, \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\;:\\; u_s \\geq L_s - \\zeta,\\; u_s \\geq 0 \\,\\Big\\}$$'}</Eq>,
+                                porque: 'Sustituyendo cada máximo por su mínimo, uno por escenario. La función deja de tener máximos y pasa a tener una minimización anidada dentro: primero sobre las 1 916 variables u, y esa minimización interior vive dentro de la que ya había sobre w y ζ.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\min_{w,\\,\\zeta}\\;\\min_{u}\\;(\\cdot) \\;=\\; \\min_{w,\\,\\zeta,\\,u}\\;(\\cdot)$$'}</Eq>,
+                                porque: 'Minimizar por partes o minimizar todo a la vez dan el mismo valor, porque el conjunto sobre el que se busca es el mismo. Eso permite aplanar las dos minimizaciones en una sola, y una sola es lo que un solucionador acepta: cvxpy y lpSolve no saben qué hacer con un mínimo dentro del objetivo.',
+                            },
+                            {
+                                eq: <Eq>{'$$u_s^{*} \\;=\\; \\max(0,\\,L_s - \\zeta) \\qquad\\text{porque}\\qquad \\frac{\\partial}{\\partial u_s}\\left[\\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s\\right] = \\frac{1}{(1-\\alpha)S} > 0$$'}</Eq>,
+                                porque: 'Y aquí está la razón de que el cambio sea EXACTO y no una relajación. Cada u aparece en el objetivo con coeficiente positivo y el problema se minimiza, así que el óptimo empuja cada u contra su cota inferior y ni un poco más arriba: en la solución u vale exactamente el máximo que sustituyó. Si el coeficiente fuera negativo, o si el problema se maximizara, las desigualdades dejarían suelto el valor de u y el programa devolvería otra cosa. Es la comprobación que hay que hacer siempre que se linealice un máximo, y la que casi nunca se escribe.',
+                            },
+                        ]}
+                        cierre="La maniobra se llama reformulación epigráfica —se optimiza sobre el epigrafo de la función en vez de sobre la función—, y no es propia del CVaR: el mismo paso convierte en programa lineal la regresión en valor absoluto y la minimización del error máximo. Lo que Rockafellar y Uryasev aportaron fue darse cuenta de que el CVaR admite una F a la que se le puede aplicar."
+                    />
+
                     <h3>El programa, escrito entero</h3>
                     <Eq>{'$$\\min_{w,\\,\\zeta,\\,u} \\;\\; \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_{s} u_s \\qquad\\text{sujeto a}\\qquad u_s \\geq -w^\\top r_s - \\zeta, \\quad u_s \\geq 0, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0$$'}</Eq>
                     <p>
@@ -3808,6 +3947,34 @@ F(15000); F(26000); F(48000); F(60000)`,
                         hace practicable optimizar colas sobre paneles grandes—. Las restricciones de
                         cartera son las mismas de siempre y entran igual: el tope del 30 % por emisor, si
                         se quisiera, sería una fila más.
+                    </p>
+
+                    <Anatomia
+                        titulo="Anatomía del programa: qué se decide, qué ata y qué cuesta"
+                        subtitulo="Las cinco líneas de arriba, contadas en variables y en filas. Los conteos son los de este capítulo, con las 1 916 ruedas del panel."
+                        piezas={[
+                            { simbolo: '\\(w,\\ \\zeta,\\ u\\)', que: 'Las incógnitas, en tres bloques de tamaño muy distinto: cuatro pesos, un corte y una variable de exceso por escenario. Las 1 916 últimas no interesan a nadie —son andamio— pero son el 99,7 % del problema.', vale: '1 921 variables' },
+                            { simbolo: '\\(u_s \\geq -w^\\top r_s - \\zeta\\)', que: 'La fila que ata cada exceso a su escenario. Es la única que mezcla los pesos con los datos, y por eso es donde entra el panel entero.', vale: '1 916 filas' },
+                            { simbolo: '\\(u_s \\geq 0\\)', que: 'La otra mitad del máximo. Sin ella, un escenario bueno restaría de la cola y el problema no tendría mínimo.', vale: '1 916 cotas' },
+                            { simbolo: '\\(\\mathbf{1}^\\top w = 1\\)', que: 'Los pesos suman uno: el fondo está invertido del todo. Es la única igualdad del programa.', vale: '1 fila' },
+                            { simbolo: '\\(w \\geq 0\\)', que: 'No hay posiciones cortas. Es una decisión declarada del curso, no una necesidad del método: quitarla deja el programa igual de lineal.', vale: '4 cotas' },
+                        ]}
+                        nota="Lo que NO está: ninguna restricción de retorno —eso llega en la sección 4, y es una fila más— y ningún tope por emisor. Este programa busca la cola más pequeña sin preguntarse cuánto rinde la cartera que la consigue, que es justo lo que la sección 4 va a discutir."
+                    />
+
+                    <p>
+                        Queda un detalle de implementación que conviene ver escrito, porque la nota del
+                        bloque lo cuenta en palabras y en el código aparece sin explicación. El corte ζ
+                        puede ser negativo en general —lo sería con una cartera que casi nunca pierde—,
+                        y <span className="inline-code">lpSolve</span> solo admite variables no
+                        negativas. Se resuelve partiéndolo en dos:
+                    </p>
+                    <Eq>{'$$\\zeta \\;=\\; \\zeta^{+} - \\zeta^{-}, \\qquad \\zeta^{+} \\geq 0, \\quad \\zeta^{-} \\geq 0$$'}</Eq>
+                    <p>
+                        Cualquier número real se escribe así, y el programa gana una variable y no pierde
+                        nada. Es el recurso estándar para meter una variable libre en un solucionador que
+                        no las acepta; aquí no cambia ningún resultado porque el corte sale positivo
+                        —{dec(LP.zeta, 4)} %— y ζ⁻ se queda en cero.
                     </p>
 
                     <CodeTabs titulo="El programa lineal, con cvxpy y con lpSolve" bloques={EJ_LP}
@@ -3954,6 +4121,28 @@ F(15000); F(26000); F(48000); F(60000)`,
                         resultado honesto es incómodo para el capítulo: sobre este panel, las dos casi no
                         se distinguen.
                     </Motivacion>
+
+                    <h3>Los dos problemas, uno debajo del otro</h3>
+                    <p>
+                        Hasta aquí el capítulo ha resuelto un solo programa: el de la cola más pequeña,
+                        sin mirar el retorno. Una frontera se traza pidiéndole además un retorno, y
+                        repitiendo para varios. Escritos así, los dos problemas se parecen más de lo que
+                        su reputación sugiere:
+                    </p>
+                    <Eq>{'$$\\begin{aligned} \\text{objetivo de media-varianza:}\\quad & \\min_{w}\\; w^\\top \\Sigma\\, w \\\\[2pt] \\text{objetivo de media-CVaR:}\\quad & \\min_{w,\\,\\zeta,\\,u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[8pt] \\text{restricciones de los dos:}\\quad & \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\\\[2pt] \\text{y solo del segundo:}\\quad & u_s \\geq L_s - \\zeta, \\quad u_s \\geq 0 \\end{aligned}$$'}</Eq>
+
+                    <Anatomia
+                        titulo="Qué cambia y qué no entre los dos"
+                        subtitulo="Las restricciones de cartera son idénticas. Lo único que cambia es el objetivo — y con él, qué información del panel se usa."
+                        piezas={[
+                            { simbolo: '\\(w^\\top \\Sigma\\, w\\)', que: 'El objetivo de arriba. Resume las 1 916 ruedas en las diez cifras de la matriz de covarianzas, y a partir de ahí el panel ya no hace falta: dos paneles con la misma Σ dan la misma cartera aunque sus colas no se parezcan en nada.', vale: '10 cifras' },
+                            { simbolo: '\\(\\zeta + \\tfrac{1}{(1-\\alpha)S}\\sum_s u_s\\)', que: 'El objetivo de abajo. No resume nada: cada rueda entra por separado y las que están en la cola entran con peso propio. Por eso el problema crece con el panel y el de arriba no.', vale: '1 916 ruedas' },
+                            { simbolo: '\\(\\mu^\\top w = R\\)', que: 'La fila que traza la frontera: se fija un retorno objetivo R, se resuelve, y se repite. Es idéntica en los dos problemas, y es la que convierte «la cartera de mínimo riesgo» en «una curva de carteras».', vale: '7 valores de R' },
+                            { simbolo: '\\(R\\)', que: 'El retorno objetivo, el parámetro que se barre. Va del retorno de la cartera de mínima CVaR al del emisor más rentable, que es donde las dos fronteras se juntan porque ya solo hay una cartera posible.', vale: '6,78 % a 12,88 %' },
+                            { simbolo: '\\(\\Sigma,\\ \\mu\\)', que: 'Los dos estimados del capítulo 7, y los dos con la misma ventana declarada. Si la ventana cambia, cambian las dos fronteras a la vez: la comparación de abajo mide el objetivo, no el estimador.', vale: '1 916 ruedas' },
+                        ]}
+                        nota="El problema de arriba es cuadrático y el de abajo lineal, y esa es la diferencia de forma. La de fondo es la del resumen: uno decide con diez números y el otro con mil novecientos dieciséis."
+                    />
 
                     <h3>Las dos fronteras, medidas con la misma vara</h3>
                     <p>
@@ -4141,6 +4330,33 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                     </Motivacion>
 
                     <h3>La aritmética incómoda</h3>
+                    <p>
+                        La cuenta que hay detrás de todo lo que sigue cabe en una línea, y es la que casi
+                        nunca se escribe al lado de un CVaR:
+                    </p>
+                    <Eq>{'$$n_{\\text{cola}} \\;=\\; (1-\\alpha)\\,S \\qquad\\text{frente a}\\qquad n_{\\Sigma} \\;=\\; S \\qquad\\Longrightarrow\\qquad \\frac{n_{\\Sigma}}{n_{\\text{cola}}} \\;=\\; \\frac{1}{1-\\alpha}$$'}</Eq>
+                    <p>
+                        Cada entrada de la matriz de covarianzas se estima con las <strong>S ruedas
+                        enteras</strong>; el CVaR, solo con las que caen en la cola. La razón entre las dos
+                        no depende del panel: depende únicamente del nivel, y al 97,5 % vale{' '}
+                        <strong>40</strong>. Es decir que la medida que el capítulo defiende por ser mejor
+                        se estima con cuarenta veces menos datos que la que critica, y al 99 % con cien
+                        veces menos. Las dos afirmaciones son ciertas a la vez, y el capítulo no termina
+                        con «adopte CVaR» precisamente por eso.
+                    </p>
+
+                    <Anatomia
+                        titulo="Anatomía del conteo de la cola"
+                        subtitulo="Cuatro piezas, y las dos de en medio son las que hay que reportar al lado de cualquier cifra de cola."
+                        piezas={[
+                            { simbolo: '\\(S\\)', que: 'El tamaño del panel. Es lo único de esta fórmula que se puede aumentar, y aumentarlo con escenarios simulados de un modelo ajustado a los mismos datos agranda el panel sin añadir evidencia.', vale: '1 916 · o 250' },
+                            { simbolo: '\\(1-\\alpha\\)', que: 'La fracción de días que quedan dentro de la cola. Subir el nivel para ser más prudente reduce esta fracción, y con ella los datos: la prudencia del nivel se paga en precisión del estimador.', vale: '2,5 % · o 1 %' },
+                            { simbolo: '\\((1-\\alpha)S\\)', que: 'Cuántas ruedas deciden de verdad el número. Es el conteo que el curso exige reportar junto a toda cifra estimada sobre una cola, y el que hace legible que dos ruedas defectuosas de febrero de 2025 muevan el CVaR al 99 % en 3 777 millones.', vale: '47,9 · o 6,3' },
+                            { simbolo: '\\(\\tfrac{1}{1-\\alpha}\\)', que: 'Cuántas veces menos datos tiene la cola que la covarianza, para el mismo panel. No se puede bajar sin bajar el nivel, y no depende de cuántas ruedas se consigan.', vale: '40 veces' },
+                        ]}
+                        nota="Con la ventana de 250 ruedas que usa medio mercado, el CVaR al 99 % promedia 2,5 ruedas. No es un estimador pobre: es un promedio de dos días y medio."
+                    />
+
                     <CodeTabs titulo="Cuántas ruedas, qué pasa por año, y qué hacen dos ruedas defectuosas" bloques={EJ_FRAGIL}
                         nota="Tres cosas en un bloque, y las tres son la misma: la primera cuenta cuántos escenarios entran en la cola; la segunda reestima las dos carteras año por año, cuando la cola son seis ruedas; y la tercera quita del panel el par del 19 y 20 de febrero de 2025 —dos ruedas de 1 916— y vuelve a medir." />
 
