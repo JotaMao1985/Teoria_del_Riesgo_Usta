@@ -817,6 +817,23 @@ tabla guarda 0,4995— y **mostrar u con seis decimales no lo salva**. La salida
 magnitudes estables y **mostrar p\* en vez de pedirla**. Regla: antes de esconder una casilla,
 compruebe que se recupera desde lo mostrado; si no, muéstrela.
 
+⚠️ **Una contrabarra sola en una fórmula la rompe en silencio, y ninguna regla lo ve.** Las
+fórmulas viajan dentro de cadenas de JavaScript, así que **todo mandato de TeX se escribe con
+DOS contrabarras**: `\\;`, `\\sum`, `\\top`. Con una sola, JavaScript no reconoce el escape, se
+come la contrabarra y MathJax recibe el resto como texto literal: `\;` sale como un **punto y
+coma visible** en medio de la ecuación. Pasó el 2026-09-28 al escribir las derivaciones del
+capítulo 7 — 103 casos en 26 líneas—, y es de la familia peor: `verificar.py` da OK, la consola
+está limpia, la página renderiza y la fórmula simplemente dice otra cosa. El barrido es de una
+línea y conviene correrlo al cerrar cualquier capítulo que toque matemáticas:
+
+```bash
+grep -nE '(^|[^\\])\\[;,a-zA-Z]' cap.html | grep -E '<Eq>|simbolo:|eq: '
+```
+
+Lo que salga ahí tiene una contrabarra donde necesita dos. Ojo al filtrar: TR-CORE tiene
+contrabarras sueltas legítimas en sus expresiones regulares (`\n`, `\d`, `\s`), y por eso el
+barrido se restringe a las líneas de fórmula.
+
 ⚠️ **Un capítulo nuevo nace con sus 15 justificaciones**: 4 de los `MCQ` (en la opción
 correcta), 1 del `Comparador` (igual, dentro de sus `opciones`) y 10 del `Quiz` (en la
 **pregunta**, no en la opción). Las 90 de la unidad 1 ya están escritas. La regla editorial:
