@@ -2591,7 +2591,8 @@
         const FZETA = [
             [1.0000, 8.4453, 329], [1.5000, 6.2761, 194], [2.0000, 5.2777, 109],
             [2.2500, 5.0035, 90], [2.5000, 4.8389, 73], [2.7500, 4.7502, 56],
-            [2.9577, 4.7312, 48], [3.0000, 4.7326, 45], [3.5000, 4.8361, 29],
+            [2.9577, 4.7312, 48], [2.9601, 4.7311, 47], [3.0000, 4.7326, 45],
+            [3.5000, 4.8361, 29],
             [4.0000, 5.0866, 21], [5.0000, 5.8464, 7], [6.0000, 6.7207, 5],
         ];
 
@@ -2814,12 +2815,13 @@ def F(z):
     """La funcion de Rockafellar-Uryasev, evaluada a mano."""
     return z + np.maximum(L - z, 0).sum() / ((1 - alfa) * S)
 
-var = np.quantile(L, alfa)
+var = np.quantile(L, alfa)                       # el VaR de la muestra, interpolado
+z48 = np.sort(L)[::-1][47]                       # el escenario 48 de la cola: el otro VaR
 print(f"escenarios {S}   nivel {alfa*100:.1f} %   (1-alfa)S = {(1-alfa)*S:.1f} escenarios en la cola")
 #> escenarios 1916   nivel 97.5 %   (1-alfa)S = 47.9 escenarios en la cola
 print("  zeta      F(zeta)     excesos > 0")
 #>   zeta      F(zeta)     excesos > 0
-for z in (1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, 3.0, 3.5, 4.0, 5.0, 6.0):
+for z in (1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, z48, 3.0, 3.5, 4.0, 5.0, 6.0):
     print(f"  {z:6.4f} %  {F(z):7.4f} %   {int((L > z).sum()):5d}")
 #>   1.0000 %   8.4453 %     329
 #>   1.5000 %   6.2761 %     194
@@ -2828,14 +2830,17 @@ for z in (1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, 3.0, 3.5, 4.0, 5.0, 6.0):
 #>   2.5000 %   4.8389 %      73
 #>   2.7500 %   4.7502 %      56
 #>   2.9577 %   4.7312 %      48
+#>   2.9601 %   4.7311 %      47
 #>   3.0000 %   4.7326 %      45
 #>   3.5000 %   4.8361 %      29
 #>   4.0000 %   5.0866 %      21
 #>   5.0000 %   5.8464 %       7
 #>   6.0000 %   6.7207 %       5
-print(f"el minimo se alcanza en zeta = VaR = {var:.4f} % y vale {F(var):.4f} %")
-#> el minimo se alcanza en zeta = VaR = 2.9577 % y vale 4.7312 %
-print(f"y ese valor es el CVaR exacto de la cartera: {F(var)/100*W:,.0f} millones")
+print(f"el cuantil interpolado, {var:.4f} %, deja F en {F(var):.4f} %: todavia baja")
+#> el cuantil interpolado, 2.9577 %, deja F en 4.7312 %: todavia baja
+print(f"el minimo cae en el escenario 48 de la cola, {z48:.4f} %, y vale {F(z48):.4f} %")
+#> el minimo cae en el escenario 48 de la cola, 2.9601 %, y vale 4.7311 %
+print(f"y ese valor es el CVaR exacto de la cartera: {F(z48)/100*W:,.0f} millones")
 #> y ese valor es el CVaR exacto de la cartera: 37,849 millones`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
@@ -2849,13 +2854,14 @@ S <- length(L)
 # La funcion de Rockafellar-Uryasev, evaluada a mano
 F <- function(z) z + sum(pmax(L - z, 0)) / ((1 - alfa) * S)
 
-var <- quantile(L, alfa, names = FALSE)
+var <- quantile(L, alfa, names = FALSE)           # el VaR de la muestra, interpolado
+z48 <- sort(L, decreasing = TRUE)[48]             # el escenario 48 de la cola: el otro VaR
 cat(sprintf("escenarios %d   nivel %.1f %%   (1-alfa)S = %.1f escenarios en la cola\\n",
             S, alfa * 100, (1 - alfa) * S))
 #> escenarios 1916   nivel 97.5 %   (1-alfa)S = 47.9 escenarios en la cola
 cat("  zeta      F(zeta)     excesos > 0\\n")
 #>   zeta      F(zeta)     excesos > 0
-for (z in c(1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, 3.0, 3.5, 4.0, 5.0, 6.0))
+for (z in c(1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, z48, 3.0, 3.5, 4.0, 5.0, 6.0))
   cat(sprintf("  %6.4f %%  %7.4f %%   %5d\\n", z, F(z), sum(L > z)))
 #>   1.0000 %   8.4453 %     329
 #>   1.5000 %   6.2761 %     194
@@ -2864,14 +2870,17 @@ for (z in c(1.0, 1.5, 2.0, 2.25, 2.5, 2.75, var, 3.0, 3.5, 4.0, 5.0, 6.0))
 #>   2.5000 %   4.8389 %      73
 #>   2.7500 %   4.7502 %      56
 #>   2.9577 %   4.7312 %      48
+#>   2.9601 %   4.7311 %      47
 #>   3.0000 %   4.7326 %      45
 #>   3.5000 %   4.8361 %      29
 #>   4.0000 %   5.0866 %      21
 #>   5.0000 %   5.8464 %       7
 #>   6.0000 %   6.7207 %       5
-cat(sprintf("el minimo se alcanza en zeta = VaR = %.4f %% y vale %.4f %%\\n", var, F(var)))
-#> el minimo se alcanza en zeta = VaR = 2.9577 % y vale 4.7312 %
-cat(sprintf("y ese valor es el CVaR exacto de la cartera: %s millones\\n", mil(F(var) / 100 * W)))
+cat(sprintf("el cuantil interpolado, %.4f %%, deja F en %.4f %%: todavia baja\\n", var, F(var)))
+#> el cuantil interpolado, 2.9577 %, deja F en 4.7312 %: todavia baja
+cat(sprintf("el minimo cae en el escenario 48 de la cola, %.4f %%, y vale %.4f %%\\n", z48, F(z48)))
+#> el minimo cae en el escenario 48 de la cola, 2.9601 %, y vale 4.7311 %
+cat(sprintf("y ese valor es el CVaR exacto de la cartera: %s millones\\n", mil(F(z48) / 100 * W)))
 #> y ese valor es el CVaR exacto de la cartera: 37,849 millones`,
         };
 
@@ -3726,10 +3735,10 @@ brecha <- exacto - simple`,
                         hovertemplate: 'ζ = %{x:.4f} %<br>F = %{y:.4f} %<extra></extra>',
                     },
                     {
-                        x: [2.9577], y: [4.7312], type: 'scatter', mode: 'markers',
-                        name: 'el mínimo: ζ = VaR',
+                        x: [2.9601], y: [4.7311], type: 'scatter', mode: 'markers',
+                        name: 'el mínimo: el escenario 48 de la cola',
                         marker: { color: '#ED1E79', size: 15, symbol: 'circle-open', line: { width: 3 } },
-                        hovertemplate: 'ζ* = VaR = 2,9577 %<br>F = CVaR = 4,7312 %<extra></extra>',
+                        hovertemplate: 'ζ* = 2,9601 %<br>F = CVaR = 4,7311 %<extra></extra>',
                     },
                 ],
                 () => ({
@@ -3766,15 +3775,30 @@ brecha <- exacto - simple`,
                         hallazgo es que ese mínimo cae <strong>exactamente</strong> en el VaR y vale{' '}
                         <strong>exactamente</strong> el CVaR.
                     </p>
+                    <p>
+                        Con una muestra hay que decir <strong>en qué VaR</strong>, porque hay dos maneras de
+                        estimarlo y aquí no dan lo mismo. El mínimo cae en un escenario —el número{' '}
+                        <strong>48</strong> de la cola, que vale <strong>2,9601 %</strong>—, y eso lo demuestra la
+                        derivación de abajo en su tercer paso. La función{' '}
+                        <span className="inline-code">np.quantile</span>, que es la que usa el resto del capítulo
+                        para el VaR, interpola entre el escenario 49 y el 48 y devuelve{' '}
+                        <strong>2,9577 %</strong>: un pelo a la izquierda, donde F <em>todavía está bajando</em>.
+                        La distancia es de 0,0024 pp en el corte y de cinco millonésimas de punto en F —cuatro
+                        centésimas de millón—, y aun así basta para que la cifra cambie en el cuarto decimal: el
+                        bloque de abajo imprime 4,7312 % en el cuantil interpolado y <strong>4,7311 %</strong> en
+                        el mínimo de verdad, que es el CVaR exacto que devuelve la sección 3. Es el patrón de
+                        siempre en este curso —la convención se queda y al lado se imprime lo que cuesta—, y aquí
+                        cuesta poco; lo que no admite descuento es la palabra <em>exactamente</em>.
+                    </p>
 
                     <Anatomia
                         titulo="Anatomía de F, término a término"
                         subtitulo="La fórmula de arriba tiene dos sumandos y cada uno hace un trabajo distinto. Los valores son los del mínimo, sobre la cartera declarada al 97,5 %."
                         piezas={[
-                            { simbolo: '\\(\\zeta\\)', que: 'El primer sumando, y el corte que uno propone. Entra en el objetivo con coeficiente 1: proponer un corte alto cuesta caro por sí solo, y eso es lo que impide que el mínimo se vaya a infinito.', vale: 'ζ* = 2,9577 %' },
-                            { simbolo: '\\((L_s - \\zeta)^{+}\\)', que: 'Cuánto se pasa del corte el escenario s, y cero si no se pasa. Escrito con el máximo porque un exceso negativo no es un exceso: la parte buena de la distribución no debe restar.', vale: '48 ruedas aportan' },
+                            { simbolo: '\\(\\zeta\\)', que: 'El primer sumando, y el corte que uno propone. Entra en el objetivo con coeficiente 1: proponer un corte alto cuesta caro por sí solo, y eso es lo que impide que el mínimo se vaya a infinito.', vale: 'ζ* = 2,9601 %' },
+                            { simbolo: '\\((L_s - \\zeta)^{+}\\)', que: 'Cuánto se pasa del corte el escenario s, y cero si no se pasa. Escrito con el máximo porque un exceso negativo no es un exceso: la parte buena de la distribución no debe restar. En el mínimo aportan 47 y no 48: el escenario 48 ES el corte, y se pasa de sí mismo en cero.', vale: '47 ruedas aportan' },
                             { simbolo: '\\((1-\\alpha)S\\)', que: 'El divisor: cuántas ruedas pide el nivel. No cuántas hay por encima del corte —eso cambiaría con ζ y rompería la convexidad—, sino cuántas debería haber.', vale: '47,9 ruedas' },
-                            { simbolo: '\\(\\min_\\zeta F_\\alpha(w,\\zeta)\\)', que: 'El valor de la función en su mínimo, que es el resultado que la derivación de abajo demuestra: no una aproximación al CVaR, sino el CVaR.', vale: '4,7312 %' },
+                            { simbolo: '\\(\\min_\\zeta F_\\alpha(w,\\zeta)\\)', que: 'El valor de la función en su mínimo, que es el resultado que la derivación de abajo demuestra: no una aproximación al CVaR, sino el CVaR.', vale: '4,7311 %' },
                         ]}
                         nota="Fíjese en que α y S no son variables del problema: son la declaración del capítulo. Lo que el optimizador mueve son w y ζ, y ζ es la pieza que la formulación aporta —el corte deja de estimarse antes para pasar a resolverse dentro—."
                     />
@@ -3792,7 +3816,7 @@ brecha <- exacto - simple`,
                             },
                             {
                                 eq: <Eq>{'$$\\frac{\\partial F}{\\partial \\zeta} = 0 \\iff \\#\\{s: L_s > \\zeta\\} = (1-\\alpha)S$$'}</Eq>,
-                                porque: 'La derivada se anula cuando el número de escenarios por encima del corte es justo el que el nivel pide. Y esa es la definición del VaR: el valor que deja (1−α)S ruedas por encima. Con datos discretos la derivada salta de negativa a positiva sin pasar por cero —47,9 no es un entero—, así que el mínimo se alcanza en un escenario concreto: la rueda número 48 de la cola.',
+                                porque: 'La derivada se anula cuando el número de escenarios por encima del corte es justo el que el nivel pide. Y esa es la definición del VaR: el valor que deja (1−α)S ruedas por encima. Con datos discretos la derivada salta de negativa a positiva sin pasar por cero —47,9 no es un entero—, así que el mínimo se alcanza en un escenario concreto: la rueda número 48 de la cola, que sobre este panel vale 2,9601 %.',
                             },
                             {
                                 eq: <Eq>{'$$F_\\alpha(w,\\zeta^*) = \\mathrm{VaR}_\\alpha + \\frac{1}{(1-\\alpha)S}\\sum_{L_s > \\mathrm{VaR}}(L_s - \\mathrm{VaR}) = \\mathrm{CVaR}_\\alpha$$'}</Eq>,
@@ -3803,10 +3827,10 @@ brecha <- exacto - simple`,
                     />
 
                     <CodeTabs titulo="La función evaluada a mano sobre la cartera declarada" bloques={EJ_RU}
-                        nota="Este bloque no optimiza nada: evalúa F en doce cortes propuestos para que se vea la forma. Fíjese en la columna de la derecha —cuántos escenarios superan el corte— y compárela con las 47,9 que el nivel pide: el mínimo cae donde esa columna vale 48, que es la primera vez que baja del número pedido." />
+                        nota="Este bloque no optimiza nada: evalúa F en trece cortes propuestos para que se vea la forma. Fíjese en la columna de la derecha —cuántos escenarios superan el corte— y compárela con las 47,9 que el nivel pide: el mínimo cae justo donde esa columna CRUZA las 47,9, o sea entre el 48 y el 47. Por eso el cuantil interpolado, que todavía deja 48 escenarios por encima, se queda a la izquierda del mínimo: allí la pendiente sigue siendo negativa, y la función baja un poco más antes de girar." />
 
                     <ChartFrame id="cap8-fzeta" height="chart-h-360"
-                        caption="F(ζ) sobre la cartera declarada al 97,5 %. Cae rápido por la izquierda —un corte demasiado bajo deja demasiados excesos que promediar— y sube despacio por la derecha. El mínimo, marcado en rosa, cae en ζ = 2,9577 %, que es el VaR, y allí F vale 4,7312 %, que es el CVaR: 37 849 millones sobre los 800 000 del fondo." />
+                        caption="F(ζ) sobre la cartera declarada al 97,5 %. Cae rápido por la izquierda —un corte demasiado bajo deja demasiados excesos que promediar— y sube despacio por la derecha. El mínimo, marcado en rosa, cae en el escenario 48 de la cola —ζ = 2,9601 %— y allí F vale 4,7311 %, que es el CVaR exacto: 37 849 millones sobre los 800 000 del fondo. El cuantil interpolado, 2,9577 %, está tan cerca que en esta escala los dos puntos se tocan, y sin embargo entre ellos la función todavía baja." />
 
                     <Box type="tip" label="Una consecuencia práctica de que el mínimo sea tan plano">
                         Entre ζ = 2,7500 % y ζ = 3,0000 % la función se mueve de 4,7502 % a 4,7326 %: menos
@@ -4160,7 +4184,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                         caption="Las dos fronteras, medidas las dos en CVaR al 97,5 %. La rosa es la que optimiza la cola y la morada punteada la que optimiza la varianza: van tan juntas que el trazo discontinuo apenas se separa del continuo. En el extremo derecho coinciden exactamente, porque al pedir el máximo retorno posible solo hay una cartera que lo consigue —100 % en ISA— y los dos problemas devuelven esa." />
 
                     <ChartFrame id="cap8-brecha" height="chart-h-320"
-                        caption="La misma comparación, en pesos: lo que gana optimizar la cola en vez de la varianza, para cada retorno objetivo. Entre 23 y 219 millones sobre un fondo de 800 000, con un máximo en el retorno objetivo del 10,85 %. Para calibrar: el capítulo 7 midió que perseguir la frontera con rebalanceo mensual cuesta del orden de 900 millones al año en comisiones." />
+                        caption="La misma comparación, en pesos: lo que gana optimizar la cola en vez de la varianza, para cada retorno objetivo. Entre 23 y 219 millones sobre un fondo de 800 000, con un máximo en el retorno objetivo del 10,85 %. Para calibrar, y con la misma vara: el par de cotizaciones defectuosas del 19 y 20 de febrero de 2025 —dos ruedas de 1 916— mueve esta misma cola 1 692 millones al 97,5 %. O sea que un defecto declarado del panel pesa casi ocho veces más que todo lo que gana cambiar de criterio." />
 
                     <Box type="warn" label="Por qué se parecen tanto, y cuándo dejarían de parecerse">
                         <p style={{ margin: '0 0 0.6rem' }}>
@@ -4405,8 +4429,8 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                         lineaCorrecta={{ python: 10, r: 7 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
-                        explicacion="La línea que genera los escenarios los saca de una normal multivariada ajustada a los mismos datos, y a partir de ahí nada de lo que el programa calcula es histórico: es lo que una normal cree sobre la cola. Nadie comprobó la condición —el capítulo 5 mide una curtosis de exceso de 25,77 sobre esta serie y muestra que la normal promete una cola un 14,6 % por encima de su propio VaR cuando los datos la dan un 61,9 % por encima—. Y hay algo peor que la subestimación: bajo una normal, minimizar el CVaR y minimizar la varianza son el MISMO problema, así que la simulación borra la razón de ser del capítulo. El programa lineal se resuelve, tarda cincuenta veces más y devuelve, por un camino carísimo, la cartera del capítulo 7."
-                        impacto="Con semilla 2026 y cien mil escenarios normales, el programa devuelve 21,08 · 37,57 · 15,98 · 25,36, que está a 0,56 pp de la cartera de mínima varianza —y esa distancia es error de simulación, no diferencia de criterio—. El número que reporta como CVaR al 97,5 % es 3,5142 %; el CVaR histórico de esa misma cartera es 4,6012 %, o sea 8 696 millones más sobre los 800 000 del fondo. El informe diría que la cola del fondo está en 28 114 millones cuando los datos dicen 36 810."
+                        explicacion="La línea que genera los escenarios los saca de una normal multivariada ajustada a los mismos datos, y a partir de ahí nada de lo que el programa calcula es histórico: es lo que una normal cree sobre la cola. Nadie comprobó la condición —el capítulo 5 mide una curtosis de exceso de 25,77 sobre esta serie y muestra que la normal promete una cola un 14,6 % por encima de su propio VaR cuando los datos la dan un 61,9 % por encima—. Y hay algo peor que la subestimación: bajo una normal, minimizar el CVaR y minimizar la varianza son el MISMO problema, así que la simulación borra la razón de ser del capítulo. El programa lineal se resuelve en Python, tarda cincuenta veces más y devuelve, por un camino carísimo, la cartera del capítulo 7. En R ni siquiera arranca: el andamio de lpSolve es denso y crece una variable y una restricción por escenario, así que con cien mil escenarios la matriz sola pide del orden de 80 GB y R aborta antes de llegar al solucionador. El atajo tampoco se califica igual por las dos rutas del curso, que es una manera más de que salga caro."
+                        impacto="Con semilla 2026 y cien mil escenarios normales, y en Python —que es donde corre—, el programa devuelve 21,08 · 37,57 · 15,98 · 25,36, que está a 0,56 pp de la cartera de mínima varianza —y esa distancia es error de simulación, no diferencia de criterio—. El número que reporta como CVaR al 97,5 % es 3,5142 %; el CVaR histórico de esa misma cartera es 4,6012 %, o sea 8 696 millones más sobre los 800 000 del fondo. El informe diría que la cola del fondo está en 28 114 millones cuando los datos dicen 36 810."
                     />
 
                     <Laboratorio
@@ -4453,9 +4477,9 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                         <MCQ
                             pregunta="El comité pregunta si el fondo debe adoptar la optimización CVaR como criterio para fijar los pesos. Con todo lo medido en este capítulo, ¿qué respuesta se sostiene?"
                             opciones={[
-                                { texto: 'Que sobre estos cuatro activos gana 201 millones y añade fragilidad de estimación, así que la decisión no se toma con esa cifra sino con lo que el fondo vaya a comprar mañana: si entran pagos asimétricos, cambia.', correcta: true, justificacion: 'Las dos mitades importan. Sobre el panel actual la mejora es de 201 millones al 97,5 % —el 0,03 % del fondo— y el estimador que la produce se apoya en 47,9 ruedas contra las 1 916 que alimentan la covarianza. Pero el criterio no se elige por el resultado de hoy: se elige por lo que va a haber en la cartera. En cuanto entre un activo de pago asimétrico —una opción vendida, un bono con riesgo de incumplimiento— la varianza deja de describir el riesgo y la diferencia deja de ser de 201 millones. Y hay un uso del CVaR que no depende de nada de esto: medir, que es lo que hace el capítulo 5, y que se puede hacer sin optimizar. Ojo también con la comparación fácil: poner los 201 millones al lado de los 900 del rebalanceo anual del capítulo 7 es comparar una reducción de una medida de riesgo con un gasto recurrente, y no se restan.' },
+                                { texto: 'Que sobre estos cuatro activos gana 201 millones y añade fragilidad de estimación, así que la decisión no se toma con esa cifra sino con lo que el fondo vaya a comprar mañana: si entran pagos asimétricos, cambia.', correcta: true, justificacion: 'Las dos mitades importan. Sobre el panel actual la mejora es de 201 millones al 97,5 % —el 0,03 % del fondo— y el estimador que la produce se apoya en 47,9 ruedas contra las 1 916 que alimentan la covarianza. Pero el criterio no se elige por el resultado de hoy: se elige por lo que va a haber en la cartera. En cuanto entre un activo de pago asimétrico —una opción vendida, un bono con riesgo de incumplimiento— la varianza deja de describir el riesgo y la diferencia deja de ser de 201 millones. Y hay un uso del CVaR que no depende de nada de esto: medir, que es lo que hace el capítulo 5, y que se puede hacer sin optimizar. Ojo también con la comparación fácil: poner los 201 millones al lado de lo que cueste rebalancear es comparar una reducción de una medida de riesgo con un gasto recurrente, y no se restan —y de paso, este capítulo no midió ese costo, así que quien lo use tiene que traerlo—.' },
                                 { texto: 'Que sí, sin reservas: el CVaR es una medida coherente y el VaR no lo es, de modo que optimizar la cola es siempre preferible a optimizar la dispersión y la diferencia de 201 millones lo confirma.', correcta: false },
-                                { texto: 'Que no, porque los 201 millones que gana están por debajo del costo de rebalanceo que el capítulo 7 estimó en unos 900 millones al año, y una mejora que no paga su ejecución no es una mejora.', correcta: false },
+                                { texto: 'Que no, porque los 201 millones que gana no alcanzan a pagar el costo de rebalancear la cartera, y una mejora que no paga su ejecución no es una mejora.', correcta: false },
                                 { texto: 'Que la decisión debe posponerse hasta tener una ventana con más eventos extremos, ya que con 47,9 ruedas en la cola ninguna de las dos formulaciones tiene respaldo estadístico suficiente para fijar los pesos de un fondo de pensiones.', correcta: false },
                             ]}
                         />
