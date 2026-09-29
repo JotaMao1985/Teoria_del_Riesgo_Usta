@@ -231,7 +231,7 @@ capítulo 7: una anomalía apenas toca la varianza y domina la cola. Todo capít
 optimice o estime sobre una cola reporta ese conteo al lado de la cifra.
 
 ✅ **Y el 8 es el piloto de la explicación de las fórmulas (2026-09-28), que es una decisión
-editorial nueva y NO alcanza todavía a los otros nueve.** El material tenía las fórmulas y la
+editorial nueva y hoy alcanza al 7 y al 12, no a los otros siete.** El material tenía las fórmulas y la
 prosa, y nada en medio: ningún capítulo usa matemática en línea, y el 8 llegaba a la auditoría
 con **tres fórmulas de sección para cinco secciones** —la 4 y la 5 no tenían ninguna, aunque la
 4 compara dos problemas de optimización—. Se cerró en tres capas, y las tres tienen componente:
@@ -270,10 +270,43 @@ después de desplazarse muestra el chip del símbolo VACÍO.** Parece un defecto
 lo es — el DOM ya trae el `mjx-container` con su ancho—. Espere a que pinte antes de juzgar, o
 compruébelo por el DOM y no por la imagen.
 
-**Queda pendiente llevarlo a los otros nueve.** El 7 y el 12 son los siguientes candidatos: el 7
-tiene **cinco** fórmulas y **ninguna** `Derivacion`, y el 12 tiene cinco para un capítulo que vive
-de una fórmula cerrada. No se ha escrito ninguna regla del verificador para esto a propósito: no
-se puede vigilar un patrón que solo existe en un capítulo.
+**Ya está en el 7 y en el 12, y queda pendiente en los otros siete** —del 1 al 6 y el 11—. El 7 lo
+recibió el mismo día que el 8 (seis derivaciones y dos anatomías). El **12** pasó de **cinco
+fórmulas y una derivación a 27 fórmulas**: tres de sección donde no había ninguna, el paso de p\*
+que le faltaba a la derivación de la sección 1, cuatro derivaciones nuevas —por qué N(d₂) cuenta
+estados y N(d₁) acciones, la implícita como raíz, el error estándar y las antitéticas, y la
+cobertura como apuesta a la magnitud— y dos anatomías, la de la fórmula y la de las cinco griegas.
+No se ha escrito ninguna regla del verificador para esto a propósito: el patrón vive en tres
+capítulos y cada uno lo resolvió distinto.
+
+⚠️ **Lo que salió de hacerlo en el 12, que no es de fórmulas.** La derivación de la cobertura
+permite leer el P&L rueda a rueda —½ΓS²[σ²δt − (δS/S)²], que reproduce el del bloque con
+correlación 0,998 entre ventanas— y al leerlo apareció que **la peor de las quince ventanas no la
+hizo el mercado**: los −82,8692 COP de la de noviembre de 2024 son casi enteros el **par
+defectuoso de febrero de 2025** (1 907 → 1 557 → 1 912), que cobra dos veces porque la cobertura
+apuesta a la magnitud y no a la dirección. Si la rueda del 19 repite el precio del 18, esa ventana
+pierde **2,4665**, la desviación de las quince baja de 53,5594 a **46,0534** y la razón contra el
+mundo del modelo, de **3,56 a 3,06**. El capítulo lo declara en un recuadro de la sección 6 y en
+el R7, sin tocar ninguna cifra, como el 4, el 7 y el 8. Y ojo con la frase «ninguna de las quince
+dentro de ±1 desviación»: sigue siendo cierta sobre el panel tal cual, y con el par neutralizado
+dejaría de serlo — la de noviembre de 2024 caería dentro.
+
+El **taller 12** lo avisa desde el mismo día en su parte 4.1, que pide la peor ventana sobre el
+emisor propio, y lo que se midió para escribir el aviso es que **el par no pesa igual en los
+cuatro**. Queda en la misma ventana —la que empieza el 8 de noviembre de 2024— para todos, pero
+solo es la peor en **Ecopetrol con K por encima del contado** (1,05 y 1,10, con σ de 250, de 500
+o del panel entero); con 0,90 y 0,95 queda segunda a cuarta, y en Banco de Bogotá, Grupo Sura e
+ISA, **tercera a quinta**, aunque sin el par esa ventana gana en los tres. La
+desviación de las quince se mueve entre un 1 % y un 26 % en Ecopetrol y menos de un 4 % en los
+otros. Por eso el taller no presume la respuesta: pide decir si la peor ventana contiene el par
+y entregar la razón con el panel tal cual y con la rueda del 19 igual a la del 18.
+
+Y dos correcciones de exactitud que la derivación obligó a hacer: **N(d₁) sí es una probabilidad
+de ejercicio**, bajo la medida que cuenta en acciones, así que el capítulo ya no dice «no es una
+probabilidad» sino «no es la probabilidad de ejercicio» (prosa de las secciones 2 y 5 y la opción
+correcta de una pregunta del cuestionario, cuyo enunciado no se tocó); y lo que hace vender
+acciones en un día quieto, en el R1 de la sección 6, no es theta sino el efecto del plazo sobre
+el delta.
 
 
 El **capítulo 11** abre la unidad 3 y es el primero que **no optimiza nada**: su objeto es una

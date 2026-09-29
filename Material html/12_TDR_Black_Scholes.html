@@ -3928,12 +3928,16 @@ for (n in c(6, 21, 63, 126)) {
                                 porque: 'El logaritmo del precio final es la suma de los n saltos, porque multiplicar precios es sumar logaritmos. Cada salto vale +σ√Δt si sube y −σ√Δt si baja: son idénticos en tamaño y solo cambian de signo. Esa simetría es lo que hace que el árbol se recombine, y es también lo que permite aplicar el paso siguiente.',
                             },
                             {
-                                eq: <Eq>{'$$\\begin{aligned} \\mathbb{E}^*[X_i] &= \\Big(r-q-\\tfrac{\\sigma^2}{2}\\Big)\\Delta t \\\\ \\operatorname{Var}^*[X_i] &= \\sigma^2\\Delta t \\end{aligned}$$'}</Eq>,
-                                porque: 'Bajo la probabilidad neutral al riesgo p* que el capítulo 11 construyó —no bajo la real—, cada salto tiene esa media y esa varianza. La media lleva el término −σ²/2, que es la corrección de Itô: la esperanza del logaritmo no es el logaritmo de la esperanza, y por eso el activo crece a r en pesos pero a r − σ²/2 en logaritmos. Es la misma corrección que el capítulo 1 midió cuando comparó rendimientos aritméticos con logarítmicos.',
+                                eq: <Eq>{'$$\\begin{aligned} p^* &= \\frac{e^{(r-q)\\Delta t}-d}{u-d} \\\\ &\\approx \\frac{1}{2}+\\frac{r-q-\\sigma^2/2}{2\\sigma}\\,\\sqrt{\\Delta t} \\end{aligned}$$'}</Eq>,
+                                porque: 'Es la probabilidad neutral al riesgo que el capítulo 11 construyó —no la real—, y lo único que interesa de ella es cuánto se separa de un medio. Desarrollando u = e^(σ√Δt) y d = e^(−σ√Δt) hasta el orden Δt, el numerador vale σ√Δt + (r − q − σ²/2)Δt y el denominador 2σ√Δt; el cociente es la segunda línea. Con n = 200 da 0,499545, y la exacta es 0,499546, la del R1 de esta sección. Fíjese en el signo: aquí σ²/2 = 7,4688 % supera a la tasa, 6,7659 %, así que r − σ²/2 vale −0,7029 % y p* queda por debajo de un medio con cualquier n.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\begin{aligned} \\mathbb{E}^*[X_i] &= (2p^*-1)\\,\\sigma\\sqrt{\\Delta t} \\\\ &\\approx \\Big(r-q-\\tfrac{\\sigma^2}{2}\\Big)\\Delta t \\\\ \\operatorname{Var}^*[X_i] &\\approx \\sigma^2\\Delta t \\end{aligned}$$'}</Eq>,
+                                porque: 'Cada salto vale +σ√Δt con probabilidad p* y −σ√Δt con 1 − p*, así que su media es (2p* − 1)σ√Δt, y al meter el paso anterior sale la segunda línea: toda la deriva del árbol cabe en lo que p* se separa de un medio. La varianza es σ²Δt menos el cuadrado de esa media, que es de orden Δt² y desaparece en el límite. La media lleva el término −σ²/2, que es la corrección de Itô: la esperanza del logaritmo no es el logaritmo de la esperanza, y por eso el activo crece a r en pesos pero a r − σ²/2 en logaritmos. Es la misma corrección que el capítulo 1 midió cuando comparó rendimientos aritméticos con logarítmicos.',
                             },
                             {
                                 eq: <Eq>{'$$\\ln\\frac{S_T}{S_0}\\ \\xrightarrow{\\ n\\to\\infty\\ }\\ \\mathcal{N}\\Big(\\big(r-q-\\tfrac{\\sigma^2}{2}\\big)T,\\ \\sigma^2 T\\Big)$$'}</Eq>,
-                                porque: 'Teorema central del límite. La suma de n variables independientes, cada una con media y varianza proporcionales a Δt = T/n, tiende a una normal cuya media y varianza son las sumas: n·(r−q−σ²/2)Δt = (r−q−σ²/2)T y n·σ²Δt = σ²T. El precio, que es el exponencial de esa suma, queda lognormal. Ojo con lo que este paso NO dice: no dice que los rendimientos de Ecopetrol sean normales —la sección 2 mide que no lo son—, dice que el modelo del árbol converge a ese objeto.',
+                                porque: 'Teorema central del límite. La suma de n variables independientes, cada una con media y varianza proporcionales a Δt = T/n, tiende a una normal cuya media y varianza son las sumas: n·(r−q−σ²/2)Δt = (r−q−σ²/2)T y n·σ²Δt = σ²T. El precio, que es el exponencial de esa suma, queda lognormal. Sobre este capítulo, (r − σ²/2)T = −0,3515 % y σ√T = 27,3291 %: la misma σ√T que la sección 3 pondrá contra la dispersión que Ecopetrol muestra de verdad. Ojo con lo que este paso NO dice: no dice que los rendimientos de Ecopetrol sean normales —la sección 2 mide que no lo son—, dice que el modelo del árbol converge a ese objeto.',
                             },
                             {
                                 eq: <Eq>{'$$C=e^{-rT}\\,\\mathbb{E}^*\\big[\\max(S_T-K,0)\\big]$$'}</Eq>,
@@ -3944,7 +3948,7 @@ for (n in c(6, 21, 63, 126)) {
                                 porque: 'Resolviendo esa integral. Los dos términos no son «la parte buena y la mala»: el segundo es el valor presente de pagar K cuando toca pagarlo —N(d₂) es exactamente la probabilidad neutral al riesgo de que toque— y el primero es el valor presente de recibir la acción en esos mismos estados. La sección 2 desarma los dos.',
                             },
                         ]}
-                        cierre="Fíjese en lo que no aparece: la deriva real μ. El capítulo 11 midió 9,0576 % anual para Ecopetrol y demostró que meterla en la valoración devuelve 270,2980 donde la replicación da 259,0098. Aquí desaparece por la misma razón, y ahora se ve el mecanismo: al pasar al límite lo que sobrevive de cada salto es su media BAJO p*, no bajo la medida del mundo."
+                        cierre="Fíjese en lo que no aparece: la deriva real μ. El capítulo 11 midió 9,0576 % anual para Ecopetrol y demostró que meterla en la valoración devuelve 270,2980 donde la replicación da 259,0098. Aquí desaparece por la misma razón, y ahora se ve el mecanismo: al pasar al límite lo que sobrevive de cada salto es su media BAJO p*, no bajo la medida del mundo. La construcción es de Cox, Ross y Rubinstein, «Option pricing: a simplified approach» (1979), que escribieron el árbol justamente para mostrar que Black-Scholes cabe dentro de un argumento elemental."
                     />
 
                     <CodeTabs titulo="El árbol del capítulo 11 y la fórmula a la que tiende" bloques={EJ_LIMITE}
@@ -4087,7 +4091,7 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         <strong><em>N</em>(d₂) = {dec(FOR.Nd2, 6)}, que es la probabilidad neutral al
                         riesgo de que la opción termine ejerciéndose</strong>. El primero,
                         S₀·<em>N</em>(d₁), es lo que vale recibir la acción en esos mismos estados — y{' '}
-                        <em>N</em>(d₁) = {dec(FOR.Nd1, 6)} <strong>no es una probabilidad</strong>: es la
+                        <em>N</em>(d₁) = {dec(FOR.Nd1, 6)} <strong>no es la probabilidad de ejercicio</strong>: es la
                         delta, el número de acciones que hay que tener para replicar la opción.
                     </p>
                     <p>
@@ -4099,6 +4103,45 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         solo en σ√T, pero miden cosas distintas: una cuenta estados del mundo y la otra
                         cuenta acciones. La sección 5 vuelve sobre <em>N</em>(d₁) con su nombre propio.
                     </p>
+
+                    <Eq>{'$$\\begin{aligned} C &= S_0e^{-qT}N(d_1)-Ke^{-rT}N(d_2) \\\\[4pt] d_1 &= \\frac{\\ln(S_0/K)+\\big(r-q+\\tfrac{\\sigma^2}{2}\\big)T}{\\sigma\\sqrt{T}} \\\\[4pt] d_2 &= d_1-\\sigma\\sqrt{T} \\end{aligned}$$'}</Eq>
+
+                    <Anatomia
+                        titulo="Las piezas de la fórmula, y qué valen aquí"
+                        subtitulo="Con los seis parámetros del capítulo 11, dígito a dígito. La pieza que no aparece es la deriva real, 9,0576 %: la sección 1 mostró por qué."
+                        piezas={[
+                            { simbolo: '\\(S_0e^{-qT}\\)', que: 'El contado, descontado por el dividendo que la acción paga y la opción no. Con q = 0,00 %, la quinta convención del curso, el factor vale 1 y queda el contado a secas.', vale: '1 782' },
+                            { simbolo: '\\(Ke^{-rT}\\)', que: 'El precio de ejercicio traído a hoy: lo que habría que guardar al 7,00 % para pagar K dentro de seis meses. Descuenta con r = ln(1,07), la tasa en logarítmicos que declaró el capítulo 7.', vale: '1 740,1257' },
+                            { simbolo: '\\(\\sigma\\sqrt{T}\\)', que: 'La dispersión de ln S_T a seis meses, y la única pieza que se decide en vez de leerse en una pantalla. Es también la distancia fija entre d₁ y d₂, y la cifra que la sección 3 pone contra la dispersión observada.', vale: '27,3291 %' },
+                            { simbolo: '\\(N(d_2)\\)', que: 'La probabilidad neutral al riesgo de ejercicio. d₂ sale negativa porque las dos cosas empujan en contra: la opción está apenas fuera del dinero y la deriva en logaritmos, r − σ²/2, es negativa aquí.', vale: 'd₂ = −0,049636 → 0,480206' },
+                            { simbolo: '\\(N(d_1)\\)', que: 'La delta: acciones por opción vendida para replicarla. Se evalúa en d₁ = d₂ + σ√T, así que siempre es mayor que N(d₂); aquí, por 10,83 puntos.', vale: 'd₁ = 0,223655 → 0,588487' },
+                            { simbolo: '\\(S_0N(d_1)\\)', que: 'El primer término entero: lo que cuesta hoy la pata de las acciones. Es exactamente el desembolso del primer día de la cobertura, en el R1 de la sección 6.', vale: '1 048,6842 · 141 237 mill.' },
+                            { simbolo: '\\(Ke^{-rT}N(d_2)\\)', que: 'El segundo: el valor presente de pagar K en los estados en que toca pagarlo. Es el saldo negativo con que nace la caja de la cobertura, y restado del primero deja la prima.', vale: '835,6194 → C = 213,0648' },
+                        ]}
+                    />
+
+                    <Derivacion
+                        titulo="Por qué N(d₂) cuenta estados y N(d₁) cuenta acciones"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\begin{aligned} \\mathbb{P}^*(S_T>K) &= \\mathbb{P}^*\\big(\\ln S_T>\\ln K\\big) \\\\ &= \\mathbb{P}\\big(Z>-d_2\\big)=N(d_2) \\end{aligned}$$'}</Eq>,
+                                porque: 'Bajo p*, ln S_T es normal con media ln S₀ + (r − q − σ²/2)T y desviación σ√T: es el paso 4 de la derivación de la sección 1. Estandarizando, S_T > K es lo mismo que Z > −d₂, y por la simetría de la normal eso vale N(d₂). Aquí, 0,480206: un poco menos de la mitad.',
+                            },
+                            {
+                                eq: <Eq>{'$$S_0e^{-qT}\\,\\varphi(d_1)=Ke^{-rT}\\,\\varphi(d_2)$$'}</Eq>,
+                                porque: 'La identidad que hace todo el trabajo, con φ la densidad normal. Se comprueba en una línea: φ(d₂)/φ(d₁) = exp((d₁² − d₂²)/2), y d₁² − d₂² = (d₁ − d₂)(d₁ + d₂) = 2 ln(S₀/K) + 2(r − q)T. Con las cifras del capítulo, los dos lados valen 693,3551.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\begin{aligned} \\frac{\\partial C}{\\partial S_0} &= e^{-qT}N(d_1) \\\\ &\\quad+\\frac{S_0e^{-qT}\\varphi(d_1)-Ke^{-rT}\\varphi(d_2)}{S_0\\,\\sigma\\sqrt{T}} \\\\ &= e^{-qT}N(d_1) \\end{aligned}$$'}</Eq>,
+                                porque: 'Derivar C respecto a S₀ deja dos efectos: el directo, e^(−qT)N(d₁), y el de mover d₁ y d₂, que se mueven igual —difieren en una constante— y a razón de 1/(S₀σ√T). Ese segundo efecto es la resta de los dos lados del paso anterior, y vale cero. Por eso la delta es N(d₁) a secas: 0,588487 acciones por opción, 79,2575 millones sobre la posición.',
+                            },
+                            {
+                                eq: <Eq>{'$$N(d_1)=\\mathbb{P}^{S}(S_T>K)$$'}</Eq>,
+                                porque: 'Para no llevarse la idea contraria: N(d₁) también es una probabilidad de ejercicio, pero bajo otra medida, la que cuenta la riqueza en acciones y no en pesos. En ella la deriva de ln S_T pasa de r − q − σ²/2 a r − q + σ²/2, y por eso d₁ es d₂ con ese signo cambiado. No es la que interesa a quien paga K en pesos, y leerla así sobreestima el ejercicio en 10,83 puntos: 58,85 % contra 48,02 %.',
+                            },
+                        ]}
+                        cierre="La fórmula es de Fischer Black y Myron Scholes, «The pricing of options and corporate liabilities» (1973); ese mismo año Robert Merton la derivó por otro camino y le añadió el dividendo continuo, la q de esta página. Scholes y Merton recibieron el Nobel en 1997; Black había muerto en 1995. Lo que la derivación deja a la vista es que las dos N no son intercambiables por construcción: una sale de preguntar cuándo se paga, y la otra de derivar el precio respecto al contado."
+                    />
 
                     <CodeTabs titulo="La fórmula, y los cuatro supuestos contra el panel congelado" bloques={EJ_FORMULA}
                         nota="La primera mitad es la fórmula y su paridad, que reproduce dígito a dígito la del capítulo 11 —41,8743— porque la paridad no depende del modelo. La segunda mitad es el juicio: los tres supuestos se contrastan con el mismo panel de los once capítulos anteriores, y la última tabla convierte el segundo de ellos en pesos." />
@@ -4307,6 +4350,29 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         </p>
                     </Box>
 
+                    <Derivacion
+                        titulo="Por qué hay una sola implícita, y por qué hereda el error del árbol"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$C_{\\mathrm{BS}}(\\sigma_{\\mathrm{imp}})=C_{\\mathrm{obs}}$$'}</Eq>,
+                                porque: 'La definición entera. σ no se puede despejar, porque aparece dentro de la normal acumulada y multiplicando por fuera; se busca el número que, metido en la fórmula, devuelve el precio observado. Una incógnita y una condición: la implícita resume un precio, no lo explica.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\frac{\\partial C_{\\mathrm{BS}}}{\\partial\\sigma}=S_0e^{-qT}\\varphi(d_1)\\sqrt{T}>0$$'}</Eq>,
+                                porque: 'La vega, que la sección 5 estudia con calma. Sus tres factores son positivos para cualquier σ, así que el precio crece de forma estrictamente monótona y a cada precio le corresponde una sola σ: la bisección encuentra LA raíz, no una de varias. Tras k pasos el intervalo mide 5/2^k, y con 30 ya es menor que 5 × 10⁻⁹, muy por debajo del cuarto decimal que se imprime. Las doscientas del bloque sobran y no cuestan nada.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\sigma_{\\mathrm{imp}}-\\sigma\\;\\approx\\;\\frac{C_{\\mathrm{obs}}-C_{\\mathrm{BS}}(\\sigma)}{\\partial C_{\\mathrm{BS}}/\\partial\\sigma}$$'}</Eq>,
+                                porque: 'Un paso de Newton desde la σ verdadera: si el precio que se invierte se separa de la fórmula en ΔC, la implícita se separa de σ en ΔC dividido entre la pendiente. Es de primer orden, y basta porque la brecha es pequeña.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\frac{0{,}0888\\ \\text{COP}}{4{,}8934\\ \\text{COP por pp}}=0{,}0181\\ \\text{pp}$$'}</Eq>,
+                                porque: 'Con las cifras del bloque: el árbol de 500 pasos cotiza 0,0888 COP por encima de la fórmula, y la vega por punto porcentual con la σ de 250 ruedas, 44,0444 %, vale 4,8934. El cociente es exactamente la brecha que encontró la bisección. Nada de esos 0,0181 pp es volatilidad: es el error del árbol dividido por la vega.',
+                            },
+                        ]}
+                        cierre="La regla vale para cualquier implícita: su error es el error de precio del modelo con que se invierte, dividido por la vega. Donde la vega es pequeña —opciones muy lejos del dinero o muy cortas, como enseña el laboratorio de la sección 5— el mismo error de precio se convierte en muchos más puntos de volatilidad. La idea de leer un precio en unidades de σ es de Latané y Rendleman, «Standard deviations of stock price ratios implied in option prices» (1976), tres años después de la fórmula."
+                    />
+
                     <ChartFrame id="cap12-sonrisa" height="chart-h-400"
                         caption="La volatilidad implícita en función del precio de ejercicio, a seis meses. La línea azul punteada es lo que Black-Scholes afirma: la misma σ para todos los ejercicios, 38,6492 %. La rosa es lo que la distribución empírica de Ecopetrol implica, y hace dos cosas a la vez — cae de 28,53 % a 20,83 % al subir el ejercicio, y está toda ella muy por debajo de la línea azul—. La naranja separa los dos efectos: es la misma distribución con su asimetría intacta pero reescalada al nivel de σ√T, y sigue cayendo de 42,26 % a 32,83 %. La inclinación, por tanto, no es un artefacto del nivel: sobrevive a corregirlo." />
 
@@ -4330,6 +4396,12 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         sobreprecio, unos{' '}
                         {miles((SONRISA[4][3] - SONRISA[4][2]) * ACC / 1e6)} millones.
                     </p>
+                    <p>
+                        La razón compara la varianza del rendimiento acumulado en H ruedas con H veces
+                        la de una sola, que es exactamente lo que supone quien escala por √T. Con
+                        H = 126, las dos cifras de arriba:
+                    </p>
+                    <Eq>{'$$\\begin{aligned} \\mathrm{VR}(H) &= \\frac{\\operatorname{Var}\\big(\\sum_{t=1}^{H} r_t\\big)}{H\\,\\operatorname{Var}(r_t)} \\\\[4pt] &= \\Big(\\frac{17{,}6477\\,\\%}{27{,}3291\\,\\%}\\Big)^{2}=0{,}4170 \\end{aligned}$$'}</Eq>
 
                     <Box type="tip" label="Y ahora la letra pequeña, que es la mitad del hallazgo">
                         <p style={{ margin: 0 }}>
@@ -4543,6 +4615,33 @@ p = (exp(rf * dt) - d) / (u - d)`}
                         razonamiento de toda la sección 2.
                     </p>
 
+                    <Derivacion
+                        titulo="El estimador, su error estándar y lo que compran las antitéticas"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\begin{aligned} S_T^{(j)} &= S_0\\,e^{(r-q-\\sigma^2/2)T+\\sigma\\sqrt{T}\\,z_j} \\\\ \\hat C_n &= \\frac{1}{n}\\sum_{j=1}^{n} e^{-rT}\\big(S_T^{(j)}-K\\big)^{+} \\end{aligned}$$'}</Eq>,
+                                porque: 'El paso 4 de la derivación de la sección 1 dice que bajo p* el logaritmo del precio final es normal, así que un sorteo z_j por trayectoria basta para situarlo. El estimador es la media de los pagos descontados, e insesgado con cualquier n, porque la esperanza de cada sumando ES el precio.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\mathrm{EE}\\big(\\hat C_n\\big)=\\frac{s}{\\sqrt{n}},\\qquad \\hat C_n\\pm1{,}96\\,\\mathrm{EE}$$'}</Eq>,
+                                porque: 'Los n pagos son independientes, y la varianza de su media es la de uno dividida entre n. s es la desviación de un solo pago descontado, y aquí es mayor que la propia prima —unos 349 COP— porque el 52 % de los sorteos no paga nada y el resto se reparte en una cola larga. Por eso ganar un decimal cuesta cien veces más sorteos.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\operatorname{Var}\\Big(\\tfrac{Y(z)+Y(-z)}{2}\\Big)=\\frac{s^2}{2}\\,(1+\\rho)$$'}</Eq>,
+                                porque: 'Con antitéticas cada z se usa dos veces, con su signo y con el contrario, y se promedia el par; Y(z) es el pago descontado del sorteo z. Las dos mitades tienen la misma varianza s², así que la del par es la de dos sumandos con correlación ρ. Con el mismo total de n sorteos, el crudo deja una varianza de la media s²/n y el antitético s²(1 + ρ)/n.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\frac{\\mathrm{EE}_{\\text{crudo}}}{\\mathrm{EE}_{\\text{anti}}}=\\frac{1}{\\sqrt{1+\\rho}}$$'}</Eq>,
+                                porque: 'El factor entero depende de una sola cifra: la correlación entre el pago de z y el de −z. Si el pago fuera lineal en z, ρ valdría −1 y el error desaparecería; para un factor de diez, ρ tiene que llegar a −0,99. Aquí vale −0,3741, calculada con la integral exacta, y el factor que resulta es 1,2640. El bloque, que lo estima con dos muestras de cien mil sorteos, imprime 1,2644.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\min\\big(Y(z),\\,Y(-z)\\big)=0\\quad\\text{para todo } z$$'}</Eq>,
+                                porque: 'Y el porqué de que ρ se quede tan lejos: con esta opción un sorteo y su antitético NUNCA pagan los dos. Sus precios finales quedan a la misma distancia, en logaritmos, de la mediana neutral al riesgo, 1 775,75, y esa mediana está por debajo del ejercicio. En el 96,04 % de los pares paga uno solo, y en el 3,96 % ninguno —cuando |z| < |d₂|—. El par no se cancela: uno trae toda la información y el otro, un cero.',
+                            },
+                        ]}
+                        cierre="El Montecarlo para opciones es de Phelim Boyle, «Options: a Monte Carlo approach» (1977), y las antitéticas, de Hammersley y Morton (1956), veinte años anteriores. La lección de los dos últimos pasos sirve fuera de este capítulo: antes de prometer una reducción de varianza, mire si el pago es casi lineal en el sorteo. Si tiene un codo —un máximo, una barrera, un umbral—, la correlación del par se queda lejos de −1 y la técnica compra poco."
+                    />
+
                     <DetectaError
                         titulo="R3 · Audita a la IA · el precio sin su incertidumbre"
                         enunciado="Se le pidió a un modelo de lenguaje que valorara por Montecarlo la call de seis meses sobre Ecopetrol. El código corre, usa la deriva correcta —la tasa libre de riesgo y no la del panel, así que el error del capítulo 11 no está aquí—, fija la semilla, descuenta bien y devuelve un número plausible. Señale la línea defectuosa y clasifique el error."
@@ -4705,12 +4804,27 @@ C <- mean(pago); EE <- sd(pago)/sqrt(1e6)
                     <p>
                         Delta es la derivada respecto al precio del subyacente y vale{' '}
                         <em>N</em>(d₁) = {dec(GRIEGAS.delta, 6)} — el mismo número que la sección 2
-                        advirtió que no es una probabilidad—. Gamma es la segunda derivada y mide cuánto
+                        advirtió que no es la probabilidad de ejercicio—. Gamma es la segunda derivada y mide cuánto
                         se mueve el delta. Vega, theta y rho son las derivadas respecto a volatilidad,
                         tiempo y tasa. La convención de unidades importa tanto como la fórmula:{' '}
                         <strong>vega y rho se reportan por punto porcentual y theta por día</strong>, que
                         es como se habla en una mesa, no en las unidades naturales de la derivada.
                     </p>
+
+                    <Eq>{'$$\\begin{aligned} \\Delta &= N(d_1) \\\\ \\Gamma &= \\frac{\\varphi(d_1)}{S_0\\,\\sigma\\sqrt{T}} \\\\ \\nu &= S_0\\,\\varphi(d_1)\\sqrt{T} \\\\ \\Theta &= -\\frac{S_0\\,\\varphi(d_1)\\,\\sigma}{2\\sqrt{T}}-rKe^{-rT}N(d_2) \\\\ \\rho &= K\\,T\\,e^{-rT}N(d_2) \\end{aligned}$$'}</Eq>
+
+                    <Anatomia
+                        titulo="Las cinco griegas, en las unidades de una mesa"
+                        subtitulo="Con q = 0,00 %, la quinta convención del curso: con dividendo, Δ, Γ y ν ganarían un factor e^(−qT) y Θ un término más. φ es la densidad normal."
+                        piezas={[
+                            { simbolo: '\\(\\Delta\\)', que: 'Acciones por opción vendida para quedar cubierto. Es N(d₁), la pieza que la sección 2 separó de la probabilidad de ejercicio.', vale: '0,588487 · 79,2575 mill. de acciones' },
+                            { simbolo: '\\(\\Gamma\\)', que: 'Cuánto se mueve Δ por cada peso que se mueve la acción. Lleva φ(d₁) arriba y S₀σ√T abajo: es máxima cerca del ejercicio, y ahí crece a medida que el plazo se acorta. Es la joroba de la gráfica.', vale: '0,000799 por COP' },
+                            { simbolo: '\\(\\nu\\)', que: 'La vega, en dos factores que responden distinto al plazo: √T, que crece sin tope, y φ(d₁), la altura de la campana en d₁, que sube o baja según hacia dónde el plazo mueva d₁. Aquí φ(d₁) = 0,389088 y √T = 0,707107. Se divide entre 100 para hablar por punto porcentual.', vale: '4,902761 por pp · 660 mill.' },
+                            { simbolo: '\\(\\Theta\\)', que: 'Lo que cambia el precio al pasar el tiempo con todo lo demás quieto: la opcionalidad que se evapora y el interés de un ejercicio que se acerca. Se divide entre 365, por día de calendario, y por eso la diferencia finita del bloque —un día entero— no coincide en el cuarto decimal.', vale: '−0,674040 por día · 91 mill.' },
+                            { simbolo: '\\(\\rho\\)', que: 'Lo que cambia el precio si sube la tasa: el ejercicio que se pagará vale menos hoy. No es la correlación de la sección 4; las mesas reutilizan la letra. Se divide entre 100, por punto porcentual.', vale: '4,178097 por pp · 563 mill.' },
+                        ]}
+                        nota="Las cinco salen de las piezas de la sección 2 y de nada más. La sección 6 las junta en una sola ecuación."
+                    />
 
                     <CodeTabs titulo="Las cinco griegas, analíticas y por diferencias finitas" bloques={EJ_GRIEGAS}
                         nota="La segunda columna no está de adorno: es el procedimiento con el que se auditan las griegas de un instrumento que no tiene fórmula, y aquí se calibra contra el caso que sí la tiene. Fíjese en la única fila que no coincide y en por qué el bloque dice que no es un error." />
@@ -4898,7 +5012,8 @@ C <- mean(pago); EE <- sd(pago)/sqrt(1e6)
                         {miles(COB.millones)} millones sobre la posición del fondo — el{' '}
                         {dec(COB.pctPrima, 2)} % de la prima que se cobró por vender la opción—. La peor
                         de las quince ventanas perdió {dec(Math.abs(COB.peor), 4)} COP por acción, que
-                        son {miles(Math.abs(COB.peor) * ACC / 1e6)} millones.
+                        son {miles(Math.abs(COB.peor) * ACC / 1e6)} millones — y casi toda esa pérdida
+                        la pone una cotización defectuosa, como muestra la derivación de abajo.
                     </p>
                     <p>
                         Esa razón de {dec(COB.razon, 2)} es la respuesta cuantitativa a la pregunta con
@@ -4927,6 +5042,50 @@ C <- mean(pago); EE <- sd(pago)/sqrt(1e6)
                         </p>
                     </Box>
 
+                    <Derivacion
+                        titulo="Por qué la cobertura pierde en los saltos: theta le paga a gamma"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\Pi=-C+\\Delta\\,S+B,\\qquad \\Pi_0=0$$'}</Eq>,
+                                porque: 'La cartera de quien vendió la opción y se cubrió: debe la call, tiene Δ acciones y un saldo B en caja que paga cada ajuste de acciones. Nada entra ni sale de fuera. Aquí B nace en −835,6194, que es exactamente el segundo término de la fórmula: comprar las acciones cuesta más que la prima.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\delta C\\approx\\Delta\\,\\delta S+\\tfrac{1}{2}\\,\\Gamma\\,(\\delta S)^2+\\Theta\\,\\delta t$$'}</Eq>,
+                                porque: 'Taylor de segundo orden en el precio y de primero en el tiempo. El término en δS se cancela con las Δ acciones que se tienen —para eso se compraron—; lo que no se cancela es la curvatura, Γ, y el paso del tiempo, Θ.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\Theta+\\tfrac{1}{2}\\,\\sigma^2S^2\\,\\Gamma+rS\\Delta-rC=0$$'}</Eq>,
+                                porque: 'La ecuación de Black-Scholes, que es otra forma de decir que la cartera cubierta rinde la tasa en el mundo del modelo. No hay que resolverla: basta leerla como una relación entre las griegas de la sección 5. Con ellas, en unidades anuales, −246,0245 + 189,4877 + 70,9526 − 14,4157 = 0.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\delta\\Pi\\approx\\tfrac{1}{2}\\,\\Gamma S^2\\Big[\\sigma^2\\,\\delta t-\\Big(\\frac{\\delta S}{S}\\Big)^2\\Big]$$'}</Eq>,
+                                porque: 'Juntando los dos pasos anteriores con el interés del saldo B: en cada rueda el vendedor cubierto gana lo que la σ declarada prometía, σ²δt, y pierde lo que el precio se movió de verdad, al cuadrado, y las dos cosas pesan ½ΓS². La cobertura no apuesta a la dirección del precio sino a su magnitud, y theta es lo que se cobra por aceptar esa apuesta.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\begin{gathered} \\mathbb{E}\\Big[\\Big(\\frac{\\delta S}{S}\\Big)^2\\Big]\\approx\\sigma^2\\,\\delta t \\\\[2pt] \\Longrightarrow\\quad \\operatorname{desv}(\\mathrm{P\\&L})\\propto\\frac{1}{\\sqrt{n}} \\end{gathered}$$'}</Eq>,
+                                porque: 'En el mundo del modelo cada corchete tiene media cero y una desviación del orden de σ²δt; sumar n de ellos deja una desviación del orden de √n · T/n = T/√n. Es lo que imprime el bloque: 21,8293 con 63 rebalanceos y 15,0451 con 126, un factor de 1,45 donde √2 es 1,41. En el mercado un salto no se reparte entre más rebalanceos —ocurre entre dos cierres y su cuadrado entra entero—, y por eso duplicar las operaciones allí solo lleva la desviación de 56,8827 a 53,1587.',
+                            },
+                        ]}
+                        cierre="Sumada sobre las 126 ruedas, la expresión del paso 4 reproduce el P&L del bloque con una correlación de 0,998 entre las quince ventanas, así que las pérdidas se pueden leer rueda a rueda. En la ventana de febrero de 2020, una sola —el 9 de marzo, la peor rueda del panel— se lleva 47,67 de los 69,53 COP perdidos. La ecuación del paso 3 es la que Black y Scholes escribieron en 1973: la sacaron así, cubriendo, y no como límite de un árbol."
+                    />
+
+                    <Box type="warn" label="La peor de las quince ventanas no la hizo el mercado">
+                        <p style={{ margin: 0 }}>
+                            La ventana que empieza en noviembre de 2024 perdió{' '}
+                            {dec(Math.abs(COB.peor), 4)} COP por acción, y la expresión del paso 4 dice
+                            de dónde: del par defectuoso de febrero de 2025 que declara el manifiesto de
+                            datos. Ecopetrol pasa de 1 907 a 1 557 y al día siguiente a 1 912, así que la
+                            dirección no deja nada y la magnitud cobra dos veces —13,85 COP la caída y
+                            79,67 la vuelta, porque al caer la opción quedó cerca del ejercicio y gamma
+                            se multiplicó por 5,6—. <strong>Si la rueda del 19 repite el precio del 18,
+                            esa ventana pierde 2,4665 y no {dec(Math.abs(COB.peor), 4)}</strong>; la
+                            desviación de las quince baja de {dec(COB.desv, 4)} a 46,0534, y la razón
+                            contra el mundo del modelo, de {dec(COB.razon, 2)} a 3,06. La conclusión
+                            sobrevive, y medio punto de la cifra es una cotización defectuosa. Como en
+                            los capítulos 4, 7 y 8, el panel no se limpia: se declara y se mide.
+                        </p>
+                    </Box>
+
                     <TablaTraza
                         titulo="R1 · Las primeras cuatro ruedas de una cobertura real"
                         enunciado="La ventana que empieza el 2 de enero de 2018, reescalada para arrancar en 1 782. El delta viene dado —lo calcula la fórmula— y usted completa las dos columnas de la operación: cuántas acciones hay que comprar cada día y cuánto cuesta esa compra. Calcule cada fila desde los valores que la tabla muestra, con coma decimal."
@@ -4947,7 +5106,7 @@ desembolso = compra * S[i]`}
                             { fecha: '2018-01-05', S: '1971,15', delta: '0,723644', compra: '0,080550', desembolso: '158,78' },
                         ]}
                         ocultas={['compra', 'desembolso']}
-                        pista="El primer día se parte de cero acciones, así que la compra es el delta entero. Después cada compra es la diferencia con el delta del día anterior — use el que la tabla muestra, no uno recalculado—. Fíjese en la tercera fila, que es la interesante: Ecopetrol cerró los días 3 y 4 exactamente en el mismo precio (931 pesos sin reescalar, una de las 189 ruedas quietas que midió la sección 2), y aun así hubo que VENDER acciones. La razón es que pasó un día: delta bajó por puro paso del tiempo, sin que el precio se moviera. Eso es theta trabajando, y es la parte de la cobertura que nadie recuerda hasta que la ve."
+                        pista="El primer día se parte de cero acciones, así que la compra es el delta entero. Después cada compra es la diferencia con el delta del día anterior — use el que la tabla muestra, no uno recalculado—. Fíjese en la tercera fila, que es la interesante: Ecopetrol cerró los días 3 y 4 exactamente en el mismo precio (931 pesos sin reescalar, una de las 189 ruedas quietas que midió la sección 2), y aun así hubo que VENDER acciones. La razón es que pasó un día: delta bajó por puro paso del tiempo, sin que el precio se moviera. Es el tiempo moviendo el delta —su derivada respecto al plazo, que las mesas llaman charm—, y es la parte de la cobertura que nadie recuerda hasta que la ve."
                     />
 
                     <OrdenaPasos
@@ -4978,7 +5137,11 @@ desembolso = compra * S[i]`}
                                     respuesta honesta empieza reconociendo que <strong>quince
                                     observaciones no permiten estimar un percentil</strong>: es la
                                     misma advertencia que el capítulo 8 hizo sobre las colas, donde al
-                                    99 % con 250 ruedas hay 2,5 escenarios.
+                                    99 % con 250 ruedas hay 2,5 escenarios. Y antes de reservar contra
+                                    la peor, hay que mirar qué es: casi toda es el par defectuoso de
+                                    febrero de 2025, y la peor pérdida que el mercado produjo de verdad
+                                    es la de febrero de 2020, {dec(Math.abs(VENTANAS[4][3]), 4)}. Lo
+                                    honesto es declarar las dos.
                                 </p>
                                 <p>
                                     <strong>El argumento que NO sirve.</strong> «El modelo dice que la
@@ -5089,7 +5252,7 @@ desembolso = compra * S[i]`}
                         pregunta: 'En la fórmula, N(d₁) = 0,588487 y N(d₂) = 0,480206. ¿Cuál de las dos es la probabilidad de que la opción se ejerza?',
                         justificacion: 'N(d₂), y solo bajo la probabilidad neutral al riesgo. N(d₁) es el delta: el número de acciones que hay que tener para replicar la opción, 79,2575 millones sobre la posición del fondo. Confundirlas se equivoca en 10,83 puntos porcentuales al afirmar con qué frecuencia se ejerce, y es el error más común del capítulo porque las dos salen de la misma d y difieren solo en σ√T. Una cuenta estados del mundo; la otra cuenta acciones.',
                         opciones: [
-                            { texto: 'N(d₂), que vale 0,480206; N(d₁) es el delta de la cobertura, 0,588487, y no es una probabilidad de nada: confundirlas es el error más común de este capítulo.', correcta: true },
+                            { texto: 'N(d₂), que vale 0,480206; N(d₁) es el delta de la cobertura, 0,588487, y no es la probabilidad neutral al riesgo de ejercicio: confundirlas es el error más común de este capítulo.', correcta: true },
                             { texto: 'N(d₁), porque es la que multiplica al precio de contado y por tanto pondera el estado del mundo en el que se recibe efectivamente la acción subyacente al vencimiento.', correcta: false },
                             { texto: 'Ninguna de las dos: la probabilidad de ejercicio bajo la medida real se obtiene sustituyendo la tasa libre de riesgo por la deriva medida en el panel, que para Ecopetrol es 9,0576 %.', correcta: false },
                             { texto: 'Las dos, según el numerario que se use: N(d₁) bajo la medida asociada a la acción y N(d₂) bajo la asociada al bono, y ambas son igualmente válidas para responder la pregunta.', correcta: false },
