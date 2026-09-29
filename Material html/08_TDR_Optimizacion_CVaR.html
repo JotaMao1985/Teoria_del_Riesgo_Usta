@@ -3806,7 +3806,7 @@ for (a in c(0.95, 0.975, 0.99)) {
 
                     <TablaTraza
                         titulo="R1 · El CVaR exacto al 99 %, a mano"
-                        enunciado={<>La cola del 99 % pide promediar <strong>19,16 ruedas</strong> y las ruedas vienen de a una. Del bloque de arriba: las 19 peores suman <strong>1 023 207 millones</strong> y la vigésima vale <strong>32 628 millones</strong>. Complete el cálculo de las dos versiones y de su diferencia. Cuatro decimales en las razones y millones enteros en el resto.</>}
+                        enunciado={<>La cola del 99 % pide promediar <strong>19,16 ruedas</strong> y las ruedas vienen de a una. Del bloque de arriba: las 19 peores suman <strong>1 023 207 millones</strong> —con todos sus decimales: las diecinueve cifras redondeadas que imprime el bloque suman 1 023 210, y la brecha sale igual— y la vigésima vale <strong>32 628 millones</strong>. Complete el cálculo de las dos versiones y de su diferencia. Cuatro decimales en las razones y millones enteros en el resto.</>}
                         codigo={{
                             python: `S, alfa = 1916, 0.99
 suma19, L20 = 1_023_207, 32_628      # millones
@@ -3887,7 +3887,7 @@ brecha <- exacto - simple`,
             return (
                 <>
                     <Motivacion icon="fa-key"
-                        gancho="El CVaR esconde un cuantil, y un cuantil es una función escalonada de los pesos: no es convexa, no es derivable y optimizarla es un problema combinatorio. En 2000, dos autores lo convirtieron en un programa lineal añadiendo UNA variable.">
+                        gancho="El CVaR esconde un cuantil, y un cuantil es una función de los pesos llena de quiebres: no es convexa, no es derivable y optimizarla es un problema combinatorio. En 2000, dos autores lo volvieron convexo añadiendo UNA variable, y lineal añadiendo una más por escenario.">
                         Minimizar el CVaR parece intratable por una razón concreta: para saber cuáles
                         escenarios están en la cola hay que conocer el VaR, y el VaR depende de los pesos
                         que se están buscando. Es circular. Rockafellar y Uryasev rompieron el círculo
@@ -4184,7 +4184,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                             'Declarar por escrito el nivel α, la ventana de escenarios y las restricciones de inversión, antes de mirar ninguna pérdida',
                             'Diagnosticar sobre esa ventana el panel de precios y decidir, con la decisión documentada, qué se hace con las ruedas anómalas —que en una optimización de cola son justo las que mandan—',
                             'Construir la matriz de escenarios de pérdida del portafolio a partir de los precios ya diagnosticados',
-                            'Comprobar cuántos escenarios caen de verdad en la cola con ese nivel y esa ventana, y decidir si son suficientes para estimar algo',
+                            'Comprobar sobre esa matriz cuántos escenarios caen de verdad en la cola con ese nivel y esa ventana, y decidir si son suficientes para estimar algo',
                             'Montar el programa lineal con la variable auxiliar y las variables de exceso, y resolverlo',
                             'Verificar la solución: que los pesos sumen uno, que el corte devuelto sea plausible y que el valor óptimo coincida con el CVaR recalculado sobre la cartera resultante',
                             'Comparar la cartera obtenida con la de mínima varianza sobre las MISMAS dos medidas, cola y dispersión, para saber qué se ganó y qué se pagó',
@@ -4431,7 +4431,7 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                                 + `Optimizar la cola gana ${miles(e.g)} ${e.g === 1 ? 'millón' : 'millones'} sobre la de mínima varianza`
                                 + `${e.cg < e.cd ? '' : ', que a este nivel ya es peor que la declarada'}.`;
                         }}
-                        pregunta="Tres cosas para buscar, y las tres están barridas. Primera: la cartera de mínima varianza protege mejor que la declarada en todos los niveles hasta el 98,5 %, y a partir del 99 % deja de hacerlo — encuentre el punto donde las dos curvas se cruzan y diga qué cambia allí. Segunda: lo que gana optimizar la cola va de menos de un millón en el 90,5 % a 3 976 millones en el 99,5 %, pasando por 201 en el 97,5 %; escriba por qué crece con el nivel. Y tercera: mire los pesos mientras sube el nivel — Ecopetrol pasa del 19,84 % al 27,83 % entre el 90 % y el 99 %, y el Banco de Bogotá cae del 39,67 % al 18,84 %; diga si eso es información o es ruido, sabiendo que en el 99 % esos pesos los deciden 19,2 ruedas."
+                        pregunta="Tres cosas para buscar, y las tres están barridas. Primera: la cartera de mínima varianza protege mejor que la declarada en todos los niveles hasta el 98,5 %, y a partir del 99 % deja de hacerlo — encuentre el punto donde las dos curvas se cruzan y diga qué cambia allí. Segunda: lo que gana optimizar la cola va de 1 millón en el 90,5 % a 3 976 millones en el 99,5 %, pasando por 201 en el 97,5 %; escriba por qué crece con el nivel, y por qué no lo hace parejo: hasta el 93 %, donde no pasa de veinte millones, baja dos veces. Y tercera: mire los pesos mientras sube el nivel — Ecopetrol pasa del 19,84 % al 27,83 % entre el 90 % y el 99 %, y el Banco de Bogotá cae del 39,67 % al 18,84 %; diga si eso es información o es ruido, sabiendo que en el 99 % esos pesos los deciden 19,2 ruedas."
                         nota="Los veinte niveles están precomputados en Python con el mismo cvxpy del bloque de la sección 3; el deslizador cae siempre sobre un nodo de la malla. En el 97,5 % —la posición de arranque— devuelve 19,36 · 34,61 · 16,43 · 29,60 y un CVaR de 4,5815 %, que es exactamente lo que imprime el bloque."
                     />
 
@@ -4564,7 +4564,7 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                         lineaCorrecta={{ python: 10, r: 7 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
-                        explicacion="La línea que genera los escenarios los saca de una normal multivariada ajustada a los mismos datos, y a partir de ahí nada de lo que el programa calcula es histórico: es lo que una normal cree sobre la cola. Nadie comprobó la condición —el capítulo 5 mide una curtosis de exceso de 25,77 sobre esta serie y muestra que la normal promete una cola un 14,6 % por encima de su propio VaR cuando los datos la dan un 61,9 % por encima—. Y hay algo peor que la subestimación: bajo una normal, minimizar el CVaR y minimizar la varianza son el MISMO problema, así que la simulación borra la razón de ser del capítulo. El programa lineal se resuelve en Python, tarda cincuenta veces más y devuelve, por un camino carísimo, la cartera del capítulo 7. En R ni siquiera arranca: el andamio de lpSolve es denso y crece una variable y una restricción por escenario, así que con cien mil escenarios la matriz sola pide del orden de 80 GB y R aborta antes de llegar al solucionador. El atajo tampoco se califica igual por las dos rutas del curso, que es una manera más de que salga caro."
+                        explicacion="La línea que genera los escenarios los saca de una normal multivariada ajustada a los mismos datos, y a partir de ahí nada de lo que el programa calcula es histórico: es lo que una normal cree sobre la cola. Nadie comprobó la condición —el capítulo 5 mide una curtosis de exceso de 25,77 sobre esta serie y muestra que, al 99 %, la normal promete una cola un 14,6 % por encima de su propio VaR cuando los datos la dan un 61,9 % por encima—. Y hay algo peor que la subestimación: bajo una normal, minimizar el CVaR y minimizar la varianza son el MISMO problema, así que la simulación borra la razón de ser del capítulo. El programa lineal se resuelve en Python, tarda cincuenta veces más y devuelve, por un camino carísimo, la cartera del capítulo 7. En R ni siquiera arranca: el andamio de lpSolve es denso y crece una variable y una restricción por escenario, así que con cien mil escenarios la matriz sola pide del orden de 80 GB y R aborta antes de llegar al solucionador. El atajo tampoco se califica igual por las dos rutas del curso, que es una manera más de que salga caro."
                         impacto="Con semilla 2026 y cien mil escenarios normales, y en Python —que es donde corre—, el programa devuelve 21,08 · 37,57 · 15,98 · 25,36, que está a 0,56 pp de la cartera de mínima varianza —y esa distancia es error de simulación, no diferencia de criterio—. El número que reporta como CVaR al 97,5 % es 3,5142 %; el CVaR histórico de esa misma cartera es 4,6012 %, o sea 8 696 millones más sobre los 800 000 del fondo. El informe diría que la cola del fondo está en 28 114 millones cuando los datos dicen 36 810."
                     />
 
@@ -4763,9 +4763,9 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                     },
                     {
                         pregunta: 'Quitar el par de cotizaciones defectuosas del 19 y 20 de febrero de 2025 —dos ruedas de 1 916— mueve el CVaR al 99 % en 3 777 millones y la volatilidad en 1,27 pp. ¿Por qué la diferencia?',
-                        justificacion: 'El 19 de febrero de 2025 es la segunda peor rueda de todo el panel. En una varianza calculada sobre 1 916 ruedas pesa una milésima parte; en una cola de 19,2 ruedas pesa una veinteava. Un optimizador de cola hereda los defectos del panel concentrados, porque las ruedas anómalas son casi por definición ruedas extremas, y en una cola solo hay ruedas extremas.',
+                        justificacion: 'El 19 de febrero de 2025 es la segunda peor rueda de todo el panel. En una varianza calculada sobre 1 916 ruedas pesa una dosmilésima parte; en una cola de 19,2 ruedas pesa una veinteava: cien veces más. Un optimizador de cola hereda los defectos del panel concentrados, porque las ruedas anómalas son casi por definición ruedas extremas, y en una cola solo hay ruedas extremas.',
                         opciones: [
-                            { texto: 'Porque son dos ruedas extremas: en una cola de 19,2 ruedas cada una pesa una veinteava parte, mientras que en una varianza calculada sobre las 1 916 del panel pesa una milésima.', correcta: true },
+                            { texto: 'Porque son dos ruedas extremas: en una cola de 19,2 ruedas cada una pesa una veinteava parte, mientras que en una varianza calculada sobre las 1 916 del panel pesa una dosmilésima.', correcta: true },
                             { texto: 'Porque el par de febrero de 2025 afecta a los cuatro emisores a la vez: las medidas de cola son más sensibles a los movimientos comunes que las de dispersión, que los diversifican.', correcta: false },
                             { texto: 'Porque la volatilidad se anualiza multiplicando por la raíz de 252 y el CVaR no, de modo que las dos cifras están en escalas distintas y no son directamente comparables.', correcta: false },
                             { texto: 'Porque el CVaR se calcula sobre pérdidas y la volatilidad sobre retornos, y el cambio de signo amplifica el efecto de las observaciones negativas grandes sobre la primera.', correcta: false },
@@ -4814,8 +4814,8 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                                 <strong>Qué salió</strong>: 19,36 · 34,61 · 16,43 · 29,60, con una cola de
                                 36 652 millones contra los 37 849 de la cartera vigente.{' '}
                                 <strong>Cuánto es eso</strong>: 1 197 millones frente a la cartera vigente
-                                y 201 frente a la de mínima varianza — el 0,03 % del fondo, y conviene
-                                decirlo en esos términos y no solo en pesos.
+                                —el 0,15 % del fondo— y 201 frente a la de mínima varianza, el 0,03 %;
+                                conviene decirlo en esos términos y no solo en pesos.
                             </p>
                             <p>
                                 <strong>Sobre cuántos datos se apoya</strong>: la cifra es el promedio de
