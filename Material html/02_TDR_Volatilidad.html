@@ -3655,7 +3655,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     Escrita así parece que solo mira una rueda hacia atrás. Desplegando la recursión se
                     ve que las mira todas, con pesos que se apagan:
                 </p>
-                <Eq>{'$$\\hat\\sigma_t^2 = (1-\\lambda)\\sum_{i=1}^{\\infty} \\lambda^{\\,i-1} r_{t-i}^2 \\qquad\\text{con}\\qquad (1-\\lambda)\\sum_{i=1}^{\\infty}\\lambda^{\\,i-1} = 1$$'}</Eq>
+                <Eq>{'$$\\begin{gathered} \\hat\\sigma_t^2 = (1-\\lambda)\\sum_{i=1}^{\\infty} \\lambda^{\\,i-1} r_{t-i}^2 \\\\[4pt] \\text{con}\\quad (1-\\lambda)\\sum_{i=1}^{\\infty}\\lambda^{\\,i-1} = 1 \\end{gathered}$$'}</Eq>
                 <p>
                     Ninguna observación sale de golpe, así que <strong>no hay efecto fantasma</strong>:
                     lo que hay es un desvanecimiento. Y el único parámetro tiene tres lecturas
@@ -3906,7 +3906,7 @@ for (x in r) {
                             porque: 'Sustituyendo la ecuación en sí misma una y otra vez, el término β desaparece y queda un ARCH de orden infinito con pesos que decaen geométricamente. Dos parámetros producen la dependencia larga que ARCH necesitaba veinte para imitar, y los pesos salen positivos y ordenados por construcción, que es lo que la regresión de la sección 4 no garantizaba.',
                         },
                         {
-                            eq: <Eq>{'$$E[\\sigma_t^2] = \\sigma_\\infty^2 = \\frac{\\omega}{1-\\alpha-\\beta} \\qquad\\text{si}\\qquad \\alpha+\\beta<1$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{gathered} E[\\sigma_t^2] = \\sigma_\\infty^2 = \\frac{\\omega}{1-\\alpha-\\beta} \\\\[2pt] \\text{si}\\quad \\alpha+\\beta<1 \\end{gathered}$$'}</Eq>,
                             porque: 'Tomando esperanzas y exigiendo que la varianza incondicional no dependa de t. La condición α + β < 1 no es un tecnicismo: es lo que hace que el modelo tenga un nivel al que volver. Si la suma llega a uno, la varianza de largo plazo no existe y la fórmula devuelve una división por cero o un número negativo, sin avisar.',
                         },
                         {

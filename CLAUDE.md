@@ -262,7 +262,8 @@ por la derecha**, y `eq-block` lo tapa con una barra de desplazamiento que nadie
 sección quiere decir.
 Desde el 2026-09-28 TR-CORE encoge sola la fórmula que no cabe (ver abajo, «las fórmulas se
 salían de su caja»), así que en escritorio ya no hace falta partir por ancho; **en un teléfono
-sí**, y las que siguen sin caber quedan marcadas con `data-desborda`.
+sí**, y el mismo día se partieron las 63 que no cabían: hoy ninguna lleva `data-desborda` ni a
+375 ni a 360 px.
 
 ⚠️ **Y al probar en pantalla: MathJax tipografía en asíncrono, así que una captura tomada justo
 después de desplazarse muestra el chip del símbolo VACÍO.** Parece un defecto del componente y no
@@ -851,6 +852,23 @@ documentado en `Material html/README.md`. Quedó así, medido con los porqués a
 |---|---|---|
 | antes | 16 escondiendo algo en el 7 y el 8, peor 241 px (los otros ocho no se midieron) | 122 de 135, peor 554 px, **ninguna avisada** |
 | después | **0 de 130** | 60 de 132, peor 237 px, **las 60 con sombra** |
+| partidas | **0 de 121** | **0 de 121**, y 0 también a 360 px |
+
+Los 130 y 132 contaban dos veces algunas fórmulas: el barrido entra en una sección por cada botón
+cuyo rótulo empieza por su número, y los «Anterior»/«Siguiente» lo llevan. Distintas son 121.
+
+✅ **Y el mismo día se partieron en el fuente las 63 que seguían sin caber** —56 a 375 px y 7 que
+solo se salían a 360—, con `aligned` y `gathered`. Las formas, el presupuesto de ancho y el método
+de prueba están en `Material html/README.md`. Cada versión se tipografió en una caja del ancho real
+antes de estamparla, y eso cazó seis que a 375 cabían y a 360 no. Cambiaron 63 líneas y ninguna
+cifra; una partida ocupa dos filas también en escritorio, y donde bastaba con quitar espacios —la F
+de la sección 2 del 8— se hizo eso.
+
+⚠️ **Queda una lectura sin explicar.** En dos de nueve barridos el capítulo 7 dio **una** fórmula
+escondida y **sin** marca; en siete pasadas dirigidas —incluida la misma secuencia del 6 al 7, y
+midiendo a 1,3 y a 4 segundos— no volvió a salir, y no se sabe cuál era. Lo más probable es una
+medición tomada a mitad de un tipografiado, pero no está demostrado. Si reaparece, anote su TeX y
+el `font-size` de su `mjx-container`: vacío quiere decir que `ajustarFormulas` no pasó por ella.
 
 ⚠️ **Tres trampas que costó ver, por si se vuelve a tocar.**
 

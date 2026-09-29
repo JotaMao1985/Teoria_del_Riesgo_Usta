@@ -3567,7 +3567,7 @@ for (nombre in names(declarado)) {
                     <Termino def="Logaritmo natural del cociente de precios. Es la magnitud que se suma en el tiempo, y por eso es la que se usa cuando hay que agregar horizontes.">rendimiento logarítmico</Termino>{' '}
                     es el logaritmo del cociente:
                 </p>
-                <Eq>{'$$R_t = \\frac{P_t - P_{t-1}}{P_{t-1}} \\qquad\\qquad r_t = \\ln\\!\\left(\\frac{P_t}{P_{t-1}}\\right) = \\ln(1 + R_t)$$'}</Eq>
+                <Eq>{'$$\\begin{aligned} R_t &= \\frac{P_t - P_{t-1}}{P_{t-1}} \\\\[4pt] r_t &= \\ln\\!\\left(\\frac{P_t}{P_{t-1}}\\right) = \\ln(1 + R_t) \\end{aligned}$$'}</Eq>
                 <p>
                     Para movimientos pequeños son casi el mismo número —{' '}
                     <span className="inline-code">ln(1 + x) ≈ x</span> cuando x es pequeño— y esa
@@ -3593,11 +3593,11 @@ for (nombre in names(declarado)) {
                     titulo="Por qué el rendimiento logarítmico se suma en el tiempo"
                     pasos={[
                         {
-                            eq: <Eq>{'$$1 + R_{t} = \\frac{P_t}{P_{t-1}} \\qquad\\Longrightarrow\\qquad \\frac{P_T}{P_0} = \\prod_{t=1}^{T}\\left(1 + R_t\\right)$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{gathered} 1 + R_{t} = \\frac{P_t}{P_{t-1}} \\\\[4pt] \\Longrightarrow\\quad \\frac{P_T}{P_0} = \\prod_{t=1}^{T}\\left(1 + R_t\\right) \\end{gathered}$$'}</Eq>,
                             porque: 'El precio final entre el inicial es el producto de todos los factores de crecimiento intermedios: el telescopio se cancela y solo quedan los extremos. La agregación temporal es multiplicativa, no aditiva, y esto es lo que se olvida.',
                         },
                         {
-                            eq: <Eq>{'$$r_t = \\ln(1 + R_t) \\qquad\\Longrightarrow\\qquad \\sum_{t=1}^{T} r_t = \\ln\\!\\left(\\prod_{t=1}^{T}(1+R_t)\\right) = \\ln\\!\\frac{P_T}{P_0}$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{aligned} r_t &= \\ln(1 + R_t) \\\\[4pt] \\Longrightarrow\\quad \\sum_{t=1}^{T} r_t &= \\ln\\!\\left(\\prod_{t=1}^{T}(1+R_t)\\right) \\\\ &= \\ln\\!\\frac{P_T}{P_0} \\end{aligned}$$'}</Eq>,
                             porque: 'El logaritmo convierte el producto en suma. Es todo el truco: no hay ninguna aproximación en este paso, la igualdad es exacta. Lo que era multiplicativo se vuelve aditivo, y sumar es lo que sabemos hacer con distribuciones.',
                         },
                         {
@@ -3605,7 +3605,7 @@ for (nombre in names(declarado)) {
                             porque: 'Para volver al mundo en el que se paga —el rendimiento acumulado que aparece en el estado de cuenta— hay que deshacer el logaritmo. Quien reporta la suma de los logarítmicos como si fuera el acumulado subestima las ganancias y sobreestima las pérdidas, siempre, porque el logaritmo es cóncavo.',
                         },
                         {
-                            eq: <Eq>{'$$\\mathrm{Var}\\!\\left(\\sum_{t=1}^{T} r_t\\right) = T\\,\\sigma^2 \\quad \\text{si los } r_t \\text{ son independientes}$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{gathered} \\mathrm{Var}\\!\\left(\\sum_{t=1}^{T} r_t\\right) = T\\,\\sigma^2 \\\\[2pt] \\text{si los } r_t \\text{ son independientes} \\end{gathered}$$'}</Eq>,
                             porque: 'La consecuencia que hace falta más adelante. La varianza de una suma de variables independientes es la suma de las varianzas, así que la volatilidad crece con la raíz de T. De ahí sale la regla de la raíz del tiempo del capítulo 4 y su condición, que es la palabra «independientes» y casi nunca se comprueba.',
                         },
                     ]}
@@ -3660,7 +3660,7 @@ real      <- p[length(p)] / p[1] - 1`,
                     de pesos y pesos, y es exacto—. El rendimiento que se suma en el tiempo es el{' '}
                     <strong>logarítmico</strong>. Las dos propiedades no caben en la misma magnitud:
                 </p>
-                <Eq>{'$$R_{p,t} = \\sum_i w_i R_{i,t} \\quad\\text{(exacto)} \\qquad\\qquad r_{p,t} = \\ln\\!\\left(1 + \\sum_i w_i R_{i,t}\\right) \\neq \\sum_i w_i\\, r_{i,t}$$'}</Eq>
+                <Eq>{'$$\\begin{aligned} R_{p,t} &= \\sum_i w_i R_{i,t} \\quad\\text{(exacto)} \\\\[4pt] r_{p,t} &= \\ln\\!\\left(1 + \\sum_i w_i R_{i,t}\\right) \\neq \\sum_i w_i\\, r_{i,t} \\end{aligned}$$'}</Eq>
                 <p>
                     La convención de la industria —y la de este curso— es usar de todos modos la
                     combinación lineal de los logarítmicos, porque conserva la aditividad temporal, que
@@ -3899,7 +3899,7 @@ acumulado <- exp(sum(r)) - 1`,
                         nombre porque responden cuatro preguntas distintas: dónde está, cuánto se
                         dispersa, hacia qué lado se estira y cuánta masa hay lejos del centro.
                     </p>
-                    <Eq>{'$$\\hat\\mu = \\frac{1}{n}\\sum r_t \\qquad \\hat\\sigma^2 = \\frac{1}{n-1}\\sum (r_t-\\hat\\mu)^2 \\qquad \\hat{s} = \\frac{1}{n}\\sum z_t^3 \\qquad \\hat\\kappa = \\frac{1}{n}\\sum z_t^4 - 3, \\quad z_t = \\frac{r_t - \\hat\\mu}{\\tilde\\sigma}$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} \\begin{aligned} \\hat\\mu &= \\frac{1}{n}\\sum r_t & \\hat\\sigma^2 &= \\frac{1}{n-1}\\sum (r_t-\\hat\\mu)^2 \\\\[6pt] \\hat{s} &= \\frac{1}{n}\\sum z_t^3 & \\hat\\kappa &= \\frac{1}{n}\\sum z_t^4 - 3 \\end{aligned} \\\\[6pt] \\text{con}\\quad z_t = \\frac{r_t - \\hat\\mu}{\\tilde\\sigma} \\end{gathered}$$'}</Eq>
                     <p>
                         Dos detalles de convención que producen números distintos y discusiones inútiles.
                         La varianza se estima con divisor <strong>n − 1</strong> para que sea insesgada,

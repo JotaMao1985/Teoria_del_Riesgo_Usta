@@ -3780,7 +3780,7 @@ cat(sprintf("lo que cuesta la iliquidez: %+.1f%%  =  %s millones\\n",
                             porque: 'La pérdida de cada bono tiene dos escenarios y nada más. Si el emisor paga, el fondo se queda el cupón: pérdida de −2 000, es decir una ganancia. Si incumple, se pierde el principal entero. La probabilidad de incumplimiento es del 4 %, y ese 4 % es la única cifra que importa del ejemplo.',
                         },
                         {
-                            eq: <Eq>{'$$\\mathbb{P}(L_i \\le -2\\,000) = 0{,}96 \\;\\ge\\; 0{,}95 \\quad\\Longrightarrow\\quad \\mathrm{VaR}_{0{,}95}(L_i) = -2\\,000$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{aligned} \\mathbb{P}(L_i \\le -2\\,000) &= 0{,}96 \\\\ &\\ge 0{,}95 \\\\[4pt] \\Longrightarrow\\quad \\mathrm{VaR}_{0{,}95}(L_i) &= -2\\,000 \\end{aligned}$$'}</Eq>,
                             porque: 'El cuantil al 95 % es el primer valor cuya acumulada alcanza 0,95, y el escenario bueno ya la alcanza con 0,96. El incumplimiento tiene probabilidad 4 %, que es MENOR que el 5 % de la cola: queda fuera del alcance de la medida. El VaR de cada bono por separado es una ganancia de 2 000 millones.',
                         },
                         {
@@ -3792,11 +3792,11 @@ cat(sprintf("lo que cuesta la iliquidez: %+.1f%%  =  %s millones\\n",
                             porque: 'Los dos emisores son independientes, así que las probabilidades salen de la binomial: 0,96² de que ninguno incumpla, 2 × 0,04 × 0,96 de que incumpla exactamente uno, y 0,04² de que incumplan los dos. La independencia es el caso MÁS favorable a la diversificación, y aun así el resultado es el que sigue.',
                         },
                         {
-                            eq: <Eq>{'$$\\mathbb{P}(L_1+L_2 \\le -4\\,000) = 0{,}9216 \\;<\\; 0{,}95 \\quad\\Longrightarrow\\quad \\mathrm{VaR}_{0{,}95} = 98\\,000$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{aligned} \\mathbb{P}(L_1+L_2 \\le -4\\,000) &= 0{,}9216 \\\\ &< 0{,}95 \\\\[4pt] \\Longrightarrow\\quad \\mathrm{VaR}_{0{,}95} &= 98\\,000 \\end{aligned}$$'}</Eq>,
                             porque: 'Aquí está todo el ejemplo. Con dos bonos, la probabilidad de que ninguno incumpla ya no llega al 95 %, así que el corte se corre al siguiente escenario y de repente el incumplimiento SÍ está dentro de la cola. El VaR salta de una ganancia de 4 000 a una pérdida de 98 000 millones.',
                         },
                         {
-                            eq: <Eq>{'$$98\\,000 \\;>\\; -4\\,000 \\quad\\Longrightarrow\\quad \\rho(L_1+L_2) > \\rho(L_1)+\\rho(L_2)$$'}</Eq>,
+                            eq: <Eq>{'$$\\begin{gathered} 98\\,000 \\;>\\; -4\\,000 \\\\[4pt] \\Longrightarrow\\quad \\rho(L_1+L_2) > \\rho(L_1)+\\rho(L_2) \\end{gathered}$$'}</Eq>,
                             porque: 'La subaditividad se rompe, y no por un margen discutible: por 102 000 millones sobre una cartera de 200 000. No hay ningún error de cálculo y no hay ninguna correlación escondida —los bonos son independientes—. Es la definición de cuantil la que produce el salto.',
                         },
                     ]}
@@ -3993,15 +3993,15 @@ par_p <- c((1 - p)^2, 2*p*(1 - p), p^2)
                         titulo="El ES bajo la normal, en cuatro pasos"
                         pasos={[
                             {
-                                eq: <Eq>{'$$\\mathrm{ES}_\\alpha = \\mathbb{E}[L \\mid L > \\mathrm{VaR}_\\alpha], \\qquad L \\sim N(\\mu,\\sigma^2)$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} \\mathrm{ES}_\\alpha = \\mathbb{E}[L \\mid L > \\mathrm{VaR}_\\alpha] \\\\[2pt] \\text{con}\\quad L \\sim N(\\mu,\\sigma^2) \\end{gathered}$$'}</Eq>,
                                 porque: 'Se parte de la definición y se le impone una forma a la distribución de pérdidas. Es el mismo salto que el capítulo 4 dio con el VaR paramétrico, y tiene el mismo precio: lo que salga vale lo que valga el supuesto.',
                             },
                             {
-                                eq: <Eq>{'$$L = \\mu + \\sigma Z \\quad\\Longrightarrow\\quad \\mathrm{ES}_\\alpha = \\mu + \\sigma\\,\\mathbb{E}[Z \\mid Z > z_\\alpha]$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} L = \\mu + \\sigma Z \\\\[4pt] \\Longrightarrow\\quad \\mathrm{ES}_\\alpha = \\mu + \\sigma\\,\\mathbb{E}[Z \\mid Z > z_\\alpha] \\end{gathered}$$'}</Eq>,
                                 porque: 'Estandarizar saca μ y σ fuera de la esperanza condicional, porque la condición «L supera su cuantil α» es la misma que «Z supera el suyo». Todo el trabajo queda del lado de la normal estándar, que no depende del portafolio.',
                             },
                             {
-                                eq: <Eq>{'$$\\mathbb{E}[Z \\mid Z > z] = \\frac{\\int_z^\\infty u\\,\\varphi(u)\\,du}{1-\\Phi(z)} = \\frac{\\varphi(z)}{1-\\Phi(z)}$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} \\mathbb{E}[Z \\mid Z > z] &= \\frac{\\int_z^\\infty u\\,\\varphi(u)\\,du}{1-\\Phi(z)} \\\\[4pt] &= \\frac{\\varphi(z)}{1-\\Phi(z)} \\end{aligned}$$'}</Eq>,
                                 porque: 'La integral de arriba se resuelve sola: la derivada de φ(u) es −u φ(u), así que la primitiva de u φ(u) es −φ(u) y la integral vale φ(z). El cociente resultante se llama razón inversa de Mills, y es la única pieza de análisis del capítulo.',
                             },
                             {

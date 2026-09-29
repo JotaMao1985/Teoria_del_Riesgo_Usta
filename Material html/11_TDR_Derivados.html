@@ -4208,7 +4208,7 @@ cat("con q = 0 la prima es exactamente cero: adelantar el ejercicio solo adelant
                         call en los dos estados. Son dos ecuaciones con dos incógnitas, y su solución es
                         el precio:
                     </p>
-                    <Eq>{'$$\\Delta = \\frac{C_u - C_d}{S_0 u - S_0 d} \\qquad B = e^{-r\\Delta t}\\left(C_u - \\Delta S_0 u\\right) \\qquad C_0 = \\Delta S_0 + B$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} \\Delta &= \\frac{C_u - C_d}{S_0 u - S_0 d} \\\\[4pt] B &= e^{-r\\Delta t}\\left(C_u - \\Delta S_0 u\\right) \\\\[4pt] C_0 &= \\Delta S_0 + B \\end{aligned}$$'}</Eq>
 
                     <CodeTabs titulo="La réplica de un período, con su comprobación en los dos estados" bloques={EJ_REPLICA}
                         nota="Las dos líneas de comprobación son las que hacen que esto sea una demostración y no una receta: la cartera de 0,549648 acciones financiada con 720,4636 pesos prestados paga 542,0515 si la acción sube y exactamente cero si baja. Y la última línea del bloque es el atajo que la sección 4 va a desarmar: la misma cuenta, reordenada, con una p que todavía no significa nada." />
@@ -4301,7 +4301,7 @@ precio <- delta * S0 + B`,
                         Tome el precio por replicación, C₀ = ΔS₀ + B, sustituya Δ y B y reagrupe. Aparece
                         algo con la forma de un valor esperado descontado:
                     </p>
-                    <Eq>{'$$C_0 = e^{-r\\Delta t}\\left[p\\,C_u + (1-p)\\,C_d\\right] \\qquad\\text{con}\\qquad p = \\frac{e^{(r-q)\\Delta t} - d}{u - d}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} C_0 &= e^{-r\\Delta t}\\left[p\\,C_u + (1-p)\\,C_d\\right] \\\\[4pt] \\text{con}\\quad p &= \\frac{e^{(r-q)\\Delta t} - d}{u - d} \\end{aligned}$$'}</Eq>
                     <p>
                         Esa p no vino de ninguna parte: es lo que quedó al reagrupar. No se estimó, no se
                         pidió a nadie y no describe el mundo. Es{' '}
@@ -4416,7 +4416,7 @@ precio <- delta * S0 + B`,
                         <strong>recombina</strong> y tiene n+1 nodos finales en vez de 2<sup>n</sup>. Con
                         500 pasos eso es la diferencia entre 501 números y un 1 seguido de 150 ceros.
                     </p>
-                    <Eq>{'$$u = e^{\\sigma\\sqrt{T/n}} \\qquad p = \\frac{e^{(r-q)T/n} - d}{u - d} \\qquad V_{i,j} = e^{-rT/n}\\left[p\\,V_{i+1,j+1} + (1-p)\\,V_{i+1,j}\\right]$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} u &= e^{\\sigma\\sqrt{T/n}} \\\\[4pt] p &= \\frac{e^{(r-q)T/n} - d}{u - d} \\\\[4pt] V_{i,j} &= e^{-rT/n}\\left[p\\,V_{i+1,j+1} + (1-p)\\,V_{i+1,j}\\right] \\end{aligned}$$'}</Eq>
 
                     <CodeTabs titulo="El árbol de tres pasos nodo por nodo, y qué pasa al partir más fino" bloques={EJ_ARBOL}
                         nota="La primera mitad imprime el árbol de tres pasos entero —los precios y lo que vale la call en cada nodo— y es la que alimenta el R1 de esta sección. La segunda barre n de 1 a 400 uno por uno, en vez de suponer cómo se acerca: la horquilla se cierra, pero la sucesión no es monótona y eso no se puede ver en una tabla de seis filas escogidas." />
@@ -4590,7 +4590,7 @@ V <- exp(-rf * dt) * (p * V_arriba + (1 - p) * V_abajo)`,
                     </Motivacion>
 
                     <h3>Una línea más en el retroceso</h3>
-                    <Eq>{'$$V_{i,j} = \\max\\Big(\\underbrace{e^{-r\\Delta t}[p\\,V_{i+1,j+1} + (1-p)V_{i+1,j}]}_{\\text{esperar}},\\quad \\underbrace{\\max(K - S_{i,j},\\,0)}_{\\text{ejercer ya}}\\Big)$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} V_{i,j} = \\max\\Big(&\\underbrace{e^{-r\\Delta t}[p\\,V_{i+1,j+1} + (1-p)V_{i+1,j}]}_{\\text{esperar}}, \\\\ &\\underbrace{\\max(K - S_{i,j},\\,0)}_{\\text{ejercer ya}}\\Big) \\end{aligned}$$'}</Eq>
 
                     <CodeTabs titulo="Europeas y americanas, la paridad que deja de cumplirse y la frontera de ejercicio" bloques={EJ_AMERICANA}
                         nota="La primera línea es el resultado que conviene no olvidar: con q = 0 la call americana vale lo mismo que la europea hasta el décimo decimal. No es una coincidencia numérica ni un redondeo afortunado — es un teorema, y la última tabla muestra qué hay que romper para que deje de valer." />

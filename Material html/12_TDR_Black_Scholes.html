@@ -3928,7 +3928,7 @@ for (n in c(6, 21, 63, 126)) {
                                 porque: 'El logaritmo del precio final es la suma de los n saltos, porque multiplicar precios es sumar logaritmos. Cada salto vale +σ√Δt si sube y −σ√Δt si baja: son idénticos en tamaño y solo cambian de signo. Esa simetría es lo que hace que el árbol se recombine, y es también lo que permite aplicar el paso siguiente.',
                             },
                             {
-                                eq: <Eq>{'$$\\mathbb{E}^*[X_i]=\\Big(r-q-\\tfrac{\\sigma^2}{2}\\Big)\\Delta t,\\qquad \\operatorname{Var}^*[X_i]=\\sigma^2\\Delta t$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} \\mathbb{E}^*[X_i] &= \\Big(r-q-\\tfrac{\\sigma^2}{2}\\Big)\\Delta t \\\\ \\operatorname{Var}^*[X_i] &= \\sigma^2\\Delta t \\end{aligned}$$'}</Eq>,
                                 porque: 'Bajo la probabilidad neutral al riesgo p* que el capítulo 11 construyó —no bajo la real—, cada salto tiene esa media y esa varianza. La media lleva el término −σ²/2, que es la corrección de Itô: la esperanza del logaritmo no es el logaritmo de la esperanza, y por eso el activo crece a r en pesos pero a r − σ²/2 en logaritmos. Es la misma corrección que el capítulo 1 midió cuando comparó rendimientos aritméticos con logarítmicos.',
                             },
                             {
@@ -3940,7 +3940,7 @@ for (n in c(6, 21, 63, 126)) {
                                 porque: 'La valoración no cambia al pasar al límite: sigue siendo el pago esperado bajo p*, descontado a la tasa libre de riesgo. Lo único que cambia es que ahora la esperanza se toma sobre una lognormal continua en vez de sobre n+1 nodos, y una lognormal sí tiene primitiva.',
                             },
                             {
-                                eq: <Eq>{'$$C=S_0e^{-qT}N(d_1)-Ke^{-rT}N(d_2),\\quad d_{1,2}=\\frac{\\ln(S_0/K)+\\big(r-q\\pm\\tfrac{\\sigma^2}{2}\\big)T}{\\sigma\\sqrt{T}}$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} C &= S_0e^{-qT}N(d_1)-Ke^{-rT}N(d_2) \\\\[6pt] d_{1,2} &= \\frac{\\ln(S_0/K)+\\big(r-q\\pm\\tfrac{\\sigma^2}{2}\\big)T}{\\sigma\\sqrt{T}} \\end{aligned}$$'}</Eq>,
                                 porque: 'Resolviendo esa integral. Los dos términos no son «la parte buena y la mala»: el segundo es el valor presente de pagar K cuando toca pagarlo —N(d₂) es exactamente la probabilidad neutral al riesgo de que toque— y el primero es el valor presente de recibir la acción en esos mismos estados. La sección 2 desarma los dos.',
                             },
                         ]}

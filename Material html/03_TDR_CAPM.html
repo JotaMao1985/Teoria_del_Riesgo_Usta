@@ -3460,11 +3460,11 @@ for (i in 1:5) {
                         titulo="De una regresión cualquiera a la partición del riesgo"
                         pasos={[
                             {
-                                eq: <Eq>{'$$\\mathrm{Var}(r_i) = \\mathrm{Var}(\\alpha_i + \\beta_i r_M + \\varepsilon_i) = \\beta_i^2\\,\\mathrm{Var}(r_M) + \\mathrm{Var}(\\varepsilon_i) + 2\\beta_i\\,\\mathrm{Cov}(r_M, \\varepsilon_i)$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} \\mathrm{Var}(r_i) &= \\mathrm{Var}(\\alpha_i + \\beta_i r_M + \\varepsilon_i) \\\\ &= \\beta_i^2\\,\\mathrm{Var}(r_M) + \\mathrm{Var}(\\varepsilon_i) \\\\ &\\quad + 2\\beta_i\\,\\mathrm{Cov}(r_M, \\varepsilon_i) \\end{aligned}$$'}</Eq>,
                                 porque: 'La varianza de una suma tiene siempre tres términos, y el tercero es el que suele hacer daño. La constante α no aporta varianza: desplaza la serie, no la dispersa.',
                             },
                             {
-                                eq: <Eq>{'$$\\mathrm{Cov}(r_M, \\varepsilon_i) = 0 \\qquad\\Longrightarrow\\qquad \\sigma_i^2 = \\beta_i^2\\,\\sigma_M^2 + \\sigma_{\\varepsilon,i}^2$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} \\mathrm{Cov}(r_M, \\varepsilon_i) = 0 \\\\[4pt] \\Longrightarrow\\quad \\sigma_i^2 = \\beta_i^2\\,\\sigma_M^2 + \\sigma_{\\varepsilon,i}^2 \\end{gathered}$$'}</Eq>,
                                 porque: 'El término cruzado desaparece porque el residuo de mínimos cuadrados es ortogonal al regresor. No hace falta suponerlo: si no fuera cero, la recta no sería la de mínimos cuadrados. La varianza se parte en dos sumandos limpios, y esta es la única razón por la que la descomposición existe.',
                             },
                             {
@@ -3472,7 +3472,7 @@ for (i in 1:5) {
                                 porque: 'El R² de esta regresión no es una medida de calidad del ajuste: es la fracción del riesgo del activo que es sistemática, y coincide con el cuadrado de la correlación con el mercado. Leerlo como «qué tan bueno es el modelo» es el error que audita el R3 de la sección 5.',
                             },
                             {
-                                eq: <Eq>{'$$\\sigma_{\\varepsilon,p}^2 = \\sum_i w_i^2\\,\\sigma_{\\varepsilon,i}^2 \\quad\\text{si los residuos no se correlacionan entre sí}$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} \\sigma_{\\varepsilon,p}^2 = \\sum_i w_i^2\\,\\sigma_{\\varepsilon,i}^2 \\\\[2pt] \\text{si los residuos no se correlacionan} \\end{gathered}$$'}</Eq>,
                                 porque: 'La consecuencia práctica, y la razón de la sección 4. La parte sistemática se agrega con los pesos en primera potencia y no se va nunca; la residual se agrega con los pesos AL CUADRADO, así que se encoge al repartir. Con residuos incorrelacionados y N pesos iguales, el segundo término va como 1/N.',
                             },
                         ]}
@@ -3933,7 +3933,7 @@ alfa    <- obs_isa - exigido`,
                     el costo de tratarlo como si lo fuera. La beta sí lo es, y de forma exacta: es una
                     covarianza dividida por una constante, y la covarianza es bilineal.
                 </p>
-                <Eq>{'$$\\beta_p = \\frac{\\mathrm{Cov}\\left(\\sum_i w_i r_i,\\; r_M\\right)}{\\mathrm{Var}(r_M)} = \\sum_i w_i\\,\\frac{\\mathrm{Cov}(r_i, r_M)}{\\mathrm{Var}(r_M)} = \\sum_i w_i\\beta_i$$'}</Eq>
+                <Eq>{'$$\\begin{aligned} \\beta_p &= \\frac{\\mathrm{Cov}\\left(\\sum_i w_i r_i,\\; r_M\\right)}{\\mathrm{Var}(r_M)} \\\\[4pt] &= \\sum_i w_i\\,\\frac{\\mathrm{Cov}(r_i, r_M)}{\\mathrm{Var}(r_M)} = \\sum_i w_i\\beta_i \\end{aligned}$$'}</Eq>
 
                 <CodeTabs titulo="Las dos formas de obtener la beta del portafolio" bloques={EJ_PONDERADA}
                     nota="Coinciden hasta la doceava cifra decimal, y no por casualidad: son la misma operación escrita de dos maneras. La diferencia se imprime con doce decimales y no en notación científica a propósito — con `%.2e` una pestaña diría 2.22e-16 y la otra 0.00e+00, y el material afirmaría dos cosas distintas por un residuo de coma flotante." />

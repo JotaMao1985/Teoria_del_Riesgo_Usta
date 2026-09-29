@@ -3412,7 +3412,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                                 porque: 'La pérdida es el rendimiento cambiado de signo y multiplicado por el valor del portafolio. Cambiar el signo da vuelta la distribución, y por eso el cuantil α de la pérdida es el cuantil 1−α del rendimiento. Aquí se cuela el error de signo más frecuente del dominio: quien olvida el giro reporta el cuantil 99 % del rendimiento, que es una ganancia.',
                             },
                             {
-                                eq: <Eq>{'$$r \\sim \\mathcal{N}(\\mu, \\sigma^2) \\quad\\Longrightarrow\\quad q_{1-\\alpha}(r) = \\mu + z_{1-\\alpha}\\,\\sigma$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} r \\sim \\mathcal{N}(\\mu, \\sigma^2) \\\\[4pt] \\Longrightarrow\\quad q_{1-\\alpha}(r) = \\mu + z_{1-\\alpha}\\,\\sigma \\end{gathered}$$'}</Eq>,
                                 porque: 'Este es el único paso que introduce un supuesto, y es el que sostiene todo lo demás. Si la distribución no es normal, la aritmética que sigue sigue siendo correcta y el resultado sigue siendo falso: es la forma más difícil de detectar un error, porque no hay nada roto que mirar.',
                             },
                             {
@@ -3948,7 +3948,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         La pregunta operativa no es cuánto arriesga el portafolio sino{' '}
                         <strong>qué posición lo está arriesgando</strong>. Se responde derivando:
                     </p>
-                    <Eq>{'$$\\frac{\\partial \\mathrm{VaR}}{\\partial w_i} = z_\\alpha\\,W\\,\\frac{(\\Sigma w)_i}{\\sigma_p} \\qquad c_i = w_i\\,\\frac{\\partial \\mathrm{VaR}}{\\partial w_i} \\qquad \\sum_i c_i = \\mathrm{VaR}_\\alpha$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} \\frac{\\partial \\mathrm{VaR}}{\\partial w_i} = z_\\alpha\\,W\\,\\frac{(\\Sigma w)_i}{\\sigma_p} \\\\[6pt] c_i = w_i\\,\\frac{\\partial \\mathrm{VaR}}{\\partial w_i} \\qquad \\sum_i c_i = \\mathrm{VaR}_\\alpha \\end{gathered}$$'}</Eq>
                     <p>
                         El <strong>VaR marginal</strong> es el efecto de la unidad siguiente de peso; el{' '}
                         <strong>VaR componente</strong> es lo que le corresponde a la posición entera, y

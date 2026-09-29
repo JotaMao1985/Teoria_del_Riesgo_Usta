@@ -3725,7 +3725,7 @@ for (a in c(0.95, 0.975, 0.99)) {
                         La medida del capítulo 7, escrita sobre los escenarios del panel en vez de
                         sobre la matriz de covarianzas, es esta:
                     </p>
-                    <Eq>{'$$\\sigma_p^2(w) \\;=\\; \\frac{1}{S}\\sum_{s=1}^{S} \\underbrace{\\left(w^\\top r_s - \\bar{r}_p\\right)^{2}}_{\\text{el cuadrado borra el signo}} \\qquad\\text{con}\\qquad \\bar{r}_p = \\frac{1}{S}\\sum_{s=1}^{S} w^\\top r_s$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} \\sigma_p^2(w) \\;=\\; \\frac{1}{S}\\sum_{s=1}^{S} \\underbrace{\\left(w^\\top r_s - \\bar{r}_p\\right)^{2}}_{\\text{el cuadrado borra el signo}} \\\\[4pt] \\text{con}\\quad \\bar{r}_p = \\frac{1}{S}\\sum_{s=1}^{S} w^\\top r_s \\end{gathered}$$'}</Eq>
                     <p>
                         Ahí está el problema, a la vista: la desviación entra elevada al cuadrado, y el
                         cuadrado borra el signo. Un día de +5 % contribuye exactamente lo mismo que uno
@@ -3735,7 +3735,7 @@ for (a in c(0.95, 0.975, 0.99)) {
                         (<em>Conditional Value at Risk</em>, valor en riesgo condicional) mira un solo lado
                         y solo el peor:
                     </p>
-                    <Eq>{'$$\\mathrm{CVaR}_\\alpha(w) \\;=\\; \\mathbb{E}\\left[\\,L(w) \\;\\middle|\\; L(w) \\geq \\mathrm{VaR}_\\alpha(w)\\right] \\qquad\\text{con}\\qquad L(w) = -w^\\top r$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} \\mathrm{CVaR}_\\alpha(w) \\;=\\; \\mathbb{E}\\left[\\,L(w) \\;\\middle|\\; L(w) \\geq \\mathrm{VaR}_\\alpha(w)\\right] \\\\[4pt] \\text{con}\\quad L(w) = -w^\\top r \\end{gathered}$$'}</Eq>
 
                     <Anatomia
                         titulo="Las piezas de las dos fórmulas, y qué valen aquí"
@@ -3759,7 +3759,7 @@ for (a in c(0.95, 0.975, 0.99)) {
                         excepción declarada a una convención del curso. La diferencia entre las dos
                         está en el divisor:
                     </p>
-                    <Eq>{'$$\\begin{aligned} \\mathrm{ES}_\\alpha &= \\frac{1}{|\\mathcal{C}|}\\sum_{s \\in \\mathcal{C}} L_s, \\qquad \\mathcal{C} = \\{\\,s :\\, L_s > \\mathrm{VaR}_\\alpha\\,\\} &&\\quad |\\mathcal{C}| \\ \\text{es entero} \\\\[4pt] \\mathrm{CVaR}_\\alpha &= \\mathrm{VaR}_\\alpha + \\frac{1}{(1-\\alpha)S}\\sum_{s=1}^{S}\\left(L_s - \\mathrm{VaR}_\\alpha\\right)^{+} &&\\quad (1-\\alpha)S \\ \\text{no lo es} \\end{aligned}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} \\mathrm{ES}_\\alpha &= \\frac{1}{|\\mathcal{C}|}\\sum_{s \\in \\mathcal{C}} L_s, \\quad \\mathcal{C} = \\{\\,s :\\, L_s > \\mathrm{VaR}_\\alpha\\,\\} \\\\ &\\qquad \\text{(}|\\mathcal{C}|\\text{ es entero)} \\\\[8pt] \\mathrm{CVaR}_\\alpha &= \\mathrm{VaR}_\\alpha + \\frac{1}{(1-\\alpha)S}\\sum_{s=1}^{S}\\left(L_s - \\mathrm{VaR}_\\alpha\\right)^{+} \\\\ &\\qquad \\text{(}(1-\\alpha)S\\text{ no lo es)} \\end{aligned}$$'}</Eq>
                     <p>
                         El primero divide entre las ruedas que hay; el segundo, entre las que el nivel
                         pide. Al 97,5 % son 48 contra 47,9, y esa décima de rueda vale 30 millones;
@@ -3883,7 +3883,7 @@ brecha <- exacto - simple`,
                         Sobre un conjunto de <span className="inline-code">S</span> escenarios
                         equiprobables —aquí, las 1 916 ruedas del panel— la función es esta:
                     </p>
-                    <Eq>{'$$F_\\alpha(w,\\zeta) \\;=\\; \\zeta \\;+\\; \\frac{1}{(1-\\alpha)S}\\sum_{s=1}^{S}\\max\\!\\left(0,\\; -w^\\top r_s - \\zeta\\right)$$'}</Eq>
+                    <Eq>{'$$F_\\alpha(w,\\zeta) = \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_{s=1}^{S}\\max\\!\\left(0,\\, -w^\\top r_s - \\zeta\\right)$$'}</Eq>
                     <p>
                         Se lee así: <strong>ζ es un corte que uno propone</strong>; el segundo término
                         suma lo que cada escenario se pasa de ese corte —y nada si no se pasa— y lo
@@ -3925,7 +3925,7 @@ brecha <- exacto - simple`,
                         titulo="Por qué el mínimo de F es el CVaR"
                         pasos={[
                             {
-                                eq: <Eq>{'$$F_\\alpha(w,\\zeta) = \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_s \\max(0,\\,L_s - \\zeta)$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} & F_\\alpha(w,\\zeta) \\\\ & = \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_s \\max(0,\\,L_s - \\zeta) \\end{aligned}$$'}</Eq>,
                                 porque: 'Es convexa y lineal a trozos en ζ: cada sumando es el máximo entre cero y una función lineal, y el máximo de funciones convexas es convexo. Eso ya garantiza que el mínimo existe, que es único como VALOR y que cualquier solucionador honesto lo encuentra. Que además sea convexa en w —conjuntamente— es lo que permite optimizar las dos cosas a la vez.',
                             },
                             {
@@ -3933,11 +3933,11 @@ brecha <- exacto - simple`,
                                 porque: 'Derivando: el primer término aporta 1, y cada escenario que está por encima del corte aporta −1/((1−α)S), porque su exceso baja cuando ζ sube. Los que están por debajo no aportan nada: su máximo vale cero y sigue valiendo cero.',
                             },
                             {
-                                eq: <Eq>{'$$\\frac{\\partial F}{\\partial \\zeta} = 0 \\iff \\#\\{s: L_s > \\zeta\\} = (1-\\alpha)S$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} \\frac{\\partial F}{\\partial \\zeta} = 0 \\\\[2pt] \\Longleftrightarrow\\quad \\#\\{s: L_s > \\zeta\\} = (1-\\alpha)S \\end{gathered}$$'}</Eq>,
                                 porque: 'La derivada se anula cuando el número de escenarios por encima del corte es justo el que el nivel pide. Y esa es la definición del VaR: el valor que deja (1−α)S ruedas por encima. Con datos discretos la derivada salta de negativa a positiva sin pasar por cero —47,9 no es un entero—, así que el mínimo se alcanza en un escenario concreto: la rueda número 48 de la cola, que sobre este panel vale 2,9601 %.',
                             },
                             {
-                                eq: <Eq>{'$$F_\\alpha(w,\\zeta^*) = \\mathrm{VaR}_\\alpha + \\frac{1}{(1-\\alpha)S}\\sum_{L_s > \\mathrm{VaR}}(L_s - \\mathrm{VaR}) = \\mathrm{CVaR}_\\alpha$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} & F_\\alpha(w,\\zeta^*) = \\mathrm{VaR}_\\alpha \\\\ &\\qquad + \\frac{1}{(1-\\alpha)S}\\sum_{L_s > \\mathrm{VaR}}(L_s - \\mathrm{VaR}) \\\\ &\\qquad = \\mathrm{CVaR}_\\alpha \\end{aligned}$$'}</Eq>,
                                 porque: 'Sustituyendo ζ* = VaR: el promedio de los excesos sobre el VaR, sumado al VaR, es el promedio de las pérdidas de la cola. Y esta versión trae la rueda fraccionaria incluida, que es por lo que da el CVaR exacto y no el promedio simple del capítulo 5.',
                             },
                         ]}
@@ -4065,7 +4065,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                                 porque: 'El máximo entre cero y x es, dicho al revés, el MENOR número que es a la vez mayor o igual que x y mayor o igual que cero. Es una identidad exacta, no una aproximación, y mirarla en esa dirección —un máximo como el mínimo de un conjunto— es todo el truco del capítulo.',
                             },
                             {
-                                eq: <Eq>{'$$F_\\alpha(w,\\zeta) \\;=\\; \\min_{u}\\;\\Big\\{\\, \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\;:\\; u_s \\geq L_s - \\zeta,\\; u_s \\geq 0 \\,\\Big\\}$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} F_\\alpha(w,\\zeta) &= \\min_{u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[2pt] \\text{sujeto a}\\;\\; & u_s \\geq L_s - \\zeta,\\; u_s \\geq 0 \\end{aligned}$$'}</Eq>,
                                 porque: 'Sustituyendo cada máximo por su mínimo, uno por escenario. La función deja de tener máximos y pasa a tener una minimización anidada dentro: primero sobre las 1 916 variables u, y esa minimización interior vive dentro de la que ya había sobre w y ζ.',
                             },
                             {
@@ -4073,7 +4073,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                                 porque: 'Minimizar por partes o minimizar todo a la vez dan el mismo valor, porque el conjunto sobre el que se busca es el mismo. Eso permite aplanar las dos minimizaciones en una sola, y una sola es lo que un solucionador acepta: cvxpy y lpSolve no saben qué hacer con un mínimo dentro del objetivo.',
                             },
                             {
-                                eq: <Eq>{'$$u_s^{*} \\;=\\; \\max(0,\\,L_s - \\zeta) \\qquad\\text{porque}\\qquad \\frac{\\partial}{\\partial u_s}\\left[\\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s\\right] = \\frac{1}{(1-\\alpha)S} > 0$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} & u_s^{*} \\;=\\; \\max(0,\\,L_s - \\zeta) \\qquad\\text{porque} \\\\[4pt] & \\frac{\\partial}{\\partial u_s}\\left[\\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s\\right] = \\frac{1}{(1-\\alpha)S} > 0 \\end{aligned}$$'}</Eq>,
                                 porque: 'Y aquí está la razón de que el cambio sea EXACTO y no una relajación. Cada u aparece en el objetivo con coeficiente positivo y el problema se minimiza, así que el óptimo empuja cada u contra su cota inferior y ni un poco más arriba: en la solución u vale exactamente el máximo que sustituyó. Si el coeficiente fuera negativo, o si el problema se maximizara, las desigualdades dejarían suelto el valor de u y el programa devolvería otra cosa. Es la comprobación que hay que hacer siempre que se linealice un máximo, y la que casi nunca se escribe.',
                             },
                         ]}
@@ -4081,7 +4081,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                     />
 
                     <h3>El programa, escrito entero</h3>
-                    <Eq>{'$$\\min_{w,\\,\\zeta,\\,u} \\;\\; \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_{s} u_s \\qquad\\text{sujeto a}\\qquad u_s \\geq -w^\\top r_s - \\zeta, \\quad u_s \\geq 0, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} \\min_{w,\\,\\zeta,\\,u} \\;\\; & \\zeta + \\frac{1}{(1-\\alpha)S}\\sum_{s} u_s \\\\[4pt] \\text{sujeto a} \\;\\; & u_s \\geq -w^\\top r_s - \\zeta, \\quad u_s \\geq 0, \\\\ & \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\end{aligned}$$'}</Eq>
                     <p>
                         Todo es lineal: el objetivo, las restricciones y las cotas. No hay un solo término
                         cuadrático, y eso lo separa del capítulo 7 en algo más que la forma — un programa
@@ -4271,7 +4271,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                         repitiendo para varios. Escritos así, los dos problemas se parecen más de lo que
                         su reputación sugiere:
                     </p>
-                    <Eq>{'$$\\begin{aligned} \\text{objetivo de media-varianza:}\\quad & \\min_{w}\\; w^\\top \\Sigma\\, w \\\\[2pt] \\text{objetivo de media-CVaR:}\\quad & \\min_{w,\\,\\zeta,\\,u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[8pt] \\text{restricciones de los dos:}\\quad & \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\\\[2pt] \\text{y solo del segundo:}\\quad & u_s \\geq L_s - \\zeta, \\quad u_s \\geq 0 \\end{aligned}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} & \\text{objetivo de media-varianza:} \\\\ & \\qquad \\min_{w}\\; w^\\top \\Sigma\\, w \\\\[6pt] & \\text{objetivo de media-CVaR:} \\\\ & \\qquad \\min_{w,\\,\\zeta,\\,u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[6pt] & \\text{restricciones de los dos:} \\\\ & \\qquad \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\\\[6pt] & \\text{y solo del segundo:} \\\\ & \\qquad u_s \\geq L_s - \\zeta, \\quad u_s \\geq 0 \\end{aligned}$$'}</Eq>
 
                     <Anatomia
                         titulo="Qué cambia y qué no entre los dos"
@@ -4476,7 +4476,7 @@ lp("min", obj, A, c(rep(">=", S), "=", "="),
                         La cuenta que hay detrás de todo lo que sigue cabe en una línea, y es la que casi
                         nunca se escribe al lado de un CVaR:
                     </p>
-                    <Eq>{'$$n_{\\text{cola}} \\;=\\; (1-\\alpha)\\,S \\qquad\\text{frente a}\\qquad n_{\\Sigma} \\;=\\; S \\qquad\\Longrightarrow\\qquad \\frac{n_{\\Sigma}}{n_{\\text{cola}}} \\;=\\; \\frac{1}{1-\\alpha}$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} n_{\\text{cola}} \\;=\\; (1-\\alpha)\\,S \\qquad\\text{frente a}\\qquad n_{\\Sigma} \\;=\\; S \\\\[4pt] \\Longrightarrow\\quad \\frac{n_{\\Sigma}}{n_{\\text{cola}}} \\;=\\; \\frac{1}{1-\\alpha} \\end{gathered}$$'}</Eq>
                     <p>
                         Cada entrada de la matriz de covarianzas se estima con las <strong>S ruedas
                         enteras</strong>; el CVaR, solo con las que caen en la cola. La razón entre las dos

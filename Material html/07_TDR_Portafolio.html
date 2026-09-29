@@ -3753,7 +3753,7 @@ for (a in 2018:2025) linea(as.character(a), r[substr(fechas, 1, 4) == as.charact
                         partes. El retorno sí se pondera y se suma —eso es aritmética de pesos, y el
                         capítulo 1 lo dejó escrito—. La varianza, no:
                     </p>
-                    <Eq>{'$$\\sigma_p^2 = \\sum_i \\sum_j w_i w_j \\sigma_{ij} = \\underbrace{\\sum_i w_i^2 \\sigma_i^2}_{\\text{lo propio de cada activo}} + \\underbrace{2\\sum_{i<j} w_i w_j \\rho_{ij}\\,\\sigma_i \\sigma_j}_{\\text{lo que aportan los pares}}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} \\sigma_p^2 &= \\sum_i \\sum_j w_i w_j \\sigma_{ij} \\\\[4pt] &= \\underbrace{\\sum_i w_i^2 \\sigma_i^2}_{\\text{lo propio de cada activo}} + \\underbrace{2\\sum_{i<j} w_i w_j \\rho_{ij}\\,\\sigma_i \\sigma_j}_{\\text{lo que aportan los pares}} \\end{aligned}$$'}</Eq>
 
                     <Anatomia
                         titulo="Las piezas del riesgo de una cartera, y cuánto valen aquí"
@@ -3776,13 +3776,13 @@ for (a in 2018:2025) linea(as.character(a), r[substr(fechas, 1, 4) == as.charact
                         pasos={[
                             { eq: <Eq>{'$$r_p \\;=\\; \\sum_i w_i\\, r_i \\;=\\; w^\\top r$$'}</Eq>,
                               porque: 'Los pesos se fijan al principio de la rueda y no cambian dentro de ella, así que el retorno de la cartera es una combinación lineal de los cuatro. Es exacto con retornos aritméticos; con los logarítmicos de este capítulo es la convención declarada en el capítulo 1, y lo que cuesta se mide en la sección 4.' },
-                            { eq: <Eq>{'$$\\sigma_p^2 \\;=\\; \\operatorname{Var}\\big(w^\\top r\\big) \\;=\\; \\mathbb{E}\\left[\\Big(\\textstyle\\sum_i w_i\\,(r_i-\\mu_i)\\Big)^2\\right]$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} \\sigma_p^2 &= \\operatorname{Var}\\big(w^\\top r\\big) \\\\ &= \\mathbb{E}\\left[\\Big(\\textstyle\\sum_i w_i\\,(r_i-\\mu_i)\\Big)^2\\right] \\end{aligned}$$'}</Eq>,
                               porque: 'La varianza es, por definición, el valor esperado del cuadrado de la desviación respecto de la media. Restar la media de cada activo no cambia el problema y deja la expresión lista para desarrollar.' },
-                            { eq: <Eq>{'$$= \\sum_i \\sum_j w_i w_j\\; \\mathbb{E}\\big[(r_i-\\mu_i)(r_j-\\mu_j)\\big] \\;=\\; \\sum_i \\sum_j w_i w_j\\, \\sigma_{ij}$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} &= \\sum_i \\sum_j w_i w_j\\; \\mathbb{E}\\big[(r_i-\\mu_i)(r_j-\\mu_j)\\big] \\\\ &= \\sum_i \\sum_j w_i w_j\\, \\sigma_{ij} \\end{aligned}$$'}</Eq>,
                               porque: 'El cuadrado de una suma no es la suma de los cuadrados: es la suma de TODOS los productos cruzados. Aquí está el origen del asunto. Con cuatro activos salen dieciséis términos y solo cuatro son varianzas; los otros doce son covarianzas, seis parejas contadas dos veces cada una.' },
-                            { eq: <Eq>{'$$= \\underbrace{\\sum_i w_i^2 \\sigma_i^2}_{\\text{lo propio}} + \\underbrace{2\\sum_{i<j} w_i w_j\\, \\rho_{ij}\\,\\sigma_i\\sigma_j}_{\\text{los pares}} \\;=\\; w^\\top \\Sigma\\, w$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} &= \\underbrace{\\sum_i w_i^2 \\sigma_i^2}_{\\text{lo propio}} + \\underbrace{2\\sum_{i<j} w_i w_j\\, \\rho_{ij}\\,\\sigma_i\\sigma_j}_{\\text{los pares}} \\\\ &= w^\\top \\Sigma\\, w \\end{aligned}$$'}</Eq>,
                               porque: 'Separar la diagonal del resto y escribir cada covarianza como ρ·σ·σ deja a la vista quién manda. Sobre la cartera declarada lo propio vale 0,037540 y los pares 0,025081: el 59,9 % y el 40,1 % de una varianza de 0,062622. Dos quintas partes del riesgo de este fondo no están dentro de ningún activo, sino entre ellos.' },
-                            { eq: <Eq>{'$$\\rho_{ij}=1\\;\\;\\text{para todo par} \\qquad\\Longrightarrow\\qquad \\sigma_p^2 = \\Big(\\sum_i w_i \\sigma_i\\Big)^2 \\qquad\\Longrightarrow\\qquad \\sigma_p = \\sum_i w_i \\sigma_i$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} & \\rho_{ij}=1\\;\\;\\text{para todo par} \\\\[2pt] \\Longrightarrow\\quad & \\sigma_p^2 = \\Big(\\sum_i w_i \\sigma_i\\Big)^2 \\\\[2pt] \\Longrightarrow\\quad & \\sigma_p = \\sum_i w_i \\sigma_i \\end{aligned}$$'}</Eq>,
                               porque: 'Con todas las correlaciones en uno la suma doble se vuelve un cuadrado perfecto y la raíz sí se reparte. Es el único caso en que el riesgo se suma igual que el retorno, y es el listón contra el que se mide todo lo demás: 38,02 % para esta cartera.' },
                         ]}
                         cierre="La cartera declarada mide 25,02 % y no 38,02 %: esos 12,9941 pp son el segundo término haciendo su trabajo. Y si las correlaciones fueran cero en lugar de las del panel, la raíz de «lo propio» daría 19,38 %, que es exactamente lo que el laboratorio de la sección 3 devuelve en κ = 0."
@@ -3901,11 +3901,11 @@ ponderada   <- w * sE + w * sI`,
                           porque: 'Se deja fuera, por ahora, la restricción w ≥ 0: esa no tiene fórmula cerrada. La salida honesta es resolver sin ella y comprobar después si la respuesta la cumple. En este panel la cumple, y por eso la sección 5 puede decir que prohibir los cortos no le cuesta nada a la mínima varianza.' },
                         { eq: <Eq>{'$$\\mathcal{L}(w,\\lambda) \\;=\\; w^\\top \\Sigma\\, w \\;-\\; \\lambda\\,\\big(\\mathbf{1}^\\top w - 1\\big)$$'}</Eq>,
                           porque: 'El multiplicador λ es el precio de la restricción: cuánto bajaría la varianza si a los pesos se les permitiera sumar algo distinto de uno. Es el mismo aparato con el que la sección 3 le pone precio al retorno objetivo.' },
-                        { eq: <Eq>{'$$\\nabla_w \\mathcal{L} \\;=\\; 2\\,\\Sigma\\, w - \\lambda\\,\\mathbf{1} \\;=\\; 0 \\qquad\\Longrightarrow\\qquad w \\;=\\; \\tfrac{\\lambda}{2}\\,\\Sigma^{-1}\\mathbf{1}$$'}</Eq>,
+                        { eq: <Eq>{'$$\\begin{gathered} \\nabla_w \\mathcal{L} \\;=\\; 2\\,\\Sigma\\, w - \\lambda\\,\\mathbf{1} \\;=\\; 0 \\\\[4pt] \\Longrightarrow\\quad w \\;=\\; \\tfrac{\\lambda}{2}\\,\\Sigma^{-1}\\mathbf{1} \\end{gathered}$$'}</Eq>,
                           porque: 'Igualar el gradiente a cero da el mínimo porque Σ es definida positiva, y por eso ese punto es único. Si fuera solo semidefinida, es decir singular, la ecuación tendría infinitas soluciones y hablar de «la» cartera de mínima varianza sería un abuso de lenguaje.' },
-                        { eq: <Eq>{'$$\\mathbf{1}^\\top w = 1 \\;\\Longrightarrow\\; \\tfrac{\\lambda}{2} = \\frac{1}{\\mathbf{1}^\\top \\Sigma^{-1}\\mathbf{1}} \\qquad\\Longrightarrow\\qquad w^\\star \\;=\\; \\frac{\\Sigma^{-1}\\mathbf{1}}{\\mathbf{1}^\\top \\Sigma^{-1}\\mathbf{1}}$$'}</Eq>,
+                        { eq: <Eq>{'$$\\begin{aligned} & \\mathbf{1}^\\top w = 1 \\\\[2pt] \\Longrightarrow\\quad & \\tfrac{\\lambda}{2} = \\frac{1}{\\mathbf{1}^\\top \\Sigma^{-1}\\mathbf{1}} \\\\[2pt] \\Longrightarrow\\quad & w^\\star \\;=\\; \\frac{\\Sigma^{-1}\\mathbf{1}}{\\mathbf{1}^\\top \\Sigma^{-1}\\mathbf{1}} \\end{aligned}$$'}</Eq>,
                           porque: 'El denominador solo normaliza, para que los pesos sumen uno. Evaluada sobre este panel la fórmula devuelve 20,76 · 38,13 · 15,97 · 25,14 con una volatilidad de 23,93 %: los mismos dígitos que los dos solucionadores del bloque de abajo, que llegan por otro camino.' },
-                        { eq: <Eq>{'$$\\Sigma = \\operatorname{diag}(\\sigma_1^2,\\ldots,\\sigma_n^2) \\qquad\\Longrightarrow\\qquad w_i^\\star \\;=\\; \\frac{1/\\sigma_i^2}{\\sum_j 1/\\sigma_j^2}$$'}</Eq>,
+                        { eq: <Eq>{'$$\\begin{gathered} \\Sigma = \\operatorname{diag}(\\sigma_1^2,\\ldots,\\sigma_n^2) \\\\[4pt] \\Longrightarrow\\quad w_i^\\star \\;=\\; \\frac{1/\\sigma_i^2}{\\sum_j 1/\\sigma_j^2} \\end{gathered}$$'}</Eq>,
                           porque: 'Apagar las correlaciones deja la matriz diagonal, y la inversa de una diagonal es la de los recíprocos. El reparto pasa a ser 1/σ² puro: cada activo pesa lo contrario de lo que se mueve, y nada más. Es el caso límite contra el que conviene leer cualquier reparto real.' },
                     ]}
                     cierre="Ese último caso se comprueba en el laboratorio de la sección 3: en κ = 0 la mínima varianza pide 23,26 · 31,62 · 19,17 · 25,94, que es 1/σ² dígito a dígito. Con la matriz real Grupo Sura baja de 19,17 % a 15,97 %, así que sus correlaciones no lo sostienen — le restan. Lo que lo sostiene es lo que cuesta sacarlo, y eso lo mide la sección 3."
@@ -4067,7 +4067,7 @@ ponderada   <- w * sE + w * sI`,
                         es el mismo programa cuadrático de la sección 2 con una restricción más — el
                         retorno objetivo— y resuelto una vez por cada objetivo:
                     </p>
-                    <Eq>{'$$\\min_{w} \\; w^\\top \\Sigma\\, w \\qquad \\text{sujeto a} \\qquad \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} \\min_{w} \\;\\; & w^\\top \\Sigma\\, w \\\\[2pt] \\text{sujeto a} \\;\\; & \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\end{aligned}$$'}</Eq>
                     <p>
                         Cada valor de <span className="inline-code">R</span> da un problema distinto y una
                         cartera distinta. Barriendo <span className="inline-code">R</span> desde el
@@ -4301,7 +4301,7 @@ ponderada   <- w * sE + w * sI`,
                         volatilidad» y pasa a ser «cuánto retorno por unidad de volatilidad». Eso es la{' '}
                         <Termino def="Retorno esperado en exceso de la tasa libre de riesgo, dividido entre la volatilidad. Mide cuánto paga una cartera por cada punto de riesgo que hace correr, y es comparable entre carteras de tamaños distintos.">razón de Sharpe</Termino>:
                     </p>
-                    <Eq>{'$$S_p = \\frac{\\mu_p - r_f}{\\sigma_p} \\qquad\\text{y la recta que sale de } r_f \\text{ hacia la tangente: }\\qquad \\mu = r_f + S_T\\,\\sigma$$'}</Eq>
+                    <Eq>{'$$\\begin{gathered} S_p = \\frac{\\mu_p - r_f}{\\sigma_p} \\\\[6pt] \\text{y la recta que sale de } r_f \\text{ hacia la tangente:} \\\\[2pt] \\mu = r_f + S_T\\,\\sigma \\end{gathered}$$'}</Eq>
 
                     <Anatomia
                         titulo="Las piezas que añade el activo libre de riesgo"
@@ -4320,9 +4320,9 @@ ponderada   <- w * sE + w * sI`,
 
                     <Derivacion titulo="Por qué la CML es una recta, y por qué su pendiente es la razón de Sharpe"
                         pasos={[
-                            { eq: <Eq>{'$$\\mu \\;=\\; \\theta\\,\\mu_T + (1-\\theta)\\,r_f \\;=\\; r_f + \\theta\\,(\\mu_T - r_f)$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} \\mu &= \\theta\\,\\mu_T + (1-\\theta)\\,r_f \\\\ &= r_f + \\theta\\,(\\mu_T - r_f) \\end{aligned}$$'}</Eq>,
                               porque: 'Una fracción θ del fondo va a la cartera tangente y el resto al TES. El retorno esperado de una mezcla sí se pondera y se suma, sin letra pequeña: esa parte nunca da problemas.' },
-                            { eq: <Eq>{'$$\\sigma^2 \\;=\\; \\theta^2\\sigma_T^2 \\;+\\; (1-\\theta)^2\\underbrace{\\sigma_f^2}_{=\\;0} \\;+\\; 2\\theta(1-\\theta)\\underbrace{\\sigma_{Tf}}_{=\\;0} \\;=\\; \\theta^2\\sigma_T^2$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} \\sigma^2 &= \\theta^2\\sigma_T^2 + (1-\\theta)^2\\underbrace{\\sigma_f^2}_{=\\;0} \\\\ &\\quad + 2\\theta(1-\\theta)\\underbrace{\\sigma_{Tf}}_{=\\;0} \\\\ &= \\theta^2\\sigma_T^2 \\end{aligned}$$'}</Eq>,
                               porque: 'Aquí está el truco entero, y es la suma doble de la sección 1 aplicada a dos activos. El TES tiene volatilidad cero y covarianza cero con todo, porque su retorno se conoce de antemano. De los tres términos sobrevive uno solo.' },
                             { eq: <Eq>{'$$\\sigma \\;=\\; \\theta\\,\\sigma_T \\qquad\\Longrightarrow\\qquad \\theta \\;=\\; \\frac{\\sigma}{\\sigma_T}$$'}</Eq>,
                               porque: 'La volatilidad de la mezcla resulta lineal en θ, no cuadrática. Es la única vez en todo el capítulo en que el riesgo se reparte de forma proporcional, y es exactamente lo que endereza la curva.' },
@@ -4335,13 +4335,13 @@ ponderada   <- w * sE + w * sI`,
 
                     <Derivacion titulo="El cambio de variable que convierte un cociente en un programa cuadrático"
                         pasos={[
-                            { eq: <Eq>{'$$\\max_{w}\\; \\frac{\\tilde\\mu^\\top w}{\\sqrt{w^\\top \\Sigma\\, w}} \\qquad \\text{sujeto a} \\qquad \\mathbf{1}^\\top w = 1,\\quad w \\ge 0$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} \\max_{w}\\;\\; & \\frac{\\tilde\\mu^\\top w}{\\sqrt{w^\\top \\Sigma\\, w}} \\\\[4pt] \\text{sujeto a}\\;\\; & \\mathbf{1}^\\top w = 1,\\quad w \\ge 0 \\end{aligned}$$'}</Eq>,
                               porque: 'Escrito así el objetivo es un cociente: ni cuadrático ni convexo. Ningún solucionador de programas cuadráticos lo acepta, y ahí es donde mucha gente abandona el problema con restricciones y se va a la fórmula cerrada — que es justo lo que la sección 5 castiga.' },
-                            { eq: <Eq>{'$$S(c\\,w) \\;=\\; \\frac{c\\,\\tilde\\mu^\\top w}{c\\,\\sqrt{w^\\top \\Sigma\\, w}} \\;=\\; S(w) \\qquad \\text{para todo } c>0$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{gathered} S(c\\,w) \\;=\\; \\frac{c\\,\\tilde\\mu^\\top w}{c\\,\\sqrt{w^\\top \\Sigma\\, w}} \\;=\\; S(w) \\\\[2pt] \\text{para todo } c>0 \\end{gathered}$$'}</Eq>,
                               porque: 'La razón de Sharpe no distingue el tamaño de la posición, solo su dirección: duplicar todos los pesos la deja igual. Esa indiferencia es un grado de libertad regalado, y el truco consiste en gastarlo eligiendo la escala que más convenga.' },
-                            { eq: <Eq>{'$$\\text{Fijar la escala en}\\;\\; \\tilde\\mu^\\top y = 1 \\qquad\\Longrightarrow\\qquad S(y) \\;=\\; \\frac{1}{\\sqrt{y^\\top \\Sigma\\, y}}$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{gathered} \\text{Fijar la escala en}\\;\\; \\tilde\\mu^\\top y = 1 \\\\[4pt] \\Longrightarrow\\quad S(y) \\;=\\; \\frac{1}{\\sqrt{y^\\top \\Sigma\\, y}} \\end{gathered}$$'}</Eq>,
                               porque: 'Con el numerador clavado en uno, maximizar el cociente es maximizar uno partido por la raíz, o sea MINIMIZAR y′Σy. El objetivo vuelve a ser el de la sección 2 y la condición que fija la escala es lineal, que es lo único que el solucionador exige.' },
-                            { eq: <Eq>{'$$\\min_{y}\\; y^\\top \\Sigma\\, y \\quad \\text{s. a.} \\quad \\tilde\\mu^\\top y = 1,\\;\\; y \\ge 0 \\qquad\\Longrightarrow\\qquad w^\\star \\;=\\; \\frac{y^\\star}{\\mathbf{1}^\\top y^\\star}$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} \\min_{y}\\;\\; & y^\\top \\Sigma\\, y \\\\ \\text{s. a.}\\;\\; & \\tilde\\mu^\\top y = 1,\\;\\; y \\ge 0 \\\\[4pt] \\Longrightarrow\\;\\; & w^\\star = \\frac{y^\\star}{\\mathbf{1}^\\top y^\\star} \\end{aligned}$$'}</Eq>,
                               porque: 'Este sí es el programa cuadrático de siempre, con otra restricción lineal. Se resuelve y al final se reescala para que los pesos sumen uno. Es literalmente lo que hacen las dos pestañas del bloque de abajo, y el comentario del código lo dice.' },
                         ]}
                         cierre="La restricción y ≥ 0 sobrevive al reescalado, porque dividir entre un número positivo no cambia ningún signo — y la suma de las componentes de y lo es cuando y ≥ 0 y no es nula. Por eso este camino devuelve 5,52 · 0 · 0 · 94,48, una cartera que el régimen admite, donde la fórmula cerrada de la sección 5 devuelve un monstruo."
@@ -4380,11 +4380,11 @@ ponderada   <- w * sE + w * sI`,
                         pasos={[
                             { eq: <Eq>{'$$R_p \\;=\\; \\sum_i w_i R_i, \\qquad R_i \\;=\\; e^{r_i}-1$$'}</Eq>,
                               porque: 'Los retornos ARITMÉTICOS sí agregan entre activos: si el fondo se rebalancea a los pesos declarados cada rueda, lo que gana la cartera es la media ponderada de lo que ganan sus partes. Esto es exacto y no tiene letra pequeña.' },
-                            { eq: <Eq>{'$$r_p \\;=\\; \\ln(1+R_p) \\;=\\; \\ln\\Big(1+\\textstyle\\sum_i w_i\\,(e^{r_i}-1)\\Big) \\;\\neq\\; \\sum_i w_i\\, r_i$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} r_p &= \\ln(1+R_p) \\\\ &= \\ln\\Big(1+\\textstyle\\sum_i w_i\\,(e^{r_i}-1)\\Big) \\\\ &\\neq \\sum_i w_i\\, r_i \\end{aligned}$$'}</Eq>,
                               porque: 'Para volver a logarítmicos hay que meter la suma dentro de un logaritmo, y el logaritmo de una suma no es la suma de los logaritmos. Ahí se rompe la agregación, y no por una aproximación: por una desigualdad.' },
                             { eq: <Eq>{'$$r_p \\;\\approx\\; w^\\top r \\;+\\; \\tfrac{1}{2}\\Big(\\textstyle\\sum_i w_i r_i^2 \\;-\\; (w^\\top r)^2\\Big)$$'}</Eq>,
                               porque: 'Desarrollando la exponencial y el logaritmo hasta el segundo orden queda el término de la convención más una corrección. El primer orden coincide, y por eso la convención parece inocente cuando se mira una sola rueda.' },
-                            { eq: <Eq>{'$$\\mathbb{E}[r_p] - w^\\top\\mu \\;\\approx\\; \\tfrac{1}{2}\\Big(\\underbrace{\\textstyle\\sum_i w_i \\sigma_i^2}_{\\text{media de las varianzas}} \\;-\\; \\underbrace{w^\\top \\Sigma\\, w}_{\\text{varianza de la cartera}}\\Big)$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{gathered} \\mathbb{E}[r_p] - w^\\top\\mu \\\\ \\approx\\; \\tfrac{1}{2}\\Big(\\underbrace{\\textstyle\\sum_i w_i \\sigma_i^2}_{\\substack{\\text{media de las}\\\\ \\text{varianzas}}} \\;-\\; \\underbrace{w^\\top \\Sigma\\, w}_{\\substack{\\text{varianza de}\\\\ \\text{la cartera}}}\\Big) \\end{gathered}$$'}</Eq>,
                               porque: 'Tomando valor esperado, la brecha resulta ser media diferencia entre la varianza media de los activos y la varianza de la cartera, que es EXACTAMENTE el beneficio de diversificación de la sección 1. La convención no comete un error cualquiera: se come la diversificación, y por eso castiga a las carteras repartidas y deja casi intactas a las concentradas.' },
                         ]}
                         cierre="De ahí sale que la brecha valga 0,00 pp para un activo solo, donde no hay nada que diversificar, y que crezca con el reparto. La fórmula da 4,1487 pp para la cartera declarada y 0,5176 para la tangente; medidas exactas sobre el panel son 4,1394 y 0,5166. Es una aproximación de segundo orden y se reporta como tal, que es la sexta convención del curso."
@@ -4552,7 +4552,7 @@ falta      <- 23.93 - vol_mez    # la GMV de la seccion 3`,
                         Las restricciones que importan aquí son dos, y las dos son lineales, así que el
                         problema sigue siendo convexo y, con esta Σ definida positiva, sigue teniendo una sola respuesta:
                     </p>
-                    <Eq>{'$$w \\geq 0 \\quad\\text{(no hay cortos)} \\qquad\\text{y}\\qquad w_i \\leq \\bar{w} \\quad\\text{(tope por emisor)}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} w &\\geq 0 && \\text{(no hay cortos)} \\\\ w_i &\\leq \\bar{w} && \\text{(tope por emisor)} \\end{aligned}$$'}</Eq>
                     <p>
                         Una <Termino def="Posición en corto (short selling): vender un activo que no se tiene, tomándolo prestado, con el compromiso de recomprarlo después. En el problema de carteras aparece como un peso negativo, y financia una posición mayor que el 100 % en los demás activos.">posición en corto</Termino>{' '}
                         aparece en este problema como un peso negativo. Prohibirlas es escribir{' '}
@@ -4582,13 +4582,13 @@ falta      <- 23.93 - vol_mez    # la GMV de la seccion 3`,
 
                     <Derivacion titulo="De dónde sale la fórmula cerrada, y en qué paso exacto se rompe"
                         pasos={[
-                            { eq: <Eq>{'$$\\max_{w \\neq 0}\\; S(w) \\;=\\; \\frac{\\tilde\\mu^\\top w}{\\sqrt{w^\\top \\Sigma\\, w}} \\qquad \\text{sin ninguna restricción}$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{gathered} \\max_{w \\neq 0}\\; S(w) \\;=\\; \\frac{\\tilde\\mu^\\top w}{\\sqrt{w^\\top \\Sigma\\, w}} \\\\[2pt] \\text{sin ninguna restricción} \\end{gathered}$$'}</Eq>,
                               porque: 'Este es otro problema, no el de la sección 4: aquí no hay w ≥ 0 ni se exige que los pesos sumen uno. La fórmula cerrada resuelve ESTE, y todo lo que viene a continuación es impecable. El defecto no va a estar en el álgebra.' },
-                            { eq: <Eq>{'$$\\nabla S = 0 \\quad\\Longrightarrow\\quad \\tilde\\mu\\,\\big(w^\\top\\Sigma w\\big) \\;=\\; \\big(\\tilde\\mu^\\top w\\big)\\,\\Sigma\\,w \\quad\\Longrightarrow\\quad w \\;\\propto\\; \\Sigma^{-1}\\tilde\\mu$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{aligned} & \\nabla S = 0 \\\\[2pt] \\Longrightarrow\\quad & \\tilde\\mu\\,\\big(w^\\top\\Sigma w\\big) \\;=\\; \\big(\\tilde\\mu^\\top w\\big)\\,\\Sigma\\,w \\\\[2pt] \\Longrightarrow\\quad & w \\;\\propto\\; \\Sigma^{-1}\\tilde\\mu \\end{aligned}$$'}</Eq>,
                               porque: 'Derivando el cociente e igualando a cero, Σw queda proporcional al vector de retornos en exceso. La dirección óptima es la misma para cualquier escala, que es la invariancia de la sección 4 asomando otra vez.' },
                             { eq: <Eq>{'$$w^\\star \\;=\\; \\frac{\\Sigma^{-1}\\tilde\\mu}{\\mathbf{1}^\\top \\Sigma^{-1}\\tilde\\mu}$$'}</Eq>,
                               porque: 'Para que una dirección sea una cartera hay que normalizarla, y se normaliza dividiendo entre la suma de sus componentes. Este es el paso donde entra el problema, y no se nota, porque es una división como cualquier otra.' },
-                            { eq: <Eq>{'$$\\mathbf{1}^\\top \\Sigma^{-1}\\tilde\\mu \\;=\\; -0{,}0784 \\;<\\; 0 \\qquad\\Longrightarrow\\qquad S(w^\\star) \\;=\\; -\\,S\\big(\\Sigma^{-1}\\tilde\\mu\\big)$$'}</Eq>,
+                            { eq: <Eq>{'$$\\begin{gathered} \\mathbf{1}^\\top \\Sigma^{-1}\\tilde\\mu \\;=\\; -0{,}0784 \\;<\\; 0 \\\\[4pt] \\Longrightarrow\\quad S(w^\\star) \\;=\\; -\\,S\\big(\\Sigma^{-1}\\tilde\\mu\\big) \\end{gathered}$$'}</Eq>,
                               porque: 'Nada obliga a ese número a ser positivo: es una suma de componentes que pueden tener cualquier signo. En este panel vale −0,0784, y dividir entre él invierte el vector entero. La cartera resultante apunta al lado contrario de la que maximiza, y aterriza en la que MINIMIZA la razón de Sharpe.' },
                         ]}
                         cierre="Por eso la primera fila da −147,15 · 927,45 · 28,04 · −708,34 con razón de Sharpe −0,2891, peor que la del peor activo suelto. Los cuatro pasos del álgebra son correctos; lo que nadie comprobó fue la condición de uso — que la solución sin restricciones cumpliera el régimen del fondo, y que ese denominador fuera positivo. En la taxonomía del curso eso es un supuesto no verificado, no un error de cálculo."

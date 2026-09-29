@@ -245,10 +245,33 @@ Dos reglas para quien escriba:
 1. **En `Derivacion`, el campo `eq` recibe un `<Eq>`** (o una cadena, que se envuelve sola).
    No lo meta en otra caja con desbordamiento: el contenedor de fuera tapa al de dentro,
    medirlo devuelve siempre «cabe» y la sombra se pinta dos veces. Pasó al escribir el arreglo.
-2. **`data-desborda` es la lista de fórmulas que conviene partir.** A 375 px quedan unas sesenta
-   en los diez capítulos, y ninguna cortada en silencio. Para listarlas en un capítulo, con el
-   panel en móvil, recorra las secciones con los porqués abiertos y ejecute en la consola:
+2. **La fórmula que lleve `data-desborda` a 360 px se parte en el fuente.** El 2026-09-28 se
+   partieron las 63 que quedaban —56 a 375 px y 7 más que solo se salían a 360— y hoy ninguna de
+   las 121 lo lleva ni a 375, ni a 360, ni a 1024 px. Para listarlas en un capítulo, con el panel a
+   360 px, recorra las secciones con los porqués abiertos y ejecute en la consola:
    `[...document.querySelectorAll('[data-desborda]')].length`.
+
+Cómo se partieron, para que el capítulo siguiente no invente otra forma:
+
+| La fórmula es… | Se parte con | Ejemplo |
+|---|---|---|
+| una cadena de igualdades | `aligned`, una igualdad por fila, alineada en `&=` | la β de cartera, capítulo 3 |
+| una implicación | `gathered`: la premisa arriba y `\\Longrightarrow\\quad` abriendo la conclusión | el ES de la normal, capítulo 5 |
+| dos o más implicaciones seguidas | `aligned` con las flechas colgando a la izquierda (`\\Longrightarrow\\quad &`) | ρᵢⱼ = 1, capítulo 7 |
+| un problema de optimización | `aligned` con `\\min` y `\\text{sujeto a}` en la columna izquierda | la mínima varianza, capítulo 7 |
+| una fórmula con un comentario en texto | el texto en su propia fila de `gathered` | «si los r_t son independientes», capítulo 1 |
+
+El presupuesto, medido a 360 px con el suelo de 0,68: una fórmula de sección cabe si su ancho
+natural no pasa de unos **400 px**, y la de un paso de `Derivacion` de unos **310**, porque la
+tarjeta y el paso se comen 60 px de relleno. Una fórmula partida ocupa dos filas **también en
+escritorio**; donde bastaba con quitar espacios de sobra —`\\;=\\;` por `=`— se prefirió eso y la
+fórmula siguió en una línea (la F de la sección 2 del capítulo 8). Ojo con `\\iff`: ya trae `\\;` a
+cada lado, así que cambiarlo por `\\;\\Longleftrightarrow\\;` no ahorra nada.
+
+Y **pruebe la versión partida antes de estamparla**: tipografíela en una caja insertada junto a
+un `<Eq>` real del capítulo abierto a 360 px y mida su `scrollWidth` con el `font-size` al 68 %. Es
+lo mismo que se pide para un arreglo de TR-CORE —una tabla de casos antes que once archivos— y
+aquí evitó estampar seis versiones que a 375 cabían y a 360 no.
 
 ⚠️ **La regla `.eq-scroll` vive en `tr-head.html`, que `migrar.py` no estampa.** Se añadió a mano
 a los diez capítulos; uno nuevo la hereda al nacer de `tr-base.html`, pero si se toca, hay que

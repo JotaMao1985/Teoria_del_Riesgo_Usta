@@ -4042,11 +4042,11 @@ cat(sprintf("su Z1 es %.1f veces menor que el del EWMA normal, y sigue %.1f vece
                                 porque: 'La tasa que mejor explica lo observado es la observada. Es el estimador de máxima verosimilitud de una binomial y sale de derivar el logaritmo de L e igualar a cero. Sobre este panel, 26/1666 = 1,5606 %.',
                             },
                             {
-                                eq: <Eq>{'$$LR_{uc} = -2\\ln\\frac{L(p)}{L(\\hat{\\pi})} = -2\\left[\\ln L(p) - \\ln L(\\hat{\\pi})\\right]$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{aligned} LR_{uc} &= -2\\ln\\frac{L(p)}{L(\\hat{\\pi})} \\\\ &= -2\\left[\\ln L(p) - \\ln L(\\hat{\\pi})\\right] \\end{aligned}$$'}</Eq>,
                                 porque: 'El cociente de verosimilitudes mide cuánto peor explica los datos la tasa prometida que la mejor tasa posible. Vale 1 —y el estadístico vale cero— si la tasa observada coincide con la prometida, y crece con la distancia entre las dos, en cualquiera de los dos sentidos: fallar de menos también es fallar.',
                             },
                             {
-                                eq: <Eq>{'$$LR_{uc} \\;\\xrightarrow{d}\\; \\chi^2_1 \\qquad\\text{rechazo al 5 \\% si } LR_{uc} > 3{,}8415$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} LR_{uc} \\;\\xrightarrow{d}\\; \\chi^2_1 \\\\[2pt] \\text{rechazo al 5 \\% si } LR_{uc} > 3{,}8415 \\end{gathered}$$'}</Eq>,
                                 porque: 'Es el teorema de Wilks: menos dos veces el logaritmo de un cociente de verosimilitudes con una restricción converge a una chi-cuadrado con un grado de libertad. «Converge» es la palabra que importa: con T = 250 la aproximación es mala en la cola, y esa es una de las razones por las que el marco de Basilea no usa la prueba directamente sino una tabla de conteos, que es la sección 5.',
                             },
                         ]}
@@ -4190,7 +4190,7 @@ pi <- N / T
                         la que tiene dos.
                     </p>
 
-                    <Eq>{'$$LR_{ind} = -2\\ln\\frac{(1-\\pi)^{n_{00}+n_{10}}\\,\\pi^{\\,n_{01}+n_{11}}}{(1-\\pi_{01})^{n_{00}}\\pi_{01}^{\\,n_{01}}(1-\\pi_{11})^{n_{10}}\\pi_{11}^{\\,n_{11}}} \\;\\xrightarrow{d}\\; \\chi^2_1$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} LR_{ind} &= -2\\ln\\frac{(1-\\pi)^{n_{00}+n_{10}}\\,\\pi^{\\,n_{01}+n_{11}}}{(1-\\pi_{01})^{n_{00}}\\pi_{01}^{\\,n_{01}}(1-\\pi_{11})^{n_{10}}\\pi_{11}^{\\,n_{11}}} \\\\[4pt] &\\xrightarrow{d}\\; \\chi^2_1 \\end{aligned}$$'}</Eq>
 
                     <Box type="info" label="La prueba conjunta es una suma, y eso no es casualidad">
                         Christoffersen observó que las dos hipótesis —la tasa correcta y la
