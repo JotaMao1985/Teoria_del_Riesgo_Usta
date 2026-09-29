@@ -2783,11 +2783,11 @@ cp.Problem(cp.Minimize(cp.quad_form(wv, cp.psd_wrap(Sig))),
            [cp.sum(wv) == 1, wv >= 0]).solve()
 wg = np.maximum(np.array(wv.value).ravel(), 0)
 
-def perdidas(w):
-    return -(R @ w)                              # perdida diaria de la cartera, en %
+def perdidas(w, RR=R):
+    return -(RR @ w)                             # perdida diaria de la cartera, en %
 
-def medidas(w, alfa):
-    L = perdidas(w)
+def medidas(w, alfa, RR=R):
+    L = perdidas(w, RR)
     var  = np.quantile(L, alfa)
     cola = L[L > var]
     simple = cola.mean()                         # la convencion del capitulo 5
@@ -2837,7 +2837,14 @@ for nombre, w in (("declarada", w0), ("minima varianza", wg)):
 d99 = medidas(wg, 0.99)[2] - medidas(w0, 0.99)[2]
 print(f"al 99 % la de minima varianza tiene {d99:.4f} pp MAS de CVaR que la declarada: "
       f"{d99/100*W:,.0f} millones")
-#> al 99 % la de minima varianza tiene 0.0234 pp MAS de CVaR que la declarada: 187 millones`,
+#> al 99 % la de minima varianza tiene 0.0234 pp MAS de CVaR que la declarada: 187 millones
+
+# Esa cifra es de la convencion w'mu del capitulo 7. Con retornos simples, que es
+# lo que el fondo cobra, la brecha conserva el signo y se queda en menos de la mitad
+Rx = (np.exp(r.values) - 1) * 100
+d99x = medidas(wg, 0.99, Rx)[2] - medidas(w0, 0.99, Rx)[2]
+print(f"medida sobre lo que el fondo cobra: {d99x/100*W:,.0f} millones")
+#> medida sobre lo que el fondo cobra: 76 millones`,
             r: `suppressPackageStartupMessages(library(quadprog))
 
 precios  <- read.csv("datos/bvc_diario.csv")
@@ -2856,10 +2863,10 @@ Sig <- cov(r) * 252
 wg <- pmax(solve.QP(2 * Sig, rep(0, 4), cbind(rep(1, 4), diag(4)),
                     c(1, rep(0, 4)), meq = 1)$solution, 0)
 
-perdidas <- function(w) as.vector(-(R %*% w))    # perdida diaria de la cartera, en %
+perdidas <- function(w, RR = R) as.vector(-(RR %*% w))   # perdida diaria, en %
 
-medidas <- function(w, alfa) {
-  L <- perdidas(w)
+medidas <- function(w, alfa, RR = R) {
+  L <- perdidas(w, RR)
   var  <- quantile(L, alfa, names = FALSE)
   m    <- L > var
   simple <- mean(L[m])                           # la convencion del capitulo 5
@@ -2914,7 +2921,14 @@ for (nombre in c("declarada", "minima varianza")) {
 d99 <- medidas(wg, 0.99)["exacto"] - medidas(w0, 0.99)["exacto"]
 cat(sprintf("al 99 %% la de minima varianza tiene %.4f pp MAS de CVaR que la declarada: %s millones\\n",
             d99, mil(d99 / 100 * W)))
-#> al 99 % la de minima varianza tiene 0.0234 pp MAS de CVaR que la declarada: 187 millones`,
+#> al 99 % la de minima varianza tiene 0.0234 pp MAS de CVaR que la declarada: 187 millones
+
+# Esa cifra es de la convencion w'mu del capitulo 7. Con retornos simples, que es
+# lo que el fondo cobra, la brecha conserva el signo y se queda en menos de la mitad
+Rx <- (exp(r) - 1) * 100
+d99x <- medidas(wg, 0.99, Rx)["exacto"] - medidas(w0, 0.99, Rx)["exacto"]
+cat(sprintf("medida sobre lo que el fondo cobra: %s millones\\n", mil(d99x / 100 * W)))
+#> medida sobre lo que el fondo cobra: 76 millones`,
         };
 
         const EJ_RU = {
@@ -3630,7 +3644,7 @@ for (a in c(0.95, 0.975, 0.99)) {
         const PortadaSection = () => (
             <>
                 <Motivacion icon="fa-scissors"
-                    gancho="El capítulo 7 minimizó la varianza y le entregó al fondo una cartera que, en el 1 % de los días peores, pierde 187 millones MÁS que los pesos que el comité había puesto a ojo. No es una paradoja: es lo que pasa cuando se optimiza una medida que trata igual las dos colas.">
+                    gancho="El capítulo 7 minimizó la varianza y le entregó al fondo una cartera que, en el 1 % de los días peores, pierde MÁS que los pesos que el comité había puesto a ojo —187 millones en la convención de ese capítulo, 76 medidos sobre lo que el fondo cobra—. No es una paradoja: es lo que pasa cuando se optimiza una medida que trata igual las dos colas.">
                     La varianza penaliza tanto el día que el fondo gana un 5 % como el día que lo pierde,
                     y por eso una cartera de mínima varianza no es, necesariamente, la que menos pierde
                     cuando pierde. Este capítulo cambia el objetivo: en vez de minimizar la dispersión,
@@ -3770,7 +3784,7 @@ for (a in c(0.95, 0.975, 0.99)) {
                     </p>
 
                     <CodeTabs titulo="La cola de la cartera declarada y la de mínima varianza, a tres niveles" bloques={EJ_COLA}
-                        nota="La columna «ES simple» es la convención del capítulo 5 —el promedio de las ruedas que exceden el corte— y la columna «CVaR exacto» es la que este capítulo va a minimizar. Las dos se imprimen juntas a propósito: la diferencia entre ellas es de 30 millones al 97,5 % y de 884 al 99 %, y es el precio de que la cola pedida —47,9 ruedas, 19,2 ruedas— casi nunca sea un número entero." />
+                        nota="La columna «ES simple» es la convención del capítulo 5 —el promedio de las ruedas que exceden el corte— y la columna «CVaR exacto» es la que este capítulo va a minimizar. Las dos se imprimen juntas a propósito: la diferencia entre ellas es de 30 millones al 97,5 % y de 884 al 99 %, y es el precio de que la cola pedida —47,9 ruedas, 19,2 ruedas— casi nunca sea un número entero. La última línea mide la brecha del 99 % con la misma función sobre retornos simples: cambia la vara, no el estimador." />
 
                     <ChartFrame id="cap8-cola" height="chart-h-400"
                         caption="Las veinte ruedas que deciden el CVaR al 99 % de la cartera declarada, en millones sobre los 800 000 del fondo. Rojo es 2020, ámbar 2022, morado 2025 y azul 2023: ocho, siete, cuatro y una. De 2018, 2019, 2021 y 2024 —cuatro años de los ocho— no entra ninguna. La segunda peor rueda de todo el panel es el 19 de febrero de 2025, que es la mitad del par de cotizaciones defectuosas que el capítulo 4 diagnostica y que el manifiesto declara y no corrige." />
@@ -3781,7 +3795,10 @@ for (a in c(0.95, 0.975, 0.99)) {
                         97,5 % —3,466 % contra 3,625 %, y 4,607 % contra 4,731 %— y{' '}
                         <strong>peor al 99 %</strong>: 6,733 % contra 6,710 %, que sobre{' '}
                         {miles(VALOR)} millones son <strong>187 millones</strong> de pérdida media
-                        adicional en el 1 % de los días peores. Minimizar la dispersión mejoró el centro y
+                        adicional en el 1 % de los días peores. Esa es la cifra de la convención del
+                        capítulo 7; medida sobre lo que el fondo cobra, la brecha se queda en{' '}
+                        <strong>76</strong> —menos de la mitad y con el mismo signo, que es lo que aquí
+                        importa—. Minimizar la dispersión mejoró el centro y
                         el hombro de la distribución y no hizo nada por el extremo, porque en el extremo
                         no manda la covarianza: mandan cuatro días de marzo de 2020 en los que los cuatro
                         emisores cayeron a la vez, y contra eso no hay diversificación que valga.
@@ -3998,26 +4015,6 @@ F(15000); F(26000); F(48000); F(60000)`,
                         ocultas={['valor']}
                         pista="Los dos cortes de en medio empatan en 69 000, y no es casualidad: F es lineal a trozos y su mínimo se alcanza en TODO el intervalo entre el octavo y el noveno escenario ordenados —de 26 000 a 48 000—, que es donde hay exactamente dos pérdidas por encima. El VaR al 80 % es 26 000, el extremo izquierdo de ese intervalo, y el CVaR es el promedio de las dos peores: (48 000 + 90 000) ÷ 2 = 69 000, que es lo que la función devuelve. Con 1 916 escenarios el intervalo se estrecha, pero el fenómeno es el mismo."
                     />
-
-                    <Emparejamiento
-                        titulo="R6 · Cada pieza del programa con lo que hace"
-                        enunciado="Las cuatro piezas de la formulación de Rockafellar-Uryasev. Tres son variables o constantes del programa y una es el par de restricciones que hace lineal lo que no lo parecía. Empareje cada una con lo que hace de verdad."
-                        etiquetaIzq="Pieza"
-                        etiquetaDer="Qué hace"
-                        izquierda={[
-                            'La variable auxiliar ζ',
-                            'Las variables de exceso u_s, una por escenario',
-                            'El factor 1 / ((1−α)S)',
-                            'El par u_s ≥ L_s − ζ junto con u_s ≥ 0',
-                        ]}
-                        derecha={[
-                            'Reparte la suma de los excesos entre las ruedas que el nivel pide —47,9 al 97,5 % sobre este panel—, y es lo que convierte una suma en un promedio de cola',
-                            'Es el corte propuesto, y en el óptimo resulta ser el VaR; el programa no lo sabe de antemano y no lo necesita: lo trata como una incógnita más',
-                            'Son 1 916 incógnitas que no interesan por sí mismas: existen para poder escribir el máximo sin usar la palabra máximo',
-                            'Es la traducción de max(0, ·) a lenguaje lineal: como el objetivo empuja cada u_s hacia abajo, en el óptimo cada una vale exactamente el máximo entre cero y el exceso',
-                        ]}
-                        solucion={[1, 2, 0, 3]}
-                    />
                 </>
             );
         };
@@ -4197,11 +4194,31 @@ F(15000); F(26000); F(48000); F(60000)`,
                         pista="Dos trampas. La primera es el conteo de escenarios de la cola: hacerlo al final, cuando el número ya salió, es descubrir que se estimó un promedio con seis observaciones después de haberlo presentado; hacerlo antes puede llevar a bajar el nivel o alargar la ventana, que es una decisión metodológica y no un ajuste. La segunda es la verificación de la solución: el valor óptimo del programa y el CVaR recalculado sobre los pesos que devuelve tienen que coincidir, y si no coinciden es que se optimizó otra cosa — que es exactamente lo que le pasa al código del R3 de esta misma sección."
                     />
 
+                    <Emparejamiento
+                        titulo="R6 · Cada pieza del programa con lo que hace"
+                        enunciado="Las cuatro piezas de la formulación de Rockafellar-Uryasev. Tres son variables o constantes del programa y una es el par de restricciones que hace lineal lo que no lo parecía. Empareje cada una con lo que hace de verdad."
+                        etiquetaIzq="Pieza"
+                        etiquetaDer="Qué hace"
+                        izquierda={[
+                            'La variable auxiliar ζ',
+                            'Las variables de exceso u_s, una por escenario',
+                            'El factor 1 / ((1−α)S)',
+                            'El par u_s ≥ L_s − ζ junto con u_s ≥ 0',
+                        ]}
+                        derecha={[
+                            'Reparte la suma de los excesos entre las ruedas que el nivel pide —47,9 al 97,5 % sobre este panel—, y es lo que convierte una suma en un promedio de cola',
+                            'Es el corte propuesto, y en el óptimo resulta ser el VaR; el programa no lo sabe de antemano y no lo necesita: lo trata como una incógnita más',
+                            'Son 1 916 incógnitas que no interesan por sí mismas: existen para poder escribir el máximo sin usar la palabra máximo',
+                            'Es la traducción de max(0, ·) a lenguaje lineal: como el objetivo empuja cada u_s hacia abajo, en el óptimo cada una vale exactamente el máximo entre cero y el exceso',
+                        ]}
+                        solucion={[1, 2, 0, 3]}
+                    />
+
                     <Ejercicio tipo="R2">
                         <MCQ
                             pregunta="El programa lineal de esta sección tiene 1 921 variables: cuatro pesos, un corte y 1 916 excesos. ¿Qué pasaría si se le añadieran diez mil escenarios más?"
                             opciones={[
-                                { texto: 'Crecería en diez mil variables y diez mil restricciones, y seguiría siendo un programa lineal: con los escenarios crece el tamaño del problema, no su naturaleza ni su dificultad.', correcta: true, justificacion: 'La formulación añade una variable y dos restricciones por escenario, y nada más: el problema crece de forma lineal en el número de escenarios y sigue siendo un programa lineal, que es la clase de problemas que mejor escala. Por eso la optimización CVaR se usa en la práctica sobre paneles de decenas de miles de escenarios, históricos o simulados. Lo que NO mejora al añadir escenarios simulados es la información: si salen de un modelo ajustado a los mismos datos, el panel es más grande y la evidencia es la misma.' },
+                                { texto: 'Crecería en diez mil variables y diez mil restricciones, y seguiría siendo un programa lineal: con los escenarios crece el tamaño del problema, no su naturaleza ni su dificultad.', correcta: true, justificacion: 'La formulación añade por escenario una variable, una fila y una cota —las tres piezas que la anatomía del programa cuenta por separado—, y nada más: el problema crece de forma lineal en el número de escenarios y sigue siendo un programa lineal, que es la clase de problemas que mejor escala. Por eso la optimización CVaR se usa en la práctica sobre paneles de decenas de miles de escenarios, históricos o simulados. Lo que NO mejora al añadir escenarios simulados es la información: si salen de un modelo ajustado a los mismos datos, el panel es más grande y la evidencia es la misma.' },
                                 { texto: 'Dejaría de ser lineal: el término del máximo introduce una no linealidad por cada escenario nuevo y el problema pasaría a ser cuadrático en el número de escenarios.', correcta: false },
                                 { texto: 'Crecería en diez mil restricciones pero no en variables, ya que las variables de exceso se pueden eliminar sustituyendo el máximo directamente en la función objetivo.', correcta: false },
                                 { texto: 'El tiempo de solución crecería de forma exponencial, que es la razón por la que la optimización CVaR se limita en la práctica a paneles de unos pocos miles de escenarios como este.', correcta: false },
@@ -4271,7 +4288,7 @@ F(15000); F(26000); F(48000); F(60000)`,
                         repitiendo para varios. Escritos así, los dos problemas se parecen más de lo que
                         su reputación sugiere:
                     </p>
-                    <Eq>{'$$\\begin{aligned} & \\text{objetivo de media-varianza:} \\\\ & \\qquad \\min_{w}\\; w^\\top \\Sigma\\, w \\\\[6pt] & \\text{objetivo de media-CVaR:} \\\\ & \\qquad \\min_{w,\\,\\zeta,\\,u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[6pt] & \\text{restricciones de los dos:} \\\\ & \\qquad \\mu^\\top w = R, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\\\[6pt] & \\text{y solo del segundo:} \\\\ & \\qquad u_s \\geq L_s - \\zeta, \\quad u_s \\geq 0 \\end{aligned}$$'}</Eq>
+                    <Eq>{'$$\\begin{aligned} & \\text{objetivo de media-varianza:} \\\\ & \\qquad \\min_{w}\\; w^\\top \\Sigma\\, w \\\\[6pt] & \\text{objetivo de media-CVaR:} \\\\ & \\qquad \\min_{w,\\,\\zeta,\\,u}\\; \\zeta + \\tfrac{1}{(1-\\alpha)S}\\textstyle\\sum_s u_s \\\\[6pt] & \\text{restricciones de los dos:} \\\\ & \\qquad \\mu^\\top w = \\tau, \\quad \\mathbf{1}^\\top w = 1, \\quad w \\geq 0 \\\\[6pt] & \\text{y solo del segundo:} \\\\ & \\qquad u_s \\geq L_s - \\zeta, \\quad u_s \\geq 0 \\end{aligned}$$'}</Eq>
 
                     <Anatomia
                         titulo="Qué cambia y qué no entre los dos"
@@ -4279,8 +4296,8 @@ F(15000); F(26000); F(48000); F(60000)`,
                         piezas={[
                             { simbolo: '\\(w^\\top \\Sigma\\, w\\)', que: 'El objetivo de arriba. Resume las 1 916 ruedas en las diez cifras de la matriz de covarianzas, y a partir de ahí el panel ya no hace falta: dos paneles con la misma Σ dan la misma cartera aunque sus colas no se parezcan en nada.', vale: '10 cifras' },
                             { simbolo: '\\(\\zeta + \\tfrac{1}{(1-\\alpha)S}\\sum_s u_s\\)', que: 'El objetivo de abajo. No resume nada: cada rueda entra por separado y las que están en la cola entran con peso propio. Por eso el problema crece con el panel y el de arriba no.', vale: '1 916 ruedas' },
-                            { simbolo: '\\(\\mu^\\top w = R\\)', que: 'La fila que traza la frontera: se fija un retorno objetivo R, se resuelve, y se repite. Es idéntica en los dos problemas, y es la que convierte «la cartera de mínimo riesgo» en «una curva de carteras».', vale: '7 valores de R' },
-                            { simbolo: '\\(R\\)', que: 'El retorno objetivo, el parámetro que se barre. Va del retorno de la cartera de mínima CVaR al del emisor más rentable, que es donde las dos fronteras se juntan porque ya solo hay una cartera posible.', vale: '6,78 % a 12,88 %' },
+                            { simbolo: '\\(\\mu^\\top w = \\tau\\)', que: 'La fila que traza la frontera: se fija un retorno objetivo τ, se resuelve, y se repite. Es idéntica en los dos problemas, y es la que convierte «la cartera de mínimo riesgo» en «una curva de carteras».', vale: '7 valores de τ' },
+                            { simbolo: '\\(\\tau\\)', que: 'El retorno objetivo, el parámetro que se barre. Se escribe con letra griega porque R ya es, en todos los bloques del capítulo, la matriz de escenarios. Va del retorno de la cartera de mínima CVaR al del emisor más rentable, que es donde las dos fronteras se juntan porque ya solo hay una cartera posible.', vale: '6,78 % a 12,88 %' },
                             { simbolo: '\\(\\Sigma,\\ \\mu\\)', que: 'Los dos estimados del capítulo 7, y los dos con la misma ventana declarada. Si la ventana cambia, cambian las dos fronteras a la vez: la comparación de abajo mide el objetivo, no el estimador.', vale: '1 916 ruedas' },
                         ]}
                         nota="El problema de arriba es cuadrático y el de abajo lineal, y esa es la diferencia de forma. La de fondo es la del resumen: uno decide con diez números y el otro con mil novecientos dieciséis."
@@ -4329,19 +4346,19 @@ F(15000); F(26000); F(48000); F(60000)`,
 
                     <Comparador
                         titulo="R4 · Los dos programas, uno al lado del otro"
-                        enunciado={<>Los dos resuelven el mismo problema de cartera con el mismo retorno objetivo y sobre los mismos datos. Uno minimiza <strong>wᵀΣw</strong> con cuatro variables; el otro minimiza el <strong>CVaR al 97,5 %</strong> con 1 921. Las dos respuestas son legítimas y responden a preguntas distintas.</>}
+                        enunciado={<>Los dos resuelven el mismo problema de cartera con el mismo retorno objetivo —el de la cartera de mínima CVaR, 6,7839 %— y sobre los mismos datos. Uno minimiza <strong>wᵀΣw</strong> con cuatro variables; el otro minimiza el <strong>CVaR al 97,5 %</strong> con 1 921. Las dos respuestas son legítimas y responden a preguntas distintas.</>}
                         a={{
                             etiqueta: 'A · media-varianza (capítulo 7)',
                             codigo: {
                                 python: `w = cp.Variable(4)
-cp.Problem(cp.Minimize(cp.quad_form(w, S)),
+cp.Problem(cp.Minimize(cp.quad_form(w, Sig)),
            [cp.sum(w) == 1, w >= 0,
-            mu @ w == 0.0678]).solve()
+            mu @ w == 0.067839]).solve()
 # ECO 21.50  BOG 34.21  SUR 15.92  ISA 28.37
 # CVaR 97,5 % 4.5844 %   volatilidad 23.99 %`,
                                 r: `A <- cbind(rep(1, 4), mu, diag(4))
 solve.QP(2 * Sig, rep(0, 4), A,
-         c(1, 0.0678, rep(0, 4)), meq = 2)
+         c(1, 0.067839, rep(0, 4)), meq = 2)
 # ECO 21.50  BOG 34.21  SUR 15.92  ISA 28.37
 # CVaR 97,5 % 4.5844 %   volatilidad 23.99 %`,
                             },
@@ -4354,7 +4371,7 @@ solve.QP(2 * Sig, rep(0, 4), A,
 cp.Problem(cp.Minimize(z + cp.sum(u)/((1-alfa)*S)),
            [u >= -(R @ w) - z, u >= 0,
             cp.sum(w) == 1, w >= 0,
-            mu @ w == 0.0678]).solve()
+            mu @ w == 0.067839]).solve()
 # ECO 19.36  BOG 34.61  SUR 16.43  ISA 29.60
 # CVaR 97,5 % 4.5815 %   volatilidad 24.00 %`,
                                 r: `obj <- c(rep(0, 4), 1, -1, rep(1/((1-alfa)*S), S))
@@ -4362,7 +4379,7 @@ A   <- rbind(cbind(R, 1, -1, diag(S)),
              c(rep(1, 4), rep(0, 2 + S)),
              c(mu, rep(0, 2 + S)))
 lp("min", obj, A, c(rep(">=", S), "=", "="),
-   c(rep(0, S), 1, 0.0678))
+   c(rep(0, S), 1, 0.067839))
 # ECO 19.36  BOG 34.61  SUR 16.43  ISA 29.60
 # CVaR 97,5 % 4.5815 %   volatilidad 24.00 %`,
                             },
