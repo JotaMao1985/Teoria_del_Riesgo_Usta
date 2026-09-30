@@ -830,10 +830,14 @@ mismo defecto**:
     recarga a la misma URL puede devolver la versión vieja — la medición sale idéntica a la de
     antes del arreglo y parece que no sirvió de nada. Añada `?v=` con la hora al recargar.
 
-    **Queda medido y sin cerrar**: la cifra decimal da **5,25 de 10 en el cuestionario del
-    capítulo 8** y **5,00 en el del 12** (el azar es 2,5). Los dos pasan la regla 16 —brechas de
-    0,20 y 0,27— y están en el nivel del resto del material, pero es la misma familia. En el 7 se
-    cerró el 2026-09-16 (de 4,75 a 3,25) y en el 11 el 2026-09-15.
+    **Queda medido y sin cerrar en el 12**: la cifra decimal da **5,00 de 10** en su cuestionario
+    (el azar es 2,5). Pasa la regla 16 —brecha de 0,27— y está en el nivel del resto del material,
+    pero es la misma familia. En el 7 se cerró el 2026-09-16 (de 4,75 a 3,25), en el 11 el
+    2026-09-15 y en el **8 el 2026-09-29** (de 5,25 a **3,25**, brecha de 0,20 a 0,11): en cuatro
+    preguntas solo la correcta llevaba decimal, y un distractor de cada una recibió una cifra del
+    capítulo usada en falso —el VaR de la declarada, los 2,5 escenarios, la raíz de 252, la peor
+    rueda—. De paso cayeron la raya (3,00 → 2,50) y el punto y coma (3,25 → 2,75), que en dos de
+    esas preguntas también marcaban solo a la correcta.
 
     ⚠️ **Mida estas pistas con el valor ESPERADO exacto, no repitiendo en pantalla.** Marcar al
     azar entre las opciones marcadas tiene varianza, y con seis repeticiones el capítulo 7 salió
