@@ -838,9 +838,11 @@ mismo defecto**:
     2,5 escenarios, la raíz de 252 y la peor rueda; en el 12 la tasa en sus dos convenciones
     (7,00 % efectivo contra 6,7659 %, cuando árbol y fórmula usan las dos `log(1.07)`), el valor
     de N(d₁), la σ redondeada a 44,04 % y los 3,7240 COP de pasar de 63 a 126 rebalanceos—. De
-    paso cayó el punto y coma en los dos (3,25 → 2,75) y la raya en el 8 (3,00 → 2,50). **Queda
-    una en el 12**: la raya solo la lleva la correcta en la pregunta de la raíz del tiempo, con el
-    total en 3,25 de 10, dentro de la banda.
+    paso cayó el punto y coma en los dos (3,25 → 2,75) y la raya en el 8 (3,00 → 2,50). La raya
+    del 12 —solo la llevaba la correcta en la pregunta de la raíz del tiempo— se cerró el mismo
+    día dándosela al distractor de la normalidad (3,25 → 2,75), que la regla 13 obligó a dejar
+    más largo que la correcta. En el 8 y el 12 ya no hay ninguna pregunta del cuestionario en que
+    una de las cuatro marcas señale solo a la correcta.
 
     ⚠️ **Mida estas pistas con el valor ESPERADO exacto, no repitiendo en pantalla.** Marcar al
     azar entre las opciones marcadas tiene varianza, y con seis repeticiones el capítulo 7 salió
