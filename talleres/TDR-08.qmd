@@ -119,7 +119,12 @@ entrega tienen que coincidir. Reporte los dos y diga en qué decimal se separan.
 **1.3** Repita 1.1 al **95 %** y al **99 %**. Reporte los tres juegos de pesos y
 diga cuántos escenarios caen en la cola en cada nivel. Al 99 %, compare el CVaR
 de la cartera de mínima varianza con el de la declarada: debe encontrar que la de
-mínima varianza es **peor**, y por 187 millones. Explique por qué en dos líneas.
+mínima varianza es **peor**, y por **188 millones** con `cvar()` —**86** en la lectura
+exacta—. Explique por qué en dos líneas. El capítulo imprime 187 y 76, y no es que
+alguno de los dos esté mal: su primer bloque evalúa F en el cuantil interpolado, que
+es el «ES exacto» del capítulo 5, y `cvar()` la evalúa en el estadístico de orden. Con
+19,16 ruedas en la cola, ese cambio de estimador mueve la cifra exacta nueve millones
+y la de la convención 0,3; el signo no lo mueve.
 
 **1.4** Con la fórmula de Rockafellar-Uryasev evaluada a mano —sin optimizar—,
 dibuje F(ζ) para la cartera declarada al 97,5 % y búsquele el mínimo sobre cuatro

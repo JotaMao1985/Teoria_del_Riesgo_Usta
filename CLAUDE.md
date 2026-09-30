@@ -131,9 +131,9 @@ forma más limpia. Al 99 % el costo de decidir sube a 408 millones y la cartera 
 ⚠️ **Lo que NO se convirtió, y está cubierto por la declaración, no corregido:** la tabla de las
 veinte peores ruedas, los 18 200 del R3 de la cola fijada, los 3 777 del par de febrero y los
 23–219 de las dos fronteras siguen siendo de la convención. Los signos y las conclusiones
-sobreviven todos —comprobado—: la mínima varianza sigue siendo peor al 99 % (86 millones
-exactos contra 188 de la convención) y el par de febrero sigue dominando la cola (3 475 contra
-3 777).
+sobreviven todos —comprobado—: la mínima varianza sigue siendo peor al 99 % (el capítulo
+imprime **76** millones exactos contra 187 de la convención; con el estadístico de orden del
+taller, 86 contra 188) y el par de febrero sigue dominando la cola (3 475 contra 3 777).
 
 ## Publicación
 
@@ -219,9 +219,20 @@ brecha es de **30 millones al 97,5 %** y **884 al 99 %**, las mismas que midió 
 Sus cifras de referencia: cartera declarada CVaR 97,5 % **4,7311 %** (37 849 millones),
 mínima varianza 4,6067 % y **mínima CVaR 4,5815 %** con 19,36 · 34,61 · 16,43 · 29,60 y
 ζ = 2,7215 %. Dos resultados que conviene no volver a descubrir: **minimizar la varianza
-empeora la cola al 99 %** —6,733 % contra el 6,710 % de la declarada, 187 millones— y las
-**dos fronteras casi coinciden**, con una brecha de 23 a 219 millones sobre siete retornos
-objetivo. El capítulo no termina con «adopte CVaR» a propósito.
+empeora la cola al 99 %** —6,733 % contra el 6,710 % de la declarada, 187 millones en la
+convención y **76** medidos sobre retornos simples, las dos cifras impresas por el primer
+bloque— y las **dos fronteras casi coinciden**, con una brecha de 23 a 219 millones sobre
+siete retornos objetivo. El capítulo no termina con «adopte CVaR» a propósito.
+
+⚠️ **Esas cifras dependen del estimador, y el capítulo usa dos.** La sección 1 evalúa F en el
+cuantil interpolado —el «ES exacto» del capítulo 5, y por eso sus brechas de 30 y 884 coinciden
+con las del 5—; la sección 3 y el `cvar()` del taller 8 usan el estadístico de orden. Al 97,5 %
+apenas se nota, pero al 99 %, con 19,16 ruedas, el estimador mueve la brecha exacta de 76 a
+**86** millones y la de la convención de 187 a **188**, y la declarada pasa de 6,70953 % a
+6,70947 %, a caballo del redondeo del tercer decimal. Pasar la sección 1 al estadístico de orden
+se probó el 2026-09-28 y se deshizo: rompe la coincidencia con el capítulo 5 y con
+`TDR-U1.qmd`. Quien cite una de estas cifras dice con qué estimador salió — la auditoría del 8
+propuso 86 al lado de los 187 y eran de estimadores distintos.
 
 ⚠️ **Y deja medido cuántos datos hay detrás de una cola**, que es lo que el capítulo 15
 volverá a necesitar: al 97,5 % sobre el panel entero son **47,9 escenarios**; con 250 ruedas,
