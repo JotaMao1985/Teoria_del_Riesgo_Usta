@@ -5245,7 +5245,7 @@ desembolso = compra * S[i]`}
                             { texto: 'Que el promedio conserva un sesgo de +0,0116, más pequeño que la amplitud de 0,0653 que tienen los diez árboles promediados: la brecha cabe dentro de su propio ruido.', correcta: true },
                             { texto: 'Que la fórmula cerrada de Black-Scholes tiene un error de aproximación en la normal acumulada: se hace visible a partir de la cuarta cifra decimal del precio resultante.', correcta: false },
                             { texto: 'Que el capítulo 11 debió usar un número impar de árboles en el promedio para que los errores de signo contrario se cancelaran de forma exacta en vez de aproximada.', correcta: false },
-                            { texto: 'Que la diferencia proviene de que el árbol usa la tasa libre de riesgo en capitalización discreta mientras la fórmula la usa en tiempo continuo, y ambas convenciones difieren en el cuarto decimal.', correcta: false },
+                            { texto: 'Que el árbol capitaliza la tasa libre de riesgo de forma discreta, al 7,00 % efectivo, y la fórmula en continuo, al 6,7659 %, y esa diferencia de convención aparece en el cuarto decimal.', correcta: false },
                         ],
                     },
                     {
@@ -5253,9 +5253,9 @@ desembolso = compra * S[i]`}
                         justificacion: 'N(d₂), y solo bajo la probabilidad neutral al riesgo. N(d₁) es el delta: el número de acciones que hay que tener para replicar la opción, 79,2575 millones sobre la posición del fondo. Confundirlas se equivoca en 10,83 puntos porcentuales al afirmar con qué frecuencia se ejerce, y es el error más común del capítulo porque las dos salen de la misma d y difieren solo en σ√T. Una cuenta estados del mundo; la otra cuenta acciones.',
                         opciones: [
                             { texto: 'N(d₂), que vale 0,480206; N(d₁) es el delta de la cobertura, 0,588487, y no es la probabilidad neutral al riesgo de ejercicio: confundirlas es el error más común de este capítulo.', correcta: true },
-                            { texto: 'N(d₁), porque es la que multiplica al precio de contado y por tanto pondera el estado del mundo en el que se recibe efectivamente la acción subyacente al vencimiento.', correcta: false },
+                            { texto: 'N(d₁), 0,588487, porque es la que multiplica al precio de contado y por tanto pondera el estado del mundo en el que se recibe la acción subyacente al vencimiento.', correcta: false },
                             { texto: 'Ninguna de las dos: la probabilidad de ejercicio bajo la medida real se obtiene sustituyendo la tasa libre de riesgo por la deriva medida en el panel, que para Ecopetrol es 9,0576 %.', correcta: false },
-                            { texto: 'Las dos, según el numerario que se use: N(d₁) bajo la medida asociada a la acción y N(d₂) bajo la asociada al bono, y ambas son igualmente válidas para responder la pregunta.', correcta: false },
+                            { texto: 'Las dos, según el numerario que se use: N(d₁) bajo la medida asociada a la acción y N(d₂) bajo la asociada al bono; ambas son igualmente válidas para responder la pregunta.', correcta: false },
                         ],
                     },
                     {
@@ -5274,7 +5274,7 @@ desembolso = compra * S[i]`}
                         opciones: [
                             { texto: 'El error del árbol de 500 pasos, 0,0888 pesos, leído como si fuera volatilidad del mercado: una implícita hereda el error de modelo del precio que se invirtió.', correcta: true },
                             { texto: 'La prima de riesgo de volatilidad que el mercado cobra por encima de la volatilidad realizada, que en mercados emergentes suele situarse entre uno y dos puntos porcentuales anuales.', correcta: false },
-                            { texto: 'El efecto de haber redondeado la volatilidad a cuatro decimales antes de valorar: se amplifica al invertir porque la función precio-volatilidad es muy plana cerca del dinero.', correcta: false },
+                            { texto: 'El efecto de haber redondeado la volatilidad a 44,04 % antes de valorar: se amplifica al invertir porque la función precio-volatilidad es muy plana cerca del dinero.', correcta: false },
                             { texto: 'La diferencia entre la volatilidad estimada con 250 ruedas y la del panel completo, que el capítulo 7 declaró como la cuarta convención del curso al hablar de ventanas de estimación.', correcta: false },
                         ],
                     },
@@ -5323,7 +5323,7 @@ desembolso = compra * S[i]`}
                         justificacion: 'Que la reserva se calibra sobre el P&L observado de la estrategia y no sobre el error que el modelo se atribuye a sí mismo. El modelo se equivoca por un factor de 3,56 sobre este panel: reservar según su promesa deja la mesa corta justo cuando hace falta. Puede usarse para cotizar y para cubrir, no para dimensionar su propio error. Y el número se reporta con su conteo al lado —quince ventanas disjuntas—, porque quince observaciones no permiten estimar un percentil.',
                         opciones: [
                             { texto: 'Que se calibra sobre el P&L observado y no sobre el error del modelo: la desviación real es 3,56 veces la simulada, unos 7 213 millones sobre la posición del fondo.', correcta: true },
-                            { texto: 'Que hay que rebalancear con más frecuencia hasta que la desviación real converja a la simulada: la teoría garantiza que el error de cobertura cae como el inverso de la raíz del número de rebalanceos.', correcta: false },
+                            { texto: 'Que hay que rebalancear con más frecuencia hasta que la desviación real converja a la simulada: de 63 a 126 rebalanceos ya baja 3,7240 COP, y el error cae con la raíz de su número.', correcta: false },
                             { texto: 'Que conviene cubrir con el forward del capítulo 11 en lugar de con acciones, porque un contrato a plazo elimina por completo el error de cobertura al fijar de antemano el precio de venta.', correcta: false },
                             { texto: 'Que la volatilidad usada para cubrir debe ser la implícita de la sección 3 y no la histórica, con lo que el error de cobertura se reduciría al nivel que el modelo predice para sus propias trayectorias.', correcta: false },
                         ],
