@@ -9,9 +9,11 @@
 **Estado:** fases 0, 1 y 2 completadas · **puntos de control B y C aprobados** (B el
 2026-08-08, C el 2026-08-10) · D-A, D-B, D-C y **D-D ratificada el 2026-08-10** (tasa libre
 de riesgo, 7,00 % E.A.) · **fase 3 en curso: las tareas 12 y 13 —capítulos 7 y 8— quedaron
-terminadas el 2026-08-24** y los **ocho** capítulos pasan las catorce reglas con
-`--con-salidas` · **lo siguiente es la tarea 14**, el capítulo 9 (bonos, tasas y curvas),
-que sigue **bloqueado por `curva_tes.csv`**
+terminadas el 2026-08-24** · **la tarea 14 —capítulo 9— quedó terminada el 2026-09-29**, con
+`curva_tes.csv` congelada ese día desde el servicio REST del Banco de la República, y los
+**once** capítulos pasan las dieciséis reglas con `--con-salidas` · **la tarea 15 —capítulo
+10— ya no está bloqueada por datos**, pero exige resolver antes QuantLib en R (ver la tarea 14
+en el registro)
 
 ---
 
@@ -104,7 +106,7 @@ poder ejecutar todo.
 |---|---|---|
 | `bvc_diario.csv` | Ecopetrol, **Banco de Bogotá**, Grupo Sura e ISA + **ETF ICOLCAP**, cierre diario ajustado en pesos enteros, 2018-01 → 2025-12 (1917 filas) | C1–C8 |
 | `sp500_diario.csv` | Índice diario, mismo periodo | Contraste de colas: C1, C15 |
-| `curva_tes.csv` | Curva cero cupón TES por plazo, cortes mensuales — **PENDIENTE, bloquea C9 y C10** | C9, C10 |
+| `curva_tes.csv` | Curva cero cupón de los TES del Banco de la República: los **tres** vértices que publica —1, 5 y 10 años, pesos y UVR— y los parámetros de Nelson-Siegel, último dato de cada mes, 2003-01 → 2025-12 (276 filas). Congelada el 2026-09-29 | C9, C10 |
 | `german_credit.csv` | UCI German Credit, 1000 observaciones | C13, C14 |
 | `perdidas_operativas.csv` | Incendios daneses (`CASdatasets::danishuni`), 2167 siniestros 1980–1990, en millones de coronas de 1985 | C15 |
 
@@ -591,6 +593,28 @@ y qué la mueve.
 - **Ejercicios:** R1 (bootstrapping de tres plazos, a mano) · R2 ×2 · R3 ×2 (la IA confunde tasa nominal con efectiva; la IA descuenta todos los flujos con la spot del plazo final) · R4 (bootstrapping vs Nelson-Siegel) · R5 (orden del bootstrapping — es intrínsecamente secuencial) · R6 · R7 · R8 · R9 (desplazamiento paralelo y cambio de pendiente de la curva).
 - **Depende de:** C1.
 
+⚠️ **Revisado al escribirlo (2026-09-29), porque los datos no eran los que el plan suponía.**
+El Banco no publica la curva «por plazo»: publica **tres vértices** y los parámetros de
+Nelson-Siegel, con τ fijo. Tres cambios, aprobados por el usuario ese día:
+
+- **El bootstrapping trabaja sobre bonos teóricos.** No hay precios de TES en el archivo, así
+  que la sección 4 arma el mercado que la curva implica —un bono a la par por año, del 1 al
+  10— y comprueba que el bootstrapping lo devuelve a la curva: la **ida y vuelta** (0,0056 pb).
+  El R4 compara los dos métodos con un precio que llega 0,50 por debajo.
+- **Nelson-Siegel no se ajusta: se audita.** Con τ fijo y tres vértices, los tres β salen de un
+  sistema 3×3 y el error es cero por construcción. La sección 5 recupera los β de los vértices,
+  muestra que los publicados no los reproducen (0,29 pp de error medio) y que con τ libre tres
+  puntos no identifican cuatro parámetros. `scipy.optimize` no se usa: sus soluciones difieren
+  entre Python y R, y la lección es justamente que no hay nada que optimizar.
+- **QuantLib pasa al capítulo 10**, que lo tiene como tema (su sección 4). Además, **el paquete
+  de R no está instalado** —`RQuantLib` devuelve FALSE en el `Rscript` del sistema—, así que un
+  bloque de QuantLib hoy rompería la regla de los dos lenguajes. Queda como decisión de la
+  tarea 15.
+
+Y lo que se añadió: el **tramo de TES del fondo** como decisión declarada —tres bonos de estudio
+a 2, 5 y 10 años con cupones de 6,00 · 7,75 · 7,25 %, 200 000 millones nominales cada uno— que
+el capítulo 10 hereda; y la **capitalización continua** como convención declarada de la curva.
+
 ---
 
 ### Capítulo 10 — Duración, convexidad y valoración con QuantLib
@@ -798,7 +822,7 @@ todo lo que estima C2.
 - [x] El entorno se crea desde cero: 12 librerías de Python y 9 paquetes de R
 - [x] `tr-base.html` abre con doble clic, sin errores en consola
 - [x] Cuatro de los cinco conjuntos de datos congelados y con manifiesto
-- [ ] `curva_tes.csv` — **pendiente**, bloquea C9 y C10
+- [x] `curva_tes.csv` — **congelada el 2026-09-29** con `datos/descargar.py tes` (ver la tarea 14 en el registro)
 - [ ] Publicación en Pages — **sin verificar**: no hay remoto en GitHub todavía
 - [ ] **Revisión con el usuario antes de seguir**
 
@@ -1125,7 +1149,7 @@ como pendiente separado.
 |---|---|---|---|
 | ✅ 12 | C7 Portafolio y frontera eficiente · **terminada 2026-08-24** | M-L | 2 |
 | ✅ 13 | C8 Optimización CVaR · **terminada 2026-08-24** | M | 1 |
-| 14 | C9 Bonos, tasas y curvas | M | 1 |
+| ✅ 14 | C9 Bonos, tasas y curvas · **terminada 2026-09-29** | M | 1 |
 | 15 | C10 Duración, convexidad y QuantLib | M-L | 1 |
 
 → **Punto de control D** (definido en la sección 7)
@@ -1535,6 +1559,19 @@ un capítulo que trabaje en logarítmicos puros. Separa las dos 0,0009 pp anuale
 capítulos que la usen declaran cuál de las dos aplican y no las mezclan en una misma cifra.
 Cuando exista `curva_tes.csv` se sustituye por el TES del plazo que corresponda, y esa
 sustitución es una revisión de D-D, no un cambio silencioso.
+
+**Revisión con la curva · 2026-09-29 · SE MANTIENE.** La curva llegó y la revisión se hizo
+midiendo los dos usos que el curso le da a la tasa, que no son el mismo (el bloque 7 del
+capítulo 9 los imprime). **Como promedio de la ventana —C3 y C7— D-D se sostiene:** la curva a
+un año promedió 6,7950 % continuo entre 2018 y 2025, que son 7,0848 % efectivo anual, 0,08 pp
+sobre el 7,00 %; en logaritmos, 6,7950 % contra el ln(1,07) = 6,7659 % de C7. **Como tasa de un
+día —C11 y C12, que valoran el 30/12/2025— no:** la curva a seis meses marcaba 10,9150 %
+continuo, 4,15 pp sobre ln(1,07). Con ella la call del 12 pasa de 213,0648 a 230,7606 (2 383
+millones sobre la posición) y el forward del 11 de 1 843,3151 a 1 881,9554 (5 204 millones).
+**El usuario decidió mantener D-D y declarar la brecha**, como el curso hace con sus demás
+convenciones; el capítulo 9 la declara en su portada y en la sección 6, y ninguna cifra de C3,
+C7, C11 ni C12 se tocó. En la escala del 12, la brecha queda ocho veces por debajo de lo que
+mueve elegir σ (19 653 millones) y cincuenta por encima de su error numérico (47).
 
 *(Lo de abajo es la declaración original del 2026-08-09, que se conserva por el razonamiento
 y por la trampa de convención que documenta.)*
@@ -2489,6 +2526,101 @@ reporta `sd(pago)/sqrt(n)` tratando 100 000 sorteos dependientes como independie
 precio está bien y el error estándar **sobra** un 26 % (1,1057 declarado contra 0,8747 real),
 con lo que la técnica de reducción de varianza queda anulada en el reporte. `index.html` quedó
 con el capítulo enlazado y la unidad 3 al día.
+
+### Fase 3 — Tarea 14: capítulo 9 · 2026-09-29
+
+Seis secciones más evaluación, **siete** bloques ejecutados en los dos lenguajes, siete gráficas
+y dos laboratorios. Las dieciséis reglas en verde y `--con-salidas` sin ninguna discrepancia en
+los once capítulos. Los catorce guiones —siete por lenguaje— se escribieron y se corrieron fuera
+del capítulo, y sus salidas `#>` **no se copiaron a mano**: un generador ejecuta cada guion
+instrucción por instrucción y pone debajo de cada una lo que imprimió. Ninguna excepción de dos
+pestañas: el capítulo no simula nada.
+
+**Los datos.** `curva_tes.csv` se congeló el mismo día, **desde el servicio REST de SUAMECA**,
+el portal de estadísticas del Banco. El manifiesto decía que el Banco no exponía la serie por un
+extremo invocable desde un guion, y no era cierto: el usuario encontró el servicio y bajó las
+series a mano con un guion propio, y `datos/descargar.py tes` quedó haciéndolo igual, con dos
+diferencias. La primera: el guion del usuario **apagaba la verificación del certificado**,
+porque el servidor del Banco no envía el intermedio (GeoTrust EV RSA CA G2) y Python falla con
+`CERTIFICATE_VERIFY_FAILED` aunque se le pase `certifi`; `descargar.py` baja con `curl`, que lo
+completa con el almacén del sistema y verifica. La segunda: el archivo termina el **30/12/2025**,
+la rueda que cierra el panel de acciones. Tres descargas dieron el mismo SHA-256, y las seis
+series coinciden con la descarga del usuario en los 276 cortes. Sus archivos crudos quedaron en
+`datos/` y en `.gitignore`.
+
+**Lo que el archivo es, y el plan no sabía.** Tres vértices, no una curva. τ fijo en 3,7 años
+para pesos y 2,3 para UVR en los 276 meses. Los β de pesos publicados en fracción y con dos
+decimales —resolución de un punto porcentual—, que reconstruyen los vértices con 0,29 pp de error
+medio y 0,93 en el peor corte. La capitalización sin declarar. Una ruptura metodológica en la
+serie de pesos desde el 4 de marzo de 2019, recalculada en 2021. Y una nota del Banco que dice
+que sus tasas TES son informativas y no sirven para valorar portafolios. Las ocho advertencias
+están en `datos/MANIFIESTO.md`.
+
+**Tres decisiones, las tres del usuario, las tres las recomendadas.** D-D se mantiene y la brecha
+se declara (ver D-D, revisión del 2026-09-29). La curva se lee en **capitalización continua**,
+que es la del documento metodológico del Banco (Arango, Melo y Vásquez, 2002, *Borradores de
+Economía* 196, ec. A.1.2.3) y la única en que la spot de Nelson-Siegel es el promedio de las
+forward; leerla como efectiva le suma al tramo **14 486 millones**. Y el capítulo se rediseñó
+sobre bonos teóricos y una auditoría de los β, con QuantLib pasado al capítulo 10.
+
+**Los hallazgos que conviene no volver a descubrir:**
+
+1. **Una forward no es un pronóstico, y hay 22 años que lo miden.** La forward a un año dentro de
+   un año quedó por encima de la tasa que después rigió en el **75,4 %** de 264 meses, con un
+   error medio de +1,2842 pp, y «no cambia» pronosticó mejor (RMSE 2,3238 contra 2,7341). En
+   2020–2024 se quedó corta. El taller comprueba que el sesgo crece con el plazo y es más
+   frecuente en UVR (84–86 % de los meses).
+2. **La TIR es un promedio de las spot pesado por duración**, y el bloque 2 lo mide: 13,0014 %
+   contra 12,9999 %. De ahí salen la TIR bajo la spot del vencimiento en una curva que sube y el
+   efecto cupón —5,63 pb entre un cupón de 7,25 % y uno de 13,25 % sobre la misma curva—.
+3. **El bootstrapping reprecia exacto y lee mal la forward.** Con un precio 0,50 abajo, la spot
+   a cuatro años sube 18,35 pb y la forward hace un zigzag de +73,40 y −83,38 pb. Nelson-Siegel no
+   mueve ninguna spot más de 3,66 pb, pero contamina plazos sin error: −16,76 pb a diez años.
+4. **τ decide la curva fuera de los vértices, no dentro.** Entre τ = 1 y 15 las seis curvas pasan
+   exactas por los tres vértices, el tramo del fondo se mueve entre 467 138 y 468 095 millones y la
+   tasa a treinta años va de 13,32 % a 6,74 %. El taller lo convierte en un pasivo a treinta años
+   que vale entre 18 376 y 132 522 millones según τ.
+5. **Los β publicados no cuadran con los vértices, y el redondeo no lo explica todo.** Desde el
+   4 de marzo de 2019 las diferencias caben en el redondeo a un punto (0,52 pp como mucho); antes
+   llegan a 1,76 pp en β₂. Salió de barrer los 276 meses para escribir una opción del cuestionario
+   —la zona ciega 6 otra vez— y cambió una frase del capítulo que lo atribuía todo al redondeo.
+6. **Casi todo lo que mueve la curva es el nivel:** 86,05 % de la varianza de los cambios
+   mensuales desde 2018, 78,43 % desde 2003. Con +100 pb de nivel el tramo pierde 18 420 millones
+   y el bono que más pierde es el de diez años; con +100 pb en el corto plazo pierde más el de
+   **cinco**, no el de dos, y la pregunta del laboratorio pide explicar por qué.
+
+**Lo que el recorrido encontró y corrigió antes de publicar**, que es lo que las reglas no ven:
+una frase que comparaba la curva par con la spot en convenciones distintas —el error exacto que el
+capítulo enseña a evitar—; tres afirmaciones de pies y prosa que el barrido de la curva no
+sostenía tal como estaban (el máximo de la spot está en 9,6 años y no en 10, el de la forward en
+13,68 % y no 13,67, y «casi todo el tiempo» era un 80 %); una explicación de la curvatura que no
+resistió la cuenta; la regla 13 fallando primero por un lado (la correcta la más larga en cinco
+preguntas) y después por el otro (la más corta en siete); el reparto de letras en a:1, que pasaba
+la regla 14 pero dejaba la (a) casi gratis, llevado a **a:4 · b:4 · c:4 · d:3**; y cuatro detalles
+de formato en los laboratorios —guion ASCII en β negativos, miles sin separador, «+0» y fechas
+ISO en la prosa—.
+
+**Comprobado en pantalla, servido por HTTP:** las seis secciones y la evaluación, la consola sin
+errores del capítulo, las siete gráficas con su pie leído al lado —la de la forward contra lo
+realizado recalcula en el navegador exactamente los 199 de 264 meses del bloque—, los dos
+laboratorios barridos en sus extremos y reproduciendo la tabla del bloque, la `TablaTraza` en
+**9/9**, los **dos R3 en los dos lenguajes** con «¡Diagnóstico correcto!», el `OrdenaPasos` en
+«¡Secuencia correcta!», el `Emparejamiento` en **6 de 6**, el `Comparador` y los cuatro `MCQ` en
+verde con su justificación, el `Reto` con su solución, la `TablaResultados` con su lectura y el
+cuestionario en **10/10** con sus diez justificaciones. A **360 px** ninguna fórmula se esconde ni
+lleva `data-desborda`, y ninguna sección tiene desplazamiento horizontal.
+
+⚠️ **Dos cosas que salieron de aquí y no son del capítulo 9.** El `Emparejamiento` del capítulo 12
+tiene `solucion={[0, 1, 2, 3, 4]}`: como el componente no baraja la columna derecha, cada pareja
+queda en su fila y el ejercicio se resuelve sin leer; los otros nueve permutan. Quedó propuesto
+como tarea aparte. Y **`RQuantLib` no está instalado**, lo que la tarea 15 tiene que resolver antes
+de escribir su sección 4.
+
+**Entregado:** `Material html/09_TDR_Bonos_y_curvas.html` (336 KB), `talleres/TDR-09.qmd`
+—renderizado con Quarto sin errores; su R3 es una corrección del sesgo de la forward estimada con
+toda la muestra, que parece bajar el error de 2,73 a 2,41 y, rehecha con lo que se sabía en cada
+fecha, lo sube a 2,78—, `datos/curva_tes.csv` con su entrada y sus advertencias en el manifiesto,
+y `index.html` con el capítulo enlazado y la unidad 2 en tres de cuatro.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.

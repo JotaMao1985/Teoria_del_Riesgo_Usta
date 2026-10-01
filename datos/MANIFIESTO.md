@@ -20,6 +20,14 @@ dentro, y lo que delata que un archivo cambió bajo los pies del material.
 - **Tamaño:** 74 KB
 - **SHA-256:** `a85a47257ae6b4ab6c38bc881f8b9fd22a72b28b8144f8a0a34605a317ab2246`
 
+## `curva_tes.csv`
+
+- **Fuente:** Banco de la República · SUAMECA, servicio REST · series 15272–15285 (plan BETAS_TASAS_TES) · SEN y MEC con cálculos del Banco
+- **Descargado:** 2026-09-29
+- **Contenido:** 276 meses · 2003-01-31 → 2025-12-30 · vértices de 1, 5 y 10 años en pesos y en UVR + parámetros de Nelson-Siegel · corte UVR distinto del de pesos en 32 meses
+- **Tamaño:** 26 KB
+- **SHA-256:** `72c0eff2129b6c0e8dabd009aa03ebcd3a0f8b05935ae6cb9f63e9f9d4d8df27`
+
 ## `german_credit.csv`
 
 - **Fuente:** UCI German Credit vía OpenML (credit-g, v1)
@@ -44,15 +52,6 @@ dentro, y lo que delata que un archivo cambió bajo los pies del material.
 - **Tamaño:** 40 KB
 - **SHA-256:** `c076615810ce6fb5a0e0c80e274f4821fa06f060f83af59c9c5de825c635cb7a`
 
-## `curva_tes.csv` — PENDIENTE
-
-Curva cero cupón de los TES, cortes mensuales. Bloquea los capítulos 9 y 10.
-
-No se descarga desde aquí porque el Banco de la República no expone la serie
-por un extremo estable que un guion pueda invocar. Hay que bajarla a mano de
-las estadísticas del emisor y anotar en este archivo la fecha, la ruta exacta
-y el SHA-256 resultante.
-
 ---
 
 ## Anomalías conocidas de `bvc_diario.csv`
@@ -76,3 +75,58 @@ ellas—. Limpiar el panel en silencio enseñaría que los datos llegan limpios.
 
 El diagnóstico que las delata —comparar el rendimiento del portafolio con el
 del índice que lo replica— está implementado en la sección 3 del capítulo 4.
+
+---
+
+## Advertencias de `curva_tes.csv`
+
+Medidas al congelarla (2026-09-29) sobre los 276 cortes del archivo. Como las
+del panel, **no se corrigen**: se declaran, y el capítulo que use la curva las
+hereda.
+
+- **No es una curva entera: son tres vértices.** El Banco publica la tasa cero
+  cupón a 1, 5 y 10 años, en pesos y en UVR, y los parámetros de Nelson-Siegel
+  con que la calcula. Cualquier otro plazo es una reconstrucción, y hay que
+  decir con qué.
+- **τ no se estima: está fijo** en 3,7 años para pesos y 2,3 para UVR en los
+  276 meses. Con τ fijo, los tres vértices determinan exactamente los tres β
+  —el sistema 3×3 tiene número de condición 38,8 en pesos y 27,1 en UVR—, así
+  que Nelson-Siegel sobre estos datos es una interpolación y su error de ajuste
+  es cero por construcción.
+- **Los parámetros de pesos se publican en fracción y con dos decimales**:
+  `b0_pesos` = 0.12 es un 12 %, con resolución de un punto porcentual.
+  Reconstruir los vértices con ellos se equivoca 0,29 pp en promedio y 0,93 pp
+  en el peor corte (5 años, 2018-03-28), y pasa de 0,25 pp en 176 de los 276
+  meses. Los de UVR van en porcentaje y reconstruyen sus vértices con 0,004 pp.
+  Resolver el sistema 3×3 con τ = 3,7 devuelve los β de pesos que reproducen
+  los vértices exactos.
+- **Y el redondeo no lo explica todo antes de 2019.** Desde el 4 de marzo de
+  2019 los β recuperados y los publicados no se separan más de 0,52 pp, lo que
+  cabe en un redondeo a un punto; antes llegan a 0,82 · 0,92 · 1,76 pp en β₀ · β₁
+  · β₂, así que en la historia vieja parámetros y vértices no salen del mismo
+  cálculo. El archivo no permite saber por qué. Lo mide el bloque de la sección 5
+  del capítulo 9.
+- **La capitalización no está declarada.** La ficha de SUAMECA dice
+  «Porcentaje» y nada más. El documento metodológico de referencia del Banco
+  —Arango, Melo y Vásquez (2002), *Borradores de Economía* 196, ec. A.1.2.3—
+  descuenta con exp(−s·m/100): capitalización continua. Y los vértices
+  publicados salen de evaluar la fórmula de Nelson-Siegel en los parámetros
+  publicados (en UVR, a 0,004 pp), así que están en la convención de la
+  fórmula. No es un detalle: el 2025-12-30 los 13,13 % a diez años leídos
+  como continuos son un 14,03 % efectivo anual, y el precio de un cero a diez
+  años pasa de 26,90 a 29,12 por cada 100 según cuál se lea. El capítulo que
+  use la curva declara cuál adopta.
+- **La serie de pesos cambia de método el 4 de marzo de 2019.** Según nota
+  aclaratoria del Banco, un ajuste metodológico de mayo de 2021 recalculó la
+  historia de pesos desde esa fecha, y no la anterior. La ventana del curso
+  (2018–2025) cruza la ruptura, aunque en los cortes mensuales no se ve un salto.
+- **Uso informativo, no de valoración.** Otra nota aclaratoria, vigente desde
+  2023: las tasas TES del Banco no están pensadas para valorar portafolios, y
+  para eso remite a los proveedores de precios. El curso las usa como curva de
+  referencia declarada, no como precio oficial del tramo de TES.
+- **El corte UVR lleva su propia fecha** (`fecha_uvr`). La serie UVR tiene 548
+  días sin dato, casi todos entre 2006 y 2013, y en 32 meses su último dato cae
+  entre 1 y 10 días antes que el de pesos.
+- **La serie diaria, que no se congela, tiene un día roto**: el 2009-06-23 el
+  vértice de pesos a un año vale 0,51 %, entre 5,74 % y 5,63 %. No toca ningún
+  corte mensual; quien congele la diaria tiene que decidir qué hace con él.

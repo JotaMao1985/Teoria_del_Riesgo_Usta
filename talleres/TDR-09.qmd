@@ -1,0 +1,316 @@
+---
+title: "Taller 9 · La curva que nadie observa entera: bonos, forwards y Nelson-Siegel"
+subtitle: "Teoría del Riesgo · Unidad 2 · RA5"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+ruta <- "../datos/curva_tes.csv"
+stopifnot(file.exists(ruta))
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-09-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y traduzca el
+andamio: `numpy`, `pandas` y `scipy.optimize.brentq` bastan para todo el taller.
+El capítulo comprueba que las dos rutas devuelven los mismos dígitos.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una valoración de renta fija antes del primer precio
+
+**Leer la curva en la convención equivocada.** El Banco publica «porcentaje» y
+nada más. El curso lee sus tasas en capitalización continua, con la fuente de su
+metodología, y leerlas como efectivas le suma al tramo del fondo **14 486
+millones** sin que cambie ni una tasa ni un flujo. Declare la convención **por
+escrito, en la parte 1**, antes de calcular nada.
+
+**Descontar todos los pagos con una sola tasa.** Solo vale si la curva es plana,
+y el 30/12/2025 no lo es: va de 11,30 % a un año a 13,13 % a diez. Con la tasa del
+vencimiento para todo, el tramo queda **1 870 millones** por debajo de lo que vale.
+
+**Tomar una forward por un pronóstico.** En 264 meses la forward a un año dentro
+de un año quedó por encima de la tasa que después rigió el **75,4 %** de las
+veces, y suponer que la tasa no cambia pronosticó mejor. La forward arbitra; no
+predice.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Antes del primer cálculo, declare en tres líneas: en qué capitalización lee la
+curva del Banco, en qué convención va a reportar la TIR, y qué τ va a usar y por
+qué ese valor no sale de los datos. Todo lo que siga se juzga contra esa
+declaración.
+
+```{r}
+#| label: parte1-curva
+curva <- read.csv("../datos/curva_tes.csv")
+hoy <- curva[nrow(curva), ]                 # el corte del 30/12/2025
+TAU <- hoy$tau_pesos                        # 3.7: lo fija el Banco
+
+cargas <- function(m, tau = TAU) {          # las tres formas de Nelson-Siegel
+  x <- m / tau
+  f <- (1 - exp(-x)) / x
+  rbind(1, f, f - exp(-x))
+}
+
+vert <- c(hoy$pesos_1a, hoy$pesos_5a, hoy$pesos_10a)
+beta <- solve(t(cargas(c(1, 5, 10))), vert) # tres ecuaciones, tres incógnitas
+names(beta) <- c("b0", "b1", "b2")
+spot <- function(m) as.vector(beta %*% cargas(m))        # %, continua
+descuento <- function(m) exp(-spot(m) / 100 * m)
+
+# un bono TES tasa fija: cupón anual y principal al vencimiento, por cada 100
+precio <- function(T, cupon, df = descuento) {
+  flujos <- c(rep(cupon, T - 1), cupon + 100)
+  sum(flujos * df(1:T))
+}
+tir <- function(p, T, cupon) {              # efectiva anual, como la cotiza el mercado
+  flujos <- c(rep(cupon, T - 1), cupon + 100)
+  uniroot(function(y) sum(flujos * (1 + y)^(-(1:T))) - p, c(-0.5, 1), tol = 1e-12)$root
+}
+
+tramo <- data.frame(T = c(2, 5, 10), cupon = c(6.00, 7.75, 7.25))
+tramo$precio <- mapply(precio, tramo$T, tramo$cupon)
+tramo$tir_ea <- mapply(tir, tramo$precio, tramo$T, tramo$cupon) * 100
+tramo$millones <- tramo$precio / 100 * 200000
+round(beta, 4)
+tramo
+sum(tramo$millones)
+```
+
+**1.1** Compruebe que obtiene las cifras del capítulo: β = **12,1974 · −1,7346 ·
+5,5050**, los precios **88,9021 · 79,7608 · 65,2372**, las TIR efectivas
+**12,6202 · 13,5869 · 13,8845 %** y un tramo de **467 800 millones**. Reporte
+además la tasa spot a 2, 3, 4, 6, 7, 8 y 9 años, que el Banco no publica.
+
+**1.2** Reconstruya los vértices con los β que **publica** el Banco ese día
+(`b0_pesos`, `b1_pesos`, `b2_pesos`, en fracción) y reporte cuánto se equivoca en
+cada uno. Después diga en una frase por qué el capítulo no los usa, y qué haría
+usted si mañana el Banco los publicara con cuatro decimales.
+
+**1.3** Haga el bootstrapping **a mano** para los tres primeros plazos, a partir
+de los bonos a la par que implica la curva —cupones de **11,9632 · 12,6008 ·
+13,0383 %**— y compruebe que devuelve **11,3000 · 11,9038 · 12,3336 %**. Luego
+escriba el bucle para los diez plazos y reporte la mayor diferencia con la curva
+en puntos básicos. El capítulo obtuvo **0,0056 pb**; explique de dónde sale.
+
+**1.4** Calcule la forward de cada año, f(t − 1, t), para t = 1 … 10 en
+capitalización continua, y la **misma forward en efectiva anual**. Compruebe que
+la segunda **no** es la resta ponderada de las spot efectivas y diga qué fórmula sí
+es. El 30/12/2025 la resta casi no se equivoca; no se quede con ese día: barra los
+276 cortes del archivo y reporte el mes y el plazo en que el error es mayor.
+Después ponga esa cifra al lado de los 14 486 millones que cuesta leer la curva
+como efectiva, y explique en tres líneas por qué un error de convención es de
+segundo orden y el otro no.
+
+---
+
+## Parte 2 · Su propio bono
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+n_doc <- nchar(documento)
+d1 <- as.integer(substr(documento, n_doc, n_doc))
+d2 <- as.integer(substr(documento, n_doc - 1, n_doc - 1))
+
+cupon_suyo <- 5 + 0.5 * d1                  # entre 5,0 % y 9,5 %
+T_suyo     <- 3 + (d2 %% 8)                 # entre 3 y 10 años
+c(cupon = cupon_suyo, anios = T_suyo)
+```
+
+**2.1** Valore su bono con la curva del 30/12/2025: precio por cada 100, TIR
+efectiva y spot del vencimiento pasada a efectiva. Diga si la TIR queda por encima
+o por debajo de esa spot **antes** de calcularla, y después compruebe si acertó.
+
+**2.2** Mida el **efecto cupón** sobre su plazo: valore sobre la misma curva un
+cero y un bono con cupón de 13,25 %, y reporte las tres TIR. Explique la diferencia
+con la derivación de la sección 2 —la TIR como promedio ponderado de las spot—, y
+calcule ese promedio para su bono.
+
+**2.3** Valore su bono con las dos lecturas equivocadas del capítulo: leyendo la
+curva como efectiva anual y descontando todos los pagos con la spot del
+vencimiento. Reporte las dos diferencias en pesos por cada 100 y en millones sobre
+200 000 millones nominales, y diga cuál de las dos pesa más **en su bono** y por
+qué no tiene por qué ser la misma que en el de diez años del fondo.
+
+---
+
+## Parte 3 · ¿El sesgo de la forward es del plazo o de la moneda?
+
+El capítulo midió una sola forward —la de un año dentro de un año— y encontró que
+se pasa hacia arriba tres de cada cuatro meses. De ahí no se puede concluir nada
+sobre las demás: puede ser un accidente de ese plazo, o de la curva de pesos.
+
+**3.1** Repita la prueba con la forward de un año que empieza **dentro de dos
+años**, f(2, 3), contra la tasa a un año que rigió veinticuatro meses después, y
+con la de **dentro de cuatro**, f(4, 5), a cuarenta y ocho meses. Para cada una
+reporte cuántos pares hay, el error medio, la fracción de meses en que la forward
+quedó arriba y la raíz del error cuadrático medio, al lado de la de «no cambia».
+
+**3.2** Haga lo mismo con la curva **UVR**, que es real y tiene τ = 2,3. Ojo con
+dos cosas que el capítulo ya resolvió por usted en pesos y aquí no: el corte UVR
+tiene su propia fecha (`fecha_uvr`), y en 32 meses no cae el mismo día que el de
+pesos. Diga si eso afecta a esta prueba y por qué.
+
+**3.3** Con las seis pruebas en una tabla, conteste: ¿el sesgo crece, se mantiene
+o desaparece con el plazo? ¿Es más frecuente en pesos o en UVR? No dé por supuesto
+el resultado del capítulo: cuente lo que pase.
+
+**3.4** Una prima por plazo **positiva** es la explicación que da el capítulo.
+Proponga una segunda explicación que también produzca un sesgo hacia arriba entre
+2003 y 2012, y diga qué subperiodo de los datos la pondría a prueba.
+
+---
+
+## Parte 4 · El pasivo que la curva no ve
+
+El fondo debe pagar **1 000 000 de millones dentro de treinta años**, y el comité
+quiere saber cuánto vale hoy esa obligación con la curva del Banco. La curva tiene
+su último vértice a diez años.
+
+**4.1** Valore el pasivo con τ = 1, 2, 3,7, 6, 10 y 15, recuperando en cada caso
+los β de los tres vértices del 30/12/2025. Reporte la tasa a treinta años y el
+valor presente en millones para los seis. Compruebe que las seis curvas pasan
+exactas por los tres vértices.
+
+**4.2** Reporte, al lado, cuánto se mueve el **tramo de TES** del fondo con los
+mismos seis τ. Explique en tres líneas por qué uno se mueve tanto y el otro casi
+nada, con la palabra «vértice» en la explicación.
+
+**4.3** Diga cuál de los seis valores reportaría al comité y por qué, y qué
+dato **adicional** tendría que conseguir para que la cifra dejara de depender de τ.
+Si su respuesta es «estimar τ», vuelva a la sección 5 del capítulo.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-important}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede pedirle a un modelo que **genere** el código defectuoso si quiere partir de
+uno propio, pero el diagnóstico, la cuantificación y la corrección los escribe
+usted. Registre en la bitácora cualquier intercambio.
+:::
+
+Le pidieron a un modelo que mejorara la forward como pronóstico, ya que el
+capítulo mostró que se pasa hacia arriba. Este código corre, no lanza ningún aviso
+y devuelve una mejora perfectamente plausible.
+
+```{r}
+#| label: parte5-ia
+#| eval: false
+# --- generado por un modelo de lenguaje ---
+V <- as.matrix(curva[, c("pesos_1a", "pesos_5a", "pesos_10a")])
+B <- t(solve(t(cargas(c(1, 5, 10))), t(V)))
+f12  <- 2 * as.vector(B %*% cargas(2)) - V[, 1]
+real <- c(V[-(1:12), 1], rep(NA, 12))
+ok   <- !is.na(real)
+
+sesgo <- mean(f12[ok] - real[ok])            # la forward se pasa en promedio
+corregida <- f12 - sesgo                     # se le quita el sesgo
+
+rmse <- function(e) sqrt(mean(e^2))
+cat(sprintf("RMSE forward: %.4f  ->  corregida: %.4f\n",
+            rmse(f12[ok] - real[ok]), rmse(corregida[ok] - real[ok])))
+```
+
+Entregue los cuatro elementos:
+
+1. **Dónde** está el defecto: la línea exacta y qué supuesto viola.
+2. **De qué tipo** es, según la taxonomía del curso (supuesto no verificado,
+   confusión de medida, fuga de información, convención equivocada, estimador
+   inconsistente, resultado sin incertidumbre, interpretación indebida). Justifique
+   por qué es ese y no el vecino más plausible.
+3. **Cuánto cuesta**: rehaga la corrección como la habría podido hacer alguien en
+   cada fecha, con solo los errores que ya se conocían —los de las forwards que ya
+   vencieron— y reporte su raíz del error cuadrático medio al lado de la de la
+   forward sin corregir y la de «no cambia», **sobre la misma muestra**.
+4. **Cómo se arregla**, con el código corregido corriendo y su salida.
+
+Y una quinta, que es la que separa una auditoría de una corrección: **por qué
+ninguna comprobación automática lo habría detectado**. Diga qué comprobación sí lo
+detecta y córrala.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Una fila por intercambio con el modelo. Sin esta tabla el taller se califica sobre
+cero.
+
+| # | Qué le pidió | Qué devolvió | Qué hizo usted con eso |
+|---|---|---|---|
+| 1 |  |  |  |
+| 2 |  |  |  |
+
+La última columna es la que se lee con más atención. «Lo copié» es una respuesta
+válida si es verdad y si en la parte 5 se nota que lo revisó.
+
+---
+
+## Parte 7 · La valoración, y el acta
+
+**7.1** Arme la tabla de su bono: precio, TIR efectiva, spot del vencimiento en
+las dos convenciones, el efecto cupón frente al cero y las dos valoraciones
+equivocadas de la parte 2. Seis filas, con las unidades declaradas.
+
+**7.2** Escriba una **nota de una página** para el comité de inversiones, sin
+fórmulas y sin código, que responda a «¿cuánto vale el tramo de TES, y cuánto de
+esa cifra es una decisión nuestra?». Debe decir qué curva se usó y de quién es, en
+qué convención se leyó, qué parte de la curva es mercado y qué parte la pone τ, y
+por qué la cifra no sirve para el reporte contable.
+
+**7.3** La nota tiene que incluir, con sus palabras, una frase que diga que una
+tasa forward **no es un pronóstico**. Escríbala de modo que la entienda alguien que
+no ha tomado el curso, y añada debajo, para el acta, la evidencia concreta de su
+propia parte 3 que la respalda.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: convención, TIR y τ declarados **antes**; las cifras del capítulo reproducidas, los β publicados auditados, el bootstrapping a mano y la forward efectiva con su fórmula correcta | 20 % |
+| Parte 2: bono propio valorado, la posición de la TIR anticipada antes de calcularla, el efecto cupón explicado con el promedio ponderado y las dos lecturas equivocadas cuantificadas | 15 % |
+| Parte 3: las seis pruebas en una tabla, la fecha UVR tratada y el sesgo contado en vez de supuesto | 20 % |
+| Parte 4: el pasivo valorado con seis τ, el contraste con el tramo y el dato que haría falta para no depender de τ | 15 % |
+| Parte 5: auditoría con los cinco elementos, incluida la corrección honesta corrida sobre la misma muestra | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: tabla de seis filas, nota legible y la frase sobre la forward con su evidencia | 10 % |
+
+Se descuenta: leer la curva en una convención sin declararla; comparar una TIR
+efectiva con una spot continua; descontar todos los pagos con una sola tasa;
+presentar la forward como la tasa que el mercado espera; reportar un valor más
+allá de los diez años sin decir que lo decide τ; y evaluar un pronóstico con
+información que en la fecha del pronóstico no existía.
