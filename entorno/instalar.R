@@ -32,6 +32,17 @@ paquetes <- c(
   # lpSolve trae su propio solucionador en el paquete y basta para un programa
   # lineal como el de Rockafellar-Uryasev.
   "lpSolve",
+  # El capítulo 10 valora el tramo de TES con QuantLib en las dos pestañas, y
+  # RQuantLib no trae la librería: enlaza contra la de C++ del sistema. Con el
+  # R de Homebrew —`pkgType` "source"— hay que instalarla antes con
+  # `brew install quantlib`; sin ella la compilación falla buscando
+  # `quantlib-config`, y el mensaje no dice qué falta. Conviene que sea la misma
+  # versión que trae `quantlib-python` en el entorno de conda (1.43 al
+  # escribirlo): las dos pestañas llaman al mismo código de C++, y con la misma
+  # versión dan el mismo precio y la misma duración a la cuarta cifra. Ojo con
+  # sus valores por defecto, que no son los de un TES —calendario de Estados
+  # Unidos, cupón semestral, 30/360— y hay que sobrescribirlos.
+  "RQuantLib",
 
   # Unidad 3 — derivados, crédito y valores extremos
   "pROC",        # ROC, AUC y Gini

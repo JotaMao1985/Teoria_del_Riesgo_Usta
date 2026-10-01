@@ -273,6 +273,21 @@ mayor: si cambian las cifras, el orden se vuelve a medir. Y antes de barajar, mi
 queda en blanco—, va como arreglo literal y no repite índices. La derecha sí puede traer
 opciones de sobra: el componente solo exige emparejar la izquierda entera.
 
+### `OrdenaPasos` muestra la pista antes de intentar, y `Motivacion` el cuerpo antes del gancho
+
+Dos órdenes de pintado que no se ven en la firma. **La `pista` de `OrdenaPasos` está siempre a la
+vista**, no detrás de un botón: una pista que enuncie el orden resuelve el ejercicio sin leer los
+pasos. Escríbala para señalar qué par se invierte con prisa, no cómo va. Y **`Motivacion` pinta
+`children` primero y el `gancho` después**, así que el cuerpo no puede remitir al gancho —«Ese
+número es…»— porque el lector todavía no lo ha leído. Le pasó al capítulo 10 en las dos cosas.
+
+### Una gráfica de barras horizontales tiene que caber en un teléfono
+
+Con etiquetas largas, `automargin` les da a los nombres casi todo el ancho de 360 px y las barras
+quedan en un centenar de píxeles; un valor negativo escrito «fuera» de su barra se monta sobre la
+etiqueta. El capítulo 10 usa nombres cortos y pone la cifra dentro de la etiqueta
+(`'Actual/360 · −482'`), sin `text` sobre la barra y con el título del eje en una o dos palabras.
+
 ### Las fórmulas se ajustan solas al ancho, y lo que no cabe se marca
 
 MathJax 3 con salida SVG no parte una ecuación en varias líneas, así que una fórmula más

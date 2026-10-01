@@ -17,22 +17,24 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
-| 3 · Unidad 2 (T12–T15) | 🟡 casi · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · **T14, capítulo 9, terminada el 2026-09-29** · T15 con datos, pero sin QuantLib en R |
+| 3 · Unidad 2 (T12–T15) | 🟡 casi · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · **T14, capítulo 9, terminada el 2026-09-29** · **T15, capítulo 10, escrito el 2026-10-01** —falta su taller `TDR-10.qmd`— |
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
 | 5 · Portal y Quarto | pendiente |
 
-Los **once** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
+Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
 **diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción
 declare `correcta`, la **16** vigila que ninguna marca tipográfica señale a la correcta, y la
 **17** que un `Emparejamiento` no deje sus parejas en su fila.
 
-✅ **`curva_tes.csv` existe desde el 2026-09-29 y la tarea 14 —capítulo 9— está terminada.**
-La tarea 15 —capítulo 10, duración y QuantLib— ya tiene sus datos, pero **`RQuantLib` no está
-instalado** en el `Rscript` del sistema, así que un bloque de QuantLib rompería hoy la regla de
-los dos lenguajes: hay que decidir antes de escribir su sección 4 si se instala o qué lo
-sustituye en R. Lo siguiente que no depende de nada es la **tarea 18, el capítulo 13 (riesgo de
+✅ **El capítulo 10 —`10_TDR_Duracion_y_QuantLib.html`, 353 KB— está escrito desde el
+2026-10-01** y pasa las diecisiete reglas con `--con-salidas`: ocho bloques, dieciséis ejecutados,
+QuantLib en las dos pestañas (es el punto de control D: «QuantLib se ejecuta de verdad en la
+regla 9»). **`RQuantLib` 0.4.28 está instalado** en el `Rscript` del sistema, sobre QuantLib 1.43,
+la misma versión que `quantlib-python`, y declarado en `entorno/instalar.R`. A la tarea 15 le
+falta el taller **`talleres/TDR-10.qmd`**, que todos los capítulos anteriores entregaron con el
+capítulo. Lo siguiente que no depende de nada es la **tarea 18, el capítulo 13 (riesgo de
 crédito con ML: PD y scorecards)**, con `datos/german_credit.csv`.
 
 El **capítulo 9** abre la renta fija y **añade al fondo su tramo de TES**, que es una decisión
@@ -101,6 +103,79 @@ nivel superior —`ast` en Python, `parse()` con `srcref` en R— y puso debajo 
 imprimió. Cero transcripciones a mano, y la regla 9 pasó a la primera. Ojo si se rehace: el
 evaluador de R tiene que correr en un entorno propio, porque un `for (i in …)` del bloque pisa el
 índice del evaluador y desordena las salidas sin ningún error.
+
+El **capítulo 10** le pone números al riesgo de tasa del tramo, lo cubre y lo vuelve a valorar con
+QuantLib en las dos pestañas. Sus cifras de referencia: duraciones de Macaulay **1,9404 · 4,2542 ·
+6,8636** y modificadas **1,7343 · 3,7734 · 6,0736**; convexidades **4,6027 · 18,9761 · 51,4612**;
+duración modificada del tramo **3,6681**. Con +100 pb en la TIR de los tres bonos la duración
+anticipa **−17 691** millones, la revaloración da **−17 154** y la aproximación con convexidad
+**−17 139**; con −100 pb el tramo gana 18 258. El DV01 es **176,91** millones por punto básico
+contra la TIR y **176,21** contra la curva: en efectiva anual, mover todas las spot no mueve cada
+TIR lo mismo, y los 61 millones entre los 17 154 de aquí y los 17 093 del laboratorio del 9 son
+eso. El vértice de cinco años carga el **55,1 %** del riesgo. Vender **326 781** millones nominales
+del bono a la par de diez años quita el **94,5 %** de la varianza mensual de 2003 a 2025 (97,7 %
+desde 2018); con tres bonos a la par la cobertura quita el 100 %, y eso es del modelo —tres grados
+de libertad— y no del mercado. El VaR histórico mensual del tramo sin cubrir es de **14 031**
+millones al 95 % y **18 139** al 99 %, con 2,75 meses en la cola.
+
+⚠️ **La novena convención declarada del curso sale de aquí: los días se cuentan en NL/365 sobre
+las fechas del título sin ajustar, y la liquidación es T+0.** Se midió contra las **6 199
+operaciones de contado de TES tasa fija del SEN de diciembre de 2025**, congeladas ese día en
+`datos/sen_tes_dic2025.csv`. Con una milésima de holgura en la TIR y en el precio sucio —que sale
+del contravalor, lo que de verdad se pagó—, NL/365 explica **las 6 199**, Actual/365 **346** (las de
+los dos TES que vencen antes del 29/02/2028), 30/360 el **10,1 %**, Actual/360 **ninguna**, y NL/365
+con los pagos movidos al día hábil siguiente, el **29,7 %**: el precio no usa el calendario. ⚠️ **El
+plan decía en un R3 «la convención del papel es 30/360», y era falso** —se cambió por NL/365—. Sobre
+el tramo no se habría notado nunca: en aniversarios exactos 30/360 cuenta lo mismo que NL/365, y en
+la operación real que la sección 5 reproduce, también (73/365 = 72/360 = 0,2). La resolución del
+Ministerio de Hacienda que reglamenta los TES (la 3609 de 2022, artículo 5) dice lo mismo —base
+365/365 con febrero de 28 días también en bisiesto, tasa efectiva anual—, y se buscó **después** de
+medir: es la lección del 9 aplicada en el orden correcto.
+
+⚠️ **El primer barrido del SEN dio 80,5 %, no 100 %, con la convención buena.** La TIR se publica
+truncada en 174 operaciones y el precio con tres decimales, así que exigir que la TIR recuperada
+del precio coincida al tercer decimal rechaza operaciones que están bien. La prueba que vale es de
+consistencia —¿alguna TIR a una milésima de la publicada da un sucio a una milésima del pagado?—, y
+hacerla sobre el sucio del contravalor evita depender de la convención del cupón causado. Y ojo
+con elegir el ejemplo: cuatro operaciones del TES de 2034 el 15/12 cuadran **también** con 30/360,
+porque en un bono largo la milésima de la TIR mueve el precio unas 0,004.
+
+⚠️ **Las trampas de las librerías, medidas** sobre una operación real del TES de 2034 y 200 000
+millones nominales. RQuantLib, si no se le dice, pone cupón **semestral** (+2 370 millones), 30/360
+en el cupón, Actual/Actual ISMA en la TIR, calendario TARGET, pagos al día hábil y T+1: todo junto,
+**+2 266**. `ZeroCurve` de Python lee la curva en **continua** si no se le pasa la capitalización
+(−14 487 en el tramo), y la ruta `discountCurve` de RQuantLib la lee continua **y en Actual/365**
+(−14 597): lo dice `rebuildCurveFromZeroRates` en su `utils.cpp`, no la ayuda de `FixedRateBond`. El
+bloque de R convierte con zc = ln(1 + s) · t_NL / t_A365. RQuantLib **no devuelve la convexidad**
+—en R sale de los flujos—, y QuantLib **no trae calendario de Colombia**: el bloque lo arma con la Ley
+51 de 1983 y la Pascua. `addHoliday` sobre `WeekendsOnly` lo cambia **para toda la sesión** en las
+dos librerías, y en R es la única forma de que RQuantLib lo vea, porque arma el calendario por su
+nombre en cada llamada.
+
+⚠️ **El supuesto más caro no es de código: es la curva.** El 30/12/2025 la curva del Banco le pone a
+los tres TES reales de los que el tramo tomó sus cupones una TIR −49, −31 y +33 pb distinta de la
+del SEN: +1 712, +1 830 y −2 714 millones sobre 200 000 nominales, más que cualquier convención salvo
+la capitalización y el cupón semestral.
+
+⚠️ **La sección 6 encontró que la normativa que citan otros capítulos cambió de casa.** Según la
+investigación del 2026-10-01, la Circular Básica Contable y Financiera fue **sustituida por la
+Circular Básica Financiera** (Circular Externa 004 de 2026) desde el **1 de junio de 2026**, y el
+SARL y el SARM ya habían pasado al SIAR el 1/6/2023 (Circular Externa 018 de 2021). Los capítulos
+1, 3, 4 y 6 citan el «Capítulo XXI» de la circular vieja como vigente, y **no se han tocado**. Y
+**ninguna regla de liquidez —LCR, NSFR, IRL, CFEN— obliga al fondo del curso**: el SARL nunca cubrió
+los fondos de seguridad social, y el SIAR deja la liquidez de los fondos voluntarios y de cesantías
+a modelos internos, sin límite. Antes de citar cualquiera de esas normas, contraste el texto vigente.
+
+⚠️ **Tres cosas de TR-CORE que el 10 pagó y que valen para el siguiente:**
+
+- **`OrdenaPasos` muestra la `pista` siempre, antes de intentar** (`{pista && …}`): una pista que
+  enuncie el orden resuelve el ejercicio. La del 10 se reescribió para señalar los pares difíciles
+  sin decir cómo van.
+- **`Motivacion` pinta el cuerpo ANTES del gancho**: un cuerpo que empiece «Ese número es…»
+  remite a algo que el lector todavía no ha leído. Los dos que lo hacían se reescribieron.
+- **Una gráfica de barras horizontales con etiquetas largas no cabe en un teléfono**: las etiquetas
+  se comen el área y los valores negativos se montan sobre ellas. El 10 pone nombres cortos y la
+  cifra dentro de la etiqueta (`'Actual/360 · −482'`), sin texto sobre la barra.
 
 ✅ **La centésima que el 11 dejó pendiente quedó explicada, y no era un error de nadie.**
 El árbol promediado de 991 a 1 000 da 213,0764 y Black-Scholes 213,0648, pero esos diez
@@ -658,9 +733,9 @@ leer entera la justificación antes de ampliarla.
 Medidos el 2026-09-13 sobre las 15 preguntas de cada capítulo: **c1 a:3 · b:5 · c:4 · d:3**,
 **c2 a:4 · b:5 · c:3 · d:3**, **c3 a:3 · b:5 · c:4 · d:3**, **c4 a:1 · b:6 · c:3 · d:5**,
 **c5 a:3 · b:3 · c:2 · d:7**, **c6 a:4 · b:4 · c:4 · d:3**, **c7 a:5 · b:3 · c:3 · d:4**,
-**c8 a:4 · b:3 · c:3 · d:5**, **c9 a:4 · b:4 · c:4 · d:3**, **c11 a:4 · b:4 · c:4 · d:3** y
-**c12 a:3 · b:4 · c:4 · d:4**.
-Los diez pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo del
+**c8 a:4 · b:3 · c:3 · d:5**, **c9 a:4 · b:4 · c:4 · d:3**, **c10 a:4 · b:4 · c:2 · d:5**,
+**c11 a:4 · b:4 · c:4 · d:3** y **c12 a:3 · b:4 · c:4 · d:4**.
+Los doce pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo del
 50 %— y el 4 deja la (a) con una sola aparición. Reescribir las opciones no mueve ninguna
 letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver a mirar el
 reparto de su capítulo. La comprobación barata, si se dudó, es extraer los quince enunciados
@@ -1300,8 +1375,22 @@ completa y verifica. La salida fácil —apagar la verificación, que es lo que 
 trajo el usuario— no se toma. Los archivos crudos de esa descarga siguen en `datos/` y están en
 `.gitignore`.
 
+✅ **`sen_tes_dic2025.csv` está congelado desde el 2026-10-01**, y lo produce `datos/descargar.py
+sen` desde el Excel de cierres del SEN que el Banco publica cada mes (el zip de diciembre de 2025).
+Son las **6 199 operaciones de contado** (rueda `CONH`) de los **dieciséis TES tasa fija** en pesos
+(`TFIT`), de 14 624 cierres del mes, en veinte ruedas: fecha, hora, nemotécnico, precio limpio y TIR
+con tres decimales, nominal y contravalor en pesos. Dos descargas dieron el mismo SHA-256. El Excel
+se lee con la biblioteca estándar —`zipfile` y `xml.etree`— porque el entorno no trae `openpyxl` y
+no compensaba añadir una dependencia para un archivo. **El cupón no viene en el archivo**, pero se
+recupera de él: el sucio (contravalor sobre nominal) menos el limpio son los intereses causados, y
+sobre los días desde el último cupón por 365 dan la tasa. Las advertencias —la TIR truncada en 174
+operaciones, el 8 y el 31 de diciembre sin rueda, T+0— están en `datos/MANIFIESTO.md`.
+
 ## Notas de entorno
 
+- **`RQuantLib` necesita la librería de C++ antes**: el R de Homebrew compila desde fuente, y sin
+  `brew install quantlib` la compilación falla buscando `quantlib-config` sin decir qué falta.
+  Instalado el 2026-10-01 en la 0.4.28, sobre QuantLib 1.43 —la misma de `quantlib-python`—.
 - Los paquetes no se llaman como parece: `arch-py`, `quantlib-python`, `lpSolve`. El de
   QuantLib es traicionero: con `quantlib` a secas el entorno se crea sin error y falla
   después, en un `import QuantLib`.

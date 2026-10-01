@@ -44,6 +44,14 @@ dentro, y lo que delata que un archivo cambió bajo los pies del material.
 - **Tamaño:** 33 KB
 - **SHA-256:** `6e6cd3bc77d06a448065bca765b0e5f1138758197088a77f7457d805404c1820`
 
+## `sen_tes_dic2025.csv`
+
+- **Fuente:** Banco de la República · cierres puntuales del Sistema Electrónico de Negociación (SEN), diciembre de 2025 · https://www.banrep.gov.co/sites/default/files/CierrespuntualesDiciembre2025.zip
+- **Descargado:** 2026-10-01
+- **Contenido:** 6199 operaciones de contado (rueda CONH) de 16 TES tasa fija, de 14624 cierres del mes · 20 ruedas · 2025-12-01 → 2025-12-30 · el Excel de origen tiene SHA-256 `ec677aee12ea041d692391a1c8fdbefa7c4394db6b0f852cea016c990e566b9d`
+- **Tamaño:** 419 KB
+- **SHA-256:** `18ec3584c120323f621027e09d4b89b012254146f6755a593e752c32f19c1f44`
+
 ## `sp500_diario.csv`
 
 - **Fuente:** Yahoo Finance vía yfinance · índice ^GSPC
@@ -131,3 +139,43 @@ hereda.
 - **La serie diaria, que no se congela, tiene un día roto**: el 2009-06-23 el
   vértice de pesos a un año vale 0,51 %, entre 5,74 % y 5,63 %. No toca ningún
   corte mensual; quien congele la diaria tiene que decidir qué hace con él.
+
+---
+
+## Advertencias de `sen_tes_dic2025.csv`
+
+Medidas al congelarlo (2026-10-01) sobre sus 6 199 operaciones. Tampoco se
+corrigen: se declaran.
+
+- **Es un mes y es una selección.** El Excel del Banco trae los 14 624 cierres
+  de diciembre de 2025, de contado y de simultáneas, de TES en pesos y en UVR.
+  Se congelan las operaciones de contado (rueda `CONH`) de TES tasa fija en
+  pesos —nemotécnico `TFIT`—: dieciséis referencias, de agosto de 2026 a marzo
+  de 2058, en veinte ruedas. El 8 de diciembre, lunes, no hay rueda, porque es
+  festivo en Colombia: un calendario que solo descuente los fines de semana lo
+  daría por hábil. Tampoco la hay el 31, que no es festivo de ley y que la Bolsa
+  de Valores de Colombia ha declarado día no bursátil.
+- **El cupón no viene, pero se recupera del archivo.** El nemotécnico trae el
+  vencimiento —`TFIT16181034` vence el 18/10/2034— y no la tasa. El contravalor
+  sí la trae escondida: `contravalor / nominal × 100` es el precio sucio, el
+  sucio menos el limpio son los intereses causados, y esos intereses sobre los
+  días desde el último cupón, por 365, devuelven el cupón. La mediana de cada
+  referencia cae a menos de una milésima de punto de un cuarto de punto
+  —7,25 % en la de 2034, 6,00 % en la de 2028—.
+- **Precio y TIR van con tres decimales, y no siempre redondeados.** En 174
+  operaciones la TIR publicada queda entre 0,07 y 0,10 pb por debajo de la que
+  da su precio, que es lo que deja un truncamiento. Quien contraste una
+  convención con este archivo tiene que darle una milésima de holgura a cada
+  cifra publicada; sin ella se le caen operaciones que están bien.
+- **Los días se cuentan en NL/365 sobre las fechas del título sin ajustar.** Con
+  esa holgura, el precio y la TIR de las 6 199 operaciones se explican uno al
+  otro contando los días reales sin el 29 de febrero, sobre 365. Con Actual/365
+  solo cuadran 346 —las de las dos referencias que vencen antes del 29 de
+  febrero de 2028, donde las dos convenciones cuentan igual—; con 30/360, el
+  10,1 %; con Actual/360, ninguna; y moviendo cada pago al día hábil siguiente
+  con los festivos de Colombia, el 29,7 %. La prueba se hace sobre el precio
+  sucio que sale del contravalor, y la mide el bloque de la sección 4 del
+  capítulo 10.
+- **Se liquida el mismo día (T+0).** Los intereses causados que trae el
+  contravalor van hasta la fecha de la operación: con un día más se separarían
+  0,03 por cada 100 en la mediana, y lo observado no pasa de 0,00005.

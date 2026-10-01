@@ -258,6 +258,122 @@ def descargar_curva_tes():
                     f"distinto del de pesos en {desfase} meses")
 
 
+# Operaciones del SEN, el sistema de negociación de deuda pública del Banco. El
+# Banco publica cada mes un Excel con todos los cierres; se congela uno solo
+# —diciembre de 2025, el mes de la valoración del curso— y de él lo que usa el
+# capítulo 10: las operaciones de contado de TES tasa fija en pesos. Con ellas se
+# mide la convención de conteo de días contra precios de mercado, que es la
+# lección del capítulo 9: la convención de un dato se comprueba contra precios,
+# no contra un documento.
+SEN_ZIP = ("https://www.banrep.gov.co/sites/default/files/"
+           "CierrespuntualesDiciembre2025.zip")
+COLUMNAS_SEN = {
+    "FECHA CIERRE": "fecha", "HORA DE CIERRE": "hora", "SESION/RUEDA": "rueda",
+    "INSTRUMENTO": "instrumento", "TASA/ PRECIO": "precio",
+    "TASA/ PRECIO EQUIV.": "tir", "VR. NOMINAL": "nominal",
+    "CONTRAVALOR": "contravalor",
+}
+
+
+def _hoja_xlsx(contenido):
+    """Las filas de la primera hoja de un .xlsx, como listas de celdas en texto.
+
+    Con la biblioteca estándar y no con pandas, porque `read_excel` necesita
+    `openpyxl` y el entorno del curso no lo trae: añadir una dependencia para
+    leer un solo archivo, una vez, no compensa. Un .xlsx es un zip de XML, y las
+    cadenas van aparte, en `sharedStrings.xml`, referidas por posición.
+    """
+    import io
+    import zipfile
+    import xml.etree.ElementTree as ET
+    m = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    z = zipfile.ZipFile(io.BytesIO(contenido))
+    cadenas = ["".join(t.text or "" for t in si.iter(m + "t"))
+               for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall(m + "si")]
+    filas = []
+    for _, fila in ET.iterparse(z.open("xl/worksheets/sheet1.xml")):
+        if fila.tag != m + "row":
+            continue
+        celdas = {}
+        for c in fila.findall(m + "c"):
+            v = c.find(m + "v")
+            if v is not None:
+                columna = re.match(r"[A-Z]+", c.get("r")).group()
+                celdas[columna] = cadenas[int(v.text)] if c.get("t") == "s" else v.text
+        filas.append(celdas)
+        fila.clear()
+    return filas
+
+
+def descargar_sen():
+    """Operaciones de contado de TES tasa fija en el SEN, diciembre de 2025.
+
+    El archivo del Banco trae los cierres de las dos ruedas —contado (CONH) y
+    simultáneas (SIML)— y de los TES en pesos y en UVR. Se quedan las de contado
+    de los TES tasa fija en pesos, cuyo nemotécnico empieza por TFIT: en una
+    simultánea el precio es el de una operación de financiación, y un TES en UVR
+    se paga en otra unidad. Precio y TIR se publican con tres decimales y así se
+    escriben; el Excel los guarda en binario —97.007000000000005— y se comprueba
+    que redondear no pierde nada antes de hacerlo.
+
+    Baja por `curl` por la misma razón que SUAMECA: el servidor del Banco no envía
+    su certificado intermedio.
+    """
+    import io
+    import zipfile
+    import pandas as pd
+    p = subprocess.run(["curl", "-sS", "--fail", "--max-time", "120",
+                        "-A", "Mozilla/5.0", SEN_ZIP], capture_output=True)
+    if p.returncode != 0:
+        raise SystemExit("ERROR al bajar los cierres del SEN: "
+                         + p.stderr.decode(errors="replace").strip()[-300:])
+    z = zipfile.ZipFile(io.BytesIO(p.stdout))
+    libros = [n for n in z.namelist() if n.lower().endswith(".xlsx")]
+    if len(libros) != 1:
+        raise SystemExit(f"ERROR: el zip del SEN trae {len(libros)} libros, se esperaba uno")
+    libro = z.read(libros[0])
+    filas = _hoja_xlsx(libro)
+
+    # La cabecera no está en la primera fila: el Banco pone antes un membrete.
+    # Se busca por su texto, y se casan las columnas por nombre y no por letra.
+    normal = lambda s: " ".join(str(s).split())
+    try:
+        n = next(i for i, f in enumerate(filas) if normal(f.get("A", "")) == "FECHA CIERRE")
+    except StopIteration:
+        raise SystemExit("ERROR: no aparece la cabecera «FECHA CIERRE» en el Excel del SEN")
+    letra = {normal(v): k for k, v in filas[n].items()}
+    faltan = [c for c in COLUMNAS_SEN if c not in letra]
+    if faltan:
+        raise SystemExit(f"ERROR: al Excel del SEN le faltan las columnas {faltan}")
+    sen = pd.DataFrame([{nuevo: f.get(letra[viejo]) for viejo, nuevo in COLUMNAS_SEN.items()}
+                        for f in filas[n + 1:] if f.get(letra["FECHA CIERRE"])])
+    total = len(sen)
+
+    sen = sen[(sen["rueda"] == "CONH") & sen["instrumento"].str.startswith("TFIT")]
+    sen = sen.drop(columns="rueda").reset_index(drop=True)
+    sen["fecha"] = pd.to_datetime("20" + sen["fecha"], format="%Y%m%d")
+    for c in ("precio", "tir"):
+        x = sen[c].astype(float)
+        if (x - x.round(3)).abs().max() > 1e-9:
+            raise SystemExit(f"ERROR: la columna {c} trae más de tres decimales")
+        sen[c] = x.round(3)
+    for c in ("nominal", "contravalor"):
+        x = sen[c].astype(float)
+        if (x != x.round()).any():
+            raise SystemExit(f"ERROR: la columna {c} trae fracciones de peso")
+        sen[c] = x.astype("int64")
+    if sen["fecha"].dt.to_period("M").nunique() != 1:
+        raise SystemExit("ERROR: el Excel del SEN trae más de un mes")
+
+    salida = AQUI / "sen_tes_dic2025.csv"
+    sen.to_csv(salida, index=False, date_format="%Y-%m-%d", float_format="%.3f")
+    return salida, (f"{len(sen)} operaciones de contado (rueda CONH) de "
+                    f"{sen['instrumento'].nunique()} TES tasa fija, de {total} cierres del "
+                    f"mes · {sen['fecha'].nunique()} ruedas · {sen['fecha'].min().date()} → "
+                    f"{sen['fecha'].max().date()} · el Excel de origen tiene SHA-256 "
+                    f"`{hashlib.sha256(libro).hexdigest()}`")
+
+
 def sha(ruta):
     return hashlib.sha256(ruta.read_bytes()).hexdigest()
 
@@ -275,6 +391,9 @@ FUENTES = {
     "tes": ("curva_tes.csv", descargar_curva_tes,
             "Banco de la República · SUAMECA, servicio REST · series 15272–15285 "
             "(plan BETAS_TASAS_TES) · SEN y MEC con cálculos del Banco"),
+    "sen": ("sen_tes_dic2025.csv", descargar_sen,
+            "Banco de la República · cierres puntuales del Sistema Electrónico de "
+            "Negociación (SEN), diciembre de 2025 · " + SEN_ZIP),
 }
 
 # `curva_tes.csv` estuvo fuera de esta lista hasta el 2026-09-29 porque se creía
@@ -443,6 +562,46 @@ def main():
         "- **La serie diaria, que no se congela, tiene un día roto**: el 2009-06-23 el",
         "  vértice de pesos a un año vale 0,51 %, entre 5,74 % y 5,63 %. No toca ningún",
         "  corte mensual; quien congele la diaria tiene que decidir qué hace con él.",
+        "",
+        "---",
+        "",
+        "## Advertencias de `sen_tes_dic2025.csv`",
+        "",
+        "Medidas al congelarlo (2026-10-01) sobre sus 6 199 operaciones. Tampoco se",
+        "corrigen: se declaran.",
+        "",
+        "- **Es un mes y es una selección.** El Excel del Banco trae los 14 624 cierres",
+        "  de diciembre de 2025, de contado y de simultáneas, de TES en pesos y en UVR.",
+        "  Se congelan las operaciones de contado (rueda `CONH`) de TES tasa fija en",
+        "  pesos —nemotécnico `TFIT`—: dieciséis referencias, de agosto de 2026 a marzo",
+        "  de 2058, en veinte ruedas. El 8 de diciembre, lunes, no hay rueda, porque es",
+        "  festivo en Colombia: un calendario que solo descuente los fines de semana lo",
+        "  daría por hábil. Tampoco la hay el 31, que no es festivo de ley y que la Bolsa",
+        "  de Valores de Colombia ha declarado día no bursátil.",
+        "- **El cupón no viene, pero se recupera del archivo.** El nemotécnico trae el",
+        "  vencimiento —`TFIT16181034` vence el 18/10/2034— y no la tasa. El contravalor",
+        "  sí la trae escondida: `contravalor / nominal × 100` es el precio sucio, el",
+        "  sucio menos el limpio son los intereses causados, y esos intereses sobre los",
+        "  días desde el último cupón, por 365, devuelven el cupón. La mediana de cada",
+        "  referencia cae a menos de una milésima de punto de un cuarto de punto",
+        "  —7,25 % en la de 2034, 6,00 % en la de 2028—.",
+        "- **Precio y TIR van con tres decimales, y no siempre redondeados.** En 174",
+        "  operaciones la TIR publicada queda entre 0,07 y 0,10 pb por debajo de la que",
+        "  da su precio, que es lo que deja un truncamiento. Quien contraste una",
+        "  convención con este archivo tiene que darle una milésima de holgura a cada",
+        "  cifra publicada; sin ella se le caen operaciones que están bien.",
+        "- **Los días se cuentan en NL/365 sobre las fechas del título sin ajustar.** Con",
+        "  esa holgura, el precio y la TIR de las 6 199 operaciones se explican uno al",
+        "  otro contando los días reales sin el 29 de febrero, sobre 365. Con Actual/365",
+        "  solo cuadran 346 —las de las dos referencias que vencen antes del 29 de",
+        "  febrero de 2028, donde las dos convenciones cuentan igual—; con 30/360, el",
+        "  10,1 %; con Actual/360, ninguna; y moviendo cada pago al día hábil siguiente",
+        "  con los festivos de Colombia, el 29,7 %. La prueba se hace sobre el precio",
+        "  sucio que sale del contravalor, y la mide el bloque de la sección 4 del",
+        "  capítulo 10.",
+        "- **Se liquida el mismo día (T+0).** Los intereses causados que trae el",
+        "  contravalor van hasta la fecha de la operación: con un día más se separarían",
+        "  0,03 por cada 100 en la mediana, y lo observado no pasa de 0,00005.",
         "",
     ]
     manifiesto.write_text("\n".join(lineas), encoding="utf-8")

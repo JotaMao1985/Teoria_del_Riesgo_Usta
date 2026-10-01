@@ -11,9 +11,9 @@
 de riesgo, 7,00 % E.A.) · **fase 3 en curso: las tareas 12 y 13 —capítulos 7 y 8— quedaron
 terminadas el 2026-08-24** · **la tarea 14 —capítulo 9— quedó terminada el 2026-09-29**, con
 `curva_tes.csv` congelada ese día desde el servicio REST del Banco de la República, y los
-**once** capítulos pasan las dieciséis reglas con `--con-salidas` · **la tarea 15 —capítulo
-10— ya no está bloqueada por datos**, pero exige resolver antes QuantLib en R (ver la tarea 14
-en el registro)
+**doce** capítulos pasan las diecisiete reglas con `--con-salidas` · **la tarea 15 —capítulo
+10— tiene el capítulo escrito desde el 2026-10-01**, con `RQuantLib` instalado y los cierres
+del SEN de diciembre de 2025 congelados; le falta su taller (ver el registro)
 
 ---
 
@@ -635,9 +635,15 @@ la curva** —el RA6 lo pide literalmente— · 6. Liquidez de financiación: LC
 - **Ejercicios:** R1 · R2 ×2 · R3 ×2 (**la IA usa Actual/360 donde la convención del papel es 30/360** — el error de convención más caro del mercado local; la IA construye el calendario con festivos de Estados Unidos) · R4 (primer orden vs segundo orden) · R5 · R6 (`FichaNorma` LCR, NSFR, SARL) · R7 ×2 · R8 · R9 (Δy deslizante → error de aproximación).
 - **Depende de:** C9.
 
+⚠️ **Revisado al escribirlo (2026-10-01).** El R3 de conteo partía de una premisa falsa: los TES
+no cuentan en 30/360 sino en **NL/365**, medido contra 6 199 operaciones del SEN, y pasó a «la IA
+usa Actual/360 donde el TES cuenta en NL/365». La cobertura se hace con bonos a la par de la misma
+curva y se contrasta con la historia; la sección 5 verifica contra una operación real del SEN; y
+la sección 6 encontró que ninguna regla de liquidez obliga al fondo. Detalle en el registro.
+
 ### ✅ Punto de control D — Unidad 2 completa
 - [ ] Los diez capítulos pasan el verificador
-- [ ] QuantLib se ejecuta de verdad en la regla 9, no queda declarado como omitido
+- [x] QuantLib se ejecuta de verdad en la regla 9, no queda declarado como omitido (capítulo 10, 2026-10-01)
 - [ ] Las 16 h del syllabus están cubiertas
 
 ---
@@ -1153,7 +1159,7 @@ como pendiente separado.
 | ✅ 12 | C7 Portafolio y frontera eficiente · **terminada 2026-08-24** | M-L | 2 |
 | ✅ 13 | C8 Optimización CVaR · **terminada 2026-08-24** | M | 1 |
 | ✅ 14 | C9 Bonos, tasas y curvas · **terminada 2026-09-29** | M | 1 |
-| 15 | C10 Duración, convexidad y QuantLib | M-L | 1 |
+| 🟡 15 | C10 Duración, convexidad y QuantLib · **capítulo escrito 2026-10-01; falta `TDR-10.qmd`** | M-L | 1 |
 
 → **Punto de control D** (definido en la sección 7)
 
@@ -2691,6 +2697,65 @@ con la respuesta 6 de 6, en pantalla.
 **La lección que deja**: la convención de un dato se comprueba contra precios, no contra un
 documento. Valorar tres bonos reales contra su tasa de mercado costaba diez minutos, y habría
 evitado leer mal la curva desde el primer día.
+
+### Fase 3 — Tarea 15: capítulo 10 · 2026-10-01
+
+**Entregado:** `Material html/10_TDR_Duracion_y_QuantLib.html` (353 KB), `datos/sen_tes_dic2025.csv`
+con su entrada en el manifiesto y en `descargar.py sen`, y `RQuantLib` en `entorno/instalar.R`.
+**Falta el taller `talleres/TDR-10.qmd`**, que todos los capítulos anteriores entregaron con el
+capítulo.
+
+**Lo que hubo que resolver antes de escribir.** `RQuantLib` no estaba en el `Rscript` del sistema
+y la regla de los dos lenguajes lo exigía. Con el R de Homebrew se compila desde fuente y necesita
+antes `brew install quantlib`; quedó la 0.4.28 sobre QuantLib 1.43, la misma versión que
+`quantlib-python`, y las dos pestañas reproducen el tramo a la cuarta cifra.
+
+**Lo que el plan suponía y no era.** El R3 de la sección 4 decía «la IA usa Actual/360 donde la
+convención del papel es 30/360». Los TES no cuentan en 30/360: cuentan en **NL/365** —días reales
+sin el 29 de febrero, sobre 365—, sobre las fechas del título sin ajustar y con liquidación T+0.
+Se midió con las 6 199 operaciones de contado de TES tasa fija del SEN de diciembre de 2025, que
+el usuario decidió congelar en `datos/`: con una milésima de holgura en la TIR y en el sucio del
+contravalor, NL/365 explica las 6 199, Actual/365 346, 30/360 el 10,1 %, Actual/360 ninguna, y los
+pagos movidos al día hábil el 29,7 %. Es la **novena convención declarada del curso**. El tramo no
+lo habría delatado: en aniversarios exactos 30/360 cuenta lo mismo que NL/365. La resolución 3609
+de 2022 del Ministerio de Hacienda dice lo mismo, y se buscó después de medir.
+
+**Cambios frente a la especificación de la sección 7.** El usuario decidió el 2026-10-01 dos de
+ellos —congelar el SEN y cubrir con bonos a la par—; los demás se le presentan al cerrar la tarea:
+
+- **El R3 de conteo** pasó a «la IA usa Actual/360 donde el TES cuenta en NL/365» (−1 210 millones
+  en el tramo), y va en la sección 5. **El del calendario** quedó como estaba —festivos de Estados
+  Unidos— y se volvió una fecha de cumplimiento: una venta del viernes 20/03/2026 a T+1 cae el lunes
+  23, festivo en Colombia.
+- **La cobertura de la sección 3 se hace con bonos a la par de la misma curva**, decisión del
+  usuario, y se contrasta con los 275 cambios mensuales de 2003 a 2025, con 2018 como ventana
+  alternativa. De ahí sale el **VaR histórico mensual del tramo** que el capítulo 9 dejó pendiente:
+  14 031 millones al 95 % y 18 139 al 99 %.
+- **La sección 5 verifica contra una operación real** del TES de 2034 en el SEN, y mide lo que cuesta
+  cada valor por omisión de QuantLib y RQuantLib, más la distancia entre la curva del Banco y el SEN
+  ese día. El **R5** de la sección es el orden de una verificación.
+- **La sección 6** encontró que ninguna regla de liquidez obliga al fondo y que la Circular Básica
+  Contable y Financiera fue sustituida por la Circular Básica Financiera el 1/6/2026. El R6 empareja
+  seis reglas con lo que exigen.
+
+**Criterios de aceptación:**
+- [x] Las diecisiete reglas pasan con `--con-salidas`: ocho bloques, dieciséis ejecutados y
+      comparados, y QuantLib corre de verdad en los dos lenguajes (punto de control D)
+- [x] La cuota: `R1:1 R2:3 R3:2 R4:1 R5:1 R6:1 R7:2 R8:1 R9:1`, 13 ejercicios
+- [x] Recorrido en el navegador: siete secciones, cinco gráficas, un laboratorio y el
+      cuestionario, sin errores de consola. El laboratorio y la gráfica de la cobertura reproducen
+      las cifras de sus bloques, comprobado desde la consola
+- [x] Los dos R3 respondidos en pantalla en los dos lenguajes; la traza 9 de 9; la secuencia
+      correcta; el emparejamiento 6 de 6; el cuestionario 10 de 10
+- [x] Las quince preguntas sin pista de forma: la correcta nunca es la más larga y es la más corta
+      en 4 de 15; reparto a:4 · b:4 · c:2 · d:5; ninguna marca da más de 4,5 de 15
+- [x] A 360 px ninguna fórmula se sale —dos se partieron— y las dos gráficas de barras se
+      rehicieron para que quepan
+- [ ] `talleres/TDR-10.qmd`
+
+**Lo que salió de recorrerlo, que no es del 10.** `OrdenaPasos` muestra la pista siempre, antes de
+intentar; `Motivacion` pinta el cuerpo antes del gancho; y una gráfica de barras horizontales con
+etiquetas largas no cabe en un teléfono. Están en `CLAUDE.md`.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.
