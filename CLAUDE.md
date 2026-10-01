@@ -22,9 +22,10 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | 5 · Portal y Quarto | pendiente |
 
-Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-15 son
-**dieciséis**: la 13 se volvió simétrica, se le sumó la que exige que toda opción declare
-`correcta`, y la **16** vigila que ninguna marca tipográfica señale a la correcta.
+Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
+**diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción
+declare `correcta`, la **16** vigila que ninguna marca tipográfica señale a la correcta, y la
+**17** que un `Emparejamiento` no deje sus parejas en su fila.
 
 ⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
 `curva_tes.csv`**, que hay que bajar a mano del Banco de la República. Las tareas 16 y 17 se
@@ -645,6 +646,11 @@ salida es servir por HTTP y abrir `localhost`, que sí es un origen de verdad:
 python3 -m http.server 8731 --bind 127.0.0.1 --directory "Material html"
 ```
 
+⚠️ **Desde un worktree, compruebe qué carpeta sirve el puerto antes de mirar nada.** El
+2026-09-29 el 8731 ya lo ocupaba un servidor lanzado desde el checkout principal, y abrirlo
+habría mostrado el capítulo **sin** los cambios del worktree: se habría «verificado» lo que no
+se tocó. Sirva el worktree en otro puerto y confirme con `curl` una cadena que sí cambió.
+
 Y al recorrer un capítulo en pantalla, **cuente los botones «Comprobar» de la sección antes
 de pulsar**: la sección 4 del capítulo 4 tiene dos preguntas —un `Comparador` y un `MCQ`— y
 pulsar el primero deja sin responder el otro, con lo que parece que la pregunta falla
@@ -849,6 +855,45 @@ mismo defecto**:
     correcta, o 1/4 si no hay ninguna—; la pantalla sirve para confirmar que el fuente es lo que
     se ve, no para estimar.
 
+La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y es la zona ciega 9
+—la posición— en un componente que ninguna regla miraba:
+
+17. **`Emparejamiento` no baraja: pinta la columna derecha en el orden del arreglo.** `MCQ` y
+    `Quiz` barajan desde la tarea 10-bis; este componente no lo ha hecho nunca, así que dónde
+    cae cada pareja lo decide quien escribe `solucion`. El R6 del capítulo 12 traía
+    `[0, 1, 2, 3, 4]` —la identidad—: cada griega quedaba enfrente de su pregunta y el
+    ejercicio se resolvía emparejando por filas sin leer. **Ahora lo vigila la regla 17**, que
+    falla si `solucion` deja **más de una** pareja en su fila.
+
+    **Se tolera una, y no cero, a propósito.** Una permutación al azar deja en su fila una
+    pareja en promedio, sea cual sea n, y ninguna solo un 37 % de las veces; exigir un
+    desarreglo volvería «nunca en su fila» la pista, que es el espejo que la zona ciega 15
+    enseñó a no abrir. Hoy los diez capítulos se reparten cinco y cinco entre cero y una.
+
+    **Y barrer el rango cazó otro, que es la zona ciega 7 cobrándose lo suyo: el capítulo 3
+    dejaba dos en su fila** (`[0, 4, 1, 3, 2]`, la β y el EE(β)), y emparejar por filas le
+    sacaba 2 de 5 donde el azar da 1. Se cerró intercambiando dos filas de `derecha`.
+
+    ⚠️ **No basta con que ninguna quede en su fila.** El primer desarreglo que se probó para el
+    12, `[3, 4, 1, 0, 2]`, acertaba **3 de 5** corriendo las parejas tres filas. Los que
+    quedaron —`[2, 0, 4, 1, 3]` en el 12 y `[0, 3, 1, 4, 2]` en el 3— no pasan de 2 de 5 con
+    ningún corrimiento ni en espejo, y el del 3 acierta exactamente una con cualquiera, que es
+    el azar. Se movieron filas de `derecha` y ningún texto: las parejas son las mismas que en
+    `HEAD`, comprobado. En pantalla, por filas, el 12 da 0 de 5 y el 3 da 1 de 5; con la
+    respuesta, los dos 5 de 5.
+
+    De paso la regla exige lo que el componente da por supuesto: que `solucion` exista —el
+    taller T1 dejó escrito que sin ella la página queda en blanco—, que sea un arreglo literal,
+    que no repita índices, que cubra la izquierda y que no se salga de la derecha. La derecha
+    **sí** puede traer opciones de sobra: el componente solo exige emparejar la izquierda
+    entera, y pedir una permutación habría tumbado un diseño legítimo.
+
+    ⚠️ **Y al jugarlo en el panel, deje una pausa entre clic y clic.** En una ráfaga sin pausa
+    se perdieron parejas en silencio —parecía un defecto del componente—, y con unos 0,7 s
+    entre clics entraron todas; el mecanismo no se averiguó. La captura, además, iba un cuadro
+    por detrás del DOM: el botón decía «Comprobar (5/5)» en el árbol de accesibilidad y «4/5»
+    en la imagen. Lea el contador y el resultado con `find`, no de la captura.
+
 ⚠️ **Solo hay 17 iconos definidos en TR-CORE, y `SectionHeader` descarta en silencio los que
 no existen** (`{Icon && <Icon/>}`). Los válidos son `BookOpen · Binary · Cpu · Calculator ·
 Award · HelpCircle · TrendingUp · BarChart · Activity · Layers · Table · Clock · Bug · Scale ·
@@ -973,7 +1018,7 @@ auditoría; los dos afectaban a los quince capítulos):
 conda activate teoria-riesgo
 python3 "Material html/_plantilla/ensamblar.py"                    # fuentes → tr-base.html
 python3 "Material html/_plantilla/migrar.py"                       # plantilla → capítulos
-python3 "Material html/_plantilla/verificar.py" --con-salidas      # las quince reglas
+python3 "Material html/_plantilla/verificar.py" --con-salidas      # las diecisiete reglas
 ```
 
 ⚠️ **La regla 9 ejecuta los bloques de Python con el mismo intérprete que corre el

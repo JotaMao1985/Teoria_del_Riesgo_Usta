@@ -19,7 +19,7 @@ Material html/
     ├── tr-demo.jsx           capítulo de demostración + App            (fuente)
     ├── ensamblar.py          fuentes → tr-base.html
     ├── migrar.py             plantilla → capítulos
-    ├── verificar.py          comprueba los capítulos (doce reglas)
+    ├── verificar.py          comprueba los capítulos (diecisiete reglas)
     └── ejecutar_salidas.py   ejecuta Python y R y contrasta lo declarado
 ```
 
@@ -223,6 +223,20 @@ mirando. Los disponibles son:
 Para añadir uno, se edita `tr-core-base.jsx`, se regenera y se estampa. Dentro del contenido
 —no en el `curriculum`— los iconos son de Font Awesome (`icon="fa-clock"` en `Motivacion`,
 por ejemplo) y ahí la lista es la de la librería completa.
+
+### `Emparejamiento` no baraja la columna derecha
+
+A diferencia de `MCQ` y `Quiz`, `Emparejamiento` pinta `derecha` en el orden del arreglo, así
+que dónde cae cada pareja lo decide quien escribe `solucion`: `solucion[i]` es el índice en
+`derecha` de la pareja de `izquierda[i]`. Escribir las dos columnas en el mismo orden deja la
+identidad, y el ejercicio se resuelve emparejando por filas sin leer —le pasó al R6 del
+capítulo 12—. La **regla 17** falla si `solucion` deja más de una pareja en su fila; una se
+tolera, que es lo que deja el azar. Al elegir el orden, mire también que correr las parejas
+una o dos filas no acierte casi todas.
+
+`solucion` es **obligatoria** aunque la firma no lo diga —sin ella el render lanza y la página
+queda en blanco—, va como arreglo literal y no repite índices. La derecha sí puede traer
+opciones de sobra: el componente solo exige emparejar la izquierda entera.
 
 ### Las fórmulas se ajustan solas al ancho, y lo que no cabe se marca
 

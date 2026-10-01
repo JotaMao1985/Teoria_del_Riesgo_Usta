@@ -2,7 +2,7 @@
 """
 Verificador estructural de los capítulos de Teoría del Riesgo.
 
-Comprueba quince cosas sobre cada archivo HTML de capítulo:
+Comprueba diecisiete cosas sobre cada archivo HTML de capítulo:
 
   1. DERIVA — que el bloque TR-CORE (la librería de componentes) sea byte a
      byte idéntico al de `_plantilla/tr-base.html`.
@@ -54,6 +54,11 @@ Comprueba quince cosas sobre cada archivo HTML de capítulo:
      arregla moviendo la correcta de índice en el fuente, y esta regla dice a
      cuáles. Solo se aplica a las preguntas cuyo enunciado es una cadena
      literal: si es JSX, la semilla no se puede reconstruir aquí y se omiten.
+ 15. OPCIONES COMPLETAS — que toda opción declare `correcta`. Una escrita como
+     `{ texto: '…' }` a secas no casa con la expresión de las reglas 13, 14 y
+     16, y eso la volvía invisible: el capítulo 12 auditaba 10 preguntas de 15
+     creyendo que eran todas, y las cinco que se saltaba tenían la correcta
+     como la más larga.
  16. MARCAS DE FORMA — que ninguna marca tipográfica señale a la correcta, ni
      al revés. Es la tercera vuelta del mismo defecto: la regla 14 cerró la
      POSICIÓN, la 13 la LONGITUD por arriba y después por abajo, y al alargar
@@ -66,6 +71,17 @@ Comprueba quince cosas sobre cada archivo HTML de capítulo:
      aprendió tarde: vigilar una sola forma en un solo extremo corrige el
      defecto hacia su espejo. El arreglo no es quitarle la marca a la correcta
      sino dársela a uno o dos distractores, que además los mejora.
+ 17. EMPAREJAMIENTO — que la solución de un `Emparejamiento` no siga las
+     filas. El componente pinta la columna derecha en el orden del arreglo: a
+     diferencia de `MCQ` y `Quiz` no baraja, así que dónde cae cada pareja lo
+     decide quien escribe `solucion`. El capítulo 12 la escribió como la
+     identidad y su R6 se resolvía emparejando cada fila con la de enfrente.
+     Se tolera UNA pareja en su fila, que es lo que deja en promedio una
+     permutación al azar; exigir cero volvería «nunca en su fila» la pista.
+     De paso exige que `solucion` exista, sea un arreglo literal, no repita
+     índices, cubra la izquierda y no se salga de la derecha: sin ella la
+     página queda en blanco, y con un índice repetido el ejercicio no llega a
+     la nota entera. La derecha puede traer opciones de sobra.
 
 Uso:
     python3 _plantilla/verificar.py                 # todos los capítulos
@@ -182,6 +198,15 @@ MARCADORES_FORMA = {
 # conteo de «la única marcada es la correcta», que es la regla que un estudiante
 # puede aplicar sin leer. Los diez capítulos están hoy en brechas de 0,00 a 0,31.
 BRECHA_MARCADOR_MAXIMA = 0.35
+
+# Regla 17. `Emparejamiento` no baraja la columna derecha: la pinta en el orden
+# del arreglo, así que dónde cae cada pareja lo decide quien escribe `solucion`.
+# El capítulo 12 la escribió como la identidad, [0, 1, 2, 3, 4], y el R6 se
+# resolvía sin leer. Una permutación al azar deja UNA pareja en su fila en
+# promedio, sea cual sea n, y ninguna solo un 37 % de las veces: por eso se
+# tolera una. Exigir cero convertiría «nunca en su fila» en la pista, que es el
+# espejo del defecto — lo que la regla 13 aprendió tarde.
+PAREJAS_EN_SU_FILA_MAXIMAS = 1
 
 # Etiquetas que no son componentes React definidos por nosotros.
 IGNORAR = {"React", "ReactDOM", "Fragment", "Math", "Object", "JSON", "Array",
@@ -928,6 +953,70 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
     return fallos
 
 
+RE_CADENA = re.compile(r"'(?:[^'\\]|\\.)*'")
+
+
+def largo_de_arreglo(valor):
+    """Cuántas cadenas trae un arreglo literal `['…', '…']`, o None si no lo es."""
+    v = (valor or "").strip()
+    if not (v.startswith("[") and v.endswith("]")):
+        return None
+    interior = v[1:-1]
+    if re.fullmatch(r"[\s,]*", RE_CADENA.sub("", interior)) is None:
+        return None
+    return len(RE_CADENA.findall(interior))
+
+
+def emparejamientos_delatados(texto, cuerpo, desplazamiento):
+    """La columna derecha no se baraja: la solución no puede seguir las filas."""
+    fallos = []
+    for m, bloque in zip(re.finditer(r"<Emparejamiento[\s/>]", cuerpo),
+                         bloques_de(cuerpo, "Emparejamiento")):
+        donde = f"línea {linea_de(texto, desplazamiento + m.start())}"
+        crudo = valor_de_prop(bloque, "solucion")
+        if crudo is None:
+            fallos.append(f"{donde}: falta `solucion`. El componente la lee sin comprobarla y "
+                          f"la página queda en blanco")
+            continue
+        lectura = re.fullmatch(r"\s*\[([\d\s,]*)\]\s*", crudo)
+        if not lectura:
+            fallos.append(f"{donde}: `solucion` no es un arreglo literal de índices y esta "
+                          f"regla no la puede auditar. Escríbala en el sitio")
+            continue
+        sol = [int(x) for x in re.findall(r"\d+", lectura.group(1))]
+        n = len(sol)
+        # La derecha puede traer opciones de sobra —el componente solo exige
+        # emparejar toda la izquierda—, así que `solucion` no tiene por qué ser
+        # una permutación de la derecha: basta con que no repita y no se salga.
+        n_izq = largo_de_arreglo(valor_de_prop(bloque, "izquierda"))
+        n_der = largo_de_arreglo(valor_de_prop(bloque, "derecha"))
+        rotas = []
+        if not sol:
+            rotas.append("está vacía")
+        if len(set(sol)) != n:
+            rotas.append("repite un índice, y dos filas no pueden tener la misma pareja")
+        if n_izq is not None and n_izq != n:
+            rotas.append(f"trae {n} índices para {n_izq} filas de la izquierda")
+        if n_der is not None and sol and max(sol) >= n_der:
+            rotas.append(f"apunta al índice {max(sol)} y `derecha` llega al {n_der - 1}")
+        if rotas:
+            fallos.append(f"{donde}: `solucion` = {sol} {'; '.join(rotas)}. El ejercicio no "
+                          f"llega a la nota entera")
+            continue
+        fijas = [i for i in range(n) if sol[i] == i]
+        if len(fijas) > PAREJAS_EN_SU_FILA_MAXIMAS:
+            cuales = ", ".join(f"{i + 1}→{chr(65 + i)}" for i in fijas)
+            que = ("es la identidad" if len(fijas) == n
+                   else f"deja {len(fijas)} de {n} parejas en su fila ({cuales})")
+            fallos.append(
+                f"{donde}: `solucion` = {sol} {que}. El componente no baraja la columna "
+                f"derecha, así que emparejar cada fila con la de enfrente acierta "
+                f"{len(fijas)} de {n} sin leer, donde el azar acierta una. Reordene "
+                f"`derecha` y reescriba `solucion`: solucion[i] es el índice en `derecha` "
+                f"de la pareja de izquierda[i]")
+    return fallos
+
+
 def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
     texto = ruta.read_text(encoding="utf-8")
     cuerpo = cuerpo_capitulo(texto)
@@ -1004,9 +1093,11 @@ def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
             f"peso — el capítulo ocupa {kb:.0f} KB y el máximo es {PESO_MAXIMO_KB} KB. "
             f"Reduzca las series de las gráficas a 1500 puntos o parta el capítulo")
 
-    # 13 · la opción correcta no se delata por su longitud, ni larga ni corta
+    # 15 · toda opción declara `correcta`, o las reglas 13, 14 y 16 no la ven
     for f in opciones_incompletas(texto, cuerpo, desplazamiento):
         problemas.append(f"opciones — {f}")
+
+    # 13 · la opción correcta no se delata por su longitud, ni larga ni corta
     for f in opciones_delatadas(texto, cuerpo, desplazamiento):
         problemas.append(f"opciones — {f}")
 
@@ -1017,6 +1108,10 @@ def verificar(ruta, hash_base, revisar_cuota=True, con_salidas=False):
     # 16 · ni por una marca tipográfica que la señale (o que señale al resto)
     for f in marcadores_delatados(texto, cuerpo, desplazamiento):
         problemas.append(f"forma — {f}")
+
+    # 17 · ni un emparejamiento cuya solución siga las filas
+    for f in emparejamientos_delatados(texto, cuerpo, desplazamiento):
+        problemas.append(f"emparejamiento — {f}")
 
     total = sum(conteo.values())
     resumen = " ".join(f"{t}:{conteo[t]}" for t in sorted(conteo))
