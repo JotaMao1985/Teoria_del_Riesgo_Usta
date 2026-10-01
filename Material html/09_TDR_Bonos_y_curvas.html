@@ -4435,13 +4435,13 @@ suave <- as.vector(L %*% beta)
                         izquierda={[
                             'La tasa cero cupón a diez años, tal como la publica el Banco',
                             'Esa misma tasa, pasada a efectiva anual',
+                            'El cupón del bono de diez años del fondo',
+                            'La forward del décimo año, de 2034 a 2035',
                             'La TIR efectiva del bono de diez años del fondo',
                             'La tasa par a diez años',
-                            'La forward del décimo año, de 2034 a 2035',
-                            'El cupón del bono de diez años del fondo',
                         ]}
                         derecha={['13,8242 %', '7,25 %', '13,1300 %', '13,8845 %', '14,0310 %', '13,1491 %']}
-                        solucion={[2, 4, 3, 0, 5, 1]}
+                        solucion={[2, 4, 1, 5, 3, 0]}
                     />
                 </>
             );

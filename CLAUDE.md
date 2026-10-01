@@ -919,7 +919,7 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     pareja en promedio, sea cual sea n, y ninguna solo un 37 % de las veces; exigir un
     desarreglo volvería «nunca en su fila» la pista, que es el espejo que la zona ciega 15
     enseñó a no abrir. Hoy los once capítulos se reparten seis con ninguna en su fila y cinco
-    con una; el 9 llegó después de escribir la regla, con `[2, 4, 3, 0, 5, 1]`, y la pasa.
+    con una; el 9 llegó después de escribir la regla y la pasa, hoy con `[2, 4, 1, 5, 3, 0]`.
 
     **Y barrer el rango cazó otro, que es la zona ciega 7 cobrándose lo suyo: el capítulo 3
     dejaba dos en su fila** (`[0, 4, 1, 3, 2]`, la β y el EE(β)), y emparejar por filas le
@@ -939,17 +939,35 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     columnas entre sí y no con el capítulo. Se barajó también la izquierda, y esa misma apuesta
     saca ahora **0 de 5**, comprobado en pantalla. Solo puede pasar cuando la columna que hay
     que entender —preguntas, definiciones— sigue el orden en que el capítulo presenta los
-    nombres de la otra. En el 9 la otra son cifras, así que no aplica; en los demás la columna
-    larga es la derecha y la regla 17 ya le prohíbe seguir a la izquierda, aunque nadie ha
-    comprobado que esa izquierda vaya en el orden del capítulo.
+    nombres de la otra. En los otros capítulos, salvo el 9, la columna larga es la derecha y la
+    regla 17 ya le prohíbe seguir a la izquierda, aunque nadie ha comprobado que esa izquierda
+    vaya en el orden del capítulo. El 9 tenía su propia versión, y va dos párrafos abajo.
 
     **Barajar trajo una restricción que tampoco ve ninguna regla: una fila puede remitir a
     otra.** La pregunta de gamma dice «rehacer **esa compra**», y esa compra es la de la
     pregunta del delta, así que la del delta tiene que ir encima —el anclaje de `OrdenaPasos`
     con otra cara—. De las 120 órdenes solo tres cumplían todo, y se tomó la que deja el delta
-    justo encima de gamma. El 9 tiene la misma dependencia («Esa misma tasa, pasada a efectiva
-    anual» remite a la fila de arriba): hoy está bien puesta, y quien baraje esa izquierda
-    tiene que respetarla.
+    justo encima de gamma. El 9 tiene la misma dependencia: «Esa misma tasa, pasada a efectiva
+    anual» remite a la fila de arriba.
+
+    ⚠️ **Y cuando la otra columna son cifras, su orden es la magnitud: en el 9 sí aplicaba
+    (2026-09-30)**, aunque este archivo dijera lo contrario hasta ese día. De la segunda fila a
+    la sexta, las respuestas iban de mayor a menor —14,0310 · 13,8845 · 13,8242 · 13,1491 ·
+    7,25—, y unas cifras se ordenan sin leer nada. Bastaba con sacar las dos regaladas —el
+    cupón, que el enunciado aparta, y la tasa del Banco, la única que acaba en dos ceros— y
+    repartir las otras cuatro de mayor a menor para sacar **6 de 6**, donde en esas cuatro el
+    azar acierta una. Y la apuesta resolvía justo lo que el ejercicio quiere medir: la TIR del
+    bono contra la tasa par, que es el efecto cupón. No lo veían ni la regla 17 ni los
+    corrimientos, y tampoco ordenar la derecha entera y repartirla por filas, que acertaba 1 de
+    6: la fila del Banco, que la dependencia pone arriba, corría todas las demás un puesto. Se
+    reordenó la izquierda y la misma apuesta saca ahora **3 de 6** —las dos regaladas y una de
+    las cuatro—; por filas da 0 de 6 y con la respuesta 6 de 6, comprobado en pantalla. De las
+    120 órdenes que respetan la dependencia, seis cumplían todo: como mucho una pareja en su
+    fila y dos con cualquier corrimiento o espejo, una de las cuatro difíciles con cualquiera de
+    los dos órdenes, y sin dejar en orden las cifras que se sacan razonando poco —la efectiva,
+    la forward y el cupón—. Se tomó la única que deja las dos primeras filas donde estaban. El 9
+    es hoy el único emparejamiento contra cifras de los doce archivos, comprobado; quien escriba
+    el próximo mira que sus respuestas no vayan ordenadas por valor.
 
     De paso la regla exige lo que el componente da por supuesto: que `solucion` exista —el
     taller T1 dejó escrito que sin ella la página queda en blanco—, que sea un arreglo literal,
