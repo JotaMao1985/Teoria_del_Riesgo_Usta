@@ -40,7 +40,7 @@ python3 "Material html/_plantilla/migrar.py"        # plantilla → capítulos
 python3 "Material html/_plantilla/verificar.py"     # comprueba
 ```
 
-`verificar.py` comprueba doce cosas y devuelve ≠ 0 si algo falla:
+`verificar.py` comprueba diecisiete cosas y devuelve ≠ 0 si algo falla:
 
 | # | Qué comprueba |
 |---|---|
@@ -56,6 +56,11 @@ python3 "Material html/_plantilla/verificar.py"     # comprueba
 | 10 | **Contraste** — ningún color por debajo de 3,0:1 sobre el fondo se usa como texto sin confirmar. Sale como **aviso** |
 | 11 | **Enunciados** — ningún ejercicio pide construir un programa o un modelo desde cero |
 | 12 | **Peso** — ningún capítulo pasa de 400 KB |
+| 13 | **Longitud de las opciones** — la correcta no es la más larga en ninguna pregunta ni la más corta en más de un tercio, y mide entre 0,75 y 1,30 veces la media de sus distractores |
+| 14 | **Posición de la correcta** — la letra en que sale tras el barajado está repartida: ninguna pasa de la mitad y ninguna falta. Se arregla moviendo la correcta de índice en el fuente |
+| 15 | **Opciones completas** — toda opción declara `correcta`; una sin ella no la ven las reglas 13, 14 y 16 |
+| 16 | **Marcas de forma** — ninguna marca señala a la correcta ni a un distractor, ni cuando la lleva una sola opción ni cuando le falta a una sola. Ver «Las opciones no se delatan por su forma» |
+| 17 | **Emparejamiento** — la solución no se adivina por las filas. Ver «`Emparejamiento` no baraja la columna derecha» |
 
 ```bash
 python3 "Material html/_plantilla/verificar.py" --con-salidas
@@ -183,6 +188,26 @@ ajustar el modelo es de los talleres Quarto y del proyecto integrador. Lo compru
 regla 11, que mira **solo los enunciados** —`enunciado`, `pregunta`, `titulo` y el cuerpo
 de `<Reto>`— y no la prosa de la exposición: ahí la frase es legítima («en el taller se le
 pedirá ajustar un GARCH a…») y marcarla haría que el verificador mintiera.
+
+### Las opciones no se delatan por su forma
+
+Quien no lee busca la opción que desentona, y la **regla 16** vigila seis formas de desentonar:
+dos puntos, raya, punto y coma, cifra decimal, la coordinación «, y» y un conector causal
+—porque, ya que, así que, de modo que, pues, dado que, puesto que—. El «Porque» con que abre la
+respuesta a un «¿por qué…?» no cuenta. Cada marca se mira por los dos lados: falla si en más de
+un tercio de las preguntas la única opción **con** la marca es la correcta, o es un distractor,
+o si la única **sin** ella es la correcta, o es un distractor; y también si la marca es más
+frecuente en las correctas que en los distractores, o al revés, por más de 0,35.
+
+La pista cambia de disfraz cada vez que se cierra una: la correcta arrastró primero su
+justificación (más larga), después un segundo tramo tras dos puntos y, en el capítulo 9, la
+forma «afirmación, y consecuencia» frente a «afirmación, porque razón» en los distractores. El
+arreglo **no es quitarle la marca a la correcta** sino repartirla: dársela a uno o dos
+distractores y, si son los distractores los que la llevan —el conector—, dársela también a
+alguna correcta. Sin forzar la gramática y sin tocar el enunciado, que es la semilla del
+barajado de la regla 14. Después se mide el valor esperado exacto de cada estrategia de quien
+no lee: por pregunta, la fracción de las opciones marcadas —o de las sin marcar— que es la
+correcta, o 1/4 si no queda ninguna.
 
 ---
 

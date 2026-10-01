@@ -71,6 +71,13 @@ Comprueba diecisiete cosas sobre cada archivo HTML de capítulo:
      aprendió tarde: vigilar una sola forma en un solo extremo corrige el
      defecto hacia su espejo. El arreglo no es quitarle la marca a la correcta
      sino dársela a uno o dos distractores, que además los mejora.
+     La cuarta vuelta la trajo el capítulo 9: quitados los dos puntos, la
+     correcta se escribía «afirmación, y consecuencia» y los distractores
+     «afirmación, porque razón», y marcar la única opción con «, y» sacaba
+     8,83 de 15 sin leer. Desde el 2026-10-01 la lista trae esas dos marcas
+     —la coordinación «, y» y el conector causal— y cada marca se mira también
+     por su AUSENCIA: un conector que llevan los distractores y no la correcta
+     la delata por ser la que desentona.
  17. EMPAREJAMIENTO — que la solución de un `Emparejamiento` no siga las
      filas. El componente pinta la columna derecha en el orden del arreglo: a
      diferencia de `MCQ` y `Quiz` no baraja, así que dónde cae cada pareja lo
@@ -185,18 +192,35 @@ MINIMO_PREGUNTAS_POSICION = 8
 # 8 de 15. Por eso esta regla se escribe DESDE EL PRIMER DÍA sobre una lista de
 # marcadores y en los dos sentidos, que es lo que la regla 13 aprendió tarde:
 # vigilar un solo extremo de una sola forma corrige el defecto hacia su espejo.
+#
+# La cuarta vuelta salió del capítulo 9 (2026-09-30): quitados los dos puntos,
+# la correcta se escribía «afirmación, y consecuencia» y los distractores
+# «afirmación, porque razón». «, y» iba en 12 de 15 correctas y en 11 de 45
+# distractores; un conector causal, en 3 de 15 y en 27 de 45, y marcar la única
+# opción con «, y» sacaba 8,83 de 15. Ninguna de las cuatro marcas de entonces
+# lo veía. La lista de conectores es la que midió su auditoría. El «Porque» con
+# que abre la respuesta a un «¿por qué…?» no cuenta: es la forma de la pregunta,
+# y lo llevan por igual las correctas y los distractores —19 de 165 y 61 de 495
+# en los once capítulos, el 2026-10-01—.
+CONECTOR_CAUSAL = re.compile(
+    r"\b(?:porque|ya que|así que|de modo que|pues|dado que|puesto que)\b", re.I)
+PORQUE_INICIAL = re.compile(r"^\s*porque\s+", re.I)
+
 MARCADORES_FORMA = {
     "dos puntos «:»": lambda t: ":" in t,
     "raya «—»": lambda t: "—" in t,
     "punto y coma «;»": lambda t: ";" in t,
     "cifra decimal": lambda t: re.search(r"\d,\d", t) is not None,
+    "coordinación «, y»": lambda t: re.search(r",\s+y\s", t) is not None,
+    "conector causal": lambda t: CONECTOR_CAUSAL.search(PORQUE_INICIAL.sub("", t)) is not None,
 }
 
 # La medida que vale NO es «cuántas preguntas tienen una sola opción marcada»:
 # ese conteo sube por azar en cuanto el marcador es prosa corriente. Lo que
 # decide es comparar P(marca | correcta) contra P(marca | distractor), y el
 # conteo de «la única marcada es la correcta», que es la regla que un estudiante
-# puede aplicar sin leer. Los diez capítulos están hoy en brechas de 0,00 a 0,31.
+# puede aplicar sin leer. Los once capítulos están hoy en brechas de 0,00 a 0,31
+# en las seis marcas —el 9, con la corrección de su auditoría—.
 BRECHA_MARCADOR_MAXIMA = 0.35
 
 # Regla 17. `Emparejamiento` no baraja la columna derecha: la pinta en el orden
@@ -911,7 +935,13 @@ def posiciones_delatadas(texto, cuerpo, desplazamiento):
 
 
 def marcadores_delatados(texto, cuerpo, desplazamiento):
-    """Ninguna marca tipográfica puede señalar a la correcta, ni al revés."""
+    """Ninguna marca de forma puede señalar a la correcta, ni al revés.
+
+    Cada marca se mira por los dos lados: la opción que la lleva sola y la que
+    se queda sola SIN ella. El segundo es como delata un conector que llevan
+    los distractores y la correcta no —el «porque» del capítulo 9—: quien no
+    lee marca la que desentona, lleve o no la marca.
+    """
     grupos = [(g, e) for g, e in grupos_de_opciones(cuerpo)
               if sum(1 for _, c, _ in g if c) == 1 and len(g) > 1]
     fallos = []
@@ -920,8 +950,10 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
     for nombre, marca in MARCADORES_FORMA.items():
         nc = nd = cc = cd = 0
         unica_corr = unica_dist = 0
+        sola_corr = sola_dist = 0
         for grupo, _ in grupos:
             marcadas = [i for i, (x, _, _) in enumerate(grupo) if marca(x)]
+            sin_marca = [i for i in range(len(grupo)) if i not in marcadas]
             for x, c, _ in grupo:
                 if c:
                     nc += 1
@@ -934,6 +966,11 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
                     unica_corr += 1
                 else:
                     unica_dist += 1
+            if len(sin_marca) == 1:
+                if grupo[sin_marca[0]][1]:
+                    sola_corr += 1
+                else:
+                    sola_dist += 1
         n = len(grupos)
         pc, pd = cc / nc, cd / nd
         if unica_corr / n > FRACCION_DELATADAS_MAXIMA:
@@ -944,12 +981,22 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
             fallos.append(
                 f"{nombre}: es la única opción marcada y NO es la correcta en {unica_dist} "
                 f"de {n} preguntas — descartarla sin leer regala un distractor")
+        if sola_corr / n > FRACCION_DELATADAS_MAXIMA:
+            fallos.append(
+                f"{nombre}: la única opción que NO la lleva es la correcta en {sola_corr} de "
+                f"{n} preguntas — marcar la que desentona basta para aprobar")
+        if sola_dist / n > FRACCION_DELATADAS_MAXIMA:
+            fallos.append(
+                f"{nombre}: la única opción que NO la lleva es un distractor en {sola_dist} "
+                f"de {n} preguntas — descartarla sin leer regala un distractor")
         if abs(pc - pd) > BRECHA_MARCADOR_MAXIMA:
-            lado = "las correctas" if pc > pd else "los distractores"
+            arreglo = ("Dé la misma forma a uno o dos distractores por pregunta, o quítesela "
+                       "a algunas de las correctas" if pc > pd else
+                       "Désela a algunas correctas, o quítesela a uno o dos distractores por "
+                       "pregunta")
             fallos.append(
                 f"{nombre}: aparece en el {pc:.0%} de las correctas y en el {pd:.0%} de los "
-                f"distractores. Dé la misma forma a uno o dos distractores por pregunta, o "
-                f"quítesela a algunas de {lado}")
+                f"distractores. {arreglo}")
     return fallos
 
 

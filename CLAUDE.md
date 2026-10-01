@@ -932,6 +932,51 @@ mismo defecto**:
     correcta, o 1/4 si no hay ninguna—; la pantalla sirve para confirmar que el fuente es lo que
     se ve, no para estimar.
 
+    ⚠️ **La cuarta vuelta la trajo el capítulo 9 (2026-09-30), y ya no es tipográfica: es la
+    forma de la FRASE.** Quitados los dos puntos, la correcta se escribía «afirmación**, y**
+    consecuencia» y los distractores «afirmación**, porque** razón»: «, y» en 12 de 15 correctas
+    y 11 de 45 distractores, un conector causal en 3 de 15 y 27 de 45, y **marcar la única opción
+    con «, y» sacaba 8,83 de 15** sin leer. Ninguna de las cuatro marcas lo veía. La auditoría lo
+    cerró reescribiendo opciones (hoy 2,33), y **desde el 2026-10-01 la regla 16 vigila seis
+    marcas**: las cuatro de antes, la coordinación «, y» (`,\s+y\s`) y el conector causal
+    —porque, ya que, así que, de modo que, pues, dado que, puesto que—. El «Porque» con que abre
+    la respuesta a un «¿por qué…?» no cuenta: es la forma de la pregunta, y lo llevan 19 de 165
+    correctas y 61 de 495 distractores, un 12 % de cada lado.
+
+    **Y cada marca se mira también por su AUSENCIA.** Un conector delata al revés que una raya:
+    lo llevan los distractores y la correcta no, y quien no lee marca la que desentona. La regla
+    falla si la única opción **con** la marca es la correcta o es un distractor, si la única
+    **sin** ella es la correcta o es un distractor —cualquiera de los cuatro en más de un tercio
+    de las preguntas— o si la brecha pasa de 0,35 en cualquier sentido. El valor esperado del
+    lado de la ausencia se calcula igual, sobre las opciones sin marcar: por pregunta, la
+    fracción de ellas que es la correcta, o 1/4 si todas la llevan.
+
+    ⚠️ **La ausencia no es lo que cazó al 9, y conviene no creer que sí.** Su única opción sin
+    conector era la correcta en solo 2 de 15 preguntas: el conector iba en el 60 % de los
+    distractores, no en los tres de cada pregunta. Lo cazaron la brecha —0,40 en el causal y
+    0,56 en «, y»— y «la única con «, y» es la correcta», en 6 de 15. La ausencia está por
+    simetría, que es la lección de la zona ciega 15, y hoy ningún capítulo la roza: como mucho
+    2 de 15 del lado de la correcta y 4 del de un distractor.
+
+    ✅ **Medido el 2026-10-01, los once pasan sin tocar una opción** —el 9 con la corrección de
+    su auditoría—, y las brechas de las seis marcas siguen entre 0,00 y 0,31. **Al límite quedan
+    el 5, el 11 y el 12**: en los tres la única opción con conector causal es un distractor en
+    **5 de 15**, el 33,3 % contra el techo del 34 %, y una pregunta más así los tumba. La
+    coordinación pasa, pero no por mucho: en el 1, el 8 y el 12 la única con «, y» es la correcta
+    en 4 de 15 —en el 8, tres de ellas en el cuestionario—, y marcar entre las que la llevan saca
+    **6,25 · 5,67 · 6,08** de 15 donde el azar da 3,75, del orden de lo que el «:» deja hoy en el
+    2 y el 4 (6,08). Quien toque una opción de esos cinco capítulos vuelve a medir. Y en pantalla
+    lo que la regla mide es lo que se ve: las cuarenta opciones del cuestionario del 9 salen,
+    texto y orden tras el barajado, idénticas a las que predice el fuente —comparadas por hash,
+    sin transcribir—, con 10/10 y sus diez justificaciones.
+
+    ⚠️ **La lista de conectores es la que midió la auditoría, y deja fuera los consecutivos.**
+    «Por lo que», «de manera que», «por eso», «por tanto», «debido a» y afines van en 29
+    distractores y 4 correctas de los once, y con ellos en la lista **el 3 fallaría**: la única
+    opción con conector sería un distractor en 6 de 15. No se añadieron porque nadie ha medido
+    si en el 3 eso es pista o prosa. Si la pista vuelve con otro conector será la quinta vuelta,
+    y se cierra igual: midiendo la forma nueva en los dos sentidos y por su ausencia.
+
 La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y es la zona ciega 9
 —la posición— en un componente que ninguna regla miraba:
 
