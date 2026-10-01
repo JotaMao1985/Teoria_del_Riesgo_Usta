@@ -17,21 +17,65 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
-| 3 · Unidad 2 (T12–T15) | 🟡 a medias · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · T14 y T15 bloqueadas por `curva_tes.csv` |
+| 3 · Unidad 2 (T12–T15) | 🟡 casi · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · **T14, capítulo 9, terminada el 2026-09-29** · T15 con datos, pero sin QuantLib en R |
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | 5 · Portal y Quarto | pendiente |
 
-Los **diez** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
+Los **once** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
 **diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción
 declare `correcta`, la **16** vigila que ninguna marca tipográfica señale a la correcta, y la
 **17** que un `Emparejamiento` no deje sus parejas en su fila.
 
-⚠️ **Las tareas 14 y 15 —capítulos 9 y 10, bonos y duración— siguen bloqueadas por
-`curva_tes.csv`**, que hay que bajar a mano del Banco de la República. Las tareas 16 y 17 se
-adelantaron por eso y ya están hechas; lo siguiente que no necesita datos externos es la
-**tarea 18, el capítulo 13 (riesgo de crédito con ML: PD y scorecards)**, que usa
-`datos/german_credit.csv` y no depende de la curva.
+✅ **`curva_tes.csv` existe desde el 2026-09-29 y la tarea 14 —capítulo 9— está terminada.**
+La tarea 15 —capítulo 10, duración y QuantLib— ya tiene sus datos, pero **`RQuantLib` no está
+instalado** en el `Rscript` del sistema, así que un bloque de QuantLib rompería hoy la regla de
+los dos lenguajes: hay que decidir antes de escribir su sección 4 si se instala o qué lo
+sustituye en R. Lo siguiente que no depende de nada es la **tarea 18, el capítulo 13 (riesgo de
+crédito con ML: PD y scorecards)**, con `datos/german_credit.csv`.
+
+El **capítulo 9** abre la renta fija y **añade al fondo su tramo de TES**, que es una decisión
+declarada del curso y que el capítulo 10 hereda: tres bonos de estudio con la estructura de un
+TES tasa fija —cupón anual, principal al vencimiento— a **2, 5 y 10 años** desde el 30/12/2025,
+con cupones de **6,00 · 7,75 · 7,25 %** y 200 000 millones nominales cada uno. Sobre la curva del
+Banco valen **88,9021 · 79,7608 · 65,2372** por cada 100, con TIR efectivas de **12,6202 · 13,5869
+· 13,8845 %**: el tramo son **467 800 millones**. La curva se recupera de los tres vértices del
+Banco —11,30 · 12,84 · 13,13 %— con τ = 3,7 fijo, y da β = **12,1974 · −1,7346 · 5,5050**.
+
+⚠️ **La octava convención declarada del curso sale de aquí: la curva del Banco se lee en
+capitalización CONTINUA, y la TIR se reporta efectiva anual.** El Banco no declara la
+capitalización —su ficha dice «porcentaje»—; su documento metodológico (Arango, Melo y Vásquez,
+2002, *Borradores de Economía* 196, ec. A.1.2.3) descuenta con e^(−s·m), y solo en continua la
+spot de Nelson-Siegel es el promedio de las forward. No es un detalle: **leerla como efectiva le
+suma al tramo 14 486 millones**, y un cero a diez años pasa de 26,90 a 29,12 por cada 100. Todo
+capítulo que use la curva declara la lectura, y quien compare una TIR con una spot las pone antes
+en la misma convención —es el error de la motivación de la sección 2—.
+
+⚠️ **D-D se revisó con la curva el 2026-09-29 y SE MANTIENE, con la brecha declarada** —lo
+decidió el usuario—. Como promedio, que es como la usan C3 y C7, se sostiene: la curva a un año
+promedió **7,0848 % efectivo** en 2018–2025, 0,08 pp sobre el 7,00 %. Como tasa de un día, que es
+como la usan C11 y C12 al valorar el 30/12/2025, no: la curva a seis meses marcaba **10,9150 %**
+continuo, y con ella la call del 12 sube de 213,0648 a 230,7606 (**2 383 millones**) y el forward
+del 11 de 1 843,3151 a 1 881,9554 (5 204). Ninguna cifra de esos cuatro capítulos se tocó.
+
+**Cinco resultados del 9 que conviene no volver a descubrir.** **La forward no es un
+pronóstico**: en 264 meses la de un año dentro de un año quedó sobre la tasa que después rigió el
+**75,4 %** de las veces, y «no cambia» pronosticó mejor (RMSE 2,3238 contra 2,7341); el taller
+muestra que el sesgo crece con el plazo y es más frecuente en UVR. **La TIR es el promedio de las
+spot pesado por duración** —13,0014 % contra 12,9999 %—, de donde salen la TIR bajo la spot en una
+curva que sube y el efecto cupón (5,63 pb). **El bootstrapping reprecia exacto y lee mal la
+forward**: un precio 0,50 abajo hace un zigzag de +73,40 y −83,38 pb en dos forwards seguidas.
+**τ decide la curva fuera de los vértices y casi nada dentro**: con τ de 1 a 15 el tramo se mueve
+menos de 1 000 millones y la tasa a treinta años va de 13,32 % a 6,74 %. Y **el nivel mueve la
+curva**: 86,05 % de la varianza de los cambios mensuales desde 2018; con +100 pb en el corto plazo
+el bono que más pierde es el de **cinco** años, no el de dos.
+
+⚠️ **Y deja un método que sirve para los que faltan: las salidas `#>` se generan, no se copian.**
+Un guion en la zona de trabajo de la sesión ejecutó cada bloque instrucción por instrucción de
+nivel superior —`ast` en Python, `parse()` con `srcref` en R— y puso debajo de cada una lo que
+imprimió. Cero transcripciones a mano, y la regla 9 pasó a la primera. Ojo si se rehace: el
+evaluador de R tiene que correr en un entorno propio, porque un `for (i in …)` del bloque pisa el
+índice del evaluador y desordena las salidas sin ningún error.
 
 ✅ **La centésima que el 11 dejó pendiente quedó explicada, y no era un error de nadie.**
 El árbol promediado de 991 a 1 000 da 213,0764 y Black-Scholes 213,0648, pero esos diez
@@ -60,9 +104,10 @@ enlazado desde `index.html` desde el 2026-08-20. Su fuente, su clave y su rúbri
 `talleres/clave/ESTADO.md`.
 
 ⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
-previa**; no se toca. Los **diez** talleres de capítulo son práctica —`TDR-07.qmd` y
+previa**; no se toca. Los **once** talleres de capítulo son práctica —`TDR-07.qmd` y
 `TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto;
-`TDR-11.qmd`, del 2026-08-25, es el tercero, y `TDR-12.qmd`, del 2026-09-05, el cuarto—. Las unidades 2 y 3 necesitan el suyo de unidad,
+`TDR-11.qmd`, del 2026-08-25, es el tercero, `TDR-12.qmd`, del 2026-09-05, el cuarto, y
+`TDR-09.qmd`, del 2026-09-29, el quinto—. Las unidades 2 y 3 necesitan el suyo de unidad,
 y va en la tarea 22.
 
 ⚠️ **El taller 7 se revisó el 2026-09-19 y el 8 el 2026-09-26, y por razones distintas: no dé
@@ -147,7 +192,7 @@ talleres con sus rúbricas — es una decisión tomada, no un descuido.
 estampa `migrar.py` y el verificador no lo mira: es HTML plano con la paleta de los
 capítulos, para que la raíz del sitio no devuelva 404 mientras no exista el portal de
 verdad. **La tarea 21 lo sustituye en la fase 5.** Un capítulo nuevo hay que añadirlo a
-mano a su rejilla —los nueve pendientes ya están, en gris y sin enlace—.
+mano a su rejilla —los cuatro pendientes ya están, en gris y sin enlace—.
 
 ✅ **El sitio está publicado**: <https://jotamao1985.github.io/Teoria_del_Riesgo_Usta/>.
 Pages quedó activado el 2026-08-11 con origen «GitHub Actions», y desde entonces cada push
@@ -243,7 +288,7 @@ capítulo 7: una anomalía apenas toca la varianza y domina la cola. Todo capít
 optimice o estime sobre una cola reporta ese conteo al lado de la cifra.
 
 ✅ **Y el 8 es el piloto de la explicación de las fórmulas (2026-09-28), que es una decisión
-editorial nueva y hoy alcanza al 7 y al 12, no a los otros siete.** El material tenía las fórmulas y la
+editorial nueva y hoy alcanza al 7, al 9 y al 12, no a los otros siete.** El material tenía las fórmulas y la
 prosa, y nada en medio: ningún capítulo usa matemática en línea, y el 8 llegaba a la auditoría
 con **tres fórmulas de sección para cinco secciones** —la 4 y la 5 no tenían ninguna, aunque la
 4 compara dos problemas de optimización—. Se cerró en tres capas, y las tres tienen componente:
@@ -282,7 +327,8 @@ después de desplazarse muestra el chip del símbolo VACÍO.** Parece un defecto
 lo es — el DOM ya trae el `mjx-container` con su ancho—. Espere a que pinte antes de juzgar, o
 compruébelo por el DOM y no por la imagen.
 
-**Ya está en el 7 y en el 12, y queda pendiente en los otros siete** —del 1 al 6 y el 11—. El 7 lo
+**Ya está en el 7, en el 12 y en el 9 —que nació con ella: 17 fórmulas, cinco derivaciones y dos
+anatomías—, y queda pendiente en los otros siete** —del 1 al 6 y el 11—. El 7 lo
 recibió el mismo día que el 8 (seis derivaciones y dos anatomías). El **12** pasó de **cinco
 fórmulas y una derivación a 27 fórmulas**: tres de sección donde no había ninguna, el paso de p\*
 que le faltaba a la derivación de la sección 1, cuatro derivaciones nuevas —por qué N(d₂) cuenta
@@ -477,8 +523,9 @@ exigen simulación; están calculados con 200 000 réplicas y comprobados con tr
 - **D-C · punto de control B:** aprobado tal cual. Mismas convenciones para lo que queda.
 
 - **D-D · tasa libre de riesgo: ratificada** (2026-08-10) en **7,00 % E.A.**, sin recálculo.
-  Decisión declarada del curso, no estimación. Se sustituirá por el TES del plazo que
-  corresponda cuando exista `curva_tes.csv`, y esa sustitución será una revisión de D-D.
+  Decisión declarada del curso, no estimación. **Revisada con `curva_tes.csv` el 2026-09-29 y
+  mantenida**: como promedio de 2018–2025 queda a 0,08 pp de la curva a un año; como tasa del
+  30/12/2025 queda a 4,15 pp de la curva a seis meses, y esa brecha se declara (capítulo 9).
 
 ⚠️ **El verificador tiene dos zonas ciegas, y las dos se cierran abriendo el capítulo.**
 
@@ -584,7 +631,8 @@ leer entera la justificación antes de ampliarla.
 Medidos el 2026-09-13 sobre las 15 preguntas de cada capítulo: **c1 a:3 · b:5 · c:4 · d:3**,
 **c2 a:4 · b:5 · c:3 · d:3**, **c3 a:3 · b:5 · c:4 · d:3**, **c4 a:1 · b:6 · c:3 · d:5**,
 **c5 a:3 · b:3 · c:2 · d:7**, **c6 a:4 · b:4 · c:4 · d:3**, **c7 a:5 · b:3 · c:3 · d:4**,
-**c8 a:4 · b:3 · c:3 · d:5**, **c11 a:4 · b:4 · c:4 · d:3** y **c12 a:3 · b:4 · c:4 · d:4**.
+**c8 a:4 · b:3 · c:3 · d:5**, **c9 a:4 · b:4 · c:4 · d:3**, **c11 a:4 · b:4 · c:4 · d:3** y
+**c12 a:3 · b:4 · c:4 · d:4**.
 Los diez pasan. El del 5 es el margen más estrecho —7 de 15 es el 46,7 % contra un techo del
 50 %— y el 4 deja la (a) con una sola aparición. Reescribir las opciones no mueve ninguna
 letra, pero **tocar un enunciado sí**: quien reformule uno tiene que volver a mirar el
@@ -747,7 +795,7 @@ El capítulo 11 añadió la decimotercera, y es la más barata de cerrar de toda
     El segundo `grep` va sin prefijo a propósito: filtrarlo por `cap[0-9]+-` parece más
     preciso y deja fuera el taller calificado, cuyas gráficas se llaman `g-hist`, `g-qq` y
     demás — y entonces la receta las reporta a las seis como rotas cuando están bien. Los
-    nueve capítulos y el taller pasan hoy esta comprobación.
+    diez capítulos y el taller pasan hoy esta comprobación.
 
     Y de la misma pasada salieron dos recordatorios que no son zonas ciegas nuevas sino las
     viejas mordiendo otra vez. **Un laboratorio puede contradecir a su bloque en una cifra que
@@ -844,9 +892,11 @@ mismo defecto**:
     2,5 escenarios, la raíz de 252 y la peor rueda; en el 12 la tasa en sus dos convenciones
     (7,00 % efectivo contra 6,7659 %, cuando árbol y fórmula usan las dos `log(1.07)`), el valor
     de N(d₁), la σ redondeada a 44,04 % y los 3,7240 COP de pasar de 63 a 126 rebalanceos—. De
-    paso cayó el punto y coma en los dos (3,25 → 2,75) y la raya en el 8 (3,00 → 2,50). **Queda
-    una en el 12**: la raya solo la lleva la correcta en la pregunta de la raíz del tiempo, con el
-    total en 3,25 de 10, dentro de la banda.
+    paso cayó el punto y coma en los dos (3,25 → 2,75) y la raya en el 8 (3,00 → 2,50). La raya
+    del 12 —solo la llevaba la correcta en la pregunta de la raíz del tiempo— se cerró el mismo
+    día dándosela al distractor de la normalidad (3,25 → 2,75), que la regla 13 obligó a dejar
+    más largo que la correcta. En el 8 y el 12 ya no hay ninguna pregunta del cuestionario en que
+    una de las cuatro marcas señale solo a la correcta.
 
     ⚠️ **Mida estas pistas con el valor ESPERADO exacto, no repitiendo en pantalla.** Marcar al
     azar entre las opciones marcadas tiene varianza, y con seis repeticiones el capítulo 7 salió
@@ -900,7 +950,7 @@ Award · HelpCircle · TrendingUp · BarChart · Activity · Layers · Table · 
 Sliders · ChevronLeft · ChevronRight`. ✅ **Corregido el 2026-09-14**: el capítulo 11 llevaba
 tres que no existen desde el 2026-08-25 —`ArrowDownUp`, `GitBranch` y `Workflow`— y sus
 secciones 1, 3 y 5 salían sin icono. Pasaron a `TrendingUp`, `Layers` y `Activity`, ninguno
-repetido dentro del capítulo. **Los once archivos están hoy barridos y no queda ninguno sin
+repetido dentro del capítulo. **Los doce archivos —los once capítulos y el taller— están hoy barridos y no queda ninguno sin
 definir**; el barrido es de dos líneas y conviene repetirlo al cerrar un capítulo, porque es
 la familia de defectos que ni React ni el verificador señalan:
 
@@ -1097,8 +1147,25 @@ demuestra la agregación temporal, no la exclusión de esas ruedas. Es la secci�
 capítulo 3. Quien escriba un capítulo que estime una covarianza con datos diarios tiene que
 contarlo.
 
-⚠️ **`curva_tes.csv` está pendiente** y bloquea los capítulos 9 y 10. Hay que bajarla a mano
-del Banco de la República. Ningún otro capítulo depende de ella.
+✅ **`curva_tes.csv` está congelada desde el 2026-09-29**, y la produce `datos/descargar.py tes`
+desde el servicio REST de SUAMECA, el portal de estadísticas del Banco de la República —que sí
+existe, aunque el manifiesto dijera lo contrario hasta ese día—. Tres descargas dieron el mismo
+SHA-256. Son 276 cortes mensuales, 2003-01 → **2025-12-30**, la rueda que cierra el panel.
+
+⚠️ **Lo que trae no es una curva: son tres vértices** —1, 5 y 10 años, en pesos y en UVR— y los
+parámetros de Nelson-Siegel con que el Banco los calcula, con **τ fijo** en 3,7 (pesos) y 2,3
+(UVR). Con τ fijo, los tres vértices determinan los tres β por un sistema 3×3, y eso es lo que usa
+el material: **los β de pesos que publica el Banco no sirven**, porque vienen en fracción y con
+dos decimales —resolución de un punto— y reconstruyen los vértices con 0,29 pp de error medio.
+Desde el 4 de marzo de 2019 esa diferencia cabe en el redondeo; antes llega a 1,76 pp en β₂ y
+no la explica nada que el archivo traiga. El corte UVR lleva su propia fecha (`fecha_uvr`) porque
+en 32 meses cae antes que el de pesos. Las ocho advertencias están en `datos/MANIFIESTO.md`.
+
+⚠️ **El servidor del Banco no envía su certificado intermedio**, y Python falla con
+`CERTIFICATE_VERIFY_FAILED` aunque se le pase `certifi`. `descargar.py` baja con `curl`, que lo
+completa y verifica. La salida fácil —apagar la verificación, que es lo que hacía el guion que
+trajo el usuario— no se toma. Los archivos crudos de esa descarga siguen en `datos/` y están en
+`.gitignore`.
 
 ## Notas de entorno
 

@@ -33,6 +33,7 @@ Uso:
 """
 
 import hashlib
+import json
 import re
 import subprocess
 import sys
@@ -166,6 +167,97 @@ def descargar_perdidas_operativas():
     return salida, f"{p.stdout.strip().splitlines()[-1]} siniestros · millones de coronas de 1985"
 
 
+# Curva cero cupón de los TES: servicio REST de SUAMECA, el portal de
+# estadísticas del Banco de la República. Los catorce identificadores son los del
+# plan BETAS_TASAS_TES y se comprobaron uno a uno el 2026-09-29.
+SUAMECA = ("https://suameca.banrep.gov.co/estadisticas-economicas-back/rest/"
+           "estadisticaEconomicaRestService/consultaInformacionSerie?idSerie=")
+SERIES_TES = {
+    # vértices publicados, en porcentaje
+    15272: "pesos_1a", 15273: "pesos_5a", 15274: "pesos_10a",
+    15275: "uvr_1a", 15276: "uvr_5a", 15277: "uvr_10a",
+    # parámetros de Nelson-Siegel tal como se publican: los de pesos en fracción
+    # (0.13 = 13 %) y los de UVR en porcentaje (6.41 = 6,41 %); τ en años
+    15278: "b0_pesos", 15279: "b1_pesos", 15280: "b2_pesos", 15281: "tau_pesos",
+    15282: "b0_uvr", 15283: "b1_uvr", 15284: "b2_uvr", 15285: "tau_uvr",
+}
+INICIO_TES = "2003-01-01"  # primer dato de las catorce series
+
+
+def _suameca(id_serie):
+    """Una serie diaria de SUAMECA, indexada por fecha de Bogotá.
+
+    Va por `curl` y no por `urllib`, y no es capricho: el servidor del Banco
+    envía su certificado y la raíz, pero NO el intermedio (GeoTrust EV RSA CA
+    G2). `curl` lo completa con el almacén del sistema; Python no, y falla con
+    CERTIFICATE_VERIFY_FAILED aunque se le pase `certifi` (comprobado el
+    2026-09-29). La salida fácil —apagar la verificación— es la que no se toma.
+    """
+    import pandas as pd
+    p = subprocess.run(["curl", "-sS", "--fail", "--max-time", "120",
+                        "-A", "Mozilla/5.0", SUAMECA + str(id_serie)],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        raise SystemExit(f"ERROR al bajar la serie {id_serie} de SUAMECA: "
+                         f"{p.stderr.strip()[-300:]}")
+    datos = json.loads(p.stdout)[0]["data"]
+    fechas = (pd.to_datetime([ms for ms, _ in datos], unit="ms", utc=True)
+                .tz_convert("America/Bogota").tz_localize(None).normalize())
+    s = pd.Series([v for _, v in datos], index=fechas, dtype="float64").dropna()
+    if s.index.duplicated().any():
+        raise SystemExit(f"ERROR: la serie {id_serie} trae fechas repetidas")
+    return s
+
+
+def descargar_curva_tes():
+    """Curva cero cupón de los TES del Banco de la República, un corte por mes.
+
+    El Banco no publica la curva entera: publica tres vértices —1, 5 y 10 años,
+    en pesos y en UVR— y los parámetros de Nelson-Siegel con que los calcula.
+    El corte de cada mes es la última rueda en que están los tres vértices de la
+    moneda, con los parámetros de esa misma rueda. El de UVR lleva su propia
+    columna de fecha porque la serie UVR tiene días sin dato y su corte puede
+    caer antes que el de pesos: poner las dos monedas en una fila sin decirlo
+    fabricaría una curva que no existió ningún día.
+
+    Termina el 2025-12-30, la misma rueda que cierra el panel de acciones, para
+    que el tramo de TES del fondo y sus acciones se valoren sobre la misma fecha.
+    Igual que Yahoo, el Banco puede revisar su historia —ya lo hizo en 2021—, así
+    que volver a descargar puede no dar un archivo idéntico: mire el `git diff`.
+    """
+    import pandas as pd
+    diario = pd.DataFrame({col: _suameca(i) for i, col in SERIES_TES.items()})
+    diario = diario.sort_index().loc[INICIO_TES:FIN]
+
+    def cortes(moneda):
+        vertices = [f"{moneda}_{m}a" for m in (1, 5, 10)]
+        parametros = [f"{b}_{moneda}" for b in ("b0", "b1", "b2", "tau")]
+        d = diario[vertices + parametros].dropna(subset=vertices)
+        if d[parametros].isna().any().any():
+            raise SystemExit(f"ERROR: hay ruedas con vértices {moneda} y sin parámetros")
+        d = d.groupby(d.index.to_period("M")).tail(1)
+        return d.rename_axis("fecha").reset_index()
+
+    pesos = cortes("pesos")
+    uvr = cortes("uvr").rename(columns={"fecha": "fecha_uvr"})
+    pesos["mes"] = pesos["fecha"].dt.to_period("M")
+    uvr["mes"] = uvr["fecha_uvr"].dt.to_period("M")
+    curva = pesos.merge(uvr, on="mes", how="left").drop(columns="mes")
+    faltan = curva["fecha_uvr"].isna().sum()
+    if faltan:
+        raise SystemExit(f"ERROR: {faltan} meses sin ningún corte UVR")
+
+    numericas = curva.columns.drop(["fecha", "fecha_uvr"])
+    curva[numericas] = curva[numericas] + 0.0  # sin «-0.00» en el archivo
+    salida = AQUI / "curva_tes.csv"
+    curva.to_csv(salida, index=False, date_format="%Y-%m-%d", float_format="%.2f")
+    desfase = (curva["fecha"] != curva["fecha_uvr"]).sum()
+    return salida, (f"{len(curva)} meses · {curva['fecha'].min().date()} → "
+                    f"{curva['fecha'].max().date()} · vértices de 1, 5 y 10 años en "
+                    f"pesos y en UVR + parámetros de Nelson-Siegel · corte UVR "
+                    f"distinto del de pesos en {desfase} meses")
+
+
 def sha(ruta):
     return hashlib.sha256(ruta.read_bytes()).hexdigest()
 
@@ -180,12 +272,14 @@ FUENTES = {
                 "UCI German Credit vía OpenML (credit-g, v1)"),
     "extremos": ("perdidas_operativas.csv", descargar_perdidas_operativas,
                  "evir::danish · incendios daneses 1980–1990"),
+    "tes": ("curva_tes.csv", descargar_curva_tes,
+            "Banco de la República · SUAMECA, servicio REST · series 15272–15285 "
+            "(plan BETAS_TASAS_TES) · SEN y MEC con cálculos del Banco"),
 }
 
-# `curva_tes.csv` NO está aquí y es deliberado: el Banco de la República publica
-# la curva cero cupón de los TES, pero no por un extremo estable que se pueda
-# invocar desde un guion. Se descarga a mano y se anota en el manifiesto. Los
-# capítulos 9 y 10 dependen de ella; hasta que exista, están bloqueados.
+# `curva_tes.csv` estuvo fuera de esta lista hasta el 2026-09-29 porque se creía
+# que el Banco no exponía la curva por un extremo invocable desde un guion. Sí lo
+# hace: el servicio REST de SUAMECA, que es el que usa su propio portal.
 
 
 def previo():
@@ -270,15 +364,6 @@ def main():
             "",
         ]
     lineas += [
-        "## `curva_tes.csv` — PENDIENTE",
-        "",
-        "Curva cero cupón de los TES, cortes mensuales. Bloquea los capítulos 9 y 10.",
-        "",
-        "No se descarga desde aquí porque el Banco de la República no expone la serie",
-        "por un extremo estable que un guion pueda invocar. Hay que bajarla a mano de",
-        "las estadísticas del emisor y anotar en este archivo la fecha, la ruta exacta",
-        "y el SHA-256 resultante.",
-        "",
         "---",
         "",
         "## Anomalías conocidas de `bvc_diario.csv`",
@@ -302,6 +387,61 @@ def main():
         "",
         "El diagnóstico que las delata —comparar el rendimiento del portafolio con el",
         "del índice que lo replica— está implementado en la sección 3 del capítulo 4.",
+        "",
+        "---",
+        "",
+        "## Advertencias de `curva_tes.csv`",
+        "",
+        "Medidas al congelarla (2026-09-29) sobre los 276 cortes del archivo. Como las",
+        "del panel, **no se corrigen**: se declaran, y el capítulo que use la curva las",
+        "hereda.",
+        "",
+        "- **No es una curva entera: son tres vértices.** El Banco publica la tasa cero",
+        "  cupón a 1, 5 y 10 años, en pesos y en UVR, y los parámetros de Nelson-Siegel",
+        "  con que la calcula. Cualquier otro plazo es una reconstrucción, y hay que",
+        "  decir con qué.",
+        "- **τ no se estima: está fijo** en 3,7 años para pesos y 2,3 para UVR en los",
+        "  276 meses. Con τ fijo, los tres vértices determinan exactamente los tres β",
+        "  —el sistema 3×3 tiene número de condición 38,8 en pesos y 27,1 en UVR—, así",
+        "  que Nelson-Siegel sobre estos datos es una interpolación y su error de ajuste",
+        "  es cero por construcción.",
+        "- **Los parámetros de pesos se publican en fracción y con dos decimales**:",
+        "  `b0_pesos` = 0.12 es un 12 %, con resolución de un punto porcentual.",
+        "  Reconstruir los vértices con ellos se equivoca 0,29 pp en promedio y 0,93 pp",
+        "  en el peor corte (5 años, 2018-03-28), y pasa de 0,25 pp en 176 de los 276",
+        "  meses. Los de UVR van en porcentaje y reconstruyen sus vértices con 0,004 pp.",
+        "  Resolver el sistema 3×3 con τ = 3,7 devuelve los β de pesos que reproducen",
+        "  los vértices exactos.",
+        "- **Y el redondeo no lo explica todo antes de 2019.** Desde el 4 de marzo de",
+        "  2019 los β recuperados y los publicados no se separan más de 0,52 pp, lo que",
+        "  cabe en un redondeo a un punto; antes llegan a 0,82 · 0,92 · 1,76 pp en β₀ · β₁",
+        "  · β₂, así que en la historia vieja parámetros y vértices no salen del mismo",
+        "  cálculo. El archivo no permite saber por qué. Lo mide el bloque de la sección 5",
+        "  del capítulo 9.",
+        "- **La capitalización no está declarada.** La ficha de SUAMECA dice",
+        "  «Porcentaje» y nada más. El documento metodológico de referencia del Banco",
+        "  —Arango, Melo y Vásquez (2002), *Borradores de Economía* 196, ec. A.1.2.3—",
+        "  descuenta con exp(−s·m/100): capitalización continua. Y los vértices",
+        "  publicados salen de evaluar la fórmula de Nelson-Siegel en los parámetros",
+        "  publicados (en UVR, a 0,004 pp), así que están en la convención de la",
+        "  fórmula. No es un detalle: el 2025-12-30 los 13,13 % a diez años leídos",
+        "  como continuos son un 14,03 % efectivo anual, y el precio de un cero a diez",
+        "  años pasa de 26,90 a 29,12 por cada 100 según cuál se lea. El capítulo que",
+        "  use la curva declara cuál adopta.",
+        "- **La serie de pesos cambia de método el 4 de marzo de 2019.** Según nota",
+        "  aclaratoria del Banco, un ajuste metodológico de mayo de 2021 recalculó la",
+        "  historia de pesos desde esa fecha, y no la anterior. La ventana del curso",
+        "  (2018–2025) cruza la ruptura, aunque en los cortes mensuales no se ve un salto.",
+        "- **Uso informativo, no de valoración.** Otra nota aclaratoria, vigente desde",
+        "  2023: las tasas TES del Banco no están pensadas para valorar portafolios, y",
+        "  para eso remite a los proveedores de precios. El curso las usa como curva de",
+        "  referencia declarada, no como precio oficial del tramo de TES.",
+        "- **El corte UVR lleva su propia fecha** (`fecha_uvr`). La serie UVR tiene 548",
+        "  días sin dato, casi todos entre 2006 y 2013, y en 32 meses su último dato cae",
+        "  entre 1 y 10 días antes que el de pesos.",
+        "- **La serie diaria, que no se congela, tiene un día roto**: el 2009-06-23 el",
+        "  vértice de pesos a un año vale 0,51 %, entre 5,74 % y 5,63 %. No toca ningún",
+        "  corte mensual; quien congele la diaria tiene que decidir qué hace con él.",
         "",
     ]
     manifiesto.write_text("\n".join(lineas), encoding="utf-8")

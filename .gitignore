@@ -41,6 +41,14 @@ talleres/clave/
 # historial de git cumple esa función mucho mejor.
 *.bak
 
+# Descarga a mano de la curva TES (2026-09-29), anterior a `descargar.py tes`.
+# Lo que se versiona es `datos/curva_tes.csv`, que ese guion reproduce byte a
+# byte; estos cinco archivos —2,6 MB, uno de ellos un .xlsx de casi un mega—
+# solo duplicarían la fuente, y el guion que los generó apaga la verificación
+# del certificado del Banco. Van por nombre porque `datos/*.csv` NO se ignora.
+datos/BanRep_*
+datos/descargar_curva_cero_cupon_BanRep.py
+
 # Salida de `quarto render`. `_quarto.yml` la manda a `talleres/_salida/` y son
 # artefactos de construcción: un solo TDR-01.html pesa 1,9 MB porque Quarto
 # embebe todo con `embed-resources: true`. Lo que se versiona es el `.qmd`, que
