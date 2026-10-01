@@ -20,6 +20,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 3 · Unidad 2 (T12–T15) | 🟡 casi · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · **T14, capítulo 9, terminada el 2026-09-29** · T15 con datos, pero sin QuantLib en R |
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
+| Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
 | 5 · Portal y Quarto | pendiente |
 
 Los **once** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
@@ -38,37 +39,61 @@ El **capítulo 9** abre la renta fija y **añade al fondo su tramo de TES**, que
 declarada del curso y que el capítulo 10 hereda: tres bonos de estudio con la estructura de un
 TES tasa fija —cupón anual, principal al vencimiento— a **2, 5 y 10 años** desde el 30/12/2025,
 con cupones de **6,00 · 7,75 · 7,25 %** y 200 000 millones nominales cada uno. Sobre la curva del
-Banco valen **88,9021 · 79,7608 · 65,2372** por cada 100, con TIR efectivas de **12,6202 · 13,5869
-· 13,8845 %**: el tramo son **467 800 millones**. La curva se recupera de los tres vértices del
-Banco —11,30 · 12,84 · 13,13 %— con τ = 3,7 fijo, y da β = **12,1974 · −1,7346 · 5,5050**.
+Banco valen **90,0388 · 82,3327 · 68,7718** por cada 100, con TIR efectivas de **11,8851 · 12,7414
+· 13,0065 %**: el tramo son **482 287 millones**. La curva se recupera de los tres vértices del
+Banco —11,30 · 12,84 · 13,13 %— con τ = 3,7 fijo, y da β = **12,1974 · −1,7346 · 5,5050**. Son los
+cupones de los TES reales de 2028, 2030 y 2034.
 
 ⚠️ **La octava convención declarada del curso sale de aquí: la curva del Banco se lee en
-capitalización CONTINUA, y la TIR se reporta efectiva anual.** El Banco no declara la
-capitalización —su ficha dice «porcentaje»—; su documento metodológico (Arango, Melo y Vásquez,
-2002, *Borradores de Economía* 196, ec. A.1.2.3) descuenta con e^(−s·m), y solo en continua la
-spot de Nelson-Siegel es el promedio de las forward. No es un detalle: **leerla como efectiva le
-suma al tramo 14 486 millones**, y un cero a diez años pasa de 26,90 a 29,12 por cada 100. Todo
-capítulo que use la curva declara la lectura, y quien compare una TIR con una spot las pone antes
-en la misma convención —es el error de la motivación de la sección 2—.
+efectiva anual, y la TIR también.** El Banco no declara la capitalización —su ficha dice
+«porcentaje»—, y **la primera versión del capítulo (2026-09-29) la leyó en CONTINUA**, con la
+fuente de su documento metodológico (Arango, Melo y Vásquez, 2002, *Borradores de Economía* 196,
+ec. A.1.2.3). Era un error, y lo destapó la auditoría del 2026-09-30 contrastando la curva con el
+mercado: valorados con ella, **diez TES tasa fija salen con −8 pb de error medio frente a sus
+tasas del SEN en el tramo 2030–2033 si se lee efectiva, y con +56 pb si se lee continua** (+81 en
+los diez; en ocho fechas de 2025, +1 contra +71 en el tramo medio). El documento de 2002 ya no
+describe la serie: pedía estimar los cuatro parámetros a diario y hoy τ viene fijo. El usuario
+decidió el cambio ese día. Leerla en continua **le resta al tramo 14 487 millones**, y un cero a
+diez años pasa de 29,12 a 26,90 por cada 100. Lo mide el bloque `EJ_SEN` de la sección 1, con las
+tasas del SEN del 30/09/2025 literales en el código y su fuente.
+
+⚠️ **La lección vale para todo el curso: la convención de un dato se comprueba contra precios, no
+contra un documento.** Una ficha que dice «porcentaje» y un paper de 2002 eran evidencia débil, y
+valorar tres bonos reales contra su tasa de mercado costaba diez minutos. Quien lea otra serie de
+tasas —el capítulo 10, o una curva IBR— hace ese contraste antes de declarar nada. Con la lectura
+efectiva, Nelson-Siegel queda como lo que es: una forma flexible para la spot, de la que la
+forward se saca con la fórmula efectiva (la identidad «la spot es el promedio de las forward» es
+de la capitalización continua y el capítulo ya no la usa como argumento).
 
 ⚠️ **D-D se revisó con la curva el 2026-09-29 y SE MANTIENE, con la brecha declarada** —lo
-decidió el usuario—. Como promedio, que es como la usan C3 y C7, se sostiene: la curva a un año
-promedió **7,0848 % efectivo** en 2018–2025, 0,08 pp sobre el 7,00 %. Como tasa de un día, que es
-como la usan C11 y C12 al valorar el 30/12/2025, no: la curva a seis meses marcaba **10,9150 %**
-continuo, y con ella la call del 12 sube de 213,0648 a 230,7606 (**2 383 millones**) y el forward
-del 11 de 1 843,3151 a 1 881,9554 (5 204). Ninguna cifra de esos cuatro capítulos se tocó.
+decidió el usuario, y la decisión sobrevivió al cambio de convención—. Como promedio, que es como
+la usan C3 y C7, se sostiene: la curva a un año promedió **6,7950 % efectivo** en 2018–2025, 0,21 pp
+**por debajo** del 7,00 % (en logaritmos, 6,5302 % contra 6,7659 %, 0,24 pp). Cada convención se
+promedia en la suya: la primera versión decía «6,7950 % continuo, que son 7,0848 % efectivo», y
+esa equivalencia era falsa —7,0848 era el promedio de las efectivas, no la efectiva del promedio—.
+Como tasa de un día, que es como la usarán C11 y C12 al valorar el 30/12/2025, no: la curva a seis
+meses marca **10,9150 % efectivo**, 10,3594 % en continua, 3,59 pp sobre ln(1,07); con ella la call
+del 12 sube de 213,0648 a 228,3498 (**2 059 millones**) y el forward del 11 de 1 843,3151 a
+1 876,7346 (4 501). Esa tasa es una extrapolación bajo el primer vértice —con τ de 1 a 15 la call
+sube entre 1 926 y 2 103 millones— y la de los TES no es la única candidata: los derivados en
+pesos se descuentan con la curva IBR. Ninguna cifra de esos cuatro capítulos se tocó.
 
 **Cinco resultados del 9 que conviene no volver a descubrir.** **La forward no es un
-pronóstico**: en 264 meses la de un año dentro de un año quedó sobre la tasa que después rigió el
-**75,4 %** de las veces, y «no cambia» pronosticó mejor (RMSE 2,3238 contra 2,7341); el taller
-muestra que el sesgo crece con el plazo y es más frecuente en UVR. **La TIR es el promedio de las
-spot pesado por duración** —13,0014 % contra 12,9999 %—, de donde salen la TIR bajo la spot en una
-curva que sube y el efecto cupón (5,63 pb). **El bootstrapping reprecia exacto y lee mal la
-forward**: un precio 0,50 abajo hace un zigzag de +73,40 y −83,38 pb en dos forwards seguidas.
-**τ decide la curva fuera de los vértices y casi nada dentro**: con τ de 1 a 15 el tramo se mueve
-menos de 1 000 millones y la tasa a treinta años va de 13,32 % a 6,74 %. Y **el nivel mueve la
-curva**: 86,05 % de la varianza de los cambios mensuales desde 2018; con +100 pb en el corto plazo
-el bono que más pierde es el de **cinco** años, no el de dos.
+pronóstico insesgado**: en 264 meses la de un año dentro de un año quedó sobre la tasa que
+después rigió el **75,4 %** de las veces (error medio +1,2903 pp), y «no cambia» se equivocó menos
+(RMSE 2,3238 contra 2,7400). ⚠️ **Los 264 pares se solapan**: detrás hay 22 años, y contados por
+fases —un mes del año a la vez— la forward queda arriba entre **15 y 19 de 22** y «no cambia» gana
+en las doce; 15 de 22 sin sesgo tendría probabilidad 0,0669. Todo capítulo que cuente ventanas
+de doce meses mes a mes hereda ese recuento. **La TIR es casi el promedio de las spot**, pesadas
+por su aporte a la duración —13,0065 % contra 13,0048 %—, de donde salen la TIR bajo la spot en
+una curva que sube y el efecto cupón (4,82 pb). **El bootstrapping reprecia exacto y lee mal la
+forward**: un precio 0,50 abajo hace un zigzag de +81,79 y −91,62 pb en dos forwards seguidas.
+**τ decide la curva fuera de los vértices y casi nada dentro**: con τ de 0,5 a 15 el tramo se
+mueve 900 millones y la tasa a treinta años va de 13,32 % a 6,74 % —pero eso vale para quien solo
+tiene los tres vértices: el Banco ajusta sobre todos los TES negociados, hasta 2050—. Y **el nivel
+mueve la curva**: 86,05 % de la varianza de los cambios mensuales desde 2018, aunque mes a mes los
+tres vértices solo se mueven juntos en 179 de 275; con +100 pb en el corto plazo el bono que más
+pierde es el de **cinco** años, no el de dos.
 
 ⚠️ **Y deja un método que sirve para los que faltan: las salidas `#>` se generan, no se copian.**
 Un guion en la zona de trabajo de la sesión ejecutó cada bloque instrucción por instrucción de
@@ -524,8 +549,10 @@ exigen simulación; están calculados con 200 000 réplicas y comprobados con tr
 
 - **D-D · tasa libre de riesgo: ratificada** (2026-08-10) en **7,00 % E.A.**, sin recálculo.
   Decisión declarada del curso, no estimación. **Revisada con `curva_tes.csv` el 2026-09-29 y
-  mantenida**: como promedio de 2018–2025 queda a 0,08 pp de la curva a un año; como tasa del
-  30/12/2025 queda a 4,15 pp de la curva a seis meses, y esa brecha se declara (capítulo 9).
+  mantenida**, y vuelta a medir el 2026-09-30 con la curva leída en efectiva: como promedio de
+  2018–2025 queda 0,21 pp por encima de la curva a un año, las dos en efectiva; como tasa del
+  30/12/2025 queda 3,59 pp por debajo de la curva a seis meses, las dos en continua, y esa
+  brecha se declara (capítulo 9).
 
 ⚠️ **El verificador tiene dos zonas ciegas, y las dos se cierran abriendo el capítulo.**
 
@@ -919,7 +946,7 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     pareja en promedio, sea cual sea n, y ninguna solo un 37 % de las veces; exigir un
     desarreglo volvería «nunca en su fila» la pista, que es el espejo que la zona ciega 15
     enseñó a no abrir. Hoy los once capítulos se reparten seis con ninguna en su fila y cinco
-    con una; el 9 llegó después de escribir la regla y la pasa, hoy con `[2, 4, 1, 5, 3, 0]`.
+    con una; el 9 llegó después de escribir la regla y la pasa, hoy con `[4, 5, 3, 2, 0, 1]`.
 
     **Y barrer el rango cazó otro, que es la zona ciega 7 cobrándose lo suyo: el capítulo 3
     dejaba dos en su fila** (`[0, 4, 1, 3, 2]`, la β y el EE(β)), y emparejar por filas le
@@ -947,8 +974,8 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     otra.** La pregunta de gamma dice «rehacer **esa compra**», y esa compra es la de la
     pregunta del delta, así que la del delta tiene que ir encima —el anclaje de `OrdenaPasos`
     con otra cara—. De las 120 órdenes solo tres cumplían todo, y se tomó la que deja el delta
-    justo encima de gamma. El 9 tiene la misma dependencia: «Esa misma tasa, pasada a efectiva
-    anual» remite a la fila de arriba.
+    justo encima de gamma. El 9 tiene la misma dependencia: «Esa misma tasa, pasada a
+    capitalización continua» remite a la fila de arriba.
 
     ⚠️ **Y cuando la otra columna son cifras, su orden es la magnitud: en el 9 sí aplicaba
     (2026-09-30)**, aunque este archivo dijera lo contrario hasta ese día. De la segunda fila a
@@ -968,6 +995,23 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     la forward y el cupón—. Se tomó la única que deja las dos primeras filas donde estaban. El 9
     es hoy el único emparejamiento contra cifras de los doce archivos, comprobado; quien escriba
     el próximo mira que sus respuestas no vayan ordenadas por valor.
+
+    ⚠️ **Y ese orden no sobrevivió al cambio de convención (2026-10-01): un orden elegido por las
+    cifras se vuelve a medir cuando las cifras cambian.** Con la lectura efectiva la forward pasó
+    de ser la menor de las difíciles a la mayor —13,1491 contra 13,0065 de la TIR y 12,9601 de la
+    par—, y el orden que había cerrado el defecto, forward · TIR · par, quedó otra vez de mayor a
+    menor: apartadas las tres regaladas —el cupón, la del Banco y la continua, que el enunciado
+    nuevo también aparta—, ordenar las otras tres sacaba **6 de 6**. No llegó a publicarse por
+    otra razón, que es la segunda lección: la reconstrucción del capítulo en la auditoría partió
+    de piezas extraídas antes de ese arreglo y **lo deshizo en silencio** —con un orden que
+    acertaba 3 de 6 corriendo las parejas cuatro filas—, y solo se vio al ir a hacer el commit.
+    Quien monte un archivo desde piezas compara antes de cerrar con `git diff` contra `HEAD` lo
+    que no tocó a propósito. La izquierda va ahora Banco · continua · TIR · forward · par ·
+    cupón, con `[4, 5, 3, 2, 0, 1]` y la derecha intacta: ninguna pareja en su fila, dos como
+    mucho con cualquier corrimiento o espejo, y la apuesta de las dos regaladas saca **3 de 6**
+    en los dos sentidos —con la continua apartada, 4: las tres regaladas y una de las tres
+    difíciles, que es el azar—. En pantalla esa apuesta da 3 de 6 de mayor a menor y de menor a
+    mayor, por filas 0 de 6 y con la respuesta 6 de 6, con la consola limpia.
 
     De paso la regla exige lo que el componente da por supuesto: que `solucion` exista —el
     taller T1 dejó escrito que sin ella la página queda en blanco—, que sea un arreglo literal,
@@ -1194,9 +1238,16 @@ parámetros de Nelson-Siegel con que el Banco los calcula, con **τ fijo** en 3,
 (UVR). Con τ fijo, los tres vértices determinan los tres β por un sistema 3×3, y eso es lo que usa
 el material: **los β de pesos que publica el Banco no sirven**, porque vienen en fracción y con
 dos decimales —resolución de un punto— y reconstruyen los vértices con 0,29 pp de error medio.
-Desde el 4 de marzo de 2019 esa diferencia cabe en el redondeo; antes llega a 1,76 pp en β₂ y
-no la explica nada que el archivo traiga. El corte UVR lleva su propia fecha (`fecha_uvr`) porque
-en 32 meses cae antes que el de pesos. Las ocho advertencias están en `datos/MANIFIESTO.md`.
+Desde el 4 de marzo de 2019 esa diferencia cabe en los dos redondeos juntos —el de los β a un
+punto, 0,5, y el de los vértices a centésimas, que mueve los β recuperados hasta 0,06 · 0,04 ·
+0,13 pp—; antes llega a 1,76 pp en β₂ y no la explica nada que el archivo traiga. El corte UVR
+lleva su propia fecha (`fecha_uvr`) porque en 32 meses cae antes que el de pesos. Las ocho
+advertencias están en `datos/MANIFIESTO.md`.
+
+⚠️ **Las tasas están en efectiva anual**, aunque el archivo no lo diga: es lo que dicen los
+precios del SEN (ver el capítulo 9 arriba). La advertencia del manifiesto se corrigió el
+2026-09-30 a mano y a la vez en la plantilla de `descargar.py`, sin volver a descargar: regenerar
+el manifiesto exige bajar otra vez la curva.
 
 ⚠️ **El servidor del Banco no envía su certificado intermedio**, y Python falla con
 `CERTIFICATE_VERIFY_FAILED` aunque se le pase `certifi`. `descargar.py` baja con `curl`, que lo

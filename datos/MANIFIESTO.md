@@ -102,20 +102,21 @@ hereda.
   los vértices exactos.
 - **Y el redondeo no lo explica todo antes de 2019.** Desde el 4 de marzo de
   2019 los β recuperados y los publicados no se separan más de 0,52 pp, lo que
-  cabe en un redondeo a un punto; antes llegan a 0,82 · 0,92 · 1,76 pp en β₀ · β₁
-  · β₂, así que en la historia vieja parámetros y vértices no salen del mismo
-  cálculo. El archivo no permite saber por qué. Lo mide el bloque de la sección 5
-  del capítulo 9.
-- **La capitalización no está declarada.** La ficha de SUAMECA dice
-  «Porcentaje» y nada más. El documento metodológico de referencia del Banco
-  —Arango, Melo y Vásquez (2002), *Borradores de Economía* 196, ec. A.1.2.3—
-  descuenta con exp(−s·m/100): capitalización continua. Y los vértices
-  publicados salen de evaluar la fórmula de Nelson-Siegel en los parámetros
-  publicados (en UVR, a 0,004 pp), así que están en la convención de la
-  fórmula. No es un detalle: el 2025-12-30 los 13,13 % a diez años leídos
-  como continuos son un 14,03 % efectivo anual, y el precio de un cero a diez
-  años pasa de 26,90 a 29,12 por cada 100 según cuál se lea. El capítulo que
-  use la curva declara cuál adopta.
+  cabe en los dos redondeos juntos: el de los β a un punto, 0,5, y el de los
+  vértices a centésimas, que mueve los β recuperados hasta 0,06 · 0,04 · 0,13 pp.
+  Antes llegan a 0,82 · 0,92 · 1,76 pp en β₀ · β₁ · β₂, así que en la historia
+  vieja parámetros y vértices no salen del mismo cálculo. El archivo no permite
+  saber por qué. Lo mide el bloque de la sección 5 del capítulo 9.
+- **La capitalización no está declarada, pero los precios la deciden: es
+  efectiva anual.** La ficha de SUAMECA dice «Porcentaje» y nada más, y el
+  documento con que el Banco fundó la curva —Arango, Melo y Vásquez (2002),
+  *Borradores de Economía* 196, ec. A.1.2.3— descontaba en continua. La serie de
+  hoy no se comporta así: valorados con la curva del 2025-09-30, diez TES tasa
+  fija salen con −8 pb de error medio frente a sus tasas del SEN en el tramo
+  2030–2033 si se lee efectiva, y con +56 pb si se lee continua (+81 en los
+  diez). Lo mide el bloque de contraste de la sección 1 del capítulo 9. No es un
+  detalle: el 2025-12-30 un cero a diez años vale 29,12 por cada 100 leído en
+  efectiva y 26,90 leído en continua.
 - **La serie de pesos cambia de método el 4 de marzo de 2019.** Según nota
   aclaratoria del Banco, un ajuste metodológico de mayo de 2021 recalculó la
   historia de pesos desde esa fecha, y no la anterior. La ventana del curso

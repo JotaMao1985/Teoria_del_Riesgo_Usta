@@ -599,7 +599,7 @@ Nelson-Siegel, con τ fijo. Tres cambios, aprobados por el usuario ese día:
 
 - **El bootstrapping trabaja sobre bonos teóricos.** No hay precios de TES en el archivo, así
   que la sección 4 arma el mercado que la curva implica —un bono a la par por año, del 1 al
-  10— y comprueba que el bootstrapping lo devuelve a la curva: la **ida y vuelta** (0,0056 pb).
+  10— y comprueba que el bootstrapping lo devuelve a la curva: la **ida y vuelta** (0,0085 pb).
   El R4 compara los dos métodos con un precio que llega 0,50 por debajo.
 - **Nelson-Siegel no se ajusta: se audita.** Con τ fijo y tres vértices, los tres β salen de un
   sistema 3×3 y el error es cero por construcción. La sección 5 recupera los β de los vértices,
@@ -613,7 +613,10 @@ Nelson-Siegel, con τ fijo. Tres cambios, aprobados por el usuario ese día:
 
 Y lo que se añadió: el **tramo de TES del fondo** como decisión declarada —tres bonos de estudio
 a 2, 5 y 10 años con cupones de 6,00 · 7,75 · 7,25 %, 200 000 millones nominales cada uno— que
-el capítulo 10 hereda; y la **capitalización continua** como convención declarada de la curva.
+el capítulo 10 hereda; y la **capitalización efectiva anual** como convención declarada de la
+curva, comprobada contra las tasas del SEN. ⚠️ La primera versión (2026-09-29) la leyó en
+continua; la auditoría del 2026-09-30 mostró con precios de mercado que era un error y el usuario
+decidió el cambio (ver el registro). El capítulo suma un octavo bloque, el contraste con el SEN.
 
 ---
 
@@ -1560,18 +1563,24 @@ capítulos que la usen declaran cuál de las dos aplican y no las mezclan en una
 Cuando exista `curva_tes.csv` se sustituye por el TES del plazo que corresponda, y esa
 sustitución es una revisión de D-D, no un cambio silencioso.
 
-**Revisión con la curva · 2026-09-29 · SE MANTIENE.** La curva llegó y la revisión se hizo
-midiendo los dos usos que el curso le da a la tasa, que no son el mismo (el bloque 7 del
-capítulo 9 los imprime). **Como promedio de la ventana —C3 y C7— D-D se sostiene:** la curva a
-un año promedió 6,7950 % continuo entre 2018 y 2025, que son 7,0848 % efectivo anual, 0,08 pp
-sobre el 7,00 %; en logaritmos, 6,7950 % contra el ln(1,07) = 6,7659 % de C7. **Como tasa de un
-día —C11 y C12, que valoran el 30/12/2025— no:** la curva a seis meses marcaba 10,9150 %
-continuo, 4,15 pp sobre ln(1,07). Con ella la call del 12 pasa de 213,0648 a 230,7606 (2 383
-millones sobre la posición) y el forward del 11 de 1 843,3151 a 1 881,9554 (5 204 millones).
-**El usuario decidió mantener D-D y declarar la brecha**, como el curso hace con sus demás
-convenciones; el capítulo 9 la declara en su portada y en la sección 6, y ninguna cifra de C3,
-C7, C11 ni C12 se tocó. En la escala del 12, la brecha queda ocho veces por debajo de lo que
-mueve elegir σ (19 653 millones) y cincuenta por encima de su error numérico (47).
+**Revisión con la curva · 2026-09-29 · SE MANTIENE**, y vuelta a medir el 2026-09-30, cuando la
+curva pasó a leerse en efectiva anual. La revisión mide los dos usos que el curso le da a la tasa,
+que no son el mismo (el bloque 7 del capítulo 9 los imprime). **Como promedio de la ventana —C3 y
+C7— D-D se sostiene:** la curva a un año promedió 6,7950 % efectivo entre 2018 y 2025, 0,21 pp por
+debajo del 7,00 %; en logaritmos, 6,5302 % contra el ln(1,07) = 6,7659 % de C7, 0,24 pp. **Como
+tasa de un día —C11 y C12, que valoran el 30/12/2025— no:** la curva a seis meses marca
+10,9150 % efectivo, 10,3594 % en continua, 3,59 pp sobre ln(1,07). Con ella la call del 12 pasa de
+213,0648 a 228,3498 (2 059 millones sobre la posición) y el forward del 11 de 1 843,3151 a
+1 876,7346 (4 501 millones). Esa tasa es una extrapolación bajo el primer vértice —con τ de 1 a 15
+la call sube entre 1 926 y 2 103 millones— y los derivados en pesos se descuentan en la práctica con
+la curva IBR. **El usuario decidió mantener D-D y declarar la brecha**, como el curso hace con sus
+demás convenciones; el capítulo 9 la declara en su portada y en la sección 6, y ninguna cifra de
+C3, C7, C11 ni C12 se tocó. En la escala del 12, la brecha queda unas diez veces por debajo de lo
+que mueve elegir σ (19 653 millones) y unas cuarenta por encima de su error numérico (47).
+
+⚠️ La primera versión decía «6,7950 % continuo, que son 7,0848 % efectivo»: la equivalencia era
+falsa, porque 7,0848 % era el promedio de las efectivas y no la efectiva del promedio (7,0312 %).
+Promediar y convertir no conmutan, y cada convención se promedia en la suya.
 
 *(Lo de abajo es la declaración original del 2026-08-09, que se conserva por el razonamiento
 y por la trampa de convención que documenta.)*
@@ -2529,6 +2538,9 @@ con el capítulo enlazado y la unidad 3 al día.
 
 ### Fase 3 — Tarea 14: capítulo 9 · 2026-09-29
 
+> ⚠️ **Superada en parte el 2026-09-30.** La curva se lee ahora en efectiva anual y varias cifras
+> de esta entrada cambiaron; ver «Auditoría del capítulo 9» más abajo. Se conserva como estaba.
+
 Seis secciones más evaluación, **siete** bloques ejecutados en los dos lenguajes, siete gráficas
 y dos laboratorios. Las dieciséis reglas en verde y `--con-salidas` sin ninguna discrepancia en
 los once capítulos. Los catorce guiones —siete por lenguaje— se escribieron y se corrieron fuera
@@ -2621,6 +2633,64 @@ de escribir su sección 4.
 toda la muestra, que parece bajar el error de 2,73 a 2,41 y, rehecha con lo que se sabía en cada
 fecha, lo sube a 2,78—, `datos/curva_tes.csv` con su entrada y sus advertencias en el manifiesto,
 y `index.html` con el capítulo enlazado y la unidad 2 en tres de cuatro.
+
+### Auditoría del capítulo 9 · 2026-09-30
+
+Pedida por el usuario el día después de publicar el capítulo: redacción, coherencia narrativa y
+explicativa, gráficas, laboratorios, cifras, preguntas, barajado y si evalúan lo que deben. Cinco
+revisores en paralelo —redacción, cifras y código, gráficas en el navegador, preguntas y rigor
+conceptual— y cada hallazgo comprobado aparte antes de aceptarlo. El detalle está en
+`AUDITORIA_CAP9.md`, fuera de git como las auditorías anteriores.
+
+**El grave que cambió el capítulo: la curva del Banco está en efectiva anual.** Valorados con
+ella, diez TES tasa fija salen con −8 pb de error medio frente a sus tasas del SEN en el tramo
+2030–2033 si la curva se lee efectiva, y con +56 pb si se lee continua (+81 en los diez); en ocho
+fechas de 2025 el revisor midió +1 contra +71 en el tramo medio. La fuente de la lectura continua
+—el *Borrador* 196 de 2002— ya no describe la serie: pedía estimar τ a diario y hoy viene fijo.
+**El usuario decidió pasar a efectiva.** Cambiaron los precios (90,0388 · 82,3327 · 68,7718), las
+TIR (11,8851 · 12,7414 · 13,0065 %), el tramo (**482 287 millones**), las forward (fórmula
+efectiva), el bootstrapping (s = d^(−1/T) − 1), D-D (ver su revisión) y la inflación implícita,
+que pasa a ser un cociente (5,25 · 6,17 · 6,39 %). No cambiaron las lecciones: la forward sigue
+sesgada (75,4 %), τ sigue decidiendo fuera de los vértices, el bootstrapping sigue haciendo
+zigzag y el nivel sigue mandando. El capítulo suma el bloque `EJ_SEN`, con las tasas del SEN del
+30/09/2025 literales y su fuente.
+
+**Los otros cuatro graves.** (1) Las opciones se delataban por la forma: la correcta se escribía
+«afirmación, y consecuencia» y los distractores «afirmación, porque razón»; marcar la única con
+«, y» sacaba 8,83 de 15 sin leer. Ahora 2,33, y ninguna estrategia de quien no lee pasa de 4,5 de
+15. Es la zona ciega 16 con otro disfraz, y la regla 16 no vigila ni la coordinación ni los
+conectores. (2) D-D afirmaba una equivalencia falsa (ver su revisión). (3) Junio de 2023 se
+usaba como ejemplo de curva invertida, y era una U: la afirmación era falsa justo para el bono de
+diez años. (4) La sección 5 le atribuía al Banco lo que solo vale para quien reconstruye la curva
+desde tres vértices; el Banco ajusta sobre todos los TES negociados, hasta 2050.
+
+**Lo que cambió en la evaluación**, para que evalúe lo que debe: el R7 de la sección 1 pasó a ser
+un ejercicio abierto —la nota que acompaña la cifra del tramo—, como en los otros diez capítulos;
+entró un R2 de verdad en la sección 2 (dónde cotiza un bono con cupón igual a una TIR) y otro en
+la 3 (qué les pasa a dos forward si se mueve una spot), que reemplaza una pregunta que repetía otra
+del cuestionario; la pregunta 6 pasó del orden del bootstrapping, que repetía el R5, a la inflación
+implícita, que no tenía ninguna; la traza del R1 dejó de poder copiarse del bloque —ahora son los
+plazos 3 a 5 con el precio malo—; el R5 ordena el flujo de validación y no el bucle; el Comparador
+dejó de traer la respuesta en los comentarios del código; los títulos de los R3 dejaron de nombrar
+el defecto. Reparto de letras **a:4 · b:4 · c:4 · d:3**, y en el cuestionario a:3 · b:3 · c:2 · d:2.
+
+**Verificado**: `--con-salidas` en verde, con los ocho bloques idénticos en Python y en R; en
+pantalla, consola limpia, nueve gráficas, el laboratorio de τ barrido en sus 146 pasos y el del
+tramo en sus 625 posiciones —en todas, las tres cifras por bono suman la diferencia—, los cuatro
+R3 con diagnóstico correcto, la traza 9 de 9, la secuencia y el emparejamiento correctos y el
+cuestionario 10 de 10 con las letras calculadas; a 360 px ninguna fórmula se sale tras partir dos
+y ningún rótulo de gráfica se corta tras acortar dos. El taller 9 pasó a efectiva y renderiza.
+
+**Al ir a hacer el commit (2026-10-01)** apareció que la reconstrucción había deshecho el orden de
+la izquierda del R6 que `da29247` acababa de corregir, y que ese orden tampoco servía ya: con la
+lectura efectiva la forward pasó a ser la mayor de las difíciles, y forward · TIR · par quedaba de
+mayor a menor. La izquierda va ahora Banco · continua · TIR · forward · par · cupón, con
+`[4, 5, 3, 2, 0, 1]`: la apuesta por magnitud saca 3 de 6 en los dos sentidos, por filas 0 de 6 y
+con la respuesta 6 de 6, en pantalla.
+
+**La lección que deja**: la convención de un dato se comprueba contra precios, no contra un
+documento. Valorar tres bonos reales contra su tasa de mercado costaba diez minutos, y habría
+evitado leer mal la curva desde el primer día.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.

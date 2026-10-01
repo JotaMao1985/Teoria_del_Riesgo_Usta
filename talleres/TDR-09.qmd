@@ -43,14 +43,16 @@ El capítulo comprueba que las dos rutas devuelven los mismos dígitos.
 ## Tres formas de arruinar una valoración de renta fija antes del primer precio
 
 **Leer la curva en la convención equivocada.** El Banco publica «porcentaje» y
-nada más. El curso lee sus tasas en capitalización continua, con la fuente de su
-metodología, y leerlas como efectivas le suma al tramo del fondo **14 486
-millones** sin que cambie ni una tasa ni un flujo. Declare la convención **por
-escrito, en la parte 1**, antes de calcular nada.
+nada más, pero los precios deciden: valorados con su curva leída en efectiva anual,
+diez TES del SEN salen con −8 pb de error medio en el tramo de 2030 a 2033, y
+leída en continua los diez salen por encima, en 81 pb de media. Leerla en continua
+le resta al tramo del fondo **14 487 millones** sin que cambie ni una tasa ni un
+flujo. Declare la convención **por escrito, en la parte 1**, antes de calcular
+nada.
 
 **Descontar todos los pagos con una sola tasa.** Solo vale si la curva es plana,
 y el 30/12/2025 no lo es: va de 11,30 % a un año a 13,13 % a diez. Con la tasa del
-vencimiento para todo, el tramo queda **1 870 millones** por debajo de lo que vale.
+vencimiento para todo, el tramo queda **1 695 millones** por debajo de lo que vale.
 
 **Tomar una forward por un pronóstico.** En 264 meses la forward a un año dentro
 de un año quedó por encima de la tasa que después rigió el **75,4 %** de las
@@ -82,8 +84,8 @@ cargas <- function(m, tau = TAU) {          # las tres formas de Nelson-Siegel
 vert <- c(hoy$pesos_1a, hoy$pesos_5a, hoy$pesos_10a)
 beta <- solve(t(cargas(c(1, 5, 10))), vert) # tres ecuaciones, tres incógnitas
 names(beta) <- c("b0", "b1", "b2")
-spot <- function(m) as.vector(beta %*% cargas(m))        # %, continua
-descuento <- function(m) exp(-spot(m) / 100 * m)
+spot <- function(m) as.vector(beta %*% cargas(m))        # %, efectiva anual
+descuento <- function(m) (1 + spot(m) / 100)^(-m)
 
 # un bono TES tasa fija: cupón anual y principal al vencimiento, por cada 100
 precio <- function(T, cupon, df = descuento) {
@@ -105,9 +107,12 @@ sum(tramo$millones)
 ```
 
 **1.1** Compruebe que obtiene las cifras del capítulo: β = **12,1974 · −1,7346 ·
-5,5050**, los precios **88,9021 · 79,7608 · 65,2372**, las TIR efectivas
-**12,6202 · 13,5869 · 13,8845 %** y un tramo de **467 800 millones**. Reporte
-además la tasa spot a 2, 3, 4, 6, 7, 8 y 9 años, que el Banco no publica.
+5,5050**, los precios **90,0388 · 82,3327 · 68,7718**, las TIR efectivas
+**11,8851 · 12,7414 · 13,0065 %** y un tramo de **482 287 millones**. Reporte
+además la tasa spot a 2, 3, 4, 6, 7, 8 y 9 años, que el Banco no publica. Después
+reproduzca el contraste con el SEN de la sección 1 —los diez TES, sus fechas de
+cupón y los días en base 365— y reporte el error medio en el tramo de 2030 a 2033
+en las dos lecturas de la curva.
 
 **1.2** Reconstruya los vértices con los β que **publica** el Banco ese día
 (`b0_pesos`, `b1_pesos`, `b2_pesos`, en fracción) y reporte cuánto se equivoca en
@@ -115,19 +120,21 @@ cada uno. Después diga en una frase por qué el capítulo no los usa, y qué ha
 usted si mañana el Banco los publicara con cuatro decimales.
 
 **1.3** Haga el bootstrapping **a mano** para los tres primeros plazos, a partir
-de los bonos a la par que implica la curva —cupones de **11,9632 · 12,6008 ·
-13,0383 %**— y compruebe que devuelve **11,3000 · 11,9038 · 12,3336 %**. Luego
+de los bonos a la par que implica la curva —cupones de **11,3000 · 11,8698 ·
+12,2599 %**— y compruebe que devuelve la curva del Banco hasta el cuarto decimal,
+**11,3000 · 11,9038 · 12,3336 %**, salvo un dígito en el tercer plazo. Luego
 escriba el bucle para los diez plazos y reporte la mayor diferencia con la curva
-en puntos básicos. El capítulo obtuvo **0,0056 pb**; explique de dónde sale.
+en puntos básicos. El capítulo obtuvo **0,0085 pb**; explique de dónde sale, y por
+qué la tasa par de un año coincide exacta con la spot.
 
-**1.4** Calcule la forward de cada año, f(t − 1, t), para t = 1 … 10 en
-capitalización continua, y la **misma forward en efectiva anual**. Compruebe que
-la segunda **no** es la resta ponderada de las spot efectivas y diga qué fórmula sí
-es. El 30/12/2025 la resta casi no se equivoca; no se quede con ese día: barra los
-276 cortes del archivo y reporte el mes y el plazo en que el error es mayor.
-Después ponga esa cifra al lado de los 14 486 millones que cuesta leer la curva
-como efectiva, y explique en tres líneas por qué un error de convención es de
-segundo orden y el otro no.
+**1.4** Calcule la forward de cada año, f(t − 1, t), para t = 1 … 10 en efectiva
+anual, con la fórmula del capítulo, y la que saldría de la **resta ponderada** de
+las spot, t·s(t) − (t − 1)·s(t − 1), que es la fórmula de la capitalización
+continua aplicada a tasas que no lo son. El 30/12/2025 la resta casi no se
+equivoca; no se quede con ese día: barra los 276 cortes del archivo y reporte el
+mes y el plazo en que el error es mayor. Después ponga esa cifra al lado de los
+14 487 millones que cuesta leer la curva como continua, y explique en tres líneas
+por qué un error de convención es de segundo orden y el otro no.
 
 ---
 
@@ -148,8 +155,8 @@ c(cupon = cupon_suyo, anios = T_suyo)
 ```
 
 **2.1** Valore su bono con la curva del 30/12/2025: precio por cada 100, TIR
-efectiva y spot del vencimiento pasada a efectiva. Diga si la TIR queda por encima
-o por debajo de esa spot **antes** de calcularla, y después compruebe si acertó.
+efectiva y spot del vencimiento. Diga si la TIR queda por encima o por debajo de
+esa spot **antes** de calcularla, y después compruebe si acertó.
 
 **2.2** Mida el **efecto cupón** sobre su plazo: valore sobre la misma curva un
 cero y un bono con cupón de 13,25 %, y reporte las tres TIR. Explique la diferencia
@@ -157,8 +164,7 @@ con la derivación de la sección 2 —la TIR como promedio ponderado de las spo
 calcule ese promedio para su bono.
 
 **2.3** Valore su bono con las dos lecturas equivocadas del capítulo: leyendo la
-curva como efectiva anual y descontando todos los pagos con la spot del
-vencimiento. Reporte las dos diferencias en pesos por cada 100 y en millones sobre
+curva como continua y descontando todos los pagos con la spot del vencimiento. Reporte las dos diferencias en pesos por cada 100 y en millones sobre
 200 000 millones nominales, y diga cuál de las dos pesa más **en su bono** y por
 qué no tiene por qué ser la misma que en el de diez años del fondo.
 
@@ -175,6 +181,9 @@ años**, f(2, 3), contra la tasa a un año que rigió veinticuatro meses despué
 con la de **dentro de cuatro**, f(4, 5), a cuarenta y ocho meses. Para cada una
 reporte cuántos pares hay, el error medio, la fracción de meses en que la forward
 quedó arriba y la raíz del error cuadrático medio, al lado de la de «no cambia».
+Los pares se solapan más cuanto más largo es el horizonte: repita el conteo por
+años que no se solapan, como al final del bloque de la sección 3, y diga cuántas
+observaciones independientes quedan detrás de cada prueba.
 
 **3.2** Haga lo mismo con la curva **UVR**, que es real y tiene τ = 2,3. Ojo con
 dos cosas que el capítulo ya resolvió por usted en pesos y aquí no: el corte UVR
@@ -232,7 +241,7 @@ y devuelve una mejora perfectamente plausible.
 # --- generado por un modelo de lenguaje ---
 V <- as.matrix(curva[, c("pesos_1a", "pesos_5a", "pesos_10a")])
 B <- t(solve(t(cargas(c(1, 5, 10))), t(V)))
-f12  <- 2 * as.vector(B %*% cargas(2)) - V[, 1]
+f12  <- ((1 + as.vector(B %*% cargas(2)) / 100)^2 / (1 + V[, 1] / 100) - 1) * 100
 real <- c(V[-(1:12), 1], rep(NA, 12))
 ok   <- !is.na(real)
 
@@ -309,8 +318,9 @@ propia parte 3 que la respalda.
 | Parte 6: bitácora completa y honesta | 5 % |
 | Parte 7: tabla de seis filas, nota legible y la frase sobre la forward con su evidencia | 10 % |
 
-Se descuenta: leer la curva en una convención sin declararla; comparar una TIR
-efectiva con una spot continua; descontar todos los pagos con una sola tasa;
+Se descuenta: leer la curva en una convención sin declararla ni contrastarla;
+comparar una TIR y una spot en convenciones distintas; descontar todos los pagos
+con una sola tasa;
 presentar la forward como la tasa que el mercado espera; reportar un valor más
 allá de los diez años sin decir que lo decide τ; y evaluar un pronóstico con
 información que en la fecha del pronóstico no existía.

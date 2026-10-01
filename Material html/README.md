@@ -240,7 +240,8 @@ el ejercicio sin leer, y la regla 17 no lo ve. Le pasó al mismo R6 del 12, cuya
 iban en el orden de la anatomía de las griegas. **Si la otra columna son cifras, su orden es
 la magnitud**: unas respuestas que bajan o suben fila a fila se emparejan ordenando números,
 sin leer. Le pasó al R6 del 9, cuyas respuestas iban de mayor a menor de la segunda fila a la
-sexta. Y antes de barajar, mire si una fila remite a otra —«rehacer **esa compra**» en el 12,
+sexta, y le volvió a pasar cuando el capítulo cambió de convención y la forward pasó de menor a
+mayor: si cambian las cifras, el orden se vuelve a medir. Y antes de barajar, mire si una fila remite a otra —«rehacer **esa compra**» en el 12,
 «**Esa misma tasa**» en el 9—: la referida tiene que quedar encima.
 
 `solucion` es **obligatoria** aunque la firma no lo diga —sin ella el render lanza y la página
