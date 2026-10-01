@@ -927,11 +927,29 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
 
     ⚠️ **No basta con que ninguna quede en su fila.** El primer desarreglo que se probó para el
     12, `[3, 4, 1, 0, 2]`, acertaba **3 de 5** corriendo las parejas tres filas. Los que
-    quedaron —`[2, 0, 4, 1, 3]` en el 12 y `[0, 3, 1, 4, 2]` en el 3— no pasan de 2 de 5 con
+    quedaron —`[3, 4, 1, 2, 0]` en el 12 y `[0, 3, 1, 4, 2]` en el 3— no pasan de 2 de 5 con
     ningún corrimiento ni en espejo, y el del 3 acierta exactamente una con cualquiera, que es
-    el azar. Se movieron filas de `derecha` y ningún texto: las parejas son las mismas que en
-    `HEAD`, comprobado. En pantalla, por filas, el 12 da 0 de 5 y el 3 da 1 de 5; con la
-    respuesta, los dos 5 de 5.
+    el azar. Ningún texto cambió: las parejas son las mismas que en `HEAD`, comprobado. En
+    pantalla, por filas, el 12 da 0 de 5 y el 3 da 1 de 5; con la respuesta, los dos 5 de 5.
+
+    ⚠️ **Y en el 12 tampoco bastaba con barajar la derecha (2026-09-30).** Sus cinco preguntas
+    iban en el orden de la anatomía de las griegas —Δ, Γ, ν, Θ, ρ—, que la sección presenta
+    poco antes del R6: quien recordara ese orden y apostara a que las preguntas lo seguían
+    emparejaba sin leerlas, y sacaba 5 de 5. La regla 17 no lo ve, porque compara las dos
+    columnas entre sí y no con el capítulo. Se barajó también la izquierda, y esa misma apuesta
+    saca ahora **0 de 5**, comprobado en pantalla. Solo puede pasar cuando la columna que hay
+    que entender —preguntas, definiciones— sigue el orden en que el capítulo presenta los
+    nombres de la otra. En el 9 la otra son cifras, así que no aplica; en los demás la columna
+    larga es la derecha y la regla 17 ya le prohíbe seguir a la izquierda, aunque nadie ha
+    comprobado que esa izquierda vaya en el orden del capítulo.
+
+    **Barajar trajo una restricción que tampoco ve ninguna regla: una fila puede remitir a
+    otra.** La pregunta de gamma dice «rehacer **esa compra**», y esa compra es la de la
+    pregunta del delta, así que la del delta tiene que ir encima —el anclaje de `OrdenaPasos`
+    con otra cara—. De las 120 órdenes solo tres cumplían todo, y se tomó la que deja el delta
+    justo encima de gamma. El 9 tiene la misma dependencia («Esa misma tasa, pasada a efectiva
+    anual» remite a la fila de arriba): hoy está bien puesta, y quien baraje esa izquierda
+    tiene que respetarla.
 
     De paso la regla exige lo que el componente da por supuesto: que `solucion` exista —el
     taller T1 dejó escrito que sin ella la página queda en blanco—, que sea un arreglo literal,
