@@ -918,7 +918,8 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     **Se tolera una, y no cero, a propósito.** Una permutación al azar deja en su fila una
     pareja en promedio, sea cual sea n, y ninguna solo un 37 % de las veces; exigir un
     desarreglo volvería «nunca en su fila» la pista, que es el espejo que la zona ciega 15
-    enseñó a no abrir. Hoy los diez capítulos se reparten cinco y cinco entre cero y una.
+    enseñó a no abrir. Hoy los once capítulos se reparten seis con ninguna en su fila y cinco
+    con una; el 9 llegó después de escribir la regla, con `[2, 4, 3, 0, 5, 1]`, y la pasa.
 
     **Y barrer el rango cazó otro, que es la zona ciega 7 cobrándose lo suyo: el capítulo 3
     dejaba dos en su fila** (`[0, 4, 1, 3, 2]`, la β y el EE(β)), y emparejar por filas le
