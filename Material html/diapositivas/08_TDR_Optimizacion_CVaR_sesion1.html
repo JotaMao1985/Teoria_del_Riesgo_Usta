@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="usta">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Presentación de clase: Capítulo 08 (Optimización CVaR), Teoría del Riesgo.">
+    <meta name="generator" content="diapositivas-clase · construir.py">
+    <title>Diapositivas · Capítulo 08 — Optimización CVaR · Teoría del Riesgo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Prism, las mismas gramáticas que carga LP-CORE. `manual` antes del
+         núcleo: el resaltado lo dispara el visor cuando el mazo ya existe. -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script>window.Prism = window.Prism || {}; window.Prism.manual = true;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-toml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-basic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-visual-basic.min.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global', mtextInheritFont: true } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { corePlugins: { preflight: false }, theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+            colors: {"primary": "#3D008D", "secondary": "#ED1E79", "navy": "#001A4D", "gold": "#FDB913", "teal": "#0E7490", "bg": "#F8FAFC", "surface": "#FFFFFF"} } } };
+    </script>
+    <style>
+        /* ============================================================
+           PALETA LP-CORE — la misma del material del curso
+        ============================================================ */
+        :root {
+            --primary: #3D008D;
+            --primary-rgb: 61, 0, 141;
+            --secondary: #ED1E79;
+            --secondary-rgb: 237, 30, 121;
+            --secondary-texto: #ED1E79;   /* el secundario como texto sobre blanco */
+            --navy: #001A4D;
+            --navy-2: #002868;
+            --gold: #FDB913;
+            --teal: #0E7490;
+            --bg: #F8FAFC;
+            --texto: #1E293B;
+            --tinta: #0F172A;
+            --gris: #64748B;
+            --gris-claro: #94A3B8;
+            --borde: #E2E8F0;
+            --lila: #F5F0FA;
+            --grad: linear-gradient(140deg, #3D008D 0%, #ED1E79 100%);
+            --grad-navy: linear-gradient(180deg, #001A4D 0%, #002868 100%);
+            --sombra: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --fuente: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --W: 1280px;
+            --H: 720px;
+        }
+
+        /* ============================================================
+           TEMA EL BOSQUE — verde #012820 y naranja #FF6600, como el
+           material de Series de tiempo, Muestreo y Estadística espacial.
+           Mismas tipografías y mismos degradados; solo cambian los colores.
+        ============================================================ */
+        :root[data-tema="elbosque"] {
+            --primary: #012820;
+            --primary-rgb: 1, 40, 32;
+            --secondary: #FF6600;
+            --secondary-rgb: 255, 102, 0;
+            --secondary-texto: #C2410C;   /* #FF6600 sobre blanco no llega a 4.5:1 */
+            --navy: #012820;
+            --navy-2: #001F18;
+            --gold: #FFC24B;
+            --lila: #F0FDF4;
+            --grad: linear-gradient(140deg, #012820 0%, #FF6600 100%);
+            --grad-navy: linear-gradient(180deg, #012820 0%, #001F18 100%);
+        }
+        /* El degradado se reparte en la caja del número: a lo ancho de la
+           diapositiva, a los dígitos solo les tocaría el verde casi negro. */
+        :root[data-tema="elbosque"] .numero-grande { width: fit-content; padding-right: 0.04em; }
+
+        /* ============================================================
+           TEMA UCOMPENSAR — morado #691E7A y naranja #F46201, como el
+           material de Procesamiento de Datos (Esp. Big Data). El ámbar
+           #FAA012 solo sobre morado; el naranja como texto, #B84A00.
+           Su material usa Roboto: la presentación también.
+        ============================================================ */
+        :root[data-tema="ucompensar"] {
+            --primary: #691E7A;
+            --primary-rgb: 105, 30, 122;
+            --secondary: #F46201;
+            --secondary-rgb: 244, 98, 1;
+            --secondary-texto: #B84A00;   /* #F46201 sobre blanco da 3,2:1 */
+            --navy: #3A0F47;
+            --navy-2: #4B1558;
+            --gold: #FAA012;
+            --lila: #F7F0FA;
+            --grad: linear-gradient(140deg, #691E7A 0%, #F46201 100%);
+            --grad-navy: linear-gradient(180deg, #3A0F47 0%, #4B1558 100%);
+            --fuente: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        /* Contraste (WCAG 2.1) e identidad del material de UCompensar: pie en
+           pizarra, etiquetas más opacas, degradado de texto naranja (#B84A00)
+           donde va texto blanco encima, ítem activo morado con filete naranja
+           y títulos en 700 (Roboto no carga el 800). */
+        :root[data-tema="ucompensar"] .numero-grande { width: fit-content; padding-right: 0.04em; }
+        :root[data-tema="ucompensar"] .idea .etq-idea,
+        :root[data-tema="ucompensar"] .ra-caja .etq { color: rgba(var(--primary-rgb), 0.85); }
+        :root[data-tema="ucompensar"] .pie { color: #566B7F; }
+        :root[data-tema="ucompensar"] .cierre .pie { color: rgba(255, 255, 255, 0.62); }
+        :root[data-tema="ucompensar"] .item-seccion.hecha { color: rgba(255, 255, 255, 0.6); }
+        :root[data-tema="ucompensar"] .item-seccion.actual,
+        :root[data-tema="ucompensar"] #indice .item-seccion.actual,
+        :root[data-tema="ucompensar"] #indice .item-seccion.actual:hover {
+            background: linear-gradient(135deg, #691E7A, #8A2E9E);
+            box-shadow: inset 4px 0 0 #F46201, 0 8px 18px rgba(105, 30, 122, 0.3);
+        }
+        :root[data-tema="ucompensar"] .portada .chip-semana,
+        :root[data-tema="ucompensar"] .btn-nav.sig { background: linear-gradient(140deg, #691E7A 0%, #B84A00 100%); }
+        :root[data-tema="ucompensar"] .codigo.con-foco .linea.foco { background: rgba(var(--secondary-rgb), 0.10); }
+        :root[data-tema="ucompensar"] .diapo.idea { background: linear-gradient(135deg, rgba(105, 30, 122, 0.06), rgba(244, 98, 1, 0.08)), #fff; }
+        :root[data-tema="ucompensar"] .portada h1,
+        :root[data-tema="ucompensar"] .principal h2 { font-weight: 700; }
+        :root[data-tema="ucompensar"] .cierre .cuerpo h3 { color: var(--gold); }
+        :root[data-tema="ucompensar"] .caja.warn { border-color: #B84A00; background: #FFF7ED; }
+        :root[data-tema="ucompensar"] .caja.warn .caja-etiqueta { background: #B84A00; }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--fuente);
+            color: var(--texto);
+            background: #E9EDF3;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sin ligaduras: Fira Code dibuja `<=` como «≤» y `!=` como «≠», y un
+           estudiante que copia a mano lo proyectado escribe un carácter que
+           Python no acepta. */
+        code, pre, kbd { font-family: 'Fira Code', monospace; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+
+        button { font-family: inherit; }
+
+        button:focus-visible, a:focus-visible {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--primary), var(--secondary)); border-radius: 4px; }
+
+        .lp-gradient { background: var(--grad); }
+        .lp-header { background: var(--grad-navy); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================================
+           ESCENARIO — un lienzo fijo de 1280 × 720 que se escala
+        ============================================================ */
+        #escenario { position: fixed; inset: 0; }
+
+        #mazo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: var(--W);
+            height: var(--H);
+            transform-origin: center center;
+            box-shadow: 0 20px 60px rgba(0, 26, 77, 0.18);
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .diapo {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            visibility: hidden;
+            opacity: 0;
+            --k: 1;
+        }
+
+        .diapo.activa {
+            visibility: visible;
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .diapo.activa > .marco { animation: fadeIn 0.4s ease-out both; }
+
+        .marco {
+            position: absolute;
+            inset: 0;
+            padding: 42px 72px 58px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Cabecera: la de `SectionHeader` del material ------------- */
+        .cabecera {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--borde);
+            flex-shrink: 0;
+        }
+
+        .ficha-icono {
+            width: 50px;
+            height: 50px;
+            border-radius: 13px;
+            background: var(--grad);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+            flex-shrink: 0;
+        }
+
+        .ficha-icono svg { width: 26px; height: 26px; }
+
+        .antetitulo {
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--secondary-texto);
+            margin-bottom: 4px;
+        }
+
+        .cabecera h2 {
+            margin: 0;
+            font-size: 33px;
+            line-height: 1.18;
+            font-weight: 700;
+            color: var(--tinta);
+            letter-spacing: -0.01em;
+        }
+
+        /* --- Cuerpo ---------------------------------------------------- */
+        /* El cuerpo centra en vertical lo que lleva: una diapositiva corta no
+           se queda colgada del título. El margen negativo con su relleno deja
+           sitio a las sombras de tarjetas y bloques, que `overflow: hidden`
+           cortaría en el borde. */
+        .cuerpo {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            justify-content: safe center;
+            padding: 10px 14px 14px;
+            margin: -10px -14px -14px;
+            font-size: calc(23px * var(--k));
+            line-height: 1.5;
+            color: var(--texto);
+        }
+
+        .diapo.arriba .cuerpo { justify-content: flex-start; }
+
+        /* Ningún bloque cede altura: si no cabe, que desborde y lo vea el
+           ajuste. Con el encogimiento por defecto de flex, un bloque de código
+           se recortaba por abajo en silencio y el cuerpo «cabía». */
+        .cuerpo > * { flex-shrink: 0; }
+
+        .cuerpo > :first-child, .col > :first-child, .caja-cuerpo > :first-child { margin-top: 0; }
+        .cuerpo > :last-child, .col > :last-child, .caja-cuerpo > :last-child { margin-bottom: 0; }
+
+        .cuerpo p { margin: 0 0 0.65em; }
+        .cuerpo strong { color: var(--tinta); font-weight: 700; }
+        .cuerpo em { font-style: italic; }
+        .cuerpo a { color: var(--primary); text-decoration: underline; text-decoration-color: rgba(var(--secondary-rgb), 0.5); text-underline-offset: 3px; }
+
+        .cuerpo h3 {
+            color: var(--secondary-texto);
+            font-weight: 600;
+            font-size: 1.1em;
+            margin: 0.9em 0 0.35em;
+            line-height: 1.25;
+        }
+
+        .cuerpo h4 {
+            color: var(--navy);
+            font-weight: 700;
+            font-size: 0.98em;
+            margin: 0.8em 0 0.3em;
+        }
+
+        .cuerpo ul, .cuerpo ol { margin: 0 0 0.7em; padding-left: 1.25em; }
+        .cuerpo li { margin: 0 0 0.38em; padding-left: 0.2em; }
+        .cuerpo li::marker { color: var(--secondary); font-weight: 700; }
+        .cuerpo li > ul, .cuerpo li > ol { margin: 0.3em 0 0.2em; font-size: 0.9em; }
+
+        .cuerpo code:not(pre code) {
+            background: #F1F5F9;
+            color: var(--tinta);
+            padding: 0.08em 0.36em;
+            border-radius: 5px;
+            font-size: 0.86em;
+        }
+
+        .cuerpo kbd {
+            display: inline-block;
+            padding: 0.05em 0.45em;
+            border: 1px solid #CBD5E1;
+            border-bottom-width: 3px;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 0.8em;
+            color: var(--tinta);
+        }
+
+        .cuerpo mark { background: rgba(253, 185, 19, 0.35); color: inherit; padding: 0 0.15em; border-radius: 3px; }
+
+        .cita {
+            margin: 0.4em 0 0.8em;
+            padding: 0.1em 0 0.1em 0.9em;
+            border-left: 4px solid var(--secondary);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.08em;
+            line-height: 1.4;
+        }
+
+        .cita p { margin: 0 0 0.3em; }
+
+        /* --- Tablas: las de `prose-lp` -------------------------------- */
+        .cuerpo table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82em;
+            margin: 0.2em 0 0.8em;
+            background: #fff;
+        }
+
+        .cuerpo th {
+            background: var(--lila);
+            color: var(--navy);
+            text-align: left;
+            padding: 0.5em 0.75em;
+            border: 1px solid var(--borde);
+            font-weight: 700;
+        }
+
+        .cuerpo td {
+            padding: 0.5em 0.75em;
+            border: 1px solid var(--borde);
+            vertical-align: top;
+        }
+
+        /* --- Columnas -------------------------------------------------- */
+        .columnas {
+            display: grid;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .columnas.centradas { align-items: center; }
+        .col { min-width: 0; }
+
+        /* --- Cajas: `Box` de LP-CORE ----------------------------------- */
+        .caja {
+            border-left: 5px solid var(--primary);
+            background: var(--lila);
+            border-radius: 14px;
+            padding: 0.7em 1em 0.75em;
+            margin: 0.3em 0 0.8em;
+            font-size: 0.9em;
+        }
+
+        .caja-etiqueta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            font-size: 0.6em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: #fff;
+            background: var(--primary);
+            border-radius: 5px;
+            padding: 0.25em 0.7em;
+            margin-bottom: 0.55em;
+        }
+
+        .caja.tip { border-color: #15803D; background: #F0FDF4; }
+        .caja.tip .caja-etiqueta { background: #15803D; }
+        .caja.warn { border-color: #B45309; background: #FFFBEB; }
+        .caja.warn .caja-etiqueta { background: #B45309; }
+        .caja.danger { border-color: #B91C1C; background: #FEF2F2; }
+        .caja.danger .caja-etiqueta { background: #B91C1C; }
+        /* Una fórmula en bloque suele ser la idea de la diapositiva: más grande
+           que el texto, para que se lea desde el fondo del aula. */
+        .cuerpo mjx-container[display="true"] { font-size: 138%; margin: 0.5em 0 !important; }
+        .caja mjx-container[display="true"], .tarjeta mjx-container[display="true"], td mjx-container[display="true"] { font-size: 112%; }
+        .caja.definicion { border-color: var(--primary); background: var(--lila); }
+        .caja.definicion .caja-etiqueta { background: var(--primary); }
+        .caja.ejemplo { border-color: var(--teal); background: #F0F9FF; }
+        .caja.ejemplo .caja-etiqueta { background: var(--teal); }
+        .caja p { margin-bottom: 0.4em; }
+
+        /* --- La motivación del material, en pequeño --------------------- */
+        .idea-caja {
+            border-radius: 18px;
+            border: 1px solid rgba(var(--primary-rgb), 0.15);
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.055) 0%, rgba(14, 116, 144, 0.05) 45%, rgba(var(--secondary-rgb), 0.10) 100%);
+            padding: 0.8em 1.1em;
+            margin: 0.3em 0 0.8em;
+            display: flex;
+            gap: 0.8em;
+        }
+
+        .idea-caja .punto {
+            width: 1.7em;
+            height: 1.7em;
+            border-radius: 999px;
+            background: var(--grad);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+            margin-top: 0.1em;
+        }
+
+        .idea-caja .texto { color: var(--primary); font-weight: 600; line-height: 1.4; }
+        .idea-caja .texto p { margin: 0 0 0.3em; }
+
+        /* --- Tarjetas (`lp-card`) y flujo (`Pipeline`) ------------------ */
+        .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr));
+            gap: 22px;
+            margin: 0.2em 0 0.8em;
+        }
+
+        .tarjeta {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: var(--sombra);
+            border: 1px solid #EEF2F7;
+            border-top: 4px solid var(--primary);
+            padding: 0.8em 1em 0.7em;
+            font-size: 0.86em;
+            transition: all 0.3s ease;
+        }
+
+        .tarjeta:nth-child(even) { border-top-color: var(--secondary); }
+        .tarjeta:hover { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12); transform: translateY(-4px); }
+
+        .tarjeta h3 {
+            color: var(--navy);
+            font-size: 1.1em;
+            font-weight: 700;
+            margin: 0 0 0.45em;
+        }
+
+        .tarjeta ul { padding-left: 1.1em; }
+
+        .flujo {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            margin: 0.3em 0 0.9em;
+        }
+
+        .paso-flujo {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid var(--borde);
+            border-top: 4px solid var(--primary);
+            border-radius: 14px;
+            padding: 0.75em 0.7em 0.7em;
+            text-align: center;
+            font-size: 0.74em;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .paso-flujo .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.7em;
+            height: 1.7em;
+            border-radius: 999px;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-bottom: 0.35em;
+        }
+
+        .paso-flujo .t { display: block; font-weight: 700; color: var(--navy); margin-bottom: 0.25em; font-size: 1.08em; line-height: 1.25; }
+        .paso-flujo .d { color: #475569; line-height: 1.35; display: block; }
+        .flecha-flujo { align-self: center; color: var(--secondary); font-weight: 800; font-size: 1.1em; }
+
+        /* --- Bloques de código: `lp-code-wrapper` ----------------------- */
+        .codigo {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.25);
+            margin: 0.2em 0 0.8em;
+            background: #1E293B;
+            font-size: calc(18px * var(--k) * var(--kc, 1));
+        }
+
+        .codigo-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border-bottom: 1px solid #334155;
+        }
+
+        .codigo-cabecera.flotante {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            padding: 0;
+            background: none;
+            border: 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .codigo:hover .codigo-cabecera.flotante { opacity: 1; }
+
+        .codigo-titulo {
+            font-family: var(--fuente);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gris-claro);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .codigo-titulo i { margin-right: 8px; }
+        .codigo-titulo .fa-python { color: #FACC15; }
+        .codigo-titulo .fa-terminal { color: #4ADE80; }
+        .codigo-titulo .fa-docker { color: #60A5FA; }
+
+        .btn-copiar {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #CBD5E1;
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-copiar:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        .btn-copiar.copiado { background: rgba(34, 197, 94, 0.3); color: #4ADE80; }
+
+        .codigo pre {
+            margin: 0;
+            padding: 16px 20px;
+            background: #1E293B !important;
+            color: #F3F4F6;
+            font-size: 1em;
+            line-height: 1.55;
+            overflow: hidden;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        .codigo pre code { font-size: inherit; background: none; padding: 0; color: inherit; text-shadow: none; }
+        .codigo .token { display: inline; }
+        .codigo .linea { display: inline-block; min-width: 100%; }
+        .codigo.con-foco .linea { opacity: 0.42; transition: opacity 0.3s; }
+
+        .codigo.con-foco .linea.foco {
+            opacity: 1;
+            background: rgba(var(--secondary-rgb), 0.16);
+            box-shadow: inset 3px 0 0 var(--secondary);
+            margin: 0 -20px;
+            padding: 0 20px;
+            min-width: calc(100% + 40px);
+        }
+
+        /* Salida dentro del código (`#>`), como en LP-CORE */
+        .lp-salida, .lp-salida .token { color: #7DD3FC !important; font-style: normal !important; }
+        .lp-salida { background: rgba(125, 211, 252, 0.07); }
+
+        /* --- Figuras: diagramas, imágenes y gráficas -------------------- */
+        .figura { margin: 0.1em 0 0.6em; text-align: center; }
+
+        .figura .lienzo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 14px;
+        }
+
+        /* El alto de una figura también se encoge con el ajuste (`--k`): si no,
+           una diapositiva con figura no cabría nunca y el ajuste no podría hacer
+           nada por ella. */
+        .figura svg, .figura img { max-width: 100%; height: auto; max-height: calc(var(--alto, 470px) * var(--k)); }
+        .figura .grafica { width: 100%; height: calc(var(--alto, 440px) * var(--k)); }
+
+        .figura figcaption {
+            margin-top: 0.5em;
+            font-size: 0.66em;
+            color: var(--gris);
+            font-style: italic;
+        }
+
+        /* --- Revelado paso a paso --------------------------------------- */
+        .paso { opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+        .paso.visto { opacity: 1; transform: none; }
+
+        .respuesta { border-left-color: #15803D; background: #F0FDF4; }
+        .respuesta .caja-etiqueta { background: #15803D; }
+
+        /* --- Pie de cada diapositiva ------------------------------------- */
+        .pie {
+            position: absolute;
+            left: 72px;
+            right: 72px;
+            bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            color: var(--gris-claro);
+            letter-spacing: 0.02em;
+        }
+
+        .pie .num { font-weight: 700; color: var(--gris); font-variant-numeric: tabular-nums; }
+        .pie .sello { display: inline-flex; align-items: center; gap: 10px; }
+        .pie .sello::before { content: ''; width: 22px; height: 3px; border-radius: 3px; background: var(--grad); }
+
+        /* ============================================================
+           PORTADA
+        ============================================================ */
+        .diapo.portada { background: var(--grad-navy); color: #fff; }
+
+        .portada .brillo {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(640px 420px at 100% 0%, rgba(var(--secondary-rgb), 0.30), transparent 70%),
+                radial-gradient(560px 480px at 0% 100%, rgba(var(--primary-rgb), 0.55), transparent 70%);
+            pointer-events: none;
+        }
+
+        .portada .marco { padding: 58px 84px 64px; justify-content: space-between; }
+        .portada .institucion { font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+        .portada .asignatura { font-size: 17px; color: rgba(255, 255, 255, 0.72); margin-top: 6px; font-weight: 500; }
+
+        .portada .chip-semana {
+            display: inline-block;
+            background: var(--grad);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-radius: 999px;
+            box-shadow: 0 6px 18px rgba(var(--secondary-rgb), 0.35);
+        }
+
+        .portada h1 {
+            margin: 22px 0 14px;
+            font-size: 62px;
+            line-height: 1.06;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            max-width: 980px;
+        }
+
+        .portada .subtitulo { font-size: 25px; font-weight: 300; color: rgba(255, 255, 255, 0.82); max-width: 900px; }
+        .portada .temas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+
+        .portada .temas span {
+            font-size: 14.5px;
+            padding: 6px 15px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .portada .base { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+
+        .portada .lema {
+            max-width: 640px;
+            font-size: 17px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.78);
+            border-left: 3px solid var(--secondary);
+            padding-left: 16px;
+            line-height: 1.45;
+        }
+
+        .portada .firma { text-align: right; font-size: 14px; color: rgba(255, 255, 255, 0.62); line-height: 1.5; }
+        .portada .firma strong { color: #fff; font-weight: 600; display: block; font-size: 15.5px; }
+
+        .barra-grad { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--grad); }
+
+        /* ============================================================
+           HOJA DE RUTA y DIVISOR DE SECCIÓN — la barra lateral del material
+        ============================================================ */
+        .dividida .marco { padding: 0; flex-direction: row; }
+
+        .dividida .lateral {
+            width: 410px;
+            flex-shrink: 0;
+            background: var(--grad-navy);
+            color: #fff;
+            padding: 44px 26px 30px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lateral .institucion { font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+        .lateral .asignatura { font-size: 16px; font-weight: 700; margin-top: 4px; line-height: 1.25; }
+        .lateral .capitulo { font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-top: 4px; }
+        .lateral .capitulo span { color: var(--secondary); font-weight: 600; }
+        .lateral hr { border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 20px -26px 14px -30px; }
+
+        .lista-secciones { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; }
+        /* Más de 14 secciones (p. ej., una sesión de 17 módulos): filas más bajas para que quepan todas */
+        .lista-secciones.compacta { gap: 2px; }
+        .lista-secciones.compacta .item-seccion { padding: 4px 11px; font-size: 12.5px; }
+
+        .item-seccion {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 8px 11px;
+            border-radius: 9px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.25;
+        }
+
+        .item-seccion svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+        .item-seccion.hecha { color: rgba(255, 255, 255, 0.38); }
+        .item-seccion.actual { background: var(--grad); color: #fff; box-shadow: 0 8px 18px rgba(var(--secondary-rgb), 0.28); }
+
+        .dividida .principal { flex: 1; position: relative; padding: 64px 72px 60px; display: flex; flex-direction: column; justify-content: center; }
+
+        .numero-grande {
+            font-size: 128px;
+            font-weight: 800;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 18px;
+        }
+
+        .principal h2 { margin: 0; font-size: 46px; line-height: 1.1; font-weight: 800; color: var(--tinta); letter-spacing: -0.015em; }
+        .principal .gancho { margin-top: 26px; font-size: 22px; line-height: 1.45; color: var(--primary); font-weight: 600; border-left: 3px solid var(--secondary); padding-left: 16px; }
+        .principal .gancho p { margin: 0 0 0.3em; }
+
+        .enlace-material {
+            position: absolute;
+            left: 72px;
+            bottom: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gris);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            margin-left: -12px;
+            border-radius: 999px;
+            transition: all 0.2s;
+        }
+
+        .enlace-material:hover { background: var(--lila); color: var(--primary); }
+
+        .ra-caja { margin-top: 8px; }
+        .ra-caja .etq { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 700; color: rgba(var(--primary-rgb), 0.62); margin-bottom: 8px; }
+        .ra-caja .ra { font-size: 26px; line-height: 1.35; color: var(--primary); font-weight: 600; border-left: 3px solid var(--secondary); padding-left: 16px; }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+        .chips span { font-size: 14px; padding: 5px 13px; border-radius: 999px; background: rgba(var(--primary-rgb), 0.08); color: var(--primary); font-weight: 500; }
+
+        /* ============================================================
+           IDEA CLAVE, PREGUNTA y CIERRE
+        ============================================================ */
+        .diapo.idea {
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.055) 0%, rgba(14, 116, 144, 0.05) 45%, rgba(var(--secondary-rgb), 0.10) 100%), #fff;
+        }
+
+        .idea .marco { justify-content: center; padding: 60px 110px 70px; }
+        .idea .etq-idea { display: flex; align-items: center; gap: 12px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 700; color: rgba(var(--primary-rgb), 0.62); margin-bottom: 26px; }
+        .idea .etq-idea .punto { width: 38px; height: 38px; border-radius: 999px; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25); }
+        .idea h2 { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 700; color: var(--primary); border-left: 6px solid var(--secondary); padding-left: 30px; letter-spacing: -0.01em; }
+        .idea .cuerpo { flex: 0 1 auto; margin-top: 28px; padding-left: 36px; color: #475569; font-size: calc(24px * var(--k)); }
+
+        .chip-ejercicio {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            color: #fff;
+            border-radius: 6px;
+            padding: 5px 11px;
+            background: var(--primary);
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .pregunta .cabecera h2 { font-size: 31px; }
+
+        .diapo.cierre { background: var(--grad-navy); color: #fff; }
+        .cierre .brillo { position: absolute; inset: 0; background: radial-gradient(700px 400px at 100% 100%, rgba(var(--secondary-rgb), 0.22), transparent 70%); pointer-events: none; }
+        .cierre .cabecera { border-bottom-color: rgba(255, 255, 255, 0.12); }
+        .cierre .cabecera h2 { color: #fff; }
+        .cierre .antetitulo { color: var(--gold); }
+        .cierre .cuerpo { color: rgba(255, 255, 255, 0.88); }
+        .cierre .cuerpo strong { color: #fff; }
+        .cierre .cuerpo h3 { color: #F472B6; }
+        .cierre .cuerpo code:not(pre code) { background: rgba(255, 255, 255, 0.12); color: #fff; }
+        .cierre .cuerpo ul { list-style: none; padding-left: 0; }
+        .cierre .cuerpo ul > li { position: relative; padding-left: 1.7em; margin-bottom: 0.55em; }
+        .cierre .cuerpo ul > li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0.2em;
+            width: 1.15em;
+            height: 1.15em;
+            border-radius: 999px;
+            background: var(--grad);
+            color: #fff;
+            font-size: 0.72em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cierre .caja { color: var(--texto); }
+        .cierre .pie { color: rgba(255, 255, 255, 0.45); }
+        .cierre .pie .num { color: rgba(255, 255, 255, 0.7); }
+
+        .cierre .firma-cierre { margin-top: auto; padding-top: 18px; font-size: 13.5px; color: rgba(255, 255, 255, 0.6); font-style: italic; flex-shrink: 0; }
+
+        /* Variantes de maquetación que se piden desde la fuente */
+        .diapo.centro .cuerpo { text-align: center; align-items: center; }
+        .diapo.denso .cuerpo { font-size: calc(20px * var(--k)); }
+        .diapo.codigo-grande .codigo { --kc: 1.18; }
+
+        /* ============================================================
+           CONTROLES — los del material: progreso, menú, anterior/siguiente
+        ============================================================ */
+        #progreso { position: fixed; top: 0; left: 0; right: 0; height: 6px; background: rgba(226, 232, 240, 0.7); z-index: 20; }
+        #progreso > div { height: 100%; background: var(--grad); transition: width 0.5s ease; width: 0; }
+
+        .btn-redondo {
+            position: fixed;
+            z-index: 60;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.3);
+            transition: transform 0.2s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        .btn-redondo:hover { transform: scale(1.1); }
+        #btn-menu { top: 16px; left: 16px; }
+
+        #controles {
+            position: fixed;
+            right: 18px;
+            bottom: 16px;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(6px);
+            padding: 6px 6px 6px 16px;
+            border-radius: 999px;
+            box-shadow: 0 6px 22px rgba(0, 26, 77, 0.16);
+            transition: opacity 0.35s;
+        }
+
+        #contador { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--secondary-texto); margin-right: 6px; white-space: nowrap; }
+        #contador span { color: var(--gris); font-weight: 600; }
+
+        .btn-nav {
+            border: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 999px;
+            transition: all 0.2s;
+        }
+
+        .btn-nav.ant { background: transparent; color: var(--navy); }
+        .btn-nav.ant:hover { background: #F1F5F9; }
+        .btn-nav.sig { background: var(--grad); color: #fff; }
+        .btn-nav.sig:hover { opacity: 0.9; }
+        .btn-nav:disabled { opacity: 0.3; cursor: default; }
+
+        body.quieto #controles, body.quieto #btn-menu { opacity: 0; pointer-events: none; }
+        body.quieto { cursor: none; }
+
+        /* Índice: la barra lateral del material, como panel */
+        #velo { position: fixed; inset: 0; background: rgba(0, 10, 30, 0.35); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        #indice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 21rem;
+            z-index: 50;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.con-indice #indice { transform: none; }
+        body.con-indice #velo { opacity: 1; pointer-events: auto; }
+        #indice .cab { padding: 72px 24px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        #indice nav { padding: 14px; flex: 1; }
+        #indice .item-seccion { cursor: pointer; margin-bottom: 4px; border: 0; background: transparent; width: 100%; text-align: left; font-family: inherit; }
+        #indice .item-seccion:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+        #indice .item-seccion.actual, #indice .item-seccion.actual:hover { background: var(--grad); color: #fff; box-shadow: 0 8px 18px rgba(var(--secondary-rgb), 0.28); }
+        body.con-indice #btn-menu { opacity: 1; pointer-events: auto; }
+        #indice .sub { margin: 2px 0 10px 38px; display: flex; flex-direction: column; gap: 1px; }
+        #indice .sub button { background: none; border: 0; color: rgba(255, 255, 255, 0.55); text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 6px; cursor: pointer; line-height: 1.3; }
+        #indice .sub button:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+        #indice .sub button.actual { color: #fff; font-weight: 600; box-shadow: inset 2px 0 0 var(--secondary); }
+        #indice .pie-indice { padding: 16px 24px; font-size: 10.5px; color: rgba(255, 255, 255, 0.42); border-top: 1px solid rgba(255, 255, 255, 0.1); line-height: 1.5; }
+
+        /* Notas del presentador */
+        #notas {
+            position: fixed;
+            left: 50%;
+            bottom: 74px;
+            transform: translate(-50%, 20px);
+            width: min(900px, calc(100vw - 40px));
+            max-height: 34vh;
+            overflow-y: auto;
+            z-index: 35;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 16px;
+            box-shadow: 0 16px 50px rgba(0, 26, 77, 0.25);
+            border-top: 4px solid var(--secondary);
+            padding: 16px 22px;
+            font-size: 15.5px;
+            line-height: 1.55;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        body.con-notas #notas { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+        .etq-notas { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: var(--secondary-texto); margin-bottom: 6px; }
+        .notas-vacias { color: var(--gris-claro); font-style: italic; }
+        #notas p, .notas p { margin: 0 0 0.55em; }
+        #notas ul, .notas ul { margin: 0 0 0.55em; padding-left: 1.2em; }
+
+        /* Ayuda y pantalla en negro */
+        #ayuda { position: fixed; inset: 0; z-index: 70; background: rgba(0, 10, 30, 0.55); display: none; align-items: center; justify-content: center; }
+        body.con-ayuda #ayuda { display: flex; }
+        #ayuda .tarjeta-ayuda { background: #fff; border-radius: 18px; padding: 26px 30px; width: min(560px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border-top: 5px solid var(--primary); }
+        #ayuda h3 { margin: 0 0 14px; color: var(--navy); font-size: 18px; }
+        #ayuda table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        #ayuda td { padding: 6px 4px; border-bottom: 1px solid #F1F5F9; }
+        #ayuda td:first-child { white-space: nowrap; width: 42%; }
+        #ayuda kbd { font-family: 'Fira Code', monospace; font-size: 12px; background: #F1F5F9; border: 1px solid #CBD5E1; border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; margin-right: 3px; }
+
+        #negro { position: fixed; inset: 0; z-index: 80; background: #000; display: none; }
+        body.en-negro #negro { display: block; }
+
+        #ir-a {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 65;
+            background: var(--navy); color: #fff; font-weight: 700; font-size: 15px; padding: 8px 18px;
+            border-radius: 999px; display: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        body.revision #controles, body.revision #btn-menu { display: none; }
+        body.revision .paso { transition: none; }
+        body.revision .diapo.activa > .marco { animation: none; }
+
+        /* Revisión: diapositivas que no caben */
+        .aviso-revision {
+            position: absolute; top: 10px; right: 10px; z-index: 5;
+            background: #B91C1C; color: #fff; font-size: 12px; font-weight: 700;
+            padding: 4px 10px; border-radius: 6px;
+        }
+
+        /* ============================================================
+           VISTA DEL PRESENTADOR (?presentador)
+        ============================================================ */
+        body.presentador { background: #0B1330; }
+        body.presentador #btn-menu, body.presentador #controles, body.presentador #notas, body.presentador #progreso { display: none; }
+        #panel-presentador { display: none; }
+        body.presentador #panel-presentador {
+            display: grid;
+            position: fixed;
+            inset: 0;
+            grid-template-columns: 1.55fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 18px;
+            padding: 18px;
+            color: #fff;
+            z-index: 10;
+            pointer-events: none;
+        }
+        #panel-presentador .barra { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: rgba(255, 255, 255, 0.7); }
+        #panel-presentador .reloj { font-size: 30px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+        #panel-presentador .reloj small { font-size: 13px; color: var(--gold); font-weight: 600; margin-left: 8px; letter-spacing: 0.1em; text-transform: uppercase; }
+        #panel-presentador .hueco { border-radius: 10px; }
+        #panel-presentador .derecha { display: flex; flex-direction: column; gap: 14px; min-height: 0; pointer-events: auto; }
+        #panel-presentador .etq { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+        #vista-siguiente { position: relative; aspect-ratio: 16 / 9; background: #fff; border-radius: 10px; overflow: hidden; }
+        #vista-siguiente .diapo { visibility: visible; opacity: 1; transform-origin: top left; width: 1280px; height: 720px; }
+        #vista-siguiente .paso { opacity: 1; transform: none; }
+        #notas-presentador { flex: 1; min-height: 0; overflow-y: auto; background: #fff; color: var(--texto); border-radius: 12px; padding: 16px 20px; font-size: 20px; line-height: 1.5; }
+
+        /* ============================================================
+           IMPRESIÓN — una diapositiva por página, con todo revelado
+        ============================================================ */
+        @media print {
+            @page { size: 1280px 720px; margin: 0; }
+            html, body { overflow: visible; height: auto; background: #fff; }
+            #escenario { position: static; }
+            #mazo { position: static; transform: none !important; box-shadow: none; width: 1280px; height: auto; overflow: visible; }
+            .diapo { position: relative; visibility: visible; opacity: 1; width: 1280px; height: 720px; page-break-after: always; break-after: page; overflow: hidden; }
+            .diapo.activa > .marco { animation: none; }
+            .paso { opacity: 1; transform: none; }
+            #progreso, #btn-menu, #controles, #indice, #velo, #notas, #ayuda, #negro, #ir-a, #panel-presentador, .btn-copiar, .enlace-material, .aviso-revision { display: none !important; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="progreso"><div></div></div>
+
+    <button id="btn-menu" class="btn-redondo lp-gradient" title="Índice (M)" aria-label="Mostrar el índice">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="velo"></div>
+    <aside id="indice" class="lp-header" aria-label="Índice de la presentación"></aside>
+
+    <main id="escenario">
+        <div id="mazo">
+<section class="diapo portada" data-tipo="portada">
+    <div class="brillo"></div>
+    <div class="marco">
+        <div>
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+        </div>
+        <div>
+            <span class="chip-semana">Sesión 1 de 2 · 90 min</span>
+            <h1>Optimización CVaR</h1>
+            <div class="subtitulo">Del problema al programa — por qué la mínima varianza no protege la cola, y cómo un cuantil se vuelve un programa lineal</div>
+            <div class="temas"><span>CVaR</span><span>Rockafellar-Uryasev</span><span>Programación lineal</span><span>Escenarios</span><span>Media-CVaR</span><span>Cola</span></div>
+        </div>
+        <div class="base">
+            <div></div>
+            <div class="firma"><strong>Javier Mauricio Sierra</strong></div>
+        </div>
+    </div>
+    <div class="barra-grad"></div>
+</section>
+<section class="diapo dividida" data-tipo="agenda">
+    <div class="marco">
+        <div class="lateral">
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+            <div class="capitulo">Capítulo 08 · <span>Optimización CVaR</span></div>
+            <hr>
+            <div class="lista-secciones"><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg><span>Antes de calcular</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg><span>Por qué la cola y no la varianza</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg><span>La formulación de Rockafellar-Uryasev</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg><span>Implementación por escenarios</span></div></div>
+        </div>
+        <div class="principal">
+            <div class="antetitulo">Hoja de ruta</div>
+            <h2 style="margin-bottom:34px">Lo que vamos a construir hoy</h2>
+            <div class="ra-caja"><div class="etq">Objetivo de la sesión</div><div class="ra">Al salir, usted sabrá por qué la cartera de mínima varianza no protege la cola de este fondo, por qué el mínimo de la función de Rockafellar-Uryasev es el CVaR y cómo ese mínimo se escribe como un programa lineal que cualquier solucionador resuelve.</div></div>
+            <div class="chips"><span>CVaR</span><span>Rockafellar-Uryasev</span><span>Programación lineal</span><span>Escenarios</span><span>Media-CVaR</span><span>Cola</span></div>
+            <div class="pie" style="left:72px;right:72px"><span></span><span></span><span class="num">2 / 36</span></div>
+        </div>
+    </div>
+</section>
+<section class="diapo dividida seccion" data-tipo="seccion">
+    <div class="marco">
+        <div class="lateral">
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+            <div class="capitulo">Capítulo 08 · <span>Optimización CVaR</span></div>
+            <hr>
+            <div class="lista-secciones"><div class="item-seccion actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg><span>Antes de calcular</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg><span>Por qué la cola y no la varianza</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg><span>La formulación de Rockafellar-Uryasev</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg><span>Implementación por escenarios</span></div></div>
+        </div>
+        <div class="principal">
+            <div class="numero-grande">01</div>
+            <h2>Antes de calcular</h2>
+            <div class="gancho"><p>Este capítulo cambia una sola cosa del anterior: el objetivo. El fondo, el panel y los cuatro emisores son los mismos, y por eso se puede comparar.</p></div>
+            <a class="enlace-material" href="../08_TDR_Optimizacion_CVaR.html" target="_blank" rel="noopener" data-indice="0"><i class="fas fa-book-open"></i> Leer en el material: Portada y objetivos <i class="fas fa-arrow-right"></i></a>
+            <div class="pie" style="left:72px;right:72px"><span></span><span></span><span class="num">3 / 36</span></div>
+        </div>
+    </div>
+</section>
+<section class="diapo idea">
+    <div class="marco">
+        <div class="etq-idea"><span class="punto"><i class="fas fa-compass"></i></span>Idea clave</div>
+        <h2>La mínima varianza pierde más que el comité en el 1 % de los peores días</h2>
+        <div class="cuerpo"><p>Al 99 %, la cartera del capítulo 7 tiene más CVaR que los pesos puestos a ojo: <strong>187 millones</strong> en la convención w′μ y <strong>76</strong> medidos sobre lo que el fondo cobra. Con las dos varas, el signo es el mismo.</p></div>
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">4 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg></div>
+            <div><div class="antetitulo">Antes de calcular</div><h2>Tres convenciones se declaran antes de calcular</h2></div>
+        </div>
+        <div class="cuerpo"><div class="tarjetas" style="--n:3">
+<div class="tarjeta"><h3>El nivel es el 97,5 %</h3><p>El de Basilea III y el del capítulo 5. Donde el capítulo compara niveles, lo dice.</p></div>
+<div class="tarjeta"><h3>El CVaR es el exacto</h3><p>No el promedio simple del capítulo 5: la función de Rockafellar-Uryasev <strong>es</strong> el exacto, con su rueda fraccionaria.</p></div>
+<div class="tarjeta"><h3>Los escenarios son w′μ</h3><p>Una cifra suya en millones <strong>no es dinero de nadie</strong>: la cola de la declarada son 37 849 en la convención y <strong>35 982</strong> de verdad.</p></div>
+</div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">5 / 36</span></div>
+</section>
+<section class="diapo dividida seccion" data-tipo="seccion">
+    <div class="marco">
+        <div class="lateral">
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+            <div class="capitulo">Capítulo 08 · <span>Optimización CVaR</span></div>
+            <hr>
+            <div class="lista-secciones"><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg><span>Antes de calcular</span></div><div class="item-seccion actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg><span>Por qué la cola y no la varianza</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg><span>La formulación de Rockafellar-Uryasev</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg><span>Implementación por escenarios</span></div></div>
+        </div>
+        <div class="principal">
+            <div class="numero-grande">02</div>
+            <h2>Por qué la cola y no la varianza</h2>
+            <div class="gancho"><p>Ocho años de panel, 1 916 ruedas, y el CVaR al 99 % lo deciden veinte días.</p></div>
+            <a class="enlace-material" href="../08_TDR_Optimizacion_CVaR.html" target="_blank" rel="noopener" data-indice="1"><i class="fas fa-book-open"></i> Leer en el material: 1. Por qué la cola y no la varianza <i class="fas fa-arrow-right"></i></a>
+            <div class="pie" style="left:72px;right:72px"><span></span><span></span><span class="num">6 / 36</span></div>
+        </div>
+    </div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>El cuadrado borra el signo: un +5 % pesa lo mismo que un −5 %</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ \sigma_p^2(w) = \frac{1}{S}\sum_{s=1}^{S} \underbrace{\left(w^\top r_s - \bar{r}_p\right)^{2}}_{\text{el cuadrado borra el signo}} $$</p>
+<div class="mt-1 flex flex-wrap items-center justify-center gap-4">
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\sigma_p^2(w)\)<span class="hidden group-focus-within:block absolute top-full left-0 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">La varianza de la cartera</strong> con los pesos w: el riesgo que minimizó el capítulo 7. Su raíz, anualizada, es la volatilidad: <strong>25,02 %</strong> la declarada y <strong>23,93 %</strong> la de mínima varianza.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\frac{1}{S}\sum_{s=1}^{S}\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">El promedio sobre los escenarios.</strong> Un escenario es una rueda del panel congelado, y todas pesan igual: <strong>S = 1 916</strong> ruedas, de 2018 a 2025.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(w^\top r_s\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">El retorno de la cartera en la rueda s:</strong> los cuatro retornos de ese día, ponderados con 30 · 20 · 25 · 25 %. El 16/03/2020, la peor rueda del panel, valió <strong>−17,760 %</strong>. Es la convención w′μ.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\bar{r}_p\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">El retorno medio de la cartera</strong> en las 1 916 ruedas: la referencia contra la que se mide cada día. Anualizado, es el <strong>7,69 %</strong> de la declarada.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\((\,\cdot\,)^{2}\)<span class="hidden group-focus-within:block absolute top-full right-0 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">El cuadrado vuelve positiva toda desviación.</strong> Un día 5 puntos por encima del promedio y otro 5 por debajo aportan lo mismo: <strong>25</strong>. Ahí se pierde el signo, y con él la diferencia entre ganar y perder.</span></span>
+</div>
+<p class="mt-3 mb-1 text-center text-[17px] italic opacity-70">Pulse cada pieza: qué es y cuánto vale en este fondo</p>
+<ul>
+<li>La matriz de covarianzas resume las 1 916 ruedas en <strong>diez números</strong></li>
+<li>Esa compresión vuelve tratable el problema de Markowitz…</li>
+<li>…y borra lo que le interesa al comité: <strong>cuánto se pierde el día que se pierde</strong></li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">7 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>El CVaR mira un solo lado, y solo el peor</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ \mathrm{CVaR}_\alpha(w) = \mathbb{E}\left[\,L(w) \;\middle|\; L(w) \geq \mathrm{VaR}_\alpha(w)\right], \qquad L(w) = -w^\top r $$</p>
+<div class="mt-1 flex flex-wrap items-center justify-center gap-4">
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\mathrm{CVaR}_\alpha(w)\)<span class="hidden group-focus-within:block absolute top-full left-0 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">Lo que el capítulo va a minimizar:</strong> el promedio de las pérdidas de la cola, para los pesos w. Al 97,5 %, la cartera declarada da <strong>4,731 %</strong> y la de mínima varianza <strong>4,607 %</strong>.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\mathbb{E}\left[\,\cdot\;\middle|\;\cdot\,\right]\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">Un promedio condicionado.</strong> La barra se lee «dado que»: se promedian las pérdidas de los días que cumplen la condición de la derecha, y solo esas. El nivel pide <strong>47,9</strong> ruedas y el panel tiene 48: esa décima de rueda vale 30 millones.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(L(w) \geq \mathrm{VaR}_\alpha(w)\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">La condición: quién entra en la cola.</strong> Solo los días en que la pérdida llega al corte o lo pasa. En la declarada son <strong>48</strong> de las 1 916 ruedas, el 2,5 %; los días buenos y los malos corrientes no cuentan.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(\mathrm{VaR}_\alpha(w)\)<span class="hidden group-focus-within:block absolute top-full left-1/2 -translate-x-1/2 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">El corte que separa la cola del resto,</strong> al nivel α = 97,5 %. En la declarada vale <strong>2,958 %</strong> y en la de mínima varianza <strong>2,643 %</strong>: depende de w. Anótelo, porque es el problema de la sección 2.</span></span>
+<span tabindex="0" role="button" class="group relative cursor-pointer rounded-xl border-2 border-solid border-primary/20 bg-surface px-5 py-2 text-[26px] text-primary shadow-sm outline-none focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20">\(L(w) = -w^\top r\)<span class="hidden group-focus-within:block absolute top-full right-0 z-30 mt-3 w-[26rem] rounded-xl border-0 border-l-4 border-solid border-secondary bg-surface px-5 py-4 text-left text-[19px] font-normal leading-snug text-navy shadow-2xl"><strong class="!text-primary">La pérdida: el retorno con el signo cambiado.</strong> Así la cola mala queda a la derecha. El 16/03/2020 la cartera rindió −17,760 %, y aquí entra como una pérdida de <strong>17,760 %</strong>, la mayor de las 1 916.</span></span>
+</div>
+<p class="mt-3 mb-1 text-center text-[17px] italic opacity-70">Pulse cada pieza: qué es y cuánto vale en este fondo</p>
+<ul>
+<li>El VaR responde: ¿hasta cuánto se pierde el 97,5 % de los días?</li>
+<li>El CVaR responde: ¿cuánto se pierde <strong>cuando</strong> se pierde?</li>
+<li>El cambio de signo deja la cola mala <strong>a la derecha</strong>, que es donde la mira todo el capítulo</li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">8 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>Dos promedios de la misma cola: el divisor es 48 o 47,9</h2></div>
+        </div>
+        <div class="cuerpo"><p><strong>Capítulo 5 · ES simple:</strong> divide entre las ruedas que <strong>hay</strong>.</p>
+<p>$$ \mathrm{ES}_\alpha = \frac{1}{|\mathcal{C}|}\sum_{s \in \mathcal{C}} L_s, \qquad \mathcal{C} = \{\,s : L_s &gt; \mathrm{VaR}_\alpha\,\} $$</p>
+<p><strong>Este capítulo · CVaR exacto:</strong> divide entre las que el nivel <strong>pide</strong>, 47,9 o 19,16.</p>
+<p>$$ \mathrm{CVaR}_\alpha = \mathrm{VaR}_\alpha + \frac{1}{(1-\alpha)S}\sum_{s=1}^{S}\left(L_s - \mathrm{VaR}_\alpha\right)^{+} $$</p>
+<p>La brecha: <strong>30 millones</strong> al 97,5 % y <strong>884</strong> al 99 %.</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">9 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>El bloque calcula las dos versiones con la misma función</h2></div>
+        </div>
+        <div class="cuerpo"><div class="columnas centradas" style="grid-template-columns:minmax(0, 3fr) minmax(0, 2fr)">
+<div class="col"><div class="codigo" data-lang="python" data-foco="5-7"><div class="codigo-cabecera"><span class="codigo-titulo"><i class="fab fa-python"></i>medidas() · sección 1</span><button class="btn-copiar" title="Copiar"><i class="fas fa-copy"></i> Copiar</button></div><pre><code>def medidas(w, alfa, RR=R):
+    L = perdidas(w, RR)
+    var  = np.quantile(L, alfa)
+    cola = L[L &gt; var]
+    simple = cola.mean()
+    exacto = (L[L &gt; var].sum() / S
+              + var * ((1 - alfa) - len(cola) / S)) / (1 - alfa)
+    return var, simple, exacto, len(cola)</code></pre></div></div>
+<div class="col"><ul>
+<li><code>simple</code>: el promedio de las ruedas que pasan el corte</li>
+<li><code>exacto</code>: le suma la fracción de rueda que falta para llegar a (1 − α)S</li>
+<li>Declarada al 97,5 %: 4,727 % contra <strong>4,731 %</strong></li>
+<li>Al 99 %: 6,599 % contra <strong>6,710 %</strong></li>
+</ul></div>
+</div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">10 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>Veinte días deciden el CVaR al 99 %, y ninguno es de 2018, 2019, 2021 ni 2024</h2></div>
+        </div>
+        <div class="cuerpo"><figure class="figura" style="--alto:430px"><div class="grafica" data-fuente="cap8-cola"></div><figcaption>Las veinte peores ruedas de la cartera declarada, en millones de la convención w′μ. Rojo 2020 (ocho), ámbar 2022 (siete), morado 2025 (cuatro), azul 2023 (una).</figcaption></figure></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">11 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div class="antetitulo">Por qué la cola y no la varianza</div><h2>La mínima varianza protege mejor el hombro y peor el extremo</h2></div>
+        </div>
+        <div class="cuerpo"><table><thead><tr><th>Nivel</th><th>Declarada</th><th>Mínima varianza</th></tr></thead><tbody>
+<tr><td>95 %</td><td>3,625 %</td><td><strong>3,466 %</strong></td></tr>
+<tr><td>97,5 %</td><td>4,731 %</td><td><strong>4,607 %</strong></td></tr>
+<tr><td>99 %</td><td><strong>6,710 %</strong></td><td>6,733 %</td></tr>
+</tbody></table>
+<p>CVaR exacto de cada cartera. Al 99 % la mínima varianza pierde <strong>187 millones</strong> más en la convención y <strong>76</strong> sobre lo que el fondo cobra.</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">12 / 36</span></div>
+</section>
+<section class="diapo pregunta">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div><span class="chip-ejercicio" style="background:var(--primary)"><i class="fas fa-circle-question"></i>R1 · Traza de cálculo</span></div><h2>¿Cuánto vale la brecha al 99 %?</h2></div>
+        </div>
+        <div class="cuerpo"><p>La cola del 99 % pide <strong>19,16 ruedas</strong>. Las 19 peores suman <strong>1 023 207 millones</strong> y la vigésima vale <strong>32 628</strong>.</p>
+<ol>
+<li>El ES simple: el promedio de las 20</li>
+<li>El CVaR exacto: las 19 enteras más el trozo de la vigésima, entre 19,16</li>
+<li>La brecha entre los dos</li>
+</ol>
+<div class="paso"><div class="caja respuesta"><span class="caja-etiqueta"><i class="fas fa-check"></i>Respuesta</span><div class="caja-cuerpo"><p>Simple: 1 055 835 ÷ 20 = <strong>52 792</strong>. Exacto: (1 023 207 + 0,16 × 32 628) ÷ 19,16 = 1 028 427 ÷ 19,16 = <strong>53 676</strong>. La brecha: <strong>884 millones</strong>, la que declara el capítulo 5.</p></div></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">13 / 36</span></div>
+</section>
+<section class="diapo pregunta">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg></div>
+            <div><div><span class="chip-ejercicio" style="background:var(--primary)"><i class="fas fa-circle-question"></i>R2 · Predice el efecto</span></div><h2>¿Por qué cambia el signo al 99 %?</h2></div>
+        </div>
+        <div class="cuerpo"><p>La mínima varianza tiene menos CVaR que la declarada al 95 % y al 97,5 %, y más al 99 %. ¿Qué explica el cambio?</p>
+<div class="paso"><div class="caja respuesta"><span class="caja-etiqueta"><i class="fas fa-check"></i>Respuesta</span><div class="caja-cuerpo"><p>En el extremo mandan unos pocos días en que los cuatro emisores cayeron juntos —ocho de las veinte peores son de 2020, cuando la correlación media subió de 0,227 a 0,513—, y sobre ese puñado de ruedas la covarianza media de ocho años no informa de nada.</p></div></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">14 / 36</span></div>
+</section>
+<section class="diapo dividida seccion" data-tipo="seccion">
+    <div class="marco">
+        <div class="lateral">
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+            <div class="capitulo">Capítulo 08 · <span>Optimización CVaR</span></div>
+            <hr>
+            <div class="lista-secciones"><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg><span>Antes de calcular</span></div><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg><span>Por qué la cola y no la varianza</span></div><div class="item-seccion actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg><span>La formulación de Rockafellar-Uryasev</span></div><div class="item-seccion "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg><span>Implementación por escenarios</span></div></div>
+        </div>
+        <div class="principal">
+            <div class="numero-grande">03</div>
+            <h2>La formulación de Rockafellar-Uryasev</h2>
+            <div class="gancho"><p>El CVaR esconde un cuantil, y un cuantil es una función de los pesos llena de quiebres. En 2000, dos autores lo volvieron convexo añadiendo una sola variable.</p></div>
+            <a class="enlace-material" href="../08_TDR_Optimizacion_CVaR.html" target="_blank" rel="noopener" data-indice="2"><i class="fas fa-book-open"></i> Leer en el material: 2. La formulación de Rockafellar-Uryasev <i class="fas fa-arrow-right"></i></a>
+            <div class="pie" style="left:72px;right:72px"><span></span><span></span><span class="num">15 / 36</span></div>
+        </div>
+    </div>
+</section>
+<section class="diapo idea">
+    <div class="marco">
+        <div class="etq-idea"><span class="punto"><i class="fas fa-compass"></i></span>Idea clave</div>
+        <h2>Para saber qué hay en la cola hace falta el VaR, y el VaR depende de los pesos</h2>
+        <div class="cuerpo"><p>Es circular. Rockafellar y Uryasev lo rompen tratando el corte como <strong>una variable más</strong> y dejando que el optimizador lo encuentre.</p></div>
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">16 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>F suma lo que cada escenario se pasa de un corte que uno propone</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ F_\alpha(w,\zeta) = \zeta + \frac{1}{(1-\alpha)S}\sum_{s=1}^{S}\max\left(0,\, -w^\top r_s - \zeta\right) $$</p>
+<ul>
+<li><strong>ζ</strong> es un corte propuesto; el segundo término suma los excesos sobre él y los reparte entre las (1 − α)S ruedas que pide el nivel</li>
+<li>Si ζ se queda corto, los excesos se disparan; si se pasa, el primer término crece sin que el segundo lo compense</li>
+<li>En medio hay un mínimo: cae <strong>exactamente</strong> en el VaR y vale <strong>exactamente</strong> el CVaR</li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">17 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>Cada término de F hace un trabajo distinto</h2></div>
+        </div>
+        <div class="cuerpo"><table><thead><tr><th>Pieza</th><th>Qué hace</th><th>Aquí</th></tr></thead><tbody>
+<tr><td>\(\zeta\)</td><td>el corte; entra con coeficiente 1, así que proponerlo alto cuesta</td><td>ζ* = 2,9601 %</td></tr>
+<tr><td>\((L_s - \zeta)^{+}\)</td><td>cuánto se pasa la rueda s, y cero si no se pasa</td><td>47 ruedas aportan</td></tr>
+<tr><td>\((1-\alpha)S\)</td><td>cuántas ruedas <strong>pide</strong> el nivel, no cuántas hay sobre el corte</td><td>47,9 ruedas</td></tr>
+<tr><td>\(\min_\zeta F\)</td><td>el valor en el mínimo: no una aproximación al CVaR, sino el CVaR</td><td>4,7311 %</td></tr>
+</tbody></table>
+<p>α y S no son variables: son la declaración. Lo que mueve el optimizador son <strong>w</strong> y <strong>ζ</strong>.</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">18 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>F cae rápido, sube despacio, y su mínimo es el CVaR</h2></div>
+        </div>
+        <div class="cuerpo"><figure class="figura" style="--alto:440px"><div class="grafica" data-fuente="cap8-fzeta"></div><figcaption>F(ζ) sobre la cartera declarada al 97,5 %. El mínimo, en rosa, cae en el escenario 48 de la cola: ζ = 2,9601 % y F = 4,7311 %.</figcaption></figure></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">19 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>La derivada se anula donde quedan (1 − α)S ruedas por encima del corte</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ \frac{\partial F}{\partial \zeta} = 1 - \frac{\#\{s: L_s &gt; \zeta\}}{(1-\alpha)S} = 0 \quad\Longleftrightarrow\quad \#\{s: L_s &gt; \zeta\} = (1-\alpha)S $$</p>
+<ul>
+<li>F es convexa y lineal a trozos: el máximo de funciones convexas es convexo</li>
+<li>Cada rueda sobre el corte aporta −1/((1 − α)S); las de abajo no aportan nada</li>
+<li>Dejar (1 − α)S ruedas por encima <strong>es la definición del VaR</strong></li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">20 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>Al sustituir el VaR, F devuelve el promedio de la cola</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ F_\alpha(w,\zeta^*) = \mathrm{VaR}_\alpha + \frac{1}{(1-\alpha)S}\sum_{L_s &gt; \mathrm{VaR}}\left(L_s - \mathrm{VaR}_\alpha\right) = \mathrm{CVaR}_\alpha $$</p>
+<p>El VaR más el promedio de los excesos sobre el VaR es el promedio de las pérdidas de la cola, <strong>con la rueda fraccionaria incluida</strong>: el CVaR exacto, no el simple.</p>
+<div class="caja tip"><span class="caja-etiqueta"><i class="fas fa-lightbulb"></i>Lo que no pide</span><div class="caja-cuerpo"><p>Ni normalidad, ni simetría, ni una fórmula cerrada. Solo escenarios equiprobables, que pueden venir de la historia, de una simulación o de un panel de estrés.</p></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">21 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>Con datos, el mínimo cae en un escenario: 2,9601 % y no 2,9577 %</h2></div>
+        </div>
+        <div class="cuerpo"><div class="columnas centradas" style="grid-template-columns:minmax(0, 3fr) minmax(0, 2fr)">
+<div class="col"><div class="codigo" data-lang="python" data-foco="7-8"><div class="codigo-cabecera"><span class="codigo-titulo"><i class="fab fa-python"></i>F evaluada a mano · sección 2</span><button class="btn-copiar" title="Copiar"><i class="fas fa-copy"></i> Copiar</button></div><pre><code>def F(z):
+    return z + np.maximum(L - z, 0).sum() / ((1 - alfa) * S)
+
+var = np.quantile(L, alfa)
+z48 = np.sort(L)[::-1][47]
+#&gt;   2.7500 %   4.7502 %      56
+#&gt;   2.9577 %   4.7312 %      48
+#&gt;   2.9601 %   4.7311 %      47
+#&gt;   3.0000 %   4.7326 %      45</code></pre></div></div>
+<div class="col"><ul>
+<li><code>np.quantile</code> interpola entre el 49 y el 48: <strong>2,9577 %</strong>, donde F todavía baja</li>
+<li>El mínimo es el escenario 48: <strong>2,9601 %</strong>, con F = <strong>4,7311 %</strong></li>
+<li>La diferencia es de cinco millonésimas de punto, y lo que no admite descuento es la palabra <em>exactamente</em></li>
+</ul></div>
+</div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">22 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div class="antetitulo">La formulación de Rockafellar-Uryasev</div><h2>El mínimo es plano: equivocarse en el VaR sale barato</h2></div>
+        </div>
+        <div class="cuerpo"><ul>
+<li>Entre ζ = 2,75 % y ζ = 3,00 %, F va de <strong>4,7502 %</strong> a <strong>4,7326 %</strong>: menos de dos centésimas en un cuarto de punto</li>
+<li>El optimizador puede <strong>errar el corte y acertar el promedio</strong></li>
+<li>Por eso el ζ del programa lineal, <strong>2,7215 %</strong>, no es el VaR de la declarada: son carteras distintas, y lo que se compara es F, no ζ</li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">23 / 36</span></div>
+</section>
+<section class="diapo pregunta">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg></div>
+            <div><div><span class="chip-ejercicio" style="background:var(--primary)"><i class="fas fa-circle-question"></i>R1 · Traza de cálculo</span></div><h2>¿Qué corte gana?</h2></div>
+        </div>
+        <div class="cuerpo"><p>Diez pérdidas equiprobables, en millones: <strong>−20 000, −12 000, −5 000, 0, 3 000, 8 000, 15 000, 26 000, 48 000 y 90 000</strong>. Con α = 80 %, la cola pide <strong>2</strong> escenarios.</p>
+<p>Evalúe F en ζ = <strong>15 000, 26 000, 48 000 y 60 000</strong>.</p>
+<div class="paso"><div class="caja respuesta"><span class="caja-etiqueta"><i class="fas fa-check"></i>Respuesta</span><div class="caja-cuerpo"><p>74 500 · <strong>69 000</strong> · <strong>69 000</strong> · 75 000. Empatan porque F es lineal a trozos y su mínimo ocupa <strong>todo</strong> el tramo de 26 000 —el VaR— a 48 000. El valor, 69 000, es el promedio de las dos peores: (48 000 + 90 000) ÷ 2.</p></div></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">24 / 36</span></div>
+</section>
+<section class="diapo dividida seccion" data-tipo="seccion">
+    <div class="marco">
+        <div class="lateral">
+            <div class="institucion">Universidad Santo Tomás</div>
+            <div class="asignatura">Teoría del Riesgo</div>
+            <div class="capitulo">Capítulo 08 · <span>Optimización CVaR</span></div>
+            <hr>
+            <div class="lista-secciones"><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg><span>Antes de calcular</span></div><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg><span>Por qué la cola y no la varianza</span></div><div class="item-seccion hecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg><span>La formulación de Rockafellar-Uryasev</span></div><div class="item-seccion actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg><span>Implementación por escenarios</span></div></div>
+        </div>
+        <div class="principal">
+            <div class="numero-grande">04</div>
+            <h2>Implementación por escenarios</h2>
+            <div class="gancho"><p>Cuatro pesos, un corte y 1 916 variables de exceso: el programa que resuelve la cola del fondo tiene 1 921 incógnitas y tarda menos de un segundo.</p></div>
+            <a class="enlace-material" href="../08_TDR_Optimizacion_CVaR.html" target="_blank" rel="noopener" data-indice="3"><i class="fas fa-book-open"></i> Leer en el material: 3. Implementación por escenarios <i class="fas fa-arrow-right"></i></a>
+            <div class="pie" style="left:72px;right:72px"><span></span><span></span><span class="num">25 / 36</span></div>
+        </div>
+    </div>
+</section>
+<section class="diapo idea">
+    <div class="marco">
+        <div class="etq-idea"><span class="punto"><i class="fas fa-compass"></i></span>Idea clave</div>
+        <h2>Un máximo es el mínimo de un conjunto</h2>
+        <div class="cuerpo"><p>$$ \max(0,\,x) = \min\,\{\,u \;:\; u \geq x,\;\; u \geq 0\,\} $$</p>
+<p>Es una identidad exacta, no una aproximación. Mirarla en esa dirección es todo el truco del capítulo.</p></div>
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">26 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>Se sustituye cada máximo y se aplanan las dos minimizaciones en una</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ F_\alpha(w,\zeta) = \min_{u}\; \zeta + \tfrac{1}{(1-\alpha)S}\textstyle\sum_s u_s \quad \text{sujeto a}\;\; u_s \geq L_s - \zeta,\;\; u_s \geq 0 $$</p>
+<p>$$ \min_{w,\,\zeta}\;\min_{u}\;(\cdot) = \min_{w,\,\zeta,\,u}\;(\cdot) $$</p>
+<ul>
+<li>Cada máximo se cambia por su mínimo, uno por escenario</li>
+<li>Minimizar por partes o todo a la vez da el mismo valor, porque el conjunto es el mismo</li>
+<li>Y una sola minimización es lo único que aceptan <code>cvxpy</code> y <code>lpSolve</code></li>
+</ul></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">27 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>El cambio es exacto porque cada u entra con coeficiente positivo y se minimiza</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ \frac{\partial}{\partial u_s}\left[\tfrac{1}{(1-\alpha)S}\textstyle\sum_s u_s\right] = \frac{1}{(1-\alpha)S} &gt; 0 \quad\Longrightarrow\quad u_s^{*} = \max(0,\,L_s - \zeta) $$</p>
+<ul>
+<li>El óptimo empuja cada u contra su cota inferior, <strong>y ni un poco más arriba</strong></li>
+<li>Con coeficiente negativo, o maximizando, u quedaría suelta y el programa devolvería otra cosa</li>
+</ul>
+<div class="caja warn"><span class="caja-etiqueta"><i class="fas fa-triangle-exclamation"></i>Atención</span><div class="caja-cuerpo"><p>Es la comprobación que hay que hacer siempre que se linealiza un máximo, y la que casi nunca se escribe.</p></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">28 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>El programa entero no tiene un solo término cuadrático</h2></div>
+        </div>
+        <div class="cuerpo"><p>$$ \begin{aligned} \min_{w,\,\zeta,\,u} \;\; &amp; \zeta + \frac{1}{(1-\alpha)S}\sum_{s} u_s \\[4pt] \text{sujeto a} \;\; &amp; u_s \geq -w^\top r_s - \zeta, \quad u_s \geq 0, \\ &amp; \mathbf{1}^\top w = 1, \quad w \geq 0 \end{aligned} $$</p>
+<p>El objetivo, las restricciones y las cotas son lineales. Un programa lineal escala a <strong>decenas de miles</strong> de escenarios, y el tope del 30 % por emisor sería una fila más.</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">29 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>Tiene 1 921 variables, y 1 916 son andamio</h2></div>
+        </div>
+        <div class="cuerpo"><table><thead><tr><th>Pieza</th><th>Qué hace</th><th>Cuántas</th></tr></thead><tbody>
+<tr><td>\(w,\ \zeta,\ u\)</td><td>las incógnitas: cuatro pesos, un corte y un exceso por rueda</td><td>1 921 variables</td></tr>
+<tr><td>\(u_s \geq -w^\top r_s - \zeta\)</td><td>ata cada exceso a su escenario; es la única que mezcla pesos y datos</td><td>1 916 filas</td></tr>
+<tr><td>\(u_s \geq 0\)</td><td>la otra mitad del máximo</td><td>1 916 cotas</td></tr>
+<tr><td>\(\mathbf{1}^\top w = 1\)</td><td>el fondo, invertido del todo</td><td>1 fila</td></tr>
+<tr><td>\(w \geq 0\)</td><td>sin cortos: una decisión del curso, no del método</td><td>4 cotas</td></tr>
+</tbody></table></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">30 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>En cvxpy, el programa se escribe casi como la fórmula</h2></div>
+        </div>
+        <div class="cuerpo"><div class="codigo" data-lang="python" data-foco=""><div class="codigo-cabecera"><span class="codigo-titulo"><i class="fab fa-python"></i>cvxpy · sección 3</span><button class="btn-copiar" title="Copiar"><i class="fas fa-copy"></i> Copiar</button></div><pre><code>w = cp.Variable(4)
+zeta = cp.Variable()
+u = cp.Variable(S)
+objetivo = zeta + cp.sum(u) / ((1 - alfa) * S)
+cp.Problem(cp.Minimize(objetivo),
+           [u &gt;= -(R @ w) - zeta,
+            u &gt;= 0,
+            cp.sum(w) == 1, w &gt;= 0]).solve(solver="HIGHS")</code></pre></div>
+<p>Una restricción por línea de la fórmula: <code>u &gt;= -(R @ w) - zeta</code> y <code>u &gt;= 0</code> son, juntas, el máximo.</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">31 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>lpSolve no admite variables libres, así que ζ se parte en dos</h2></div>
+        </div>
+        <div class="cuerpo"><div class="codigo" data-lang="r" data-foco="1,6"><div class="codigo-cabecera"><span class="codigo-titulo"><i class="fas fa-chart-line"></i>lpSolve · sección 3</span><button class="btn-copiar" title="Copiar"><i class="fas fa-copy"></i> Copiar</button></div><pre><code>obj &lt;- c(rep(0, 4), 1, -1, rep(1 / ((1 - alfa) * S), S))
+A   &lt;- rbind(cbind(R, 1, -1, diag(S)),
+             c(rep(1, 4), rep(0, 2 + S)))
+sol &lt;- lp("min", obj, A, c(rep("&gt;=", S), "="), c(rep(0, S), 1))
+wc   &lt;- sol$solution[1:4]
+zeta &lt;- sol$solution[5] - sol$solution[6]</code></pre></div>
+<p>$$ \zeta = \zeta^{+} - \zeta^{-}, \qquad \zeta^{+} \geq 0, \quad \zeta^{-} \geq 0 $$</p></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">32 / 36</span></div>
+</section>
+<section class="diapo ">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>La mínima CVaR se parece más a la mínima varianza que a la declarada</h2></div>
+        </div>
+        <div class="cuerpo"><div class="columnas centradas" style="grid-template-columns:minmax(0, 3fr) minmax(0, 2fr)">
+<div class="col"><figure class="figura" style="--alto:420px"><div class="grafica" data-fuente="cap8-pesos"></div><figcaption>Pesos de las tres carteras (%).</figcaption></figure></div>
+<div class="col"><table><thead><tr><th>Cartera</th><th>CVaR 97,5 %</th><th>Volatilidad</th></tr></thead><tbody>
+<tr><td>Declarada</td><td>4,7311 %</td><td>25,02 %</td></tr>
+<tr><td>Mínima varianza</td><td>4,6067 %</td><td>23,93 %</td></tr>
+<tr><td><strong>Mínima CVaR</strong></td><td><strong>4,5815 %</strong></td><td>24,00 %</td></tr>
+</tbody></table>
+<p>Con ζ* = 2,7215 %.</p></div>
+</div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">33 / 36</span></div>
+</section>
+<section class="diapo pregunta">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div><span class="chip-ejercicio" style="background:var(--primary)"><i class="fas fa-circle-question"></i>R3 · Audita a la IA</span></div><h2>¿Qué hace mal este código?</h2></div>
+        </div>
+        <div class="cuerpo"><p>Un modelo propuso esta cartera de mínimo CVaR al 97,5 %. Corre y los pesos suman uno. ¿Qué línea falla, y qué error es?</p>
+<div class="codigo" data-lang="python" data-foco=""><div class="codigo-cabecera"><span class="codigo-titulo"><i class="fab fa-python"></i>Lo que devolvió el modelo</span><button class="btn-copiar" title="Copiar"><i class="fas fa-copy"></i> Copiar</button></div><pre><code>R = np.log(precios[acciones]).diff().dropna().values * 100
+L = -(R @ w0)
+cola = R[L &gt; np.quantile(L, alfa)]        # los 48 escenarios peores
+w = cp.Variable(4)
+cp.Problem(cp.Minimize(cp.sum(-(cola @ w)) / len(cola)),
+           [cp.sum(w) == 1, w &gt;= 0]).solve()</code></pre></div>
+<div class="paso"><div class="caja respuesta"><span class="caja-etiqueta"><i class="fas fa-check"></i>Respuesta</span><div class="caja-cuerpo"><p>La de <code>cola</code>: congela los días peores <strong>de la cartera actual</strong>, y la cola cambia con los pesos. <strong>Confusión de medida.</strong> Devuelve <strong>100 % Banco de Bogotá</strong> —CVaR real de <strong>6,8601 %</strong> contra 4,5815 %— e imprime <strong>3,6982 %</strong>: parece mejor que la mejor.</p></div></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">34 / 36</span></div>
+</section>
+<section class="diapo pregunta">
+    
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div><span class="chip-ejercicio" style="background:var(--primary)"><i class="fas fa-circle-question"></i>R2 · Predice el efecto</span></div><h2>¿Qué le pasa al programa con diez mil escenarios más?</h2></div>
+        </div>
+        <div class="cuerpo"><p>Hoy tiene 1 921 variables: cuatro pesos, un corte y 1 916 excesos.</p>
+<div class="paso"><div class="caja respuesta"><span class="caja-etiqueta"><i class="fas fa-check"></i>Respuesta</span><div class="caja-cuerpo"><p>Crece en diez mil variables, diez mil filas y diez mil cotas, y <strong>sigue siendo lineal</strong>: crece el tamaño, no la naturaleza. Lo que no crece, si los escenarios salen de un modelo ajustado a los mismos datos, es la <strong>información</strong>.</p></div></div></div></div>
+        
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">35 / 36</span></div>
+</section>
+<section class="diapo cierre">
+    <div class="brillo"></div>
+    <div class="marco">
+        <div class="cabecera">
+            <div class="ficha-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/>
+                    <path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/>
+                </svg></div>
+            <div><div class="antetitulo">Implementación por escenarios</div><h2>Lo que se llevan hoy</h2></div>
+        </div>
+        <div class="cuerpo"><ul>
+<li>La varianza borra el signo: la mínima varianza protege el hombro de la distribución y <strong>no</strong> el extremo</li>
+<li>El CVaR exacto divide entre las ruedas que el nivel <strong>pide</strong>, 47,9, no entre las que hay</li>
+<li>ζ rompe el círculo: el mínimo de F cae en el VaR y <strong>vale</strong> el CVaR</li>
+<li>Un máximo es el mínimo de un conjunto, y el cambio es exacto porque se minimiza con coeficiente positivo</li>
+<li>El programa tiene 1 921 variables lineales y devuelve 19,36 · 34,61 · 16,43 · 29,60</li>
+</ul></div>
+        <div class="firma-cierre">Javier Mauricio Sierra</div>
+    </div>
+    <div class="pie"><span class="sello">Capítulo 08 · Optimización CVaR</span><span>Teoría del Riesgo · USTA</span><span class="num">36 / 36</span></div>
+</section>
+        </div>
+    </main>
+
+    <nav id="controles" aria-label="Navegación">
+        <span id="contador"></span>
+        <button class="btn-nav ant" id="btn-ant" aria-label="Anterior"><i class="fas fa-chevron-left"></i> Anterior</button>
+        <button class="btn-nav sig" id="btn-sig" aria-label="Siguiente">Siguiente <i class="fas fa-chevron-right"></i></button>
+    </nav>
+
+    <aside id="notas" aria-live="polite"></aside>
+    <div id="ir-a"></div>
+    <div id="negro"></div>
+
+    <div id="ayuda">
+        <div class="tarjeta-ayuda">
+            <h3>Atajos del teclado</h3>
+            <table>
+                <tr><td><kbd>→</kbd><kbd>Espacio</kbd><kbd>AvPág</kbd></td><td>Siguiente (y revela lo pendiente)</td></tr>
+                <tr><td><kbd>←</kbd><kbd>RePág</kbd></td><td>Anterior</td></tr>
+                <tr><td><kbd>Inicio</kbd><kbd>Fin</kbd></td><td>Primera · última</td></tr>
+                <tr><td><kbd>12</kbd><kbd>Enter</kbd></td><td>Ir a la diapositiva 12</td></tr>
+                <tr><td><kbd>M</kbd></td><td>Índice por secciones</td></tr>
+                <tr><td><kbd>N</kbd></td><td>Notas del presentador</td></tr>
+                <tr><td><kbd>P</kbd></td><td>Vista del presentador (otra ventana)</td></tr>
+                <tr><td><kbd>F</kbd></td><td>Pantalla completa</td></tr>
+                <tr><td><kbd>B</kbd><kbd>.</kbd></td><td>Pantalla en negro</td></tr>
+                <tr><td><kbd>Esc</kbd></td><td>Cerrar paneles</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="panel-presentador">
+        <div class="barra">
+            <div><span id="p-contador"></span> · <span id="p-titulo"></span></div>
+            <div class="reloj"><span id="p-cronometro">00:00</span><small id="p-hora"></small></div>
+        </div>
+        <div class="hueco" id="p-hueco"></div>
+        <div class="derecha">
+            <div>
+                <div class="etq">A continuación</div>
+                <div id="vista-siguiente"></div>
+            </div>
+            <div class="etq" style="margin-bottom:-8px">Notas</div>
+            <div id="notas-presentador" class="notas"></div>
+        </div>
+    </div>
+
+    <script id="datos-mazo" type="application/json">{"config": {"asignatura": "Teoría del Riesgo", "numero": "08", "titulo": "Optimización CVaR", "ra": "RA4", "horas": 3, "stack": [], "institucion": "Universidad Santo Tomás", "sigla": "USTA", "unidad": "Capítulo", "storageKey": "tdr_cap08_cvar"}, "diapos": [{"titulo": "Portada", "seccion": "", "k": -1, "notas": ""}, {"titulo": "Hoja de ruta", "seccion": "", "k": -1, "notas": ""}, {"titulo": "Antes de calcular", "seccion": "Antes de calcular", "k": 0, "notas": "<p>Arrancar recordando el cierre del capítulo 7: la cartera de mínima varianza, 20,76 · 38,13 · 15,97 · 25,14, con un 23,93 % de volatilidad. Hoy se le hace una pregunta que el capítulo 7 no hizo.<\/p>"}, {"titulo": "La mínima varianza pierde más que el comité en el 1 % de los peores días", "seccion": "Antes de calcular", "k": 0, "notas": "<p>Preguntar antes de seguir: ¿cómo puede la cartera de mínimo riesgo perder más? Dejar la pregunta abierta: la sección 1 la responde. No es una paradoja: es lo que pasa cuando se optimiza una medida que trata igual las dos colas. Es el gancho de la portada del material.<\/p>"}, {"titulo": "Tres convenciones se declaran antes de calcular", "seccion": "Antes de calcular", "k": 0, "notas": "<p>La segunda es la primera excepción declarada a una convención del curso; la brecha es de 30 millones al 97,5 % y de 884 al 99 %, la misma que midió el capítulo 5. La tercera es la séptima convención del curso (capítulo 7): los logarítmicos no agregan entre activos. El capítulo la conserva porque es lo que el programa lineal minimiza, e imprime la columna exacta en la sección 3. La sesión 2 abre con ella.<\/p>"}, {"titulo": "Por qué la cola y no la varianza", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Ocho de esos veinte días son de marzo a junio de 2020 y siete de 2022; de 2018, 2019, 2021 y 2024 no hay ni uno. La gráfica llega en cuatro diapositivas.<\/p>"}, {"titulo": "El cuadrado borra el signo: un +5 % pesa lo mismo que un −5 %", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Las cinco piezas bajo la fórmula se abren con un clic, y un clic fuera las cierra. En la vista del presentador y en el PDF no se ven, así que aquí van las mismas explicaciones:<\/p>\n<ul>\n<li><strong>σ²ₚ(w)<\/strong>: la varianza de la cartera, el riesgo que minimizó el capítulo 7. Su raíz anualizada es la volatilidad: 25,02 % la declarada y 23,93 % la de mínima varianza.<\/li>\n<li><strong>1/S · Σ<\/strong>: el promedio sobre las S = 1 916 ruedas, todas con el mismo peso.<\/li>\n<li><strong>w⊤rₛ<\/strong>: el retorno de la cartera en la rueda s, en la convención w′μ. El 16/03/2020 valió −17,760 %.<\/li>\n<li><strong>r̄ₚ<\/strong>: el retorno medio de la cartera, la referencia de cada desviación. Anualizado, 7,69 % la declarada.<\/li>\n<li><strong>El cuadrado<\/strong>: un día 5 puntos arriba del promedio y otro 5 abajo aportan lo mismo, 25.<\/li>\n<\/ul>\n<p>La fórmula está escrita sobre los escenarios y no sobre Σ a propósito, para compararla de tú a tú con la siguiente. Con una distribución simétrica no importaría, porque las dos colas son la misma; con la curtosis de exceso de 25,77 que midió el capítulo 5, importa bastante.<\/p>"}, {"titulo": "El CVaR mira un solo lado, y solo el peor", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Las cinco piezas bajo la fórmula se abren con un clic, y un clic fuera las cierra. En la vista del presentador y en el PDF no se ven, así que aquí van las mismas explicaciones:<\/p>\n<ul>\n<li><strong>CVaR(w)<\/strong>: lo que el capítulo va a minimizar, el promedio de las pérdidas de la cola. Al 97,5 %, 4,731 % la declarada y 4,607 % la de mínima varianza.<\/li>\n<li><strong>𝔼[· | ·]<\/strong>: un promedio condicionado; la barra se lee «dado que». El nivel pide 47,9 ruedas y el panel tiene 48, y esa décima de rueda vale 30 millones.<\/li>\n<li><strong>L(w) ≥ VaR(w)<\/strong>: la condición, quién entra en la cola. En la declarada, 48 de las 1 916 ruedas.<\/li>\n<li><strong>VaR(w)<\/strong>: el corte al nivel α. Vale 2,958 % en la declarada y 2,643 % en la de mínima varianza.<\/li>\n<li><strong>L(w) = −w⊤r<\/strong>: la pérdida, el retorno con el signo cambiado. El 16/03/2020, que rindió −17,760 %, entra como una pérdida de 17,760 %.<\/li>\n<\/ul>\n<p><em>Conditional Value at Risk<\/em> (valor en riesgo condicional): el <em>Expected Shortfall<\/em> del capítulo 5, que aquí se usa por primera vez como función objetivo y no como medida. Para la transición: la fórmula necesita un VaR, y ese VaR depende de w. Pedir que lo anoten, porque es el problema de la sección 2. E insistir en que estas letras —w, rₛ, L, α, VaR— no cambian de significado en ninguna de las cinco secciones.<\/p>"}, {"titulo": "Dos promedios de la misma cola: el divisor es 48 o 47,9", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Por qué no se puede usar aquí la convención del capítulo 5: un promedio sobre un conjunto que cambia de tamaño a saltos no es una función continua de los pesos, y un optimizador no sabe qué hacer con eso. Es la primera excepción declarada a una convención del curso.<\/p>"}, {"titulo": "El bloque calcula las dos versiones con la misma función", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Se quitaron los comentarios y la línea de <code>exacto<\/code> se partió en dos para que quepa: el bloque completo, con las veinte peores ruedas y las dos carteras, está en la sección 1. El VaR sale de <code>np.quantile<\/code>, que interpola; la sección 2 muestra por qué ese detalle cambia el cuarto decimal.<\/p>"}, {"titulo": "Veinte días deciden el CVaR al 99 %, y ninguno es de 2018, 2019, 2021 ni 2024", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Fijarse en la segunda barra: el 19 de febrero de 2025, la segunda peor rueda del panel. Es la mitad del par de cotizaciones defectuosas que diagnosticó el capítulo 4, que el manifiesto declara y no corrige. La sesión 2 mide cuánto mueve la cola: 3 777 millones al 99 %.<\/p>"}, {"titulo": "La mínima varianza protege mejor el hombro y peor el extremo", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Minimizar la dispersión mejoró el centro y el hombro de la distribución y no hizo nada por el extremo. En el extremo no manda la covarianza: mandan cuatro días de marzo de 2020 en que los cuatro emisores cayeron a la vez, y contra eso no hay diversificación que valga. Las cifras salen del cuantil interpolado de la sección 1.<\/p>"}, {"titulo": "¿Cuánto vale la brecha al 99 %?", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Dar tres minutos con calculadora. Fijarse en el signo: el exacto es MAYOR, porque las 19 ruedas que entran enteras son peores que la vigésima, y promediarlas entre 20 las diluye. Al 97,5 % la misma cuenta da 30 millones. En el material es el R1 de la sección 1, una tabla para completar.<\/p>"}, {"titulo": "¿Por qué cambia el signo al 99 %?", "seccion": "Por qué la cola y no la varianza", "k": 1, "notas": "<p>Los distractores del material: «tiene menos retorno esperado», «con 19,16 ruedas el orden es un empate estadístico» y «es un sesgo de la convención del capítulo 5». El segundo es el más tentador, y el material lo da por falso: la pregunta es por el mecanismo, y la fragilidad del estimador se discute en la sección 5, que se ve en la sesión 2.<\/p>"}, {"titulo": "La formulación de Rockafellar-Uryasev", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Un cuantil no es convexo ni derivable en w: optimizarlo directamente es un problema combinatorio.<\/p>"}, {"titulo": "Para saber qué hay en la cola hace falta el VaR, y el VaR depende de los pesos", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Antes de pasar, pedir ideas: ¿cómo romperían el círculo? Alguien suele proponer fijar la cola con la cartera actual; guardar esa propuesta, porque es el R3 del final de la sesión.<\/p>"}, {"titulo": "F suma lo que cada escenario se pasa de un corte que uno propone", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Rockafellar y Uryasev, «Optimization of conditional value-at-risk», Journal of Risk, 2000. Lo que hizo época no fue la medida, que ya existía, sino esta función auxiliar, que la volvió optimizable.<\/p>"}, {"titulo": "Cada término de F hace un trabajo distinto", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>En el mínimo aportan 47 y no 48: el escenario 48 ES el corte, y se pasa de sí mismo en cero. Que el divisor esté fijo es lo que conserva la convexidad: si fuera «las que hay sobre el corte», cambiaría con ζ.<\/p>"}, {"titulo": "F cae rápido, sube despacio, y su mínimo es el CVaR", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>4,7311 % son 37 849 millones en la convención. El cuantil interpolado, 2,9577 %, está tan cerca que en esta escala los dos puntos se tocan. Preguntar por qué la curva es asimétrica: por la izquierda, un corte demasiado bajo deja demasiados excesos que promediar.<\/p>"}, {"titulo": "La derivada se anula donde quedan (1 − α)S ruedas por encima del corte", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Son los pasos 1 a 3 de la derivación de la sección 2. La convexidad también es conjunta en w y ζ, y eso es lo que permite optimizar las dos cosas a la vez. Con datos, la derivada salta de negativa a positiva sin pasar por cero, porque 47,9 no es entero: el mínimo cae en un escenario concreto.<\/p>"}, {"titulo": "Al sustituir el VaR, F devuelve el promedio de la cola", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Es el paso 4 de la derivación, y con él se cierra el círculo: el corte deja de estimarse antes y pasa a resolverse dentro. Guardar «de una simulación» para la sesión 2: el R3 de la sección 5 muestra qué pasa cuando la simulación sale de una normal.<\/p>"}, {"titulo": "Con datos, el mínimo cae en un escenario: 2,9601 % y no 2,9577 %", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Se quitaron los comentarios y se dejaron solo cuatro de los trece cortes que imprime el bloque, los que rodean el mínimo; la tabla completa está en la sección 2. La columna de la derecha cuenta los escenarios que superan el corte: el mínimo cae donde esa cuenta cruza las 47,9. Es el patrón de siempre en el curso: la convención se queda y al lado se imprime lo que cuesta.<\/p>"}, {"titulo": "El mínimo es plano: equivocarse en el VaR sale barato", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Es la caja «Una consecuencia práctica de que el mínimo sea tan plano», de la sección 2. Adelanta la cifra de la sección 3 para que no sorprenda cuando aparezca.<\/p>"}, {"titulo": "¿Qué corte gana?", "seccion": "La formulación de Rockafellar-Uryasev", "k": 2, "notas": "<p>Dar tres o cuatro minutos. Con 1 916 escenarios el tramo se estrecha hasta casi un punto, pero el fenómeno es el mismo. Es el R1 de la sección 2, que en el material es una tabla para completar.<\/p>"}, {"titulo": "Implementación por escenarios", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Lo difícil no es escribirlo, sino darse cuenta de que se podía escribir así.<\/p>"}, {"titulo": "Un máximo es el mínimo de un conjunto", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>F tiene 1 916 máximos dentro, y un máximo no es lineal; el programa de abajo no tiene ninguno. Preguntar: ¿cuál es el menor número que es a la vez mayor o igual que x y mayor o igual que cero? Es el paso 1 de la derivación de la sección 3.<\/p>"}, {"titulo": "Se sustituye cada máximo y se aplanan las dos minimizaciones en una", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Son los pasos 2 y 3 de la derivación. Ningún solucionador acepta un mínimo dentro del objetivo; aplanar es lo que lo vuelve un problema estándar.<\/p>"}, {"titulo": "El cambio es exacto porque cada u entra con coeficiente positivo y se minimiza", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Es el paso 4. La maniobra se llama reformulación epigráfica, y el mismo paso convierte en programa lineal la regresión en valor absoluto y la minimización del error máximo. Lo que aportaron Rockafellar y Uryasev fue darse cuenta de que el CVaR admite una F a la que se le puede aplicar.<\/p>"}, {"titulo": "El programa entero no tiene un solo término cuadrático", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Esto lo separa del capítulo 7 en algo más que la forma. Fijarse en lo que falta: no hay restricción de retorno. Este programa busca la cola más pequeña sin preguntar cuánto rinde la cartera; la restricción de retorno llega en la sección 4.<\/p>"}, {"titulo": "Tiene 1 921 variables, y 1 916 son andamio", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Las 1 916 u son el 99,7 % del problema y no le interesan a nadie. Sin u ≥ 0, un escenario bueno restaría de la cola y el problema no tendría mínimo. Es la anatomía del programa de la sección 3.<\/p>"}, {"titulo": "En cvxpy, el programa se escribe casi como la fórmula", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Se quitaron los dos comentarios de las restricciones; el bloque entero, con la tabla de las tres carteras y la columna exacta, está en la sección 3. HiGHS es el solucionador lineal que trae cvxpy. Resuelve las 1 921 variables en menos de un segundo.<\/p>"}, {"titulo": "lpSolve no admite variables libres, así que ζ se parte en dos", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Esta es la única diapositiva de la sesión con R, y está por una razón: el <code>1, -1<\/code> de la primera línea y la resta de la última son el truco estándar para meter una variable libre en un solucionador que solo admite variables no negativas. Aquí no cambia nada, porque el corte sale positivo y ζ⁻ se queda en cero. Se quitaron los comentarios; el bloque entero está en la sección 3. Dos solucionadores que no comparten una línea de código devuelven los mismos pesos con dos decimales.<\/p>"}, {"titulo": "La mínima CVaR se parece más a la mínima varianza que a la declarada", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Los pesos son 19,36 · 34,61 · 16,43 · 29,60: baja el Banco de Bogotá del 38,13 % al 34,61 % y sube ISA del 25,14 % al 29,60 %. Ganó cola y pagó 0,07 pp de volatilidad. Lo que vale esa mejora en pesos se deja para la sesión 2, con su columna exacta. Estos CVaR salen del estadístico de orden de la sección 3; a cuatro decimales, el de la declarada coincide con el de la sección 1.<\/p>"}, {"titulo": "¿Qué hace mal este código?", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Se quitaron los <code>import<\/code>, el <code>print<\/code> final y las líneas que leen el panel y fijan <code>w0<\/code> y <code>alfa<\/code> al 97,5 %; en el material la línea defectuosa es la 12. Ojo con clasificarlo como «supuesto no verificado»: no se aplicó ninguna fórmula fuera de su condición, se calculó una magnitud y se reportó como si fuera otra. Es justo el círculo que ζ rompe. La brecha son 2,2786 pp, más de 18 200 millones en la convención, y ninguna comprobación de forma la habría detectado. Los R3 son de nivel 1: sin IA.<\/p>"}, {"titulo": "¿Qué le pasa al programa con diez mil escenarios más?", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Si el tiempo no alcanza, esta se salta. Sirve de puente a la sesión 2: el R3 de la sección 5 hace exactamente eso, con cien mil escenarios de una normal.<\/p>"}, {"titulo": "Lo que se llevan hoy", "seccion": "Implementación por escenarios", "k": 3, "notas": "<p>Para la próxima sesión: leer las secciones 4 y 5 del material y mover el laboratorio del nivel α, el R9 de la sección 4. La sesión 2 abre con lo que vale en pesos esta cartera, y con una advertencia sobre esa cifra.<\/p>"}], "secciones": [{"titulo": "Antes de calcular", "icono": "BookOpen", "primera": 2, "diapos": [2, 3, 4]}, {"titulo": "Por qué la cola y no la varianza", "icono": "Activity", "primera": 5, "diapos": [5, 6, 7, 8, 9, 10, 11, 12, 13]}, {"titulo": "La formulación de Rockafellar-Uryasev", "icono": "Calculator", "primera": 14, "diapos": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]}, {"titulo": "Implementación por escenarios", "icono": "Cpu", "primera": 24, "diapos": [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]}], "iconos": {"BookOpen": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"/>\n                    <path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"/>\n                <\/svg>", "Binary": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2\"/>\n                    <line x1=\"6\" y1=\"7\" x2=\"10\" y2=\"7\"/><line x1=\"8\" y1=\"5\" x2=\"8\" y2=\"9\"/>\n                    <line x1=\"14\" y1=\"7\" x2=\"18\" y2=\"7\"/>\n                    <line x1=\"6\" y1=\"13\" x2=\"10\" y2=\"13\"/><line x1=\"6\" y1=\"17\" x2=\"10\" y2=\"17\"/><line x1=\"14\" y1=\"17\" x2=\"18\" y2=\"17\"/>\n                    <line x1=\"14\" y1=\"13\" x2=\"18\" y2=\"13\"/><line x1=\"16\" y1=\"11\" x2=\"16\" y2=\"15\"/>\n                <\/svg>", "Cpu": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/>\n                    <rect x=\"9\" y=\"9\" width=\"6\" height=\"6\"/>\n                    <path d=\"M9 2v2\"/><path d=\"M15 2v2\"/><path d=\"M9 20v2\"/><path d=\"M15 20v2\"/>\n                    <path d=\"M2 9h2\"/><path d=\"M2 15h2\"/><path d=\"M20 9h2\"/><path d=\"M20 15h2\"/>\n                <\/svg>", "Calculator": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\"/>\n                    <line x1=\"8\" y1=\"6\" x2=\"16\" y2=\"6\"/><line x1=\"8\" y1=\"10\" x2=\"8\" y2=\"14\"/>\n                    <line x1=\"12\" y1=\"10\" x2=\"12\" y2=\"14\"/><line x1=\"16\" y1=\"10\" x2=\"16\" y2=\"14\"/>\n                    <line x1=\"8\" y1=\"18\" x2=\"16\" y2=\"18\"/>\n                <\/svg>", "Award": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <circle cx=\"12\" cy=\"8\" r=\"7\"/>\n                    <polyline points=\"8.21 13.89 7 23 12 20 17 23 15.79 13.88\"/>\n                <\/svg>", "HelpCircle": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <circle cx=\"12\" cy=\"12\" r=\"10\"/>\n                    <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/>\n                    <line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/>\n                <\/svg>", "TrendingUp": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polyline points=\"23 6 13.5 15.5 8.5 10.5 1 18\"/>\n                    <polyline points=\"17 6 23 6 23 12\"/>\n                <\/svg>", "BarChart": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"10\"/>\n                    <line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"4\"/>\n                    <line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"16\"/>\n                <\/svg>", "Activity": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/>\n                <\/svg>", "Layers": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polygon points=\"12 2 2 7 12 12 22 7 12 2\"/><polyline points=\"2 17 12 22 22 17\"/><polyline points=\"2 12 12 17 22 12\"/>\n                <\/svg>", "Table": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/>\n                    <line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"/><line x1=\"10\" y1=\"9\" x2=\"10\" y2=\"21\"/>\n                <\/svg>", "Clock": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <circle cx=\"12\" cy=\"12\" r=\"10\"/>\n                    <polyline points=\"12 6 12 12 16 14\"/>\n                <\/svg>", "Bug": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"8\" y=\"6\" width=\"8\" height=\"14\" rx=\"4\"/>\n                    <path d=\"M8 12H3\"/><path d=\"M21 12h-5\"/><path d=\"M8 17l-4 3\"/><path d=\"M16 17l4 3\"/>\n                    <path d=\"M8 8L5 5\"/><path d=\"M16 8l3-3\"/>\n                <\/svg>", "Scale": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"21\"/>\n                    <line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"6\"/>\n                    <path d=\"M6 6 2 14a4 4 0 0 0 8 0z\"/>\n                    <path d=\"M18 6l-4 8a4 4 0 0 0 8 0z\"/>\n                <\/svg>", "Sliders": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <line x1=\"4\" y1=\"21\" x2=\"4\" y2=\"14\"/><line x1=\"4\" y1=\"10\" x2=\"4\" y2=\"3\"/>\n                    <line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"3\"/>\n                    <line x1=\"20\" y1=\"21\" x2=\"20\" y2=\"16\"/><line x1=\"20\" y1=\"12\" x2=\"20\" y2=\"3\"/>\n                    <line x1=\"1\" y1=\"14\" x2=\"7\" y2=\"14\"/><line x1=\"9\" y1=\"8\" x2=\"15\" y2=\"8\"/><line x1=\"17\" y1=\"16\" x2=\"23\" y2=\"16\"/>\n                <\/svg>", "ChevronLeft": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polyline points=\"15 18 9 12 15 6\"/>\n                <\/svg>", "ChevronRight": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polyline points=\"9 18 15 12 9 6\"/>\n                <\/svg>", "Workflow": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"3\" y=\"3\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"15\" y=\"15\" width=\"6\" height=\"6\" rx=\"1\"/>\n                    <path d=\"M9 6h3a3 3 0 0 1 3 3v6\"/><path d=\"M6 9v3a3 3 0 0 0 3 3h3\"/>\n                <\/svg>", "ArrowDownUp": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <path d=\"M7 3v18\"/><polyline points=\"3 7 7 3 11 7\"/>\n                    <path d=\"M17 21V3\"/><polyline points=\"13 17 17 21 21 17\"/>\n                <\/svg>", "GitBranch": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <line x1=\"6\" y1=\"3\" x2=\"6\" y2=\"15\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/>\n                    <path d=\"M18 9a9 9 0 0 1-9 9\"/>\n                <\/svg>", "Repeat": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <polyline points=\"17 1 21 5 17 9\"/><path d=\"M3 11V9a4 4 0 0 1 4-4h14\"/>\n                    <polyline points=\"7 23 3 19 7 15\"/><path d=\"M21 13v2a4 4 0 0 1-4 4H3\"/>\n                <\/svg>", "FileCode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/>\n                    <polyline points=\"10 12 8 14 10 16\"/><polyline points=\"14 12 16 14 14 16\"/>\n                <\/svg>", "Grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/>\n                    <line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"/><line x1=\"3\" y1=\"15\" x2=\"21\" y2=\"15\"/>\n                    <line x1=\"9\" y1=\"3\" x2=\"9\" y2=\"21\"/><line x1=\"15\" y1=\"3\" x2=\"15\" y2=\"21\"/>\n                <\/svg>", "FunctionSquare": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                    <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/>\n                    <path d=\"M9 17c0-4 1-9 3-9\"/><line x1=\"8\" y1=\"12\" x2=\"14\" y2=\"12\"/>\n                <\/svg>"}, "graficas": {"cap8-cola": {"data": [{"x": ["2020-03-16", "2025-02-19", "2020-03-09", "2020-03-18", "2020-03-12", "2023-08-31", "2025-07-21", "2022-06-07", "2022-05-09", "2022-09-23", "2020-06-11", "2025-04-08", "2020-04-01", "2020-04-21", "2022-06-15", "2025-12-03", "2020-05-04", "2022-08-31", "2022-06-09", "2022-06-08"], "y": [142079, 105335, 102163, 89897, 76692, 47141, 41038, 39520, 37406, 35702, 35052, 34935, 34774, 34497, 34127, 33742, 33525, 32799, 32786, 32628], "type": "bar", "marker": {"color": ["#B91C1C", "#3D008D", "#B91C1C", "#B91C1C", "#B91C1C", "#0E7490", "#3D008D", "#B45309", "#B45309", "#B45309", "#B91C1C", "#3D008D", "#B91C1C", "#B91C1C", "#B45309", "#3D008D", "#B91C1C", "#B45309", "#B45309", "#B45309"]}, "hovertemplate": "%{x}<br>%{y:,.0f} millones · %{customdata} %<extra><\/extra>", "customdata": ["17,76", "13,17", "12,77", "11,24", "9,59", "5,89", "5,13", "4,94", "4,68", "4,46", "4,38", "4,37", "4,35", "4,31", "4,27", "4,22", "4,19", "4,10", "4,10", "4,08"]}], "layout": {"separators": ",.", "margin": {"t": 30, "r": 16, "b": 80, "l": 70}, "xaxis": {"title": "", "type": "category", "tickangle": -60, "tickfont": {"size": 12}}, "yaxis": {"title": "Pérdida del día (millones)", "rangemode": "tozero"}, "showlegend": false}}, "cap8-fzeta": {"data": [{"x": [1, 1.5, 2, 2.25, 2.5, 2.75, 2.9577, 2.9601, 3, 3.5, 4, 5, 6], "y": [8.4453, 6.2761, 5.2777, 5.0035, 4.8389, 4.7502, 4.7312, 4.7311, 4.7326, 4.8361, 5.0866, 5.8464, 6.7207], "type": "scatter", "mode": "lines+markers", "name": "F(ζ)", "line": {"color": "#3D008D", "width": 2.6}, "marker": {"size": 6}, "hovertemplate": "ζ = %{x:.4f} %<br>F = %{y:.4f} %<extra><\/extra>"}, {"x": [2.9601], "y": [4.7311], "type": "scatter", "mode": "markers", "name": "el mínimo: el escenario 48 de la cola", "marker": {"color": "#ED1E79", "size": 15, "symbol": "circle-open", "line": {"width": 3}}, "hovertemplate": "ζ* = 2,9601 %<br>F = CVaR = 4,7311 %<extra><\/extra>"}], "layout": {"separators": ",.", "margin": {"t": 30, "r": 16, "b": 46, "l": 60}, "xaxis": {"title": "ζ · el corte que se propone (%)"}, "yaxis": {"title": "F(ζ) · el valor de la función (%)", "range": [4.4, 8.8]}, "legend": {"orientation": "h", "y": 1.14, "x": 0, "font": {"size": 14}}}}, "cap8-pesos": {"data": [{"x": ["Ecopetrol", "Banco de Bogotá", "Grupo Sura", "ISA"], "y": [30, 20, 25, 25], "type": "bar", "name": "Declarada 30/20/25/25", "marker": {"color": "#111827"}, "hovertemplate": "%{x}<br>%{y:.2f} %<extra><\/extra>"}, {"x": ["Ecopetrol", "Banco de Bogotá", "Grupo Sura", "ISA"], "y": [20.76, 38.13, 15.97, 25.14], "type": "bar", "name": "Mínima varianza", "marker": {"color": "#0E7490"}, "hovertemplate": "%{x}<br>%{y:.2f} %<extra><\/extra>"}, {"x": ["Ecopetrol", "Banco de Bogotá", "Grupo Sura", "ISA"], "y": [19.36, 34.61, 16.43, 29.6], "type": "bar", "name": "Mínima CVaR", "marker": {"color": "#ED1E79"}, "hovertemplate": "%{x}<br>%{y:.2f} %<extra><\/extra>"}], "layout": {"separators": ",.", "barmode": "group", "margin": {"t": 30, "r": 16, "b": 46, "l": 54}, "yaxis": {"title": "Peso (%)", "range": [0, 45]}, "legend": {"orientation": "h", "y": -0.18, "x": 0, "font": {"size": 14}}}}}}</script>
+
+    <script>
+    (() => {
+        'use strict';
+        const DATOS = JSON.parse(document.getElementById('datos-mazo').textContent);
+        const CFG = DATOS.config;
+        const params = new URLSearchParams(location.search);
+        const MODO_PRESENTADOR = params.has('presentador');
+        const MODO_REVISION = params.has('revisar');
+        const TODO_VISIBLE = params.has('todo');   // revela todos los pasos (capturas)
+        const CLAVE = (CFG.storageKey || 'lpcore') + '_diapositivas';
+
+        const mazo = document.getElementById('mazo');
+        const diapos = Array.from(mazo.querySelectorAll(':scope > .diapo'));
+        const N = diapos.length;
+        const $ = (id) => document.getElementById(id);
+
+        const leer = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+        const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
+
+        /* ---------- Resaltado de código, como `resaltar` de LP-CORE ------- */
+        // El pseudocódigo de Lógica de Programación Financiera: la misma gramática
+        // que registra el capítulo (Prism no la trae).
+        if (window.Prism && !Prism.languages.pseudo) {
+            Prism.languages.pseudo = {
+                'comment': { pattern: /\/\/.*/, greedy: true },
+                'string': { pattern: /"(?:[^"\\\n]|\\.)*"/, greedy: true },
+                'keyword': /\b(?:FinSi|FinMientras|FinPara|FinSegun|FinFuncion|FinProcedimiento|FinRepita|Inicio|Fin|Si|Entonces|SinoSi|Sino|Segun|Caso|DeOtroModo|Mientras|Hacer|Para|Repita|Hasta|Con|Paso|Leer|Escribir|Funcion|Procedimiento|Retornar|Llamar)\b/,
+                'builtin': /\b(?:Entero|Real|Cadena|Caracter|Logico|Arreglo|Matriz|Constante|Verdadero|Falso)\b/,
+                'function': /\b(?:Y|O|NO|MOD|DIV|abs|raiz|redondear|potencia|longitud)\b/,
+                'number': /\b\d+(?:\.\d+)?\b/,
+                'operator': /<-|←|>=|<=|<>|[+\-*\/=<>]/,
+                'punctuation': /[(),;\[\]]/,
+            };
+        }
+        const GRAMATICA = { pseudo: 'pseudo', pseudocodigo: 'pseudo', python: 'python', py: 'python', shell: 'bash', bash: 'bash', sh: 'bash', docker: 'docker', dockerfile: 'docker', yaml: 'yaml', yml: 'yaml', sql: 'sql', toml: 'toml', json: 'json', r: 'r', vba: 'visual-basic', js: 'javascript', javascript: 'javascript' };
+        const PREFIJO_SALIDA = { python: '#>', py: '#>', r: '#>', shell: '#>', bash: '#>', vba: "'>", pseudo: '//>', pseudocodigo: '//>' };
+        const escaparHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        const resaltarBloques = () => {
+            document.querySelectorAll('.codigo').forEach((bloque) => {
+                const code = bloque.querySelector('pre code');
+                if (!code || code.dataset.hecho) return;
+                const fuente = code.textContent;
+                bloque._fuente = fuente;
+                const lang = bloque.dataset.lang || 'text';
+                const nombre = GRAMATICA[lang];
+                const gram = nombre && window.Prism && Prism.languages[nombre];
+                let html = gram ? Prism.highlight(fuente, gram, nombre) : escaparHtml(fuente);
+                const pref = PREFIJO_SALIDA[lang];
+                const foco = new Set((bloque.dataset.foco || '').split(',').filter(Boolean).flatMap((r) => {
+                    const [a, b] = r.split('-').map(Number);
+                    return Array.from({ length: (b || a) - a + 1 }, (_, i) => a + i);
+                }));
+                html = html.split('\n').map((linea, i) => {
+                    const plano = linea.replace(/<[^>]*>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&').trimStart();
+                    const clases = ['linea'];
+                    if (pref && plano.startsWith(pref)) clases.push('lp-salida');
+                    if (foco.has(i + 1)) clases.push('foco');
+                    return `<span class="${clases.join(' ')}">${linea || ' '}</span>`;
+                }).join('\n');
+                code.innerHTML = html;
+                code.dataset.hecho = '1';
+                if (foco.size) bloque.classList.add('con-foco');
+            });
+        };
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-copiar');
+            if (!btn) return;
+            const bloque = btn.closest('.codigo');
+            const texto = bloque._fuente ?? bloque.querySelector('code').textContent;
+            navigator.clipboard.writeText(texto).then(() => {
+                btn.classList.add('copiado');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                setTimeout(() => { btn.classList.remove('copiado'); btn.innerHTML = '<i class="fas fa-copy"></i> Copiar'; }, 2000);
+            }).catch(() => { });
+        });
+
+        /* ---------- Gráficas de Plotly (solo si el mazo trae alguna) ---------- */
+        const dibujarGraficas = () => {
+            const nodos = document.querySelectorAll('.grafica[data-fuente]');
+            if (!nodos.length || !window.Plotly) return;
+            nodos.forEach((el) => {
+                if (el.dataset.hecha) return;
+                const g = DATOS.graficas[el.dataset.fuente];
+                if (!g) return;
+                const layout = Object.assign({}, g.layout || {}, {
+                    autosize: true,
+                    font: Object.assign({ size: 14, color: '#1E293B' }, (g.layout || {}).font || {}, { family: getComputedStyle(document.documentElement).getPropertyValue('--fuente').trim() || 'Montserrat, sans-serif' }),
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                });
+                delete layout.width; delete layout.height;
+                // Con la tipografía del curso las etiquetas miden otra cosa que
+                // en el material: que cada eje reserve su propio margen.
+                Object.keys(layout).filter((k) => /^[xy]axis\d*$/.test(k)).forEach((k) => {
+                    layout[k] = Object.assign({}, layout[k], { automargin: true });
+                });
+                Plotly.newPlot(el, g.data, layout, { displayModeBar: false, responsive: true });
+                el.dataset.hecha = '1';
+            });
+        };
+
+        /* ---------- Ajuste: lo que no cabe se encoge, hasta un límite ---------- */
+        const K_MIN = 0.7;
+        const desborda = (d) => {
+            const c = d.querySelector('.cuerpo');
+            if (!c) return false;
+            if (c.scrollHeight > c.clientHeight + 2) return true;
+            if (Array.from(c.querySelectorAll('pre')).some((el) => el.scrollHeight > el.clientHeight + 2)) return true;
+            if (Array.from(c.querySelectorAll('pre, table, .tarjetas, .flujo, .columnas')).some((el) => el.scrollWidth > el.clientWidth + 2)) return true;
+            // Una fórmula, una imagen o un diagrama más anchos que su columna no
+            // agrandan la rejilla: invaden la columna de al lado. Se mide contra
+            // la caja que los contiene.
+            return Array.from(c.querySelectorAll('mjx-container, img, svg, .grafica')).some((el) => {
+                if (el.closest('.codigo')) return false;
+                if (el.tagName.toLowerCase() === 'svg' && el.parentElement && el.parentElement.closest('mjx-container, .grafica, svg')) return false;
+                const marco = el.closest('.columnas > *, .tarjeta, .caja, td, th') || c;
+                const m = marco.getBoundingClientRect();
+                // MathJax deja el contenedor del ancho de la columna y desborda por dentro.
+                const r = (el.querySelector(':scope > svg, :scope > mjx-math') || el).getBoundingClientRect();
+                return r.width > 0 && (r.right > m.right + 2 || r.left < m.left - 2);
+            });
+        };
+
+        const ajustar = () => {
+            const informe = [];
+            diapos.forEach((d, i) => {
+                d.querySelectorAll(':scope > .aviso-revision').forEach((a) => a.remove());
+                let k = parseFloat(d.dataset.k || '1');
+                d.style.setProperty('--k', k);
+                while (desborda(d) && k > K_MIN + 1e-6) {
+                    k = Math.max(K_MIN, +(k - 0.03).toFixed(3));
+                    d.style.setProperty('--k', k);
+                }
+                const sigue = desborda(d);
+                if (sigue || k < 0.88) informe.push({ n: i + 1, titulo: DATOS.diapos[i].titulo, escala: k, desborda: sigue });
+                if (MODO_REVISION && (sigue || k < 0.88)) {
+                    const a = document.createElement('div');
+                    a.className = 'aviso-revision';
+                    a.textContent = sigue ? 'NO CABE' : `encogida a ${Math.round(k * 100)} %`;
+                    d.appendChild(a);
+                }
+            });
+            return informe;
+        };
+
+        /* ---------- Escala del lienzo ---------- */
+        const escalar = () => {
+            if (MODO_PRESENTADOR) return escalarPresentador();
+            const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+            mazo.style.transform = `translate(-50%, -50%) scale(${s})`;
+        };
+
+        /* ---------- Estado ---------- */
+        const inicial = () => {
+            const h = parseInt(location.hash.replace('#', ''), 10);
+            if (Number.isInteger(h) && h >= 1 && h <= N) return h - 1;
+            const g = parseInt(leer(CLAVE), 10);
+            return Number.isInteger(g) && g >= 0 && g < N ? g : 0;
+        };
+
+        let actual = -1;
+        let paso = 0;
+        const pasosDe = (i) => Array.from(diapos[i].querySelectorAll('.paso'));
+
+        const canal = ('BroadcastChannel' in window) ? new BroadcastChannel('diapositivas-' + CLAVE) : null;
+        let silencio = false;
+
+        const mostrar = (i, p = 0, emitir = true) => {
+            i = Math.max(0, Math.min(N - 1, i));
+            if (i !== actual) {
+                diapos.forEach((d, j) => d.classList.toggle('activa', j === i));
+                actual = i;
+            }
+            const pasos = pasosDe(i);
+            paso = (p < 0 || TODO_VISIBLE) ? pasos.length : Math.min(p, pasos.length);
+            pasos.forEach((el, j) => el.classList.toggle('visto', j < paso));
+            const meta = DATOS.diapos[i];
+            $('progreso').firstElementChild.style.width = `${((i + 1) / N) * 100}%`;
+            $('contador').innerHTML = `${i + 1} / ${N}${meta.seccion ? ` <span>· ${meta.seccion}</span>` : ''}`;
+            $('btn-ant').disabled = i === 0 && paso === 0;
+            $('btn-sig').disabled = i === N - 1 && paso >= pasos.length;
+            $('notas').innerHTML = `<div class="etq-notas">Notas · ${i + 1}. ${meta.titulo || ''}</div>` + (meta.notas || '<p class="notas-vacias">Esta diapositiva no tiene notas.</p>');
+            if (!MODO_PRESENTADOR) {
+                if (location.hash !== '#' + (i + 1)) history.replaceState(null, '', '#' + (i + 1));
+                guardar(CLAVE, String(i));
+            }
+            pintarIndice();
+            if (MODO_PRESENTADOR) pintarPresentador();
+            if (emitir && canal && !silencio) canal.postMessage({ tipo: 'ir', i, paso });
+        };
+
+        const siguiente = () => {
+            const pasos = pasosDe(actual);
+            if (paso < pasos.length) return mostrar(actual, paso + 1);
+            if (actual < N - 1) mostrar(actual + 1, 0);
+        };
+
+        const anterior = () => {
+            if (paso > 0) return mostrar(actual, paso - 1);
+            if (actual > 0) mostrar(actual - 1, -1);
+        };
+
+        if (canal) {
+            canal.onmessage = (e) => {
+                const m = e.data || {};
+                silencio = true;
+                if (m.tipo === 'ir') mostrar(m.i, m.paso, false);
+                if (m.tipo === 'sig') siguiente();
+                if (m.tipo === 'ant') anterior();
+                silencio = false;
+                if ((m.tipo === 'sig' || m.tipo === 'ant') && canal) canal.postMessage({ tipo: 'ir', i: actual, paso });
+            };
+        }
+
+        /* ---------- Índice: la barra lateral del material ---------- */
+        const iconoSvg = (nombre) => (nombre && nombre.startsWith('fa-')) ? `<i class="fas ${nombre}"></i>`
+            : (DATOS.iconos[nombre] || DATOS.iconos.BookOpen || '<i class="fas fa-book-open"></i>');
+
+        const construirIndice = () => {
+            const ind = $('indice');
+            const secciones = DATOS.secciones;
+            let html = `<div class="cab">
+                <div class="institucion" style="font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)">${CFG.institucion || ''}</div>
+                <div style="font-size:18px;font-weight:700;margin-top:4px;line-height:1.25">${CFG.asignatura || ''}</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:5px">${CFG.unidad || 'Semana'} ${CFG.numero || ''} · <span style="color:var(--secondary);font-weight:600">${CFG.titulo || ''}</span></div>
+            </div><nav>`;
+            html += `<button class="item-seccion" data-ir="0">${iconoSvg('BookOpen')}<span>Portada</span></button>`;
+            secciones.forEach((s, k) => {
+                html += `<button class="item-seccion" data-seccion="${k}" data-ir="${s.primera}">${iconoSvg(s.icono)}<span>${s.titulo}</span></button>`;
+                html += `<div class="sub" data-sub="${k}">` + s.diapos.map((j) => `<button data-ir="${j}">${j + 1}. ${DATOS.diapos[j].titulo || '—'}</button>`).join('') + `</div>`;
+            });
+            html += `</nav><div class="pie-indice"><p style="margin:0">${CFG.ra || ''}${CFG.horas ? ' · ' + CFG.horas + ' horas' : ''}</p><p style="margin:4px 0 0">${Array.isArray(CFG.stack) ? CFG.stack.join(' · ') : (CFG.stack || '')}</p></div>`;
+            ind.innerHTML = html;
+            ind.addEventListener('click', (e) => {
+                const b = e.target.closest('[data-ir]');
+                if (!b) return;
+                mostrar(parseInt(b.dataset.ir, 10), 0);
+                document.body.classList.remove('con-indice');
+            });
+        };
+
+        const pintarIndice = () => {
+            const k = DATOS.diapos[actual].k;
+            document.querySelectorAll('#indice [data-seccion]').forEach((b) => b.classList.toggle('actual', +b.dataset.seccion === k));
+            document.querySelectorAll('#indice [data-sub]').forEach((s) => { s.style.display = +s.dataset.sub === k ? '' : 'none'; });
+            document.querySelectorAll('#indice .sub button').forEach((b) => b.classList.toggle('actual', +b.dataset.ir === actual));
+            const portada = document.querySelector('#indice [data-ir="0"].item-seccion');
+            if (portada) portada.classList.toggle('actual', k === -1);
+        };
+
+        /* ---------- Vista del presentador ---------- */
+        const t0 = Date.now();
+        const escalarPresentador = () => {
+            const hueco = $('p-hueco').getBoundingClientRect();
+            const s = Math.min(hueco.width / 1280, hueco.height / 720);
+            mazo.style.transform = `translate(-50%, -50%) scale(${s})`;
+            mazo.style.left = `${hueco.left + hueco.width / 2}px`;
+            mazo.style.top = `${hueco.top + hueco.height / 2}px`;
+            const vs = $('vista-siguiente');
+            const d = vs.firstElementChild;
+            if (d) d.style.transform = `scale(${vs.clientWidth / 1280})`;
+        };
+
+        const pintarPresentador = () => {
+            const meta = DATOS.diapos[actual];
+            $('p-contador').textContent = `${actual + 1} / ${N}`;
+            $('p-titulo').textContent = meta.titulo || '';
+            $('notas-presentador').innerHTML = meta.notas || '<p class="notas-vacias">Sin notas.</p>';
+            const vs = $('vista-siguiente');
+            vs.innerHTML = '';
+            const pasos = pasosDe(actual);
+            const fuente = paso < pasos.length ? diapos[actual] : diapos[actual + 1];
+            if (fuente) {
+                const copia = fuente.cloneNode(true);
+                copia.classList.add('activa');
+                copia.querySelectorAll('.grafica').forEach((g) => { g.innerHTML = ''; });
+                vs.appendChild(copia);
+            } else {
+                vs.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#64748B;font-weight:600">Fin de la presentación</div>';
+            }
+            escalarPresentador();
+        };
+
+        if (MODO_PRESENTADOR) {
+            document.body.classList.add('presentador');
+            setInterval(() => {
+                const s = Math.floor((Date.now() - t0) / 1000);
+                $('p-cronometro').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+                $('p-hora').textContent = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+            }, 1000);
+            mazo.style.boxShadow = 'none';
+            mazo.style.borderRadius = '10px';
+        }
+
+        /* ---------- Teclado, ratón y tacto ---------- */
+        let numero = '';
+        let tNumero = null;
+        const irA = $('ir-a');
+
+        const alternar = (clase, forzar) => {
+            const r = document.body.classList.toggle(clase, forzar);
+            const abierto = document.body.classList.contains('con-indice');
+            $('btn-menu').innerHTML = `<i class="fas ${abierto ? 'fa-times' : 'fa-bars'}"></i>`;
+            $('btn-menu').title = abierto ? 'Ocultar el índice (M)' : 'Índice (M)';
+            return r;
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const t = e.key;
+            if (/^[0-9]$/.test(t)) {
+                numero += t;
+                irA.textContent = `Ir a ${numero}`;
+                irA.style.display = 'block';
+                clearTimeout(tNumero);
+                tNumero = setTimeout(() => { numero = ''; irA.style.display = 'none'; }, 2500);
+                return;
+            }
+            if (t === 'Enter' && numero) {
+                mostrar(parseInt(numero, 10) - 1, 0);
+                numero = ''; irA.style.display = 'none';
+                e.preventDefault();
+                return;
+            }
+            switch (t) {
+                case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'Enter':
+                    e.preventDefault(); siguiente(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+                    e.preventDefault(); anterior(); break;
+                case 'Home': e.preventDefault(); mostrar(0, 0); break;
+                case 'End': e.preventDefault(); mostrar(N - 1, 0); break;
+                case 'm': case 'M': alternar('con-indice'); break;
+                case 'n': case 'N': alternar('con-notas'); break;
+                case 'b': case 'B': case '.': alternar('en-negro'); break;
+                case '?': case 'h': case 'H': alternar('con-ayuda'); break;
+                case 'f': case 'F':
+                    if (document.fullscreenElement) document.exitFullscreen();
+                    else document.documentElement.requestFullscreen().catch(() => { });
+                    break;
+                case 'p': case 'P':
+                    if (!MODO_PRESENTADOR) {
+                        const u = new URL(location.href);
+                        u.searchParams.set('presentador', '1');
+                        u.hash = '#' + (actual + 1);
+                        window.open(u.toString(), 'presentador-' + CLAVE, 'width=1280,height=760');
+                    }
+                    break;
+                case 'Escape':
+                    ['con-notas', 'con-ayuda', 'en-negro'].forEach((c) => document.body.classList.remove(c));
+                    alternar('con-indice', false);
+                    break;
+            }
+        });
+
+        $('btn-sig').addEventListener('click', siguiente);
+        $('btn-ant').addEventListener('click', anterior);
+        $('btn-menu').addEventListener('click', () => alternar('con-indice'));
+        $('velo').addEventListener('click', () => alternar('con-indice', false));
+        $('ayuda').addEventListener('click', () => alternar('con-ayuda', false));
+        $('negro').addEventListener('click', () => alternar('en-negro', false));
+
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest('.enlace-material');
+            if (!a) return;
+            // El material guarda la lección abierta en su `storageKey`: se deja
+            // apuntando a la sección y se abre. Así el enlace aterriza en ella.
+            if (a.dataset.indice && CFG.storageKey) guardar(CFG.storageKey, a.dataset.indice);
+        });
+
+        let tQuieto = null;
+        const despertar = () => {
+            document.body.classList.remove('quieto');
+            clearTimeout(tQuieto);
+            tQuieto = setTimeout(() => {
+                if (!document.body.classList.contains('con-indice')) document.body.classList.add('quieto');
+            }, 2800);
+        };
+        document.addEventListener('mousemove', despertar);
+        document.addEventListener('mousedown', despertar);
+
+        let x0 = null;
+        document.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            if (Math.abs(dx) > 50) (dx < 0 ? siguiente : anterior)();
+            x0 = null;
+        });
+
+        window.addEventListener('resize', escalar);
+        window.addEventListener('hashchange', () => {
+            const h = parseInt(location.hash.replace('#', ''), 10);
+            if (Number.isInteger(h) && h - 1 !== actual) mostrar(h - 1, 0);
+        });
+
+        /* ---------- Arranque ---------- */
+        if (MODO_REVISION) document.body.classList.add('revision');
+        construirIndice();
+        resaltarBloques();
+        escalar();
+        mostrar(inicial(), 0, false);
+        despertar();
+
+        // Se mide cuando todo tiene ya su tamaño final. MathJax llega `async`:
+        // aquí casi nunca ha cargado, y con las fuentes en caché `fonts.ready`
+        // se resolvía antes que él, así que las fórmulas se medían como una
+        // línea de TeX sin componer y el texto de debajo se salía al
+        // componerlas. En Chrome sin ventana, con las fuentes por descargar,
+        // salía bien por casualidad: `revisar.py` no lo veía. El `load` de la
+        // ventana espera al guion de MathJax (llegue o falle) y a las imágenes;
+        // después se espera a que MathJax componga.
+        const cargada = new Promise((r) => {
+            if (document.readyState === 'complete') r();
+            else window.addEventListener('load', r, { once: true });
+        });
+        const listo = cargada.then(() => Promise.all([
+            document.fonts ? document.fonts.ready : null,
+            window.MathJax && MathJax.startup ? MathJax.startup.promise.then(() => MathJax.typesetPromise ? MathJax.typesetPromise() : null).catch(() => { }) : null,
+        ]));
+        // Si algo tarda más que el plazo, se ajusta con lo que haya y se
+        // vuelve a ajustar al terminar; mientras tanto el informe es provisional.
+        const PLAZO_CARGA = 5000;
+        let completo = false;
+        const ajustarYInformar = () => {
+            dibujarGraficas();
+            const informe = ajustar();
+            if (window.Plotly) document.querySelectorAll('.grafica[data-hecha]').forEach((g) => { try { Plotly.Plots.resize(g); } catch (e) { } });
+            if (MODO_PRESENTADOR) pintarPresentador();
+            let pre = $('informe-revision');
+            if (!pre) {
+                pre = document.createElement('pre');
+                pre.id = 'informe-revision';
+                pre.hidden = true;
+                document.body.appendChild(pre);
+            }
+            pre.textContent = JSON.stringify(Object.assign({ total: N, avisos: informe }, completo ? {} : { provisional: true }));
+            if (MODO_REVISION) console.log('[revisión]', JSON.stringify(informe));
+        };
+        const plazo = setTimeout(ajustarYInformar, PLAZO_CARGA);
+        listo.then(() => {
+            clearTimeout(plazo);
+            completo = true;
+            ajustarYInformar();
+        });
+    })();
+    </script>
+</body>
+
+</html>
