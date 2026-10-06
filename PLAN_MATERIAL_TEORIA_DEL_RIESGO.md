@@ -1223,6 +1223,13 @@ fases, con auditoría en cuatro capas. **Propuesta pendiente de aprobación.** L
 que sale de su alcance: sus congeladores de cifras (fase B) quedan **canónicos**, y los
 capítulos 8 a 15 tendrán que reproducirlos.
 
+🟢 **La U2 tiene su instrumento calificado** (2026-10-05): `Material html/T2_TDR_Taller_unidad_2.html`,
+«El comité de inversiones», con el patrón del T1 —interactivo, individualizado por documento,
+sustentación oral sin IA— y dos ejes, el fondo y el TES. Ocupa el taller de unidad de la U2 que
+esta tarea conservaba: le quedan los quince de capítulo. Como el del T1, su plan, su clave y su
+rúbrica son privados (`talleres/clave/T2/`). Trae una regla de calificación nueva: **la nota del
+taller no pasa la de la sustentación en más de 1,0**.
+
 ✅ **Quarto estaba instalado desde el principio**, dentro de RStudio: la 1.9.38 en
 `/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto`. Siete registros
 seguidos anotaron «Quarto no está instalado» porque `which quarto` no lo encuentra —no está
@@ -2756,6 +2763,24 @@ ellos —congelar el SEN y cubrir con bonos a la par—; los demás se le presen
 **Lo que salió de recorrerlo, que no es del 10.** `OrdenaPasos` muestra la pista siempre, antes de
 intentar; `Motivacion` pinta el cuerpo antes del gancho; y una gráfica de barras horizontales con
 etiquetas largas no cabe en un teléfono. Están en `CLAUDE.md`.
+
+### Fase 5 — Tarea 22, en parte: el taller calificado de la unidad 2 · 2026-10-02 → 2026-10-05
+
+**Entregado:** `Material html/T2_TDR_Taller_unidad_2.html` (557 KB), su fuente
+`Material html/_plantilla/tr-taller2-contenido.jsx`, `armar_taller.py` generalizado con
+`--taller T1|T2` —el T1 sale idéntico al del armador anterior— y la tarjeta del portal. El
+congelador, el contraste en R, la clave, la rúbrica, el calificador, el verificador y la
+calibración están en `talleres/clave/T2/`, privado, con su registro en `PLAN_TDR-U2T.md`.
+
+**Decidido con el usuario:** capítulos 7 a 10, el formato del T1, en casa con IA declarada y
+bitácora más una sustentación oral sin IA al 35 % (2026-10-02); 5 horas en vez de 4, el tope por
+la oral, un recorte de unos 40 minutos en cinco preguntas y el bloque 0 en nivel 1 (2026-10-05).
+
+**Verificado:** las veinte reglas del verificador del taller y su autoprueba; el recorrido en
+Chrome, WebKit y Firefox sobre tres combinaciones, con laboratorios, andamios y entrega contra la
+clave; la entrega leída y sellada por el calificador; una calibración adversaria en tres pases y
+una revisión independiente. **Sin verificar: el tiempo.** Es un modelo —de 4 h 40 a 5 h 40— y
+nadie lo ha medido con una persona; lo medirá la duración que registran las entregas.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.

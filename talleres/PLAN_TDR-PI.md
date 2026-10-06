@@ -34,7 +34,8 @@ débil y la retira de donde es fuerte.
 ### Lo que NO entra
 
 - No sustituye a `TDR-U1.qmd`, que sigue siendo el instrumento calificado de la unidad 1.
-- No sustituye al taller de unidad 2 (tarea 22): ese sigue pendiente y es de práctica.
+- No sustituye al taller de la unidad 2, que es otro instrumento calificado con su propia
+  sustentación: el T2, `Material html/T2_TDR_Taller_unidad_2.html`, terminado el 2026-10-05.
 - No es el examen final presencial No-AI acumulativo, que sigue apoyándose en los quince
   cuestionarios integradores de los capítulos.
 - No incluye montaje en el aula virtual ni banco Moodle.

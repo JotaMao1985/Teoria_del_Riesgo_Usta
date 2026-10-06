@@ -21,6 +21,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
+| Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
 | 5 · Portal y Quarto | pendiente |
 
 Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
@@ -203,12 +204,37 @@ enlazado desde `index.html` desde el 2026-08-20. Su fuente, su clave y su rúbri
 `talleres/clave/`, que es **privado** y está en `.gitignore`; se retoma por
 `talleres/clave/ESTADO.md`.
 
+El instrumento calificado de la unidad 2 es **`Material html/T2_TDR_Taller_unidad_2.html`**
+(2026-10-05), enlazado desde `index.html` bajo la unidad 2: «El comité de inversiones», ocho
+bloques y veintitrés respuestas, 5 horas, individualizado por documento en **dos ejes** —su
+fondo, uno de seis vectores de pesos con el tope del 30 %, y su TES, uno de doce TES tasa fija
+reales del SEN, sin los de 2028, 2030 y 2034 que el curso ya publicó—. Se arma con
+`armar_taller.py --taller T2` desde `_plantilla/tr-taller2-contenido.jsx` y se verifica con
+`talleres/clave/verificar_taller.py --taller T2`: veinte reglas y `--autoprueba`. El congelador,
+la clave, la rúbrica y la lista de lo que `D` no puede traer viven en `talleres/clave/T2/`, que es
+**privado**; se retoma por `talleres/clave/T2/PLAN_TDR-U2T.md`.
+
+⚠️ **Lo que el T2 dejó medido, para el instrumento de la unidad 3.**
+
+- **El escrito no separa a quien resolvió de un modelo con el HTML delante.** Con solo el
+  archivo, la calibración respondió casi todo al nivel de la clave, como en el T1. Separan el
+  rastro —marcas de tiempo, registro de barrido—, la coherencia entre bloques y la sustentación.
+  Por eso **la nota del taller no pasa la de la sustentación en más de 1,0**:
+  `FINAL = 0,65 × min(taller, oral + 1,0) + 0,35 × oral`, decidido por el usuario el 2026-10-05
+  y dicho al estudiante en el taller. Con la oral en 2,0, la final no pasa de 2,65.
+- **`D` lleva las cifras de todas las combinaciones, y no solo informa el valor de un campo:
+  también su nombre y el grupo en que va.** Que unas cifras estuvieran en un grupo y otras no
+  señalaba respuestas. La lista blanca del armador y la regla 4 lo vigilan.
+- **El armador redondea todo flotante que calcula.** `sum()` de flotantes cambió en Python 3.12
+  y el HTML salía distinto con el `python3` del sistema (3.10) que con el del entorno; la regla 3
+  lo cazó. Hoy los dos arman el mismo archivo, byte a byte.
+
 ⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
 previa**; no se toca. Los **once** talleres de capítulo son práctica —`TDR-07.qmd` y
 `TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto;
 `TDR-11.qmd`, del 2026-08-25, es el tercero, `TDR-12.qmd`, del 2026-09-05, el cuarto, y
-`TDR-09.qmd`, del 2026-09-29, el quinto—. Las unidades 2 y 3 necesitan el suyo de unidad,
-y va en la tarea 22.
+`TDR-09.qmd`, del 2026-09-29, el quinto—. La unidad 2 tiene el suyo desde el 2026-10-05
+—el T2, arriba—; la 3 lo necesita, y va en la tarea 22.
 
 ⚠️ **El taller 7 se revisó el 2026-09-19 y el 8 el 2026-09-26, y por razones distintas: no dé
 por supuesto que un taller viejo está desincronizado.** El 7 lo estaba —el capítulo le había
