@@ -12,8 +12,9 @@ de riesgo, 7,00 % E.A.) · **fase 3 en curso: las tareas 12 y 13 —capítulos 7
 terminadas el 2026-08-24** · **la tarea 14 —capítulo 9— quedó terminada el 2026-09-29**, con
 `curva_tes.csv` congelada ese día desde el servicio REST del Banco de la República, y los
 **doce** capítulos pasan las diecisiete reglas con `--con-salidas` · **la tarea 15 —capítulo
-10— tiene el capítulo escrito desde el 2026-10-01**, con `RQuantLib` instalado y los cierres
-del SEN de diciembre de 2025 congelados; le falta su taller (ver el registro)
+10— quedó terminada el 2026-10-01** con su taller, `RQuantLib` instalado y los cierres del SEN
+de diciembre de 2025 congelados: la unidad 2 está completa y el **punto de control D espera la
+revisión del usuario**
 
 ---
 
@@ -642,9 +643,12 @@ curva y se contrasta con la historia; la sección 5 verifica contra una operaci�
 la sección 6 encontró que ninguna regla de liquidez obliga al fondo. Detalle en el registro.
 
 ### ✅ Punto de control D — Unidad 2 completa
-- [ ] Los diez capítulos pasan el verificador
+- [x] Los diez capítulos pasan el verificador — los doce escritos dan OK con `--con-salidas` el
+      2026-10-01, con las diecisiete reglas
 - [x] QuantLib se ejecuta de verdad en la regla 9, no queda declarado como omitido (capítulo 10, 2026-10-01)
-- [ ] Las 16 h del syllabus están cubiertas
+- [x] Las 16 h del syllabus están cubiertas — `CONFIG.horas` 5+3+4+4 = **16** en los capítulos 7
+      a 10, y los seis contenidos de la U2 tienen capítulo (C10 absorbe el 4, el 5 y el 6)
+- [ ] Revisión con el usuario
 
 ---
 
@@ -1159,7 +1163,7 @@ como pendiente separado.
 | ✅ 12 | C7 Portafolio y frontera eficiente · **terminada 2026-08-24** | M-L | 2 |
 | ✅ 13 | C8 Optimización CVaR · **terminada 2026-08-24** | M | 1 |
 | ✅ 14 | C9 Bonos, tasas y curvas · **terminada 2026-09-29** | M | 1 |
-| 🟡 15 | C10 Duración, convexidad y QuantLib · **capítulo escrito 2026-10-01; falta `TDR-10.qmd`** | M-L | 1 |
+| ✅ 15 | C10 Duración, convexidad y QuantLib · **terminada 2026-10-01** | M-L | 1 |
 
 → **Punto de control D** (definido en la sección 7)
 
@@ -2708,9 +2712,9 @@ evitado leer mal la curva desde el primer día.
 ### Fase 3 — Tarea 15: capítulo 10 · 2026-10-01
 
 **Entregado:** `Material html/10_TDR_Duracion_y_QuantLib.html` (353 KB), `datos/sen_tes_dic2025.csv`
-con su entrada en el manifiesto y en `descargar.py sen`, y `RQuantLib` en `entorno/instalar.R`.
-**Falta el taller `talleres/TDR-10.qmd`**, que todos los capítulos anteriores entregaron con el
-capítulo.
+con su entrada en el manifiesto y en `descargar.py sen`, `RQuantLib` en `entorno/instalar.R` y
+—el mismo día, después del commit del capítulo— `talleres/TDR-10.qmd`, renderizado con Quarto sin
+errores (ver «El taller», al final de esta entrada).
 
 **Lo que hubo que resolver antes de escribir.** `RQuantLib` no estaba en el `Rscript` del sistema
 y la regla de los dos lenguajes lo exigía. Con el R de Homebrew se compila desde fuente y necesita
@@ -2758,11 +2762,50 @@ ellos —congelar el SEN y cubrir con bonos a la par—; los demás se le presen
       en 4 de 15; reparto a:4 · b:4 · c:2 · d:5; ninguna marca da más de 4,5 de 15
 - [x] A 360 px ninguna fórmula se sale —dos se partieron— y las dos gráficas de barras se
       rehicieron para que quepan
-- [ ] `talleres/TDR-10.qmd`
+- [x] `talleres/TDR-10.qmd`, renderizado con Quarto sin errores; el andamio de la parte 1 imprime
+      las cifras del capítulo y el código de la auditoría corre sin avisos y devuelve lo que el
+      enunciado promete
 
 **Lo que salió de recorrerlo, que no es del 10.** `OrdenaPasos` muestra la pista siempre, antes de
 intentar; `Motivacion` pinta el cuerpo antes del gancho; y una gráfica de barras horizontales con
 etiquetas largas no cabe en un teléfono. Están en `CLAUDE.md`.
+
+**El taller.** `talleres/TDR-10.qmd` sigue el patrón del 9 —nivel 3 con bitácora, la parte 5 en
+nivel 1, el bono individualizado por documento, que es el mismo del taller 9— y añade tres cosas
+que el capítulo no midió, cada una sobre datos congelados:
+
+- **Parte 2 · la bala contra la barra.** El bono propio contra una barra del bono de dos años y un
+  cero a diez con su mismo valor y su misma duración. La barra tiene más convexidad y gana en
+  todo choque paralelo; contra los 275 meses gana entre el 54,6 y el 57,5 % de las veces según el
+  bono, con la curvatura detrás (correlación 0,71–0,84), y con la curva quieta la bala rinde 14 a
+  77 pb más al año contra 4 a 16 que la convexidad le devuelve a la barra, en los ochenta bonos
+  posibles: la pregunta de si el comité debe pagarla tiene respuesta medible.
+- **Parte 3 · la curva contra el SEN en los dieciséis TES.** El 30/12/2025 la curva se equivoca
+  más dentro de los vértices (50 pb de raíz del error cuadrático medio, 31 sin el TES de 2026) que
+  fuera (19), y el τ que mejor ajusta los largos es 3,6. Con él, el pasivo a treinta años del
+  taller 9 queda en unos 28 000 millones, donde los seis τ de ese taller daban de 23 471 a
+  141 445: es el dato que su pregunta 4.3 pedía. Antes, el estudiante recupera los dieciséis
+  cupones del propio archivo.
+- **Parte 4 · cuánto tarda en venderse el tramo.** Sin pasar del 20 % de cada rueda del SEN, el TES
+  de 2034 no se vende en diciembre (172 500 de 200 000), el de 2028 tarda cinco ruedas y el de 2030
+  diez. La medida de Roll no se separa de cero en los dos primeros y no está definida en el de 2034,
+  y el VaR a dos y tres meses va de 19 114 a 22 343 y de 23 413 a 28 677 según la fase.
+
+**La auditoría de la parte 5 es una trampa de RQuantLib que el capítulo no medía**: con un `calc`
+que no diga `durationType`, `FixedRateBond` devuelve la duración `"Simple"` —la de Macaulay, con
+capitalización anual— y no la modificada que su firma anuncia. El código del modelo cuida todas
+las convenciones del capítulo y reporta un DV01 de 199,40 donde es 176,91; la cobertura apenas se
+mueve (324 794 contra 325 499) y la prueba contra la historia prefiere la defectuosa por 0,04
+puntos de varianza. Decidir con el defecto es barato y reportar con él no, como en el capítulo 8.
+En Python no se reproduce —`BondFunctions.duration` devuelve la modificada por omisión—, y por eso
+el enunciado pide auditarlo en R tal como está.
+
+**Verificado:** el render con Quarto, sin errores ni avisos de consola en el navegador; el andamio
+de la parte 1, ejecutado tal cual, imprime las cifras del capítulo; el código de la auditoría corre
+sin avisos y devuelve 199,40 y 324 794, y corregido 176,91 y 325 499; una solución de referencia
+sobre el andamio reproduce todas las cifras de control del enunciado y responde las partes 1 a 5
+para el documento de ejemplo, y las de la parte 2 se barrieron en los ochenta bonos posibles. El
+portal lista el taller, y de paso el 9 y el 12, que faltaban en su lista.
 
 ### Fase 5 — Tarea 22, en parte: el taller calificado de la unidad 2 · 2026-10-02 → 2026-10-05
 

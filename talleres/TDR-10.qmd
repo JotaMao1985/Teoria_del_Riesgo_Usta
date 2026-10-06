@@ -1,0 +1,423 @@
+---
+title: "Taller 10 · Cuánto pierde el tramo, cómo se cubre y cuánto tarda en venderse"
+subtitle: "Teoría del Riesgo · Unidad 2 · RA5 · RA6"
+author: "NOMBRE Y DOCUMENTO — reemplace esta línea"
+date: today
+---
+
+```{r}
+#| label: preparacion
+#| include: false
+options(digits = 7)
+rutas <- c("../datos/curva_tes.csv", "../datos/sen_tes_dic2025.csv")
+stopifnot(file.exists(rutas))
+if (!requireNamespace("RQuantLib", quietly = TRUE))
+  stop("Falta RQuantLib, que la parte 5 necesita: instálelo con entorno/instalar.R")
+```
+
+## Antes de empezar {.unnumbered}
+
+::: {.callout-important}
+## Nivel de uso de IA: **3 · AI Collaboration**, con bitácora obligatoria
+
+Puede usar un modelo de lenguaje para explorar, para depurar y para redactar,
+**siempre que registre cada intercambio** en la bitácora de la parte 6. Un taller
+sin bitácora se califica sobre cero, y no por sospecha: la bitácora *es* uno de
+los productos evaluados.
+
+Lo que la IA no puede hacer por usted es la **parte 5**, que consiste
+precisamente en auditarla. Ese es el único apartado en nivel 1.
+:::
+
+::: {.callout-note}
+## Qué entrega
+
+Un archivo `TDR-10-Apellido.html` renderizado desde este `.qmd`, con todos los
+bloques ejecutados y sin errores. El código que no corra no se califica: no hay
+crédito parcial por intención.
+
+**Si prefiere Python**, cambie el encabezado a `jupyter: python3` y traduzca el
+andamio: `numpy`, `pandas`, `scipy.optimize.brentq` y `QuantLib` —el paquete se
+instala como `quantlib-python`— bastan para todo el taller. La excepción es la
+parte 5: el código que se audita está en R, y se audita en R tal como está.
+:::
+
+::: {.callout-warning}
+## Tres formas de arruinar una medida del riesgo de tasa antes del primer punto básico
+
+**Contar los días como los cuenta la librería.** Los TES cuentan en NL/365 —días
+reales sin el 29 de febrero— sobre las fechas del título sin ajustar, y la rueda
+de contado del SEN liquida en T+0: lo dicen las 6 199 operaciones de diciembre de
+2025. RQuantLib, si no se le dice otra cosa, pone cupón semestral, 30/360, el
+calendario del euro, pagos movidos al día hábil y T+1, y sobre una operación real
+del TES de 2034 eso son **2 266 millones** de más en 200 000 nominales. Declare
+las convenciones **por escrito, en la parte 1**, antes de calcular nada.
+
+**Leer la curva como continua.** La curva del Banco está en efectiva anual.
+`ZeroCurve`, en Python, la lee continua si no se le dice la capitalización, y la
+ruta `discountCurve` de RQuantLib la lee continua y en Actual/365: pasarle la
+curva tal cual le resta al tramo **14 487** o **14 597 millones**.
+
+**Creer que una cobertura que quita toda la varianza quitó todo el riesgo.** Con
+tres bonos a la par, la cobertura del capítulo deja una desviación mensual de
+**8 millones** donde había 8 339. El modelo de la curva tiene tres grados de
+libertad y tres instrumentos los cubren todos; nada obliga al mercado a tener
+solo tres.
+:::
+
+---
+
+## Parte 1 · Reproducir el capítulo
+
+Antes del primer cálculo, declare en cuatro líneas cómo cuenta los días, en qué
+capitalización lee la curva y reporta la TIR, en qué fecha liquida y con qué
+calendario. Todo lo que siga se juzga contra esa declaración.
+
+```{r}
+#| label: parte1-tramo
+curva <- read.csv("../datos/curva_tes.csv")
+hoy <- curva[nrow(curva), ]                 # el corte del 30/12/2025
+TAU <- hoy$tau_pesos                        # 3.7: lo fija el Banco
+
+cargas <- function(m, tau = TAU) {          # las tres formas de Nelson-Siegel
+  x <- m / tau
+  f <- (1 - exp(-x)) / x
+  rbind(1, f, f - exp(-x))
+}
+
+vert <- c(hoy$pesos_1a, hoy$pesos_5a, hoy$pesos_10a)
+curva_de <- function(v, tau = TAU) {        # la spot que pasa por los vértices v, % E.A.
+  beta <- solve(t(cargas(c(1, 5, 10), tau)), v)
+  function(m) as.vector(beta %*% cargas(m, tau))
+}
+spot <- curva_de(vert)
+
+flujos <- function(T, cupon) c(rep(cupon, T - 1), cupon + 100)
+precio_curva <- function(T, cupon, s = spot) {      # cada pago con la spot de su plazo
+  t <- 1:T
+  sum(flujos(T, cupon) * (1 + s(t) / 100)^(-t))
+}
+precio_tir <- function(y, T, cupon) sum(flujos(T, cupon) * (1 + y)^(-(1:T)))
+tir <- function(p, T, cupon)                # la tasa única que reproduce el precio, E.A.
+  uniroot(function(y) precio_tir(y, T, cupon) - p, c(-0.5, 1), tol = 1e-14)$root
+
+medidas <- function(T, cupon) {
+  t <- 1:T
+  p <- precio_curva(T, cupon)
+  y <- tir(p, T, cupon)
+  vp <- flujos(T, cupon) * (1 + y)^(-t)     # lo que pone cada pago en el precio
+  dmac <- sum(t * vp) / p
+  c(T = T, cupon = cupon, precio = p, tir = 100 * y, dmac = dmac,
+    dmod = dmac / (1 + y), conv = sum(t * (t + 1) * vp) / (p * (1 + y)^2))
+}
+
+NOMINAL <- 200000                           # millones por bono
+tramo <- rbind(medidas(2, 6.00), medidas(5, 7.75), medidas(10, 7.25))
+valor <- tramo[, "precio"] / 100 * NOMINAL
+round(tramo, 4)
+round(c(valor = sum(valor), dmod = sum(valor * tramo[, "dmod"]) / sum(valor),
+        dv01 = sum(valor * tramo[, "dmod"]) / 10000), 4)
+```
+
+**1.1** Compruebe que obtiene las cifras del capítulo: precios **90,0388 · 82,3327
+· 68,7718**, duraciones de Macaulay **1,9404 · 4,2542 · 6,8636** y modificadas
+**1,7343 · 3,7734 · 6,0736**, convexidades **4,6027 · 18,9761 · 51,4612**, y un
+tramo de **482 287 millones** con duración modificada **3,6681** y un DV01 de
+**176,91 millones** por punto básico. Después arme la tabla de la sección 2 —el
+cambio exacto del tramo y sus dos aproximaciones con ±50, ±100, ±200 y ±300 pb en
+la TIR de los tres bonos— y busque, en puntos básicos enteros, el primer choque en
+que el error de la aproximación de primer orden pasa de 1 000 millones, hacia
+arriba y hacia abajo. Explique por qué los dos umbrales no son iguales.
+
+**1.2** Compruebe la fórmula revalorando. Calcule la duración modificada y la
+convexidad del bono de diez años por **diferencias centradas** sobre su TIR, con
+pasos de 100, 10, 1, 0,1, 0,01 y 0,001 pb, y reporte el error de cada una contra
+la fórmula. ¿A partir de qué paso deja de mejorar cada medida, y por qué la
+convexidad deja de mejorar antes que la duración? Después mida el DV01 del tramo
+revalorando con +1 pb y con −1 pb, una vez en la TIR de los tres bonos y otra en
+la curva —los tres vértices a la vez—. El capítulo reporta **176,91** contra la
+TIR, que es la fórmula, y **176,21** contra la curva, que es la revaloración con
++1 pb. Explique por qué +1 y −1 no dan lo mismo, y de dónde sale la diferencia
+entre la TIR y la curva.
+
+**1.3** Mueva un vértice a la vez +1 pb, con τ fijo, y reproduzca la tabla de la
+sección 3: el tramo pierde **24,74 · 97,07 · 54,40 millones** y el vértice de cinco
+años carga el **55,1 %**. El bono de dos años **gana** 5,30 millones cuando sube el
+vértice de diez. Explíquelo con las tasas spot de dos, tres y cuatro años antes y
+después del movimiento, y diga qué enseña eso sobre una curva armada con tres
+vértices.
+
+**1.4** Reproduzca la cobertura: las tasas par **11,3000 · 12,6982 · 12,9601 %**,
+los nominales a vender —**326 781** millones del bono a la par de diez años,
+**498 901** del de cinco, o **162 028 + 205 351 + 165 281** de los tres— y la prueba
+contra los 275 cambios mensuales de los vértices, en la que la desviación pasa de
+**8 339** a **1 959**, **1 967** y **8 millones**, y el VaR mensual sin cubrir es
+**14 031** al 95 % y **18 139** al 99 %, con 13,75 y 2,75 meses en la cola. Explique
+en tres líneas, con la palabra «modelo» en la explicación, por qué esos 8 millones
+no quieren decir que la cobertura con tres bonos elimine el riesgo del tramo.
+
+---
+
+## Parte 2 · Su propio bono, en bala y en barra
+
+```{r}
+#| label: parte2-asignacion
+#| eval: false
+documento <- "1000123456"        # <- ponga el suyo, sin puntos ni guiones
+
+n_doc <- nchar(documento)
+d1 <- as.integer(substr(documento, n_doc, n_doc))
+d2 <- as.integer(substr(documento, n_doc - 1, n_doc - 1))
+
+cupon_suyo <- 5 + 0.5 * d1                  # entre 5,0 % y 9,5 %
+T_suyo     <- 3 + (d2 %% 8)                 # entre 3 y 10 años
+c(cupon = cupon_suyo, anios = T_suyo)
+```
+
+Es el mismo bono que valoró en el taller 9. Allí la pregunta era cuánto vale; aquí
+es cuánto se mueve, y si hay otra forma de tener el mismo riesgo.
+
+**2.1** Calcule su precio, su TIR efectiva, sus duraciones de Macaulay y
+modificada, su convexidad y su DV01 sobre 200 000 millones nominales. Después
+separe la diferencia de duración modificada con el bono de diez años del tramo en
+lo que pone el plazo y lo que pone el cupón: calcule las medidas de un bono con su
+plazo y el cupón de 7,25 %.
+
+**2.2** Arme una **barra** con el mismo valor de mercado que su bono —la **bala**—
+y su misma duración modificada, con dos instrumentos de la curva del 30/12/2025: el
+bono de dos años del tramo y un **cero a diez años**, que no existe en el mercado de
+TES pero la curva valora. Reporte cuánto pone en cada uno, en millones de valor y
+en nominal. **Antes de calcularla**, diga cuál de las dos carteras tiene más
+convexidad y por qué; después compruébelo. Revalore las dos con choques paralelos
+de ±50, ±100 y ±200 pb en la TIR de cada instrumento y diga cuál gana en cada uno.
+
+**2.3** Ahora con la historia: aplique a la curva de hoy los 275 cambios mensuales
+de los vértices, como en la sección 3 del capítulo, y revalore las dos carteras en
+cada uno. Reporte en cuántos meses gana la barra, la diferencia media y el peor mes
+de cada cartera. Después relacione la diferencia de cada mes con el cambio de la
+**curvatura** —dos veces el vértice de cinco años menos los otros dos—, con una
+correlación y una gráfica, y explique por qué la cartera con más convexidad no gana
+siempre.
+
+**2.4** La convexidad no es gratis. Mida lo que rinde cada cartera en un año **si la
+curva no se mueve**: el cupón cobrado más el precio, un año después, del mismo
+instrumento con un año menos de plazo sobre la misma curva, dividido por el precio
+de hoy. La diferencia es lo que una cartera le cede a la otra por su convexidad.
+Compárela con lo que la convexidad le habría devuelto a la barra en un año típico
+de la historia: la mitad de la diferencia de convexidades por doce veces la varianza
+de los cambios mensuales de la TIR de su bono en los 275 meses. Dé las dos cifras en
+puntos básicos y diga si el comité debería pagar esa convexidad.
+
+---
+
+## Parte 3 · La curva contra el mercado, plazo por plazo
+
+La sección 5 del capítulo comparó la curva del Banco con el SEN en los tres TES
+de los que el tramo tomó sus cupones, y encontró diferencias de −49, −31 y +33 pb.
+Tres TES son poca evidencia. El archivo trae los dieciséis TES tasa fija en pesos,
+y el 30/12/2025 se negociaron todos.
+
+El vencimiento lo trae el nemotécnico: `TFIT16181034` vence el 18/10/2034 —día, mes
+y año en los seis últimos dígitos—, y los pagos caen en sus aniversarios, sin
+ajustar. RQuantLib cuenta el plazo en NL/365 con `yearFraction(desde, hasta, 7)`.
+
+**3.1** El cupón no viene en el archivo: recupérelo. El sucio —el contravalor sobre
+el nominal, por cada 100— menos el limpio son los intereses causados, y sobre los
+días desde el último cupón en NL/365 dan la tasa. Calcúlelo en cada operación,
+tome la mediana de cada TES y compárela con la tabla de la sección 4 del capítulo.
+Diga en cuál de los dieciséis la estimación es menos precisa, y por qué ese.
+
+**3.2** Valore los dieciséis con la curva del 30/12/2025 —cada pago con la spot de su
+plazo en NL/365— y compare la TIR que les pone la curva con la mediana de las del
+SEN ese día. Compruebe primero que reproduce los −49, −31 y +33 pb del capítulo.
+Arme una tabla con el plazo, el número de operaciones del día, el rango de la TIR
+en el día, las dos TIR, la diferencia en puntos básicos y lo que vale esa
+diferencia en millones sobre 200 000 nominales. ¿Dónde se equivoca más la curva:
+entre los vértices o más allá del de diez años? ¿Es lo que esperaba después del
+taller 9?
+
+**3.3** Repita la tabla con los seis τ del taller 9 —1, 2, 3,7, 6, 10 y 15— y
+reporte, para cada uno, la raíz del error cuadrático medio en los TES de hasta diez
+años y en los de más. ¿Qué τ ajusta mejor los TES largos? Con ese τ, vuelva a
+valorar el pasivo de 1 000 000 de millones a treinta años del taller 9, y diga si
+eso responde la pregunta 4.3 de ese taller.
+
+**3.4** Explique en cinco líneas lo que encontró en 3.2 sobre dónde se equivoca más
+la curva, sabiendo que el Banco la ajusta con todos los TES negociados. Y diga por
+qué un τ elegido con los TES largos de un solo día no reemplaza el del Banco: cuente
+cuántas operaciones y qué rango de TIR hay detrás de cada uno.
+
+---
+
+## Parte 4 · ¿Cuánto tarda en venderse el tramo?
+
+La sección 6 del capítulo encontró que ninguna regla de liquidez —LCR, NSFR, IRL,
+CFEN— obliga al fondo. Eso no quiere decir que el tramo sea líquido. Sus tres bonos
+copian los cupones de tres TES reales —`TFIT16280428`, `TFIT16180930` y
+`TFIT16181034`, los de 2028, 2030 y 2034—, y el SEN dice cuánto se negoció de cada
+uno en diciembre. El SEN no es todo el mercado de TES —también se negocian y se
+registran en otros sistemas—, así que declare qué significa eso para cada cifra de
+esta parte.
+
+**4.1** Para cada uno de los tres, calcule el nominal negociado en cada una de las
+veinte ruedas de diciembre —también las que no tuvo operaciones— y reporte la
+mediana, el mínimo y en cuántas ruedas no se negoció. Si el fondo no quiere pasar
+del **20 %** de lo que se negocia cada día —un límite que usted declara, no una
+norma—, ¿cuántas ruedas tarda en vender los 200 000 millones nominales de cada uno,
+vendiendo en el orden de las ruedas de diciembre? ¿Cuál es el cuello de botella?
+
+**4.2** El costo de la prisa. La medida de Roll (1984) estima el diferencial entre
+compra y venta con los precios negociados: si cada operación cae al azar en la
+punta compradora o en la vendedora, dos cambios seguidos del precio tienden a tener
+signo contrario, y el diferencial es s = 2·√(−cov(Δpₜ, Δpₜ₋₁)). Calcúlela para los
+tres TES con los cambios del precio limpio dentro de cada rueda —el archivo viene en
+el orden de la hora de cierre— y conviértala en lo que cuesta vender 200 000
+millones nominales a medio diferencial. Reporte al lado la correlación entre los dos
+cambios y su error estándar aproximado, 1/√n. ¿Se puede afirmar que el diferencial
+no es cero? ¿Qué hace si en algún TES la covarianza sale positiva, y qué reportaría
+en su lugar?
+
+**4.3** Un VaR mensual supone que el tramo se puede vender en un mes. Con lo que
+encontró en 4.1, ¿es así? Calcule el VaR histórico al 95 % del tramo a uno, dos y
+tres meses con cambios de los vértices que no se solapen, en **todas** las fases
+posibles —a dos meses, empezando en el primer mes o en el segundo—, y reporte
+cuántas observaciones hay detrás de cada cifra. Compárelo con escalar los 14 031
+millones del capítulo por la raíz del horizonte.
+
+**4.4** Proponga al comité, en una frase, un límite de liquidez propio para el tramo
+—en ruedas de volumen del SEN, en nominal por título o como prefiera—, con la cifra
+de 4.1 que lo justifica, y diga qué haría con un título que ya lo exceda.
+
+---
+
+## Parte 5 · Audite a la IA {#sec-auditoria}
+
+::: {.callout-important}
+## Este apartado es de nivel 1 · No AI para la auditoría
+
+Puede pedirle a un modelo que **genere** el código defectuoso si quiere partir de
+uno propio, pero el diagnóstico, la cuantificación y la corrección los escribe
+usted. Registre en la bitácora cualquier intercambio.
+:::
+
+Le pidieron a un modelo el DV01 del tramo y la cobertura con el bono a la par de
+diez años, en RQuantLib y con las convenciones que enseñó el capítulo. Las cuidó
+todas: NL/365, cupón anual, fechas sin ajustar, T+0. El código corre, no lanza
+ningún aviso y devuelve un DV01 y una cobertura perfectamente plausibles.
+
+```{r}
+#| label: parte5-ia
+#| eval: false
+# --- generado por un modelo de lenguaje ---
+suppressPackageStartupMessages(library(RQuantLib))
+hoy <- as.Date("2025-12-30")
+invisible(setEvaluationDate(hoy))
+fechas <- seq(hoy, by = "year", length.out = 11)
+
+# Las convenciones del TES, como pide el capitulo 10: NL/365, cupon anual,
+# fechas sin ajustar, T+0. Nada queda en el valor por omision.
+tes <- function(T, cupon, precio) FixedRateBond(
+  bond = list(settlementDays = 0, issueDate = hoy, faceAmount = 100,
+              dayCounter = "Actual365NoLeap", paymentConvention = "Unadjusted"),
+  rates = cupon / 100,
+  schedule = list(effectiveDate = hoy, maturityDate = fechas[T + 1], period = "Annual",
+                  calendar = "WeekendsOnly", businessDayConvention = "Unadjusted",
+                  terminationDateConvention = "Unadjusted", dateGeneration = "Backward",
+                  endOfMonth = 0),
+  calc = list(dayCounter = "Actual365NoLeap", compounding = "Compounded", freq = "Annual"),
+  price = precio)
+
+# El tramo a los precios del capitulo, 200 000 millones nominales por bono
+bonos <- data.frame(T = c(2, 5, 10), cupon = c(6.00, 7.75, 7.25),
+                    precio = c(90.0388, 82.3327, 68.7718))
+dv01 <- 0
+for (i in seq_len(nrow(bonos))) {
+  r <- with(bonos[i, ], tes(T, cupon, precio))
+  valor <- r$cleanPrice / 100 * 200000                  # millones
+  dv01 <- dv01 + r$duration * valor / 10000             # duracion modificada x valor / 10 000
+}
+
+# La cobertura: el bono a la par de diez anios de la misma curva, que vale 100
+par10 <- tes(10, 12.960127, 100)
+nominal <- dv01 / (par10$duration / 10000)              # millones nominales a vender
+
+cat(sprintf("DV01 del tramo: %.2f millones por punto basico\n", dv01))
+cat(sprintf("Cobertura: vender %s millones nominales del bono a la par de 10 anios\n",
+            formatC(round(nominal), format = "d", big.mark = ",")))
+```
+
+Entregue los cuatro elementos:
+
+1. **Dónde** está el defecto: la línea exacta y qué supuesto viola.
+2. **De qué tipo** es, según la taxonomía del curso (supuesto no verificado,
+   confusión de medida, fuga de información, convención equivocada, estimador
+   inconsistente, resultado sin incertidumbre, interpretación indebida). Justifique
+   por qué es ese y no el vecino más plausible.
+3. **Cuánto cuesta**: corra el código tal como está y corregido, y ponga lado a lado
+   el DV01 y el nominal de la cobertura de las dos versiones. Después pase las dos
+   coberturas por los 275 cambios mensuales de la sección 3 y reporte cuánta
+   varianza quita cada una. Diga cuál de las dos cifras que el comité usaría —el
+   riesgo del tramo y el tamaño de la cobertura— depende del defecto, y cuánto.
+4. **Cómo se arregla**, con el código corregido corriendo y su salida.
+
+Y una quinta, que es la que separa una auditoría de una corrección: **por qué
+ninguna comprobación automática lo habría detectado**. Diga qué comprobación sí lo
+detecta y córrala.
+
+---
+
+## Parte 6 · Bitácora de prompts {#sec-bitacora}
+
+Una fila por intercambio con el modelo. Sin esta tabla el taller se califica sobre
+cero.
+
+| # | Qué le pidió | Qué devolvió | Qué hizo usted con eso |
+|---|---|---|---|
+| 1 |  |  |  |
+| 2 |  |  |  |
+
+La última columna es la que se lee con más atención. «Lo copié» es una respuesta
+válida si es verdad y si en la parte 5 se nota que lo revisó.
+
+---
+
+## Parte 7 · La medida, la cobertura y el acta
+
+**7.1** Arme la tabla de su bono: precio, TIR efectiva, duraciones de Macaulay y
+modificada, convexidad, DV01 sobre 200 000 millones nominales, la pérdida con
++100 pb —exacta y con las dos aproximaciones— y el nominal del bono a la par de
+diez años que lo cubre, con su sensibilidad a la curva como en la sección 3. Diez
+filas, con las unidades declaradas.
+
+**7.2** Escriba una **nota de una página** para el comité de inversiones, sin
+fórmulas y sin código, que responda a «¿cuánto puede perder el tramo de TES si las
+tasas suben, cómo se cubre y cuánto tarda en venderse?». Debe decir en qué
+convención se midió el riesgo y por qué esa, qué no ve la duración, qué cobertura
+recomienda y qué riesgo deja, y con qué horizonte calcularía el VaR después de lo
+que encontró en la parte 4.
+
+**7.3** La nota tiene que incluir, con sus palabras, una frase que explique por qué
+una cobertura que en el modelo quita toda la varianza no quita todo el riesgo.
+Escríbala de modo que la entienda alguien que no ha tomado el curso, y añada
+debajo, para el acta, la evidencia concreta de su propia parte 3 que la respalda.
+
+---
+
+## Rúbrica {.unnumbered}
+
+| Criterio | Peso |
+|---|---:|
+| Parte 1: convenciones declaradas **antes**; las cifras del capítulo reproducidas, los dos umbrales con su asimetría explicada, las diferencias finitas con el paso justificado y la cobertura leída como un resultado del modelo | 20 % |
+| Parte 2: bono propio medido, la convexidad anticipada antes de calcularla, la barra contra la bala en choques paralelos y en la historia, y el precio de la convexidad en puntos básicos | 15 % |
+| Parte 3: los cupones recuperados, los dieciséis TES contra la curva con sus operaciones y su rango, los seis τ y el pasivo del taller 9 revisado | 15 % |
+| Parte 4: las ruedas para vender con el límite declarado, el diferencial con su error o con su ausencia, el VaR a cada horizonte con sus fases y un límite propuesto | 15 % |
+| Parte 5: auditoría con los cinco elementos, incluidas las dos coberturas contra la historia | 15 % |
+| Parte 6: bitácora completa y honesta | 5 % |
+| Parte 7: tabla de diez filas, nota legible y la frase sobre la cobertura con su evidencia | 15 % |
+
+Se descuenta: reportar un DV01 o una duración sin la convención en que se midió;
+usar la duración de Macaulay como sensibilidad; presentar la cobertura con tres
+bonos como si eliminara el riesgo; escalar un VaR por la raíz del horizonte sin
+compararlo con las fases; reportar un estimador sin su error, o cuando no está
+definido; tomar el volumen del SEN por el de todo el mercado sin decirlo; y mezclar
+el precio limpio con el sucio.

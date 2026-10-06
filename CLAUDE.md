@@ -17,7 +17,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 0 · Fundación (T1–T5) | ✅ completada 2026-08-07 · punto de control A aprobado |
 | 1 · Piloto: capítulo 4 (VaR) — tarea 6 | ✅ completada 2026-08-08 · punto de control B **aprobado** |
 | 2 · Unidad 1 (T7–T11, 11-bis) | ✅ completada 2026-08-10 · los **seis capítulos** pasan las doce reglas · punto de control C **aprobado** |
-| 3 · Unidad 2 (T12–T15) | 🟡 casi · **T12 y T13, capítulos 7 y 8, terminadas el 2026-08-24** · **T14, capítulo 9, terminada el 2026-09-29** · **T15, capítulo 10, escrito el 2026-10-01** —falta su taller `TDR-10.qmd`— |
+| 3 · Unidad 2 (T12–T15) | ✅ las cuatro tareas terminadas · **T12 y T13, capítulos 7 y 8, el 2026-08-24** · **T14, capítulo 9, el 2026-09-29** · **T15, capítulo 10 y su taller, el 2026-10-01** · el punto de control D **espera la revisión del usuario** |
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
@@ -29,14 +29,14 @@ Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2
 declare `correcta`, la **16** vigila que ninguna marca tipográfica señale a la correcta, y la
 **17** que un `Emparejamiento` no deje sus parejas en su fila.
 
-✅ **El capítulo 10 —`10_TDR_Duracion_y_QuantLib.html`, 353 KB— está escrito desde el
-2026-10-01** y pasa las diecisiete reglas con `--con-salidas`: ocho bloques, dieciséis ejecutados,
-QuantLib en las dos pestañas (es el punto de control D: «QuantLib se ejecuta de verdad en la
-regla 9»). **`RQuantLib` 0.4.28 está instalado** en el `Rscript` del sistema, sobre QuantLib 1.43,
-la misma versión que `quantlib-python`, y declarado en `entorno/instalar.R`. A la tarea 15 le
-falta el taller **`talleres/TDR-10.qmd`**, que todos los capítulos anteriores entregaron con el
-capítulo. Lo siguiente que no depende de nada es la **tarea 18, el capítulo 13 (riesgo de
-crédito con ML: PD y scorecards)**, con `datos/german_credit.csv`.
+✅ **La tarea 15 está terminada desde el 2026-10-01: el capítulo 10 —`10_TDR_Duracion_y_QuantLib.html`,
+353 KB— y su taller, `talleres/TDR-10.qmd`.** El capítulo pasa las diecisiete reglas con
+`--con-salidas`: ocho bloques, dieciséis ejecutados, QuantLib en las dos pestañas (es el punto de
+control D: «QuantLib se ejecuta de verdad en la regla 9»). **`RQuantLib` 0.4.28 está instalado** en
+el `Rscript` del sistema, sobre QuantLib 1.43, la misma versión que `quantlib-python`, y declarado
+en `entorno/instalar.R`. Con eso la unidad 2 está completa y **el punto de control D espera la
+revisión del usuario**. Lo siguiente que no depende de nada es la **tarea 18, el capítulo 13
+(riesgo de crédito con ML: PD y scorecards)**, con `datos/german_credit.csv`.
 
 El **capítulo 9** abre la renta fija y **añade al fondo su tramo de TES**, que es una decisión
 declarada del curso y que el capítulo 10 hereda: tres bonos de estudio con la estructura de un
@@ -178,6 +178,41 @@ a modelos internos, sin límite. Antes de citar cualquiera de esas normas, contr
   se comen el área y los valores negativos se montan sobre ellas. El 10 pone nombres cortos y la
   cifra dentro de la etiqueta (`'Actual/360 · −482'`), sin texto sobre la barra.
 
+⚠️ **El taller 10 midió cuatro cosas que el capítulo no, y la primera es una trampa de RQuantLib
+que vale para cualquier código que pida una duración.**
+
+- **`FixedRateBond` cambia el tipo de duración según se le pase o no `calc`.** Sin `calc` devuelve
+  la modificada; con un `calc` que no diga `durationType` —que es lo que escribe quien declara
+  NL/365, como enseña el capítulo— devuelve la `"Simple"`, que con capitalización anual es la de
+  **Macaulay**. La ayuda se contradice: la firma dice `'Modified'` y la tabla de argumentos
+  `'Simple'`. Es la auditoría de la parte 5: el DV01 del tramo sale **199,40** en vez de 176,91 y
+  la cobertura **324 794** en vez de 325 499 —las dos por la TIR; la del capítulo, por la curva,
+  es 326 781—. Y la prueba contra la historia **prefiere el código defectuoso**: quita el 94,59 %
+  de la varianza contra el 94,55 %, porque la cobertura de mínima varianza de esos 275 meses es
+  de 298 689. El capítulo pasa `durationType = "Macaulay"` explícito y no lo sufre.
+- **La curva del Banco se equivoca más dentro de los vértices que fuera.** Contra los dieciséis
+  TES del SEN el 30/12/2025, la raíz del error cuadrático medio es de **50 pb hasta diez años**
+  —31 sin el TES de 2026, que tuvo una operación— **y 19 más allá**; con τ = 15 la de los largos
+  sube a 164, y el τ que mejor los ajusta es **3,6**. Con τ = 3,7 el pasivo a treinta años del
+  taller 9 vale **27 979 millones**, donde los seis τ de ese taller dan de 23 471 a 141 445: los
+  TES largos del SEN son el dato que su pregunta 4.3 pedía.
+- **El TES de 2034 no se vende en un mes.** En el SEN de diciembre se negociaron 22 000 millones
+  por rueda en la mediana; sin pasar del 20 % de cada rueda, en todo el mes se colocan 172 500 de
+  los 200 000 —el de 2028 tarda cinco ruedas y el de 2030 diez—. El VaR del tramo al 95 % a dos
+  meses va de **19 114 a 22 343** según la fase y a tres de **23 413 a 28 677**, con 137 y 91
+  observaciones; la raíz del horizonte da 19 843 y 24 302. La medida de Roll da 0,0221 y 0,0407
+  por cada 100 en el de 2028 y el de 2030, con correlaciones de −0,058 y −0,043 que no se separan
+  de cero, y en el de 2034 la covarianza sale **positiva**: ahí no está definida.
+- **Una barra con la misma duración que el bono propio gana en todo choque paralelo y pierde el
+  año.** Contra los 275 meses gana entre el 54,6 y el 57,5 % de las veces según el bono, y la
+  diferencia la explica la curvatura (correlación 0,71–0,84); con la curva quieta, la bala rinde
+  **14 a 77 pb** más al año y la convexidad le devuelve a la barra **4 a 16**, en los ochenta
+  bonos que puede tocarle a un estudiante.
+
+Y una de método: el paso de diferencias finitas con menor error en la convexidad **no es el mismo
+en R que en Python** —1 pb en uno, 0,1 en el otro—, porque por debajo manda el redondeo y cada
+lenguaje evalúa la potencia a su manera. El taller pregunta por el patrón, no por el dígito.
+
 ✅ **La centésima que el 11 dejó pendiente quedó explicada, y no era un error de nadie.**
 El árbol promediado de 991 a 1 000 da 213,0764 y Black-Scholes 213,0648, pero esos diez
 árboles van de **213,0436 a 213,1089**: su amplitud, 0,0653, es **5,6 veces la brecha**, y la
@@ -230,10 +265,10 @@ la clave, la rúbrica y la lista de lo que `D` no puede traer viven en `talleres
   lo cazó. Hoy los dos arman el mismo archivo, byte a byte.
 
 ⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
-previa**; no se toca. Los **once** talleres de capítulo son práctica —`TDR-07.qmd` y
+previa**; no se toca. Los **doce** talleres de capítulo son práctica —`TDR-07.qmd` y
 `TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto;
-`TDR-11.qmd`, del 2026-08-25, es el tercero, `TDR-12.qmd`, del 2026-09-05, el cuarto, y
-`TDR-09.qmd`, del 2026-09-29, el quinto—. La unidad 2 tiene el suyo desde el 2026-10-05
+`TDR-11.qmd`, del 2026-08-25, es el tercero, `TDR-12.qmd`, del 2026-09-05, el cuarto,
+`TDR-09.qmd`, del 2026-09-29, el quinto, y `TDR-10.qmd`, del 2026-10-01, el sexto—. La unidad 2 tiene el suyo desde el 2026-10-05
 —el T2, arriba—; la 3 lo necesita, y va en la tarea 22.
 
 ⚠️ **El taller 7 se revisó el 2026-09-19 y el 8 el 2026-09-26, y por razones distintas: no dé
