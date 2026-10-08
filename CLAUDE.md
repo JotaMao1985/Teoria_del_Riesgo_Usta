@@ -27,7 +27,8 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 
 Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
 **diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción
-declare `correcta`, la **16** vigila que ninguna marca tipográfica señale a la correcta, y la
+declare `correcta`, la **16** vigila que ninguna marca tipográfica —y desde el 2026-10-08 ni la
+negación ni los absolutos— señale a la correcta, y la
 **17** que un `Emparejamiento` no deje sus parejas en su fila.
 
 ✅ **La tarea 15 está terminada desde el 2026-10-01: el capítulo 10 —`10_TDR_Duracion_y_QuantLib.html`,
@@ -1121,8 +1122,33 @@ mismo defecto**:
     al azar entre las que quedaban sacaba **6,42 de 15**. Ninguna de las seis marcas de la regla
     16 lo veía. Se cerró dándoles su negación natural a cuatro correctas («no depende solo de la
     curva sino del cupón») y quitándosela a tres distractores: hoy son 6 de 15 contra 16 de 45 y
-    la estrategia saca **3,42**. **Los otros once capítulos no se han medido**, y por eso la regla
-    16 todavía no vigila estas marcas: la medida es la misma, por presencia y por ausencia.
+    la estrategia saca **3,42**.
+
+    ⚠️ **Medidos los doce el 2026-10-08, la pista estaba en el ESPEJO, no en la regla conocida.**
+    Descartar lo que niega o absolutiza solo pasaba de 5 en el 10 (5,17 de 15) y rozaba en el 1
+    (4,92); en el 2, el 3, el 11 y el 12 hasta castigaba —0,92 en el 3—. Lo que delataba era lo
+    contrario: **la correcta era la que negaba**, porque el material corrige errores con «no es X
+    sino Y», y marcar al azar entre las opciones con «no» sacaba **6,58 en el 2, 6,00 en el 11 y
+    5,67 en el 3** (brecha de +0,38 en el 3). Es la zona ciega 15 cobrándose otra vez: el arreglo
+    histórico de quitarles los absolutos a los distractores empujó la pista hacia su espejo. Se
+    cerró en los cinco reescribiendo 33 opciones sin tocar un enunciado —las letras de la regla
+    14 no se movieron—: a unas correctas se les quitó la negación sin cambiarles el sentido
+    («ya no está en las z» → «desapareció de las z», «no depende del modelo» → «es independiente
+    del modelo») y a algunos distractores se les dio la suya. Marcar la que niega da hoy **3,25 a
+    3,75** en esos tres, y descartar, **3,67** en el 10 y **3,92** en el 1; en pantalla los cinco
+    cuestionarios dan 10/10 con la respuesta.
+
+    **Desde ese día la regla 16 vigila tres marcas de contenido**: negación, absoluto y las dos
+    juntas, con la lista amplia del 9. Pero no con los criterios de las seis de forma: falla por
+    la brecha, por «la única opción con la marca, o sin ella, es la correcta» y por el **valor
+    esperado** de marcar al azar entre las que la llevan o entre las que no, con techo de 0,38 del
+    total (5,7 de 15). No falla por «la única es un distractor»: un absoluto suelto en un
+    distractor suele ser legítimo —absolutizar ES el error— y descartarlo sube el acierto de 1/4 a
+    1/3 en esa pregunta; con ese criterio habrían caído el 1, el 4, el 7, el 9 y el 12. El valor
+    esperado hizo falta porque la brecha sola dejaba pasar al 2 y al 11 (+0,33 y +0,20); probado
+    contra `HEAD`, la regla tumba los tres y deja pasar los doce corregidos. **Al límite quedan**
+    marcar un absoluto en el 6 y el 7 (5,50), en el 5 (5,42) y en el 2 (5,00), y marcar la
+    negación en el 12 (5,25): quien toque una opción de esos capítulos vuelve a medir.
 
 La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y es la zona ciega 9
 —la posición— en un componente que ninguna regla miraba:

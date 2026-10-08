@@ -3873,7 +3873,7 @@ for (x in r) {
                         opciones={[
                             { texto: 'La prueba dice que la varianza no es constante, no qué modelo la describe: rechazar la nula no selecciona una especificación.', correcta: true, justificacion: 'Rechazar no es especificar. El propio capítulo lo muestra: el GARCH(1,1) reproduce esa dependencia larga con tres parámetros y una persistencia de 0,9248, mientras que un ARCH(10) necesita once y queda peor condicionado. La prueba dice que hay algo que modelar; qué modelo lo deciden el criterio de información y el diagnóstico de los residuos estandarizados de la sección 6.' },
                             { texto: 'Falta comprobar que la serie sea estacionaria antes de aplicar la prueba; con datos no estacionarios el estadístico no sigue una chi-cuadrado.', correcta: false },
-                            { texto: 'Falta corregir el nivel de significancia por comparaciones múltiples, ya que la prueba se aplicó con tres valores de q distintos.', correcta: false },
+                            { texto: 'Falta corregir el nivel de significancia por comparaciones múltiples, ya que la prueba no se aplicó con un único valor de q.', correcta: false },
                             { texto: 'Nada falta: el estadístico es máximo en q = 10, así que ese es el orden que los datos seleccionan.', correcta: false },
                         ]}
                     />
@@ -4458,7 +4458,7 @@ sigma <- as.numeric(sigma(aj))`,
                             { texto: 'Que la serie no es estacionaria y hay que diferenciarla antes de modelar.', correcta: false },
                             { texto: 'Que hay una oportunidad de arbitraje, porque una autocorrelación positiva en r² permite predecir el rendimiento.', correcta: false },
                             { texto: 'Que la media de la serie está mal estimada, ya que una autocorrelación cercana a cero en r indica ruido blanco.', correcta: false },
-                            { texto: 'Que el signo del rendimiento de mañana es esencialmente impredecible pero su magnitud no lo es.', correcta: true },
+                            { texto: 'Que el signo del rendimiento de mañana es casi impredecible y su magnitud, en parte predecible.', correcta: true },
                         ],
                     },
                     {
@@ -4492,9 +4492,9 @@ sigma <- as.numeric(sigma(aj))`,
                         pregunta: 'La prueba ARCH-LM con q = 5 da 278,0 contra un crítico de 15,09. ¿Qué establece eso, exactamente?', justificacion: 'Rechazar con 278,0 contra 15,09 no deja duda de que hay algo, y ninguna pista de qué. El capítulo lo resuelve en el orden inverso al que la prueba sugiere: GARCH(1,1) con tres parámetros, y el diagnóstico de la sección 6 como juez.',
                         opciones: [
                             { texto: 'Que el modelo correcto es un ARCH(5), porque ese es el orden con el que se rechazó la nula.', correcta: false },
-                            { texto: 'Que los rendimientos tienen colas pesadas, ya que el estadístico se construye sobre cuartos momentos.', correcta: false },
+                            { texto: 'Que los rendimientos no son normales, ya que el estadístico se construye sobre cuartos momentos.', correcta: false },
                             { texto: 'Que la hipótesis de varianza constante se rechaza, y nada más: no dice qué modelo usar.', correcta: true },
-                            { texto: 'Que la serie tiene raíz unitaria en varianza y hay que usar un IGARCH.', correcta: false },
+                            { texto: 'Que la varianza de la serie no es estacionaria y hay que usar un IGARCH.', correcta: false },
                         ],
                     },
                     {
@@ -4520,8 +4520,8 @@ sigma <- as.numeric(sigma(aj))`,
                         opciones: [
                             { texto: 'Que el modelo está sobreajustado, porque un estadístico tan bajo indica que absorbió también el ruido.', correcta: false },
                             { texto: 'Que hay que aumentar el orden del GARCH hasta que el estadístico sobre z² baje de 5.', correcta: false },
-                            { texto: 'Que los residuos estandarizados son normales, ya que el Ljung-Box contrasta la normalidad de la serie.', correcta: false },
-                            { texto: 'Que el GARCH capturó el agrupamiento: lo que había en los datos crudos ya no está en las z.', correcta: true },
+                            { texto: 'Que los residuos estandarizados son normales, ya que el Ljung-Box sobre z² no rechaza la normalidad.', correcta: false },
+                            { texto: 'Que el GARCH capturó el agrupamiento: lo que había en los datos crudos desapareció de las z.', correcta: true },
                         ],
                     },
                     {
@@ -4529,8 +4529,8 @@ sigma <- as.numeric(sigma(aj))`,
                         opciones: [
                             { texto: 'Que el agrupamiento explica la mayor parte de las colas pesadas del capítulo 1, pero no todas.', correcta: true },
                             { texto: 'Que el modelo eliminó las colas pesadas y las innovaciones se pueden tratar como normales a partir de aquí.', correcta: false },
-                            { texto: 'Que la estandarización introdujo curtosis artificial al dividir por una σ que también es una estimación.', correcta: false },
-                            { texto: 'Que la muestra contiene valores atípicos que habría que excluir antes de reestimar.', correcta: false },
+                            { texto: 'Que la estandarización introdujo curtosis artificial al dividir por una σ que no es conocida sino estimada.', correcta: false },
+                            { texto: 'Que la muestra contiene valores atípicos que no deberían entrar en la reestimación.', correcta: false },
                         ],
                     },
                     {

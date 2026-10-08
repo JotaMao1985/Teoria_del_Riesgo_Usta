@@ -4751,7 +4751,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         <MCQ
                             pregunta="Valorar el tramo del fondo con 30/360 da exactamente lo mismo que con NL/365. ¿Por qué el bloque del SEN, en cambio, rechaza 30/360 en casi nueve de cada diez operaciones?"
                             opciones={[
-                                { texto: 'Porque 30/360 es una base de bonos semestrales, y los TES pagan cupón anual, así que el bloque la aplica con meses que no corresponden.', correcta: false },
+                                { texto: 'Porque 30/360 es una base de bonos semestrales, y los TES pagan cupón anual, así que el bloque la aplica con meses equivocados para un TES.', correcta: false },
                                 { texto: 'Porque el tramo se valora en aniversarios exactos, donde las dos bases cuentan años enteros, y las operaciones caen entre dos pagos.', correcta: true, justificacion: 'Del 30/12/2025 al 30/12/2030 hay cinco años exactos para las dos bases. Una operación entre dos pagos cuenta distinto: del 15/12/2025 al 18/10/2026, primer pago del TES de 2034, hay 307 días sobre 365 en NL/365 y 303 sobre 360 en 30/360, 0,8411 contra 0,8417 años, y la diferencia se repite en cada pago. Según el bono y la fecha, eso mueve el sucio más o menos que la holgura de una milésima en el precio y en la TIR, y solo en el 10,1 % de las operaciones cabe en ella. La lección es de método: una convención se valida contra muchos precios y no contra el ejemplo propio, que puede ser justo el caso en que no se nota.' },
                                 { texto: 'Porque el SEN publica la TIR truncada y no redondeada, y 30/360 es la única base que no tolera una milésima de holgura en la TIR.', correcta: false },
                                 { texto: 'Porque los bonos del tramo son de estudio y no tienen intereses causados, y 30/360 solo se separa de NL/365 en el cupón causado.', correcta: false },
@@ -5134,7 +5134,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         justificacion: 'La curva del capítulo tiene tres grados de libertad: tres vértices con τ fijo. Tres instrumentos, uno por vértice, los neutralizan todos, y lo que queda —8 millones de desviación al mes— es convexidad. Un TES real se mueve además por su oferta, su liquidez y su distancia a la curva, que el 30/12/2025 iba de −49 a +33 pb en los tres TES que el tramo imita. El resultado sí dice algo útil: con un solo instrumento ya se quita más del 94 %, porque casi todo el riesgo es nivel.',
                         opciones: [
                             { texto: 'Como prueba de que la cobertura funciona, porque fue contrastada con 275 meses reales y en ninguno dejó una pérdida apreciable.', correcta: false },
-                            { texto: 'Como un artificio del modelo, porque la curva tiene tres grados de libertad y tres instrumentos los cubren por construcción.', correcta: true },
+                            { texto: 'Como un artificio del modelo y no del mercado, porque la curva tiene tres grados de libertad y tres instrumentos los cubren.', correcta: true },
                             { texto: 'Como un error del bloque, porque ninguna cobertura puede quitar toda la varianza mientras los bonos tengan convexidad.', correcta: false },
                             { texto: 'Como señal de sobreajuste, porque los nominales de la cobertura se estimaron con los mismos 275 meses con que se contrastan.', correcta: false },
                         ],
@@ -5166,7 +5166,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                             { texto: 'En ninguna parte, porque si el precio no lo usa tampoco lo usa la liquidación, que se hace con las mismas fechas del título.', correcta: false },
                             { texto: 'En la fecha en que se liquida una operación y en que llega el dinero, que tiene que ser un día hábil en Colombia.', correcta: true },
                             { texto: 'En los intereses causados, que se cuentan solo en días hábiles, mientras el descuento de los pagos usa días calendario.', correcta: false },
-                            { texto: 'En la TIR, que el SEN calcula con días hábiles y no con días calendario, por eso las fechas movidas no cuadran.', correcta: false },
+                            { texto: 'En la TIR, que el SEN calcula con días hábiles en lugar de días calendario, por eso las fechas movidas descuadran.', correcta: false },
                         ],
                     },
                     {

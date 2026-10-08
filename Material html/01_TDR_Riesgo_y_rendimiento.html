@@ -3415,9 +3415,9 @@ for (nombre in names(declarado)) {
                             pregunta="El fondo tiene 40 000 millones en un bono corporativo de un emisor local que no se negocia hace tres semanas. La última operación fue a 98,5. ¿Qué riesgo está midiendo mal el informe si valora la posición a 98,5?"
                             opciones={[
                                 { texto: 'Liquidez sobre todo, y de paso el de mercado: la volatilidad medida sobre precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'Un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 sin variación en ningún precio, y el capítulo 3 cifra lo que cuestan — se llevan un tercio de la beta del portafolio, que sale 0,6779 contra su propio índice en vez de 0,95 midiendo por semanas—. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
-                                { texto: 'Crédito, porque un bono que no se negocia es señal de que el emisor está en dificultades y la probabilidad de incumplimiento subió.', correcta: false },
+                                { texto: 'Crédito, porque un bono que deja de negociarse es señal de que el emisor está en dificultades y la probabilidad de incumplimiento subió.', correcta: false },
                                 { texto: 'Ninguno: 98,5 es el último precio observado y valorar a último precio es la práctica estándar del mercado.', correcta: false },
-                                { texto: 'Operativo, porque no actualizar un precio durante tres semanas es una falla del proceso de valoración.', correcta: false },
+                                { texto: 'Operativo, porque dejar un precio sin actualizar durante tres semanas es una falla del proceso de valoración.', correcta: false },
                             ]}
                         />
                     </Ejercicio>
@@ -4083,7 +4083,7 @@ curtosis <- mean(z^4) - 3`,
                             opciones={[
                                 { texto: 'El segundo fondo aparece con una volatilidad 4,58 veces mayor de la que tiene, porque la raíz que le corresponde a una serie mensual es la de 12.', correcta: true, justificacion: 'El factor de anualización no depende del año sino de la periodicidad de la serie que se escala: es la raíz del número de periodos de la propia serie, así que el error es de √(252/12) = 4,5826. Una volatilidad mensual del 5 % se reportaría como 79,4 % anual en vez de 17,3 %: el fondo más tranquilo de los dos pasa a ser el más arriesgado sin que ningún dato cambie. El calendario no entra en la fórmula; la periodicidad de la serie, sí.' },
                                 { texto: 'Ninguna, siempre que las dos series cubran el mismo periodo: anualizar es una transformación monótona y el orden de los dos fondos se conserva.', correcta: false },
-                                { texto: 'El segundo fondo aparece con menor volatilidad, porque los datos mensuales suavizan los movimientos diarios y la raíz de 252 no alcanza a compensarlo.', correcta: false },
+                                { texto: 'El segundo fondo aparece con menor volatilidad, porque los datos mensuales suavizan los movimientos diarios y la raíz de 252 se queda corta para compensarlo.', correcta: false },
                                 { texto: 'El error se compensa si los rendimientos son independientes, porque en ese caso la volatilidad escala exactamente con la raíz del tiempo en cualquier periodicidad.', correcta: false },
                             ]}
                         />
@@ -4267,7 +4267,7 @@ curtosis <- mean(z^4) - 3`,
                             { texto: 'Que el informe dejaría de ser reproducible: la misma ejecución en dos fechas daría cifras distintas.', correcta: true, justificacion: 'Ninguna versión pasada se podría volver a obtener, que es justamente lo que BCBS 239 exige poder hacer. El repositorio del curso hace lo contrario a propósito: datos/ está versionado y datos/MANIFIESTO.md guarda fuente, fecha y SHA-256 de cada instantánea, que es lo que comprueba el bloque de esta sección. Y no es hipotético — volver a ejecutar descargar.py produce un panel equivalente pero no idéntico, porque Yahoo reajusta los precios hacia atrás con cada dividendo—. Actualizar es una decisión que se toma y se fecha.' },
                             { texto: 'Que la descarga puede fallar por problemas de conexión y el informe no se generaría a tiempo.', correcta: false },
                             { texto: 'Que los precios descargados en tiempo de ejecución vienen sin ajustar por dividendos y eso sesga los rendimientos.', correcta: false },
-                            { texto: 'Ninguna: mantener los datos al día es preferible, y la trazabilidad se resuelve guardando la fecha de descarga en el encabezado del informe.', correcta: false },
+                            { texto: 'Que la propuesta es mejor: mantener los datos al día es preferible, y la trazabilidad se resuelve guardando la fecha de descarga en el encabezado del informe.', correcta: false },
                         ]}
                     />
                 </Ejercicio>
@@ -4341,7 +4341,7 @@ curtosis <- mean(z^4) - 3`,
                     {
                         pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Riesgo tampoco es la posibilidad de perder: lo que el curso mide de aquí al capítulo 15 es dispersión, y un activo que solo pudiera ganar, pero por cuantías muy distintas, también tendría riesgo.',
                         opciones: [
-                            { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles, no el nivel del rendimiento.', correcta: true },
+                            { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles, más que el nivel del rendimiento.', correcta: true },
                             { texto: 'El primero, porque un rendimiento de 8 % está por debajo de la media del segundo, que es 5 %.', correcta: false },
                             { texto: 'Los dos igual: el riesgo se mide sobre el rendimiento esperado y ambos tienen uno definido.', correcta: false },
                             { texto: 'El segundo, pero solo si su rendimiento esperado es menor que 8 %; si es mayor, el riesgo queda compensado.', correcta: false },
@@ -4368,7 +4368,7 @@ curtosis <- mean(z^4) - 3`,
                     {
                         pregunta: 'El curso construye el rendimiento del portafolio como la combinación lineal de los rendimientos logarítmicos de los cuatro activos. ¿Qué es exactamente lo que se está aproximando?', justificacion: 'Se acepta porque conserva la aditividad temporal, que es la que hace falta para escalar horizontes y para modelar. Es la convención declarada del curso y su costo está medido en esta misma sección: doce centésimas de punto en el cuantil al 1 %, hacia el lado conservador. Los quince capítulos la heredan, y el 4 la usa para producir el 4,077 % con el que abre.',
                         opciones: [
-                            { texto: 'La linealidad en los pesos, que es exacta para los aritméticos y no para los logarítmicos.', correcta: true },
+                            { texto: 'La linealidad en los pesos, que es exacta para los aritméticos y falla para los logarítmicos.', correcta: true },
                             { texto: 'La independencia entre los cuatro activos, que la combinación lineal da por supuesta.', correcta: false },
                             { texto: 'Nada: la combinación lineal de logarítmicos es exacta, y por eso se usa.', correcta: false },
                             { texto: 'La estabilidad de los pesos, porque el portafolio real se rebalancea y los pesos cambian todos los días.', correcta: false },
@@ -4397,7 +4397,7 @@ curtosis <- mean(z^4) - 3`,
                         opciones: [
                             { texto: 'Que el modelo normal no es una aproximación pobre sino una afirmación falsa sobre la cola.', correcta: true },
                             { texto: 'Que la muestra es demasiado corta: con más años, la frecuencia observada convergería a la esperada.', correcta: false },
-                            { texto: 'Que la desviación típica está mal estimada y habría que recalcularla excluyendo esas ocho ruedas.', correcta: false },
+                            { texto: 'Que la desviación típica está mal estimada y no habría que calcularla con esas ocho ruedas dentro.', correcta: false },
                             { texto: 'Que el portafolio está mal diversificado; con más activos, la suma de rendimientos tendería a la normal por el teorema central del límite.', correcta: false },
                         ],
                     },
@@ -4406,7 +4406,7 @@ curtosis <- mean(z^4) - 3`,
                         opciones: [
                             { texto: 'Porque esos dos valores inflan la desviación de la ventana hasta 7,74 % y dejan de estar lejos.', correcta: true },
                             { texto: 'Porque las dos ruedas tienen signos opuestos y sus contribuciones a la curtosis se cancelan.', correcta: false },
-                            { texto: 'Porque con solo ocho observaciones la curtosis muestral está sesgada hacia cero.', correcta: false },
+                            { texto: 'Porque con apenas ocho observaciones la curtosis muestral está sesgada hacia cero.', correcta: false },
                             { texto: 'Porque la curtosis solo detecta colas pesadas cuando hay al menos una observación en cada cola y aquí las dos son de la misma.', correcta: false },
                         ],
                     },
@@ -4425,7 +4425,7 @@ curtosis <- mean(z^4) - 3`,
                             { texto: 'Que sin instantánea congelada nadie puede comprobar que las cifras sean las que el código produce.', correcta: true },
                             { texto: 'Que así los estudiantes sin conexión pueden trabajar, que es la única ventaja frente a descargar los datos.', correcta: false },
                             { texto: 'Que los archivos son pequeños y versionarlos no tiene costo, así que no hay motivo para excluirlos.', correcta: false },
-                            { texto: 'Que la licencia de la fuente obliga a redistribuir los datos junto con cualquier análisis que los use.', correcta: false },
+                            { texto: 'Que la licencia de la fuente obliga a redistribuir los datos junto con los análisis que los usen.', correcta: false },
                         ],
                     },
                 ]} />

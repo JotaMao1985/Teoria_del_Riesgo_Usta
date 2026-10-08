@@ -78,6 +78,16 @@ Comprueba diecisiete cosas sobre cada archivo HTML de capítulo:
      —la coordinación «, y» y el conector causal— y cada marca se mira también
      por su AUSENCIA: un conector que llevan los distractores y no la correcta
      la delata por ser la que desentona.
+     La quinta vuelta (2026-10-08) es de CONTENIDO y no de tipografía: la
+     negación («no», «ni») y los absolutos («solo», «siempre», «nada»,
+     «cualquier», «exactamente»…). Descartar lo que niega o absolutiza sacaba
+     6,42 de 15 en el 9, y al medir los doce apareció el espejo: en el 2, el 3
+     y el 11 la correcta era la que negaba —«no es X sino Y»— y marcarla sacaba
+     5,67 a 6,58. Estas dos marcas se vigilan solo por los criterios que
+     SEÑALAN la correcta —la brecha y «la única con la marca, o sin ella, es la
+     correcta»—, no por «la única es un distractor»: un absoluto suelto en un
+     distractor es prosa legítima donde absolutizar ES el error, y descartarlo
+     solo sube el acierto de 1/4 a 1/3 en esa pregunta.
  17. EMPAREJAMIENTO — que la solución de un `Emparejamiento` no siga las
      filas. El componente pinta la columna derecha en el orden del arreglo: a
      diferencia de `MCQ` y `Quiz` no baraja, así que dónde cae cada pareja lo
@@ -222,6 +232,32 @@ MARCADORES_FORMA = {
 # puede aplicar sin leer. Los once capítulos están hoy en brechas de 0,00 a 0,31
 # en las seis marcas —el 9, con la corrección de su auditoría—.
 BRECHA_MARCADOR_MAXIMA = 0.35
+
+# La quinta vuelta (2026-10-08). La lista de absolutos es la «amplia» de la
+# segunda revisión del capítulo 9, la que medía 6,42 de 15 descartando. Medido
+# ese día sobre los doce, tras corregir el 1, el 2, el 3, el 10 y el 11: brechas
+# de −0,16 a +0,24 y como mucho 3 de 15 preguntas en que la única opción con la
+# marca, o sin ella, es la correcta. Descartar las opciones con cualquiera de
+# las dos saca 2,25 a 3,92 de 15 donde el azar da 3,75.
+NEGACION = re.compile(r"\b(?:no|ni)\b", re.I)
+ABSOLUTO = re.compile(
+    r"\b(?:siempre|nunca|jamás|basta|da igual|solo|sólo|ningún|ninguna|ninguno|nada|"
+    r"cualquier|cualquiera|por definición|exactamente|completo|entero)\b", re.I)
+
+# La brecha no basta para estas dos: en el 2 y el 11, antes del arreglo, iba en
+# +0,33 y +0,20, y marcar la opción con negación sacaba 6,58 y 6,00 de 15. Se
+# mide además el valor ESPERADO de marcar al azar entre las opciones con la
+# marca, y entre las que no la llevan. El techo, 0,38 del total (5,7 de 15),
+# deja pasar lo que hoy queda: el máximo es 5,50, marcar un absoluto en el 6 y
+# en el 7. Para las seis marcas de forma no se aplica: el «:» saca 6,08 en el 2
+# y el 4 y nadie ha medido si eso es pista o prosa.
+ACIERTO_CONTENIDO_MAXIMO = 0.38
+
+MARCADORES_CONTENIDO = {
+    "negación «no/ni»": lambda t: NEGACION.search(t) is not None,
+    "absoluto («solo», «siempre», «nada»…)": lambda t: ABSOLUTO.search(t) is not None,
+    "negación o absoluto": lambda t: bool(NEGACION.search(t) or ABSOLUTO.search(t)),
+}
 
 # Regla 17. `Emparejamiento` no baraja la columna derecha: la pinta en el orden
 # del arreglo, así que dónde cae cada pareja lo decide quien escribe `solucion`.
@@ -947,13 +983,23 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
     fallos = []
     if len(grupos) < MINIMO_PREGUNTAS_POSICION:
         return fallos
-    for nombre, marca in MARCADORES_FORMA.items():
+    marcas = [(n, m, True) for n, m in MARCADORES_FORMA.items()]
+    marcas += [(n, m, False) for n, m in MARCADORES_CONTENIDO.items()]
+    for nombre, marca, mira_distractor in marcas:
         nc = nd = cc = cd = 0
         unica_corr = unica_dist = 0
         sola_corr = sola_dist = 0
+        ev_con = ev_sin = 0.0
         for grupo, _ in grupos:
             marcadas = [i for i, (x, _, _) in enumerate(grupo) if marca(x)]
             sin_marca = [i for i in range(len(grupo)) if i not in marcadas]
+            for lado in (marcadas, sin_marca):
+                acierto = (sum(grupo[i][1] for i in lado) / len(lado) if lado
+                           else 1 / len(grupo))
+                if lado is marcadas:
+                    ev_con += acierto
+                else:
+                    ev_sin += acierto
             for x, c, _ in grupo:
                 if c:
                     nc += 1
@@ -977,7 +1023,7 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
             fallos.append(
                 f"{nombre}: es la única opción marcada y es la correcta en {unica_corr} de "
                 f"{n} preguntas — marcarla sin leer basta para aprobar")
-        if unica_dist / n > FRACCION_DELATADAS_MAXIMA:
+        if mira_distractor and unica_dist / n > FRACCION_DELATADAS_MAXIMA:
             fallos.append(
                 f"{nombre}: es la única opción marcada y NO es la correcta en {unica_dist} "
                 f"de {n} preguntas — descartarla sin leer regala un distractor")
@@ -985,10 +1031,16 @@ def marcadores_delatados(texto, cuerpo, desplazamiento):
             fallos.append(
                 f"{nombre}: la única opción que NO la lleva es la correcta en {sola_corr} de "
                 f"{n} preguntas — marcar la que desentona basta para aprobar")
-        if sola_dist / n > FRACCION_DELATADAS_MAXIMA:
+        if mira_distractor and sola_dist / n > FRACCION_DELATADAS_MAXIMA:
             fallos.append(
                 f"{nombre}: la única opción que NO la lleva es un distractor en {sola_dist} "
                 f"de {n} preguntas — descartarla sin leer regala un distractor")
+        if not mira_distractor:
+            for lado, ev in (("con", ev_con), ("sin", ev_sin)):
+                if ev / n > ACIERTO_CONTENIDO_MAXIMO:
+                    fallos.append(
+                        f"{nombre}: marcar al azar entre las opciones {lado} ella acierta "
+                        f"{ev:.2f} de {n} donde el azar da {n / 4:.2f}".replace(".", ","))
         if abs(pc - pd) > BRECHA_MARCADOR_MAXIMA:
             arreglo = ("Dé la misma forma a uno o dos distractores por pregunta, o quítesela "
                        "a algunas de las correctas" if pc > pd else
