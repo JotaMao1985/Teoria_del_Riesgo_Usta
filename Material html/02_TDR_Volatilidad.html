@@ -4482,7 +4482,7 @@ sigma <- as.numeric(sigma(aj))`,
                     {
                         pregunta: 'EWMA no tiene varianza de largo plazo. ¿Por qué?', justificacion: 'Visto como GARCH(1,1), EWMA es el caso ω = 0, α = 1 − λ y β = λ. La consecuencia práctica está en la sección 7: el pronóstico de EWMA a sesenta ruedas es una recta horizontal en la σ de hoy. Sirve para mañana y no para el trimestre, y eso es exactamente lo que el GARCH añade con su ω.',
                         opciones: [
-                            { texto: 'Porque sus coeficientes suman uno, así que la persistencia vale uno y no revierte a ningún nivel.', correcta: true },
+                            { texto: 'Porque sus coeficientes suman uno, así que la persistencia vale uno y no hay nivel al que revertir.', correcta: true },
                             { texto: 'Porque no tiene suficientes parámetros: con dos coeficientes no se puede identificar un tercer momento.', correcta: false },
                             { texto: 'Porque λ se fija por convención en vez de estimarse, y sin estimación no hay varianza incondicional definida.', correcta: false },
                             { texto: 'Porque la recursión es infinita hacia atrás y la suma de los pesos no converge.', correcta: false },
@@ -4493,7 +4493,7 @@ sigma <- as.numeric(sigma(aj))`,
                         opciones: [
                             { texto: 'Que el modelo correcto es un ARCH(5), porque ese es el orden con el que se rechazó la nula.', correcta: false },
                             { texto: 'Que los rendimientos no son normales, ya que el estadístico se construye sobre cuartos momentos.', correcta: false },
-                            { texto: 'Que la hipótesis de varianza constante se rechaza, y nada más: no dice qué modelo usar.', correcta: true },
+                            { texto: 'Que la hipótesis de varianza constante se rechaza, y eso es todo: no dice qué modelo usar.', correcta: true },
                             { texto: 'Que la varianza de la serie no es estacionaria y hay que usar un IGARCH.', correcta: false },
                         ],
                     },

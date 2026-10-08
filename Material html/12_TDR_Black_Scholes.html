@@ -4487,7 +4487,7 @@ p = (exp(rf * dt) - d) / (u - d)`}
                             { texto: 'Que el reescalado está mal hecho: debería haber aplanado la curva.', correcta: false },
                             { texto: 'Que la volatilidad de Ecopetrol es más alta de lo que el panel indica.', correcta: false },
                             {
-                                texto: 'Que la inclinación viene de la asimetría y no del nivel de σ: son separables.',
+                                texto: 'Que la inclinación sale de la asimetría y es separable del nivel de σ.',
                                 correcta: true,
                                 justificacion: 'Es una descomposición, y sin ella los dos hallazgos se confunden en uno. Forzar el nivel a 38,6492 % sube toda la curva —de 28,53–20,83 % a 42,26–32,83 %— y deja la caída casi intacta: 9,4 puntos porcentuales de recorrido contra 7,7. El nivel lo explica la razón de varianzas de 0,4170 y la inclinación la asimetría de −0,6610; corregir uno no toca el otro. Un modelo que solo arregle el nivel, como reestimar σ con otra ventana, seguirá cobrando de menos el seguro contra caídas.',
                             },
@@ -5256,7 +5256,7 @@ desembolso = compra * S[i]`}
                         justificacion: 'N(d₂), y solo bajo la probabilidad neutral al riesgo. N(d₁) es el delta: el número de acciones que hay que tener para replicar la opción, 79,2575 millones sobre la posición del fondo. Confundirlas se equivoca en 10,83 puntos porcentuales al afirmar con qué frecuencia se ejerce, y es el error más común del capítulo porque las dos salen de la misma d y difieren solo en σ√T. Una cuenta estados del mundo; la otra cuenta acciones.',
                         opciones: [
                             { texto: 'N(d₂), que vale 0,480206; N(d₁) es el delta de la cobertura, 0,588487, y no es la probabilidad neutral al riesgo de ejercicio: confundirlas es el error más común de este capítulo.', correcta: true },
-                            { texto: 'N(d₁), 0,588487, porque es la que multiplica al precio de contado y por tanto pondera el estado del mundo en el que se recibe la acción subyacente al vencimiento.', correcta: false },
+                            { texto: 'N(d₁), 0,588487, porque multiplica al precio de contado y no al strike, y por tanto pondera el estado del mundo en el que se recibe la acción subyacente al vencimiento.', correcta: false },
                             { texto: 'Ninguna de las dos: la probabilidad de ejercicio bajo la medida real se obtiene sustituyendo la tasa libre de riesgo por la deriva medida en el panel, que para Ecopetrol es 9,0576 %.', correcta: false },
                             { texto: 'Las dos, según el numerario que se use: N(d₁) bajo la medida asociada a la acción y N(d₂) bajo la asociada al bono; ambas son igualmente válidas para responder la pregunta.', correcta: false },
                         ],

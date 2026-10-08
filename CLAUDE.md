@@ -1146,9 +1146,14 @@ mismo defecto**:
     distractor suele ser legítimo —absolutizar ES el error— y descartarlo sube el acierto de 1/4 a
     1/3 en esa pregunta; con ese criterio habrían caído el 1, el 4, el 7, el 9 y el 12. El valor
     esperado hizo falta porque la brecha sola dejaba pasar al 2 y al 11 (+0,33 y +0,20); probado
-    contra `HEAD`, la regla tumba los tres y deja pasar los doce corregidos. **Al límite quedan**
+    contra `HEAD`, la regla tumba los tres y deja pasar los doce corregidos. Quedaban al límite
     marcar un absoluto en el 6 y el 7 (5,50), en el 5 (5,42) y en el 2 (5,00), y marcar la
-    negación en el 12 (5,25): quien toque una opción de esos capítulos vuelve a medir.
+    negación en el 12 (5,25): en los cinco la correcta era la única opción marcada en dos o tres
+    preguntas. Se cerró ese mismo día con trece opciones —doce correctas sin su «solo»,
+    «exactamente» o «ninguna», sin cambiarles el sentido («y nada más» → «y eso es todo», «solo
+    cuenta» → «se limita a contar»), y en el 12 la negación dada a un distractor—, y hoy esos
+    cinco marcan en **3,17 a 4,00** y descartan en **4,58** como mucho (el absoluto en el 6). Lo
+    más alto de los doce son ahora el absoluto del 8 (4,75) y del 3 (4,67), con el techo en 5,70.
 
 La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y es la zona ciega 9
 —la posición— en un componente que ninguna regla miraba:
