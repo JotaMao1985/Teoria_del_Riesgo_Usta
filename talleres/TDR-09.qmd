@@ -44,8 +44,8 @@ El capítulo comprueba que las dos rutas devuelven los mismos dígitos.
 
 **Leer la curva en la convención equivocada.** El Banco publica «porcentaje» y
 nada más, pero los precios deciden: valorados con su curva leída en efectiva anual,
-diez TES del SEN salen con −8 pb de error medio en el tramo de 2030 a 2033, y
-leída en continua los diez salen por encima, en 81 pb de media. Leerla en continua
+los cuatro TES del SEN del tramo de 2030 a 2033 salen con −8 pb de error medio, y
+leída en continua con +56; en los diez TES del contraste, +20 contra +81. Leerla en continua
 le resta al tramo del fondo **14 487 millones** sin que cambie ni una tasa ni un
 flujo. Declare la convención **por escrito, en la parte 1**, antes de calcular
 nada.
@@ -111,7 +111,7 @@ sum(tramo$millones)
 **11,8851 · 12,7414 · 13,0065 %** y un tramo de **482 287 millones**. Reporte
 además la tasa spot a 2, 3, 4, 6, 7, 8 y 9 años, que el Banco no publica. Después
 reproduzca el contraste con el SEN de la sección 1 —los diez TES, sus fechas de
-cupón y los días en base 365— y reporte el error medio en el tramo de 2030 a 2033
+cupón y los días en NL/365— y reporte el error medio en el tramo de 2030 a 2033
 en las dos lecturas de la curva.
 
 **1.2** Reconstruya los vértices con los β que **publica** el Banco ese día

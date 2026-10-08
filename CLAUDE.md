@@ -21,6 +21,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 4 · Unidad 3 (T16–T20) | 🟡 empezada · **T16 y T17, capítulos 11 y 12, terminadas el 2026-09-05** |
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
+| Segunda revisión del capítulo 9 | 🟡 2026-10-07 · los 2 altos y M1–M13 corregidos · **M14 y M15 (mercado de TES, plegar D-D) esperan la decisión del usuario** · `AUDITORIA_CAP9_REVISION.md` |
 | Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
 | 5 · Portal y Quarto | pendiente |
 
@@ -1113,6 +1114,16 @@ mismo defecto**:
     si en el 3 eso es pista o prosa. Si la pista vuelve con otro conector será la quinta vuelta,
     y se cierra igual: midiendo la forma nueva en los dos sentidos y por su ausencia.
 
+    ⚠️ **La quinta vuelta llegó el 2026-10-07, y no es tipográfica sino la regla de examen más
+    conocida: descartar lo que niega o absolutiza.** En el 9 la negación («no», «ni») iba en 1 de
+    15 correctas y 13 de 45 distractores, y los absolutos («solo», «nada», «cualquier»,
+    «exactamente», «entero»…) en 2 y 23: descartar las opciones con cualquiera de los dos y marcar
+    al azar entre las que quedaban sacaba **6,42 de 15**. Ninguna de las seis marcas de la regla
+    16 lo veía. Se cerró dándoles su negación natural a cuatro correctas («no depende solo de la
+    curva sino del cupón») y quitándosela a tres distractores: hoy son 6 de 15 contra 16 de 45 y
+    la estrategia saca **3,42**. **Los otros once capítulos no se han medido**, y por eso la regla
+    16 todavía no vigila estas marcas: la medida es la misma, por presencia y por ausencia.
+
 La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y es la zona ciega 9
 —la posición— en un componente que ninguna regla miraba:
 
@@ -1194,6 +1205,17 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
     difíciles, que es el azar—. En pantalla esa apuesta da 3 de 6 de mayor a menor y de menor a
     mayor, por filas 0 de 6 y con la respuesta 6 de 6, con la consola limpia.
 
+    ⚠️ **Y ese R6 ya no existe (2026-10-07): sus cifras estaban en la prosa.** La tasa par a diez
+    años salía con cuatro decimales 75 líneas antes, la TIR en cinco sitios y el 13,13 en todos:
+    se emparejaba recordando, no razonando. Ahora son **cinco tasas a siete años** —la cero
+    cupón, su versión continua, la par y las forward del séptimo y del octavo año—, que solo salen
+    en las tablas de los bloques o de una cuenta de una línea; se distinguen sabiendo que la
+    forward queda sobre la spot y la par bajo ella cuando la curva sube, y que la forward pasó su
+    pico. Derecha 13,4387 · 12,8833 · 13,0598 · 13,5670 · 12,2747 con `[2, 4, 1, 3, 0]`: una
+    pareja en su fila y **exactamente una** con cualquier corrimiento o espejo, y repartir las
+    cifras ordenadas por filas, en cualquiera de los dos sentidos, no acierta ninguna. En
+    pantalla, 5 de 5 con la respuesta y 1 de 5 por filas.
+
     De paso la regla exige lo que el componente da por supuesto: que `solucion` exista —el
     taller T1 dejó escrito que sin ella la página queda en blanco—, que sea un arreglo literal,
     que no repita índices, que cubra la izquierda y que no se salga de la derecha. La derecha
@@ -1202,7 +1224,10 @@ La revisión del R6 del capítulo 12 (2026-09-29) añadió la decimoséptima, y 
 
     ⚠️ **Y al jugarlo en el panel, deje una pausa entre clic y clic.** En una ráfaga sin pausa
     se perdieron parejas en silencio —parecía un defecto del componente—, y con unos 0,7 s
-    entre clics entraron todas; el mecanismo no se averiguó. La captura, además, iba un cuadro
+    entre clics entraron todas. El mecanismo probable, leído en el código el 2026-10-07: **un clic
+    sobre una fila o una cifra ya emparejada la suelta**, y «Reintentar» no borra las parejas; un
+    guion que busque el botón por su texto puede dar con la fila emparejada en vez de la cifra y
+    deshacer lo que acaba de hacer. Pulse por posición, y empiece con el contador en 0. La captura, además, iba un cuadro
     por detrás del DOM: el botón decía «Comprobar (5/5)» en el árbol de accesibilidad y «4/5»
     en la imagen. Lea el contador y el resultado con `find`, no de la captura.
 

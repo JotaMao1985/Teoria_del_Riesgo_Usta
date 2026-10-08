@@ -3771,6 +3771,11 @@ tes = [("2026-08-26", 7.50, 8.90), ("2027-11-03", 5.75, 9.24), ("2028-04-28", 6.
        ("2050-10-26", 7.25, 11.69)]
 hoy = date(2025, 9, 30)
 
+def nl365(desde, hasta):                  # NL/365: el 29 de febrero no cuenta
+    bis = sum(1 for a in range(desde.year, hasta.year + 1)
+              if a % 4 == 0 and desde < date(a, 2, 29) <= hasta)
+    return ((hasta - desde).days - bis) / 365
+
 def tir(precio, t, flujos):               # la tasa E.A. que reproduce el precio
     return brentq(lambda y: flujos @ (1 + y) ** -t - precio, -0.5, 1.0, xtol=1e-14) * 100
 
@@ -3781,7 +3786,7 @@ for venc, cupon, sen in tes:
     v = date.fromisoformat(venc)
     pagos = [date(a, v.month, v.day) for a in range(hoy.year, v.year + 1)]
     pagos = [p for p in pagos if p > hoy]
-    t = np.array([(p - hoy).days / 365 for p in pagos])    # base 365: hoy cae entre dos cupones
+    t = np.array([nl365(hoy, p) for p in pagos])           # hoy cae entre dos cupones
     flujos = np.full(len(t), cupon)
     flujos[-1] += 100
     s = beta @ cargas(t) / 100
@@ -3827,6 +3832,13 @@ tes <- data.frame(
   sen   = c(8.90, 9.24, 9.81, 10.88, 11.14, 11.37, 11.53, 11.41, 11.34, 11.69))
 hoy <- as.Date("2025-09-30")
 
+nl365 <- function(desde, hasta) {        # NL/365: el 29 de febrero no cuenta
+  a <- as.integer(format(desde, "%Y")):as.integer(format(max(hasta), "%Y"))
+  f29 <- as.numeric(as.Date(sprintf("%d-02-29", a[a %% 4 == 0])))
+  bis <- sapply(as.numeric(hasta), function(h) sum(f29 > as.numeric(desde) & f29 <= h))
+  (as.numeric(hasta - desde) - bis) / 365
+}
+
 tir <- function(precio, t, flujos) {     # la tasa E.A. que reproduce el precio
   uniroot(function(y) sum(flujos * (1 + y)^(-t)) - precio, c(-0.5, 1), tol = 1e-14)$root * 100
 }
@@ -3839,7 +3851,7 @@ for (k in seq_len(nrow(tes))) {
   anios <- as.integer(format(hoy, "%Y")):as.integer(format(v, "%Y"))
   pagos <- as.Date(paste0(anios, format(v, "-%m-%d")))
   pagos <- pagos[pagos > hoy]
-  t <- as.numeric(pagos - hoy) / 365                  # base 365: hoy cae entre dos cupones
+  t <- nl365(hoy, pagos)                              # hoy cae entre dos cupones
   flujos <- rep(tes$cupon[k], length(t))
   flujos[length(t)] <- flujos[length(t)] + 100
   s <- as.vector(beta %*% cargas(t)) / 100
@@ -3996,7 +4008,7 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         <strong>La curva es la del Banco de la República al 30/12/2025, reconstruida desde
                         sus tres vértices con su propio modelo.</strong> El Banco publica la tasa cero cupón a
                         1, 5 y 10 años —{dec(VERT[0])} %, {dec(VERT[1])} % y {dec(VERT[2])} %— y la calcula con
-                        Nelson-Siegel, un modelo de tres parámetros cuya escala, τ, fija en 3,7 años. Con τ
+                        Nelson-Siegel, un modelo de tres parámetros y una escala, τ, que fija en 3,7 años. Con τ
                         fijo, esos tres números determinan la curva entera, y eso es lo que usan los bloques.
                         El Banco advierte que sus tasas TES son informativas y no están pensadas para valorar
                         portafolios: el curso las usa como curva de referencia declarada, no como precio
@@ -4006,10 +4018,11 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         <strong>La capitalización es efectiva anual, y no se supuso: se comprobó.</strong> La
                         ficha del Banco dice «porcentaje» y nada más, y el documento con que el Banco fundó su
                         metodología en 2002 descontaba en continua. Pero la serie de hoy se comporta como
-                        efectiva: valorados con la curva leída así, diez TES de verdad salen con un error medio
-                        de {num(B8.medioE, 0)} pb frente a sus tasas del SEN —el sistema electrónico del Banco
-                        donde se negocian— en el tramo de 2030 a 2033; leída en continua, los diez salen por
-                        encima, en {B8.mediaC} pb de media. El bloque que lo mide está en la sección 1. La TIR
+                        efectiva: valorados con la curva leída así, los cuatro TES de verdad del tramo de 2030 a
+                        2033 salen con un error medio de {num(B8.medioE, 0)} pb frente a sus tasas del SEN —el
+                        sistema electrónico del Banco donde se negocian—, y leída en continua, con +{B8.medioC}.
+                        Sobre los diez TES del contraste, +{B8.mediaE} pb contra +{B8.mediaC}. El bloque que lo
+                        mide está en la sección 1. La TIR
                         también se reporta efectiva anual, que es como la cotiza el mercado colombiano, así
                         que spot y TIR quedan en la misma convención.
                     </p>
@@ -4126,6 +4139,19 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         nota="Las cifras de la derecha son las que imprime el bloque de abajo sobre la curva del 30/12/2025."
                     />
 
+                    <Anatomia
+                        titulo="Una tasa, tres escrituras"
+                        subtitulo="El vértice de diez años del Banco escrito en las tres convenciones que usa el capítulo. Pasar de una a otra no cambia lo que paga el bono; confundirlas, sí."
+                        eq={<Eq>{'$$1 + y = \\Big(1 + \\frac{y_n}{2}\\Big)^{2} = e^{r}$$'}</Eq>}
+                        piezas={[
+                            { simbolo: '\\(y\\)', que: 'Efectiva anual: lo que crece un peso en un año, con los intereses cobrados una vez. Es como publica el Banco y como se cotiza un TES.', vale: '13,13 %' },
+                            { simbolo: '\\(y_n\\)', que: 'Nominal compuesta semestralmente: la mitad se cobra a los seis meses y se reinvierte. Es la de los bonos del Tesoro de Estados Unidos, que pagan cupón dos veces al año.', vale: '12,7252 %' },
+                            { simbolo: '\\(r\\)', que: 'Continua: la tasa que, cobrada sin parar, deja el mismo peso al final del año. Es r = ln(1 + y), y en ella las tasas se suman y se restan; en las otras dos, se componen.', vale: '12,3367 %' },
+                            { simbolo: '\\(e^{0{,}1313} - 1\\)', que: 'Lo que pasa al leerla al revés: tomar 13,13 % como si fuera continua equivale a una efectiva 0,90 pp más alta. Es la lectura que el último bloque de esta sección pone a prueba.', vale: '14,03 %' },
+                        ]}
+                        nota="Las tres primeras son la misma tasa; la cuarta es otra. Lo único que no se puede hacer es escribir la cifra sin su convención al lado."
+                    />
+
                     <CodeTabs titulo="La curva del Banco al 30/12/2025 y el precio del tramo de TES del fondo" bloques={EJ_CURVA}
                         nota="Quitando importaciones y funciones, tres líneas son la curva: el τ fijo, los tres vértices publicados y el sistema de tres ecuaciones. La sección 5 cuenta por qué eso basta. Lo demás es la fórmula de la derivación aplicada a los tres bonos, y al final lo que costaría leer la curva en la otra convención." />
 
@@ -4164,29 +4190,35 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                     </p>
 
                     <CodeTabs titulo="La curva del 30/09/2025 contra las tasas del SEN de diez TES de verdad" bloques={EJ_SEN}
-                        nota="Cada TES se valora el día del corte, que cae entre dos fechas de cupón: los plazos van en años de 365 días y el precio que sale es el sucio. La TIR se despeja de ese precio en efectiva anual, que es como se cotizan los TES. Las tasas del SEN van literales en el código, con su fuente; la curva sale del archivo congelado." />
+                        nota="Cada TES se valora el día del corte, que cae entre dos fechas de cupón: los plazos se cuentan en NL/365 —días de calendario sin los 29 de febrero, sobre 365— y el precio que sale es el sucio. La TIR se despeja de ese precio en efectiva anual, que es como se cotizan los TES. Las tasas del SEN van literales en el código, con su fuente; la curva sale del archivo congelado." />
 
                     <p>
                         Leída en efectiva, la curva acierta el tramo medio: de 2030 a 2033 el error medio es de{' '}
-                        <strong>{num(B8.medioE, 0)} pb</strong>. Leída en continua, sobrestima las diez tasas, en{' '}
-                        <strong>{B8.mediaC} pb</strong> de media, y ninguna por menos de 43. No es un redondeo:
-                        es la distancia entre las dos convenciones, porque a estos niveles e<sup>s</sup> − 1 y s
-                        se separan unos 70 pb. Los extremos fallan también en efectiva —+66 pb el TES de 2027,
-                        +38 el de 2050— y por otra razón: ahí una forma de tres parámetros con τ fijo no alcanza
-                        a seguir al mercado, que es la lección de la sección 5.
+                        <strong>{num(B8.medioE, 0)} pb</strong>, donde la lectura continua da +{B8.medioC}. En
+                        continua, además, sobrestima las diez tasas —<strong>+{B8.mediaC} pb</strong> de media
+                        contra +{B8.mediaE} en efectiva— y ninguna por menos de 43. No es un redondeo: es la
+                        distancia entre las dos convenciones, porque a estos niveles e<sup>s</sup> − 1 y s se
+                        separan unos 70 pb. Los extremos fallan también en efectiva —+66 pb el TES de 2027, +38
+                        el de 2050—, y eso ya no es de la lectura: la curva del Banco es una forma suave ajustada
+                        a todos los TES a la vez, y no pasa por cada uno. Dónde falla cambia de un día a otro.
+                        Con los dieciséis TES negociados en el SEN el 30/12/2025 —las operaciones que congela el
+                        capítulo 10—, la lectura efectiva sale aún más firme, +6 pb de media contra +89 en
+                        continua, y la curva yerra más en los cortos que en los largos: 50 pb de raíz del error
+                        cuadrático medio hasta diez años y 19 más allá.
                     </p>
                     <p>
                         El bloque deja de paso las convenciones con que se negocia un TES de verdad, que el resto
                         del capítulo simplifica. Se cotiza por su TIR efectiva anual, y entre dos fechas de cupón
                         se paga el precio sucio, que suma al limpio el cupón causado desde el último pago, con
-                        los días contados en base 365. Los tres bonos del tramo se valoran el día de su
-                        aniversario y no tienen nada causado: es la simplificación que este capítulo declara, y
-                        el capítulo 10 vuelve sobre el conteo de días.
+                        los días contados en NL/365: base 365, y el 29 de febrero no cuenta ni en año bisiesto.
+                        Los tres bonos del tramo se valoran el día de su aniversario y no tienen nada causado:
+                        es la simplificación que este capítulo declara, y el capítulo 10 mide esa convención
+                        contra seis mil operaciones del SEN.
                     </p>
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · el precio del tramo"
-                        enunciado="Se le pidió a un modelo de lenguaje que valorara los tres bonos del tramo con la curva del Banco. El código lee bien el archivo, recupera la curva como el bloque de esta sección, descuenta en efectiva anual y devuelve tres precios plausibles, todos bajo la par. Señale la línea defectuosa y clasifique el error."
+                        enunciado="Se le pidió a un modelo de lenguaje que valorara los tres bonos del tramo con la curva del Banco. El código corre sin errores y devuelve tres precios plausibles, todos bajo la par. Señale la línea defectuosa y clasifique el error."
                         lineas={IA_SPOT_T}
                         lineaCorrecta={{ python: 21, r: 18 }}
                         tipos={TIPOS_ERROR_RIESGO}
@@ -4199,25 +4231,30 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         <Reto titulo="R7 · La nota que acompaña la cifra del tramo"
                             solucion={<>
                                 <p>
-                                    Una nota defendible cabe en cuatro frases y dice cuatro cosas.{' '}
+                                    Una nota defendible cabe en cuatro frases: las tres cosas que pide el
+                                    enunciado y una cuarta que conviene añadir.{' '}
                                     <strong>De dónde sale la curva</strong>: de los tres vértices que el Banco de
                                     la República publicó el 30/12/2025 —{dec(VERT[0])} %, {dec(VERT[1])} % y{' '}
                                     {dec(VERT[2])} %— con el τ = 3,7 de su propio modelo. El Banco advierte que
                                     esas tasas son informativas y no sirven para valorar portafolios: una entidad
                                     vigilada valora con los precios de un proveedor de precios —en Colombia, Precia
-                                    o PiP Colombia—, como exige el capítulo I-1 de la Circular Básica Contable y
-                                    Financiera.
+                                    o PiP Colombia—, como exige la Circular Básica Financiera en su parte 3, capítulo 4
+                                    —hasta mayo de 2026, el capítulo I-1 de la Circular Básica Contable y Financiera—.
                                 </p>
                                 <p>
                                     <strong>En qué convención está</strong>: efectiva anual, comprobada y no
-                                    supuesta. Con esa lectura, diez TES del SEN salen con {num(B8.medioE, 0)} pb de
-                                    error medio en el tramo de 2030 a 2033; leída en continua, el tramo valdría{' '}
-                                    {miles(B1.totalC)} millones, {miles(Math.abs(B1.difC))} menos.{' '}
+                                    supuesta. Con esa lectura, los cuatro TES del SEN del tramo de 2030 a 2033
+                                    salen con {num(B8.medioE, 0)} pb de error medio, y con +{B8.medioC} leída en
+                                    continua; en continua, además, el tramo valdría {miles(B1.totalC)} millones,{' '}
+                                    {miles(Math.abs(B1.difC))} menos.{' '}
                                     <strong>Qué es decisión del curso</strong>: los tres bonos son de estudio
                                     —cupones de TES reales, vencimientos en aniversarios exactos, nada causado— y
-                                    sus precios no son cotizaciones del SEN. <strong>Qué no se sabe</strong>: la
-                                    curva fuera de los vértices la pone τ, y eso pesa poco en un tramo que vence
-                                    antes de diez años.
+                                    sus precios no son cotizaciones del SEN. <strong>Qué no se sabe</strong>:
+                                    cuánto se separa la curva de los precios a que se negocian los TES de verdad.
+                                    El 30/12/2025 les pone a los de 2028, 2030 y 2034, de los que el tramo tomó sus
+                                    cupones, una TIR −49, −31 y +33 pb distinta de la del SEN, y el capítulo 10 lo
+                                    pasa a pesos: entre 1 700 y 2 700 millones por bono, más de lo que mueve τ en
+                                    todo el rango de la sección 5.
                                 </p>
                                 <p>
                                     Una nota que no diga en qué convención está la curva deja abierta una
@@ -4378,8 +4415,8 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         <MCQ
                             pregunta="Con la misma curva, un bono a diez años cuyo cupón fuera igual a la TIR del bono del fondo, 13,0065 %, ¿dónde cotizaría?"
                             opciones={[
-                                { texto: 'Exactamente en 100, porque un bono cuyo cupón es igual a su TIR cotiza a la par, y esa es la TIR del mercado a diez años.', correcta: false },
-                                { texto: 'Un poco sobre la par, porque con un cupón más alto su TIR baja por el efecto cupón y queda debajo de su propio cupón.', correcta: true, justificacion: `El bono que cotiza a la par es el que tiene como cupón la tasa par, ${dec(PAR[9], 4)} %, y no la TIR de otro bono. Con un cupón de ${dec(B2.tir[2], 4)} % su precio es 100,2539 y su TIR 12,9598 %: más cupón adelanta pagos, los pagos tempranos llevan tasas más bajas y la TIR baja hasta quedar por debajo del cupón. Sobre 200 000 millones nominales son 508 millones sobre la par. En la gráfica de esta sección es un punto apenas a la derecha de la línea vertical.` },
+                                { texto: 'Exactamente en 100, porque un bono cuyo cupón es igual a su TIR cotiza a la par, y esa es la TIR de la curva a diez años.', correcta: false },
+                                { texto: 'Un poco sobre la par, porque con un cupón más alto su TIR baja por el efecto cupón y queda debajo de su propio cupón.', correcta: true, justificacion: `El bono que cotiza a la par es el que tiene como cupón la tasa par, ${dec(PAR[9], 4)} %, y no la TIR de otro bono. Con un cupón de ${dec(B2.tir[2], 4)} % su precio es 100,2536 y su TIR 12,9598 %: más cupón adelanta pagos, los pagos tempranos llevan tasas más bajas y la TIR baja hasta quedar por debajo del cupón. Sobre 200 000 millones nominales son 507 millones sobre la par. En la gráfica de esta sección es un punto apenas a la derecha de la línea vertical.` },
                                 { texto: 'Bajo la par, como el bono del fondo, y la razón es que los dos vencen el mismo día y se descuentan con la misma curva.', correcta: false },
                                 { texto: 'Muy por encima de la par, cerca de 115, ya que su cupón supera en casi seis puntos al del bono del fondo.', correcta: false },
                             ]}
@@ -4388,7 +4425,7 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · la TIR del bono de diez años"
-                        enunciado={`Se le pidió a un modelo de lenguaje la TIR del bono de diez años del fondo, que la curva valora en ${dec(B1.precios[2], 4)}, en la convención en que se cotiza un TES. El código arma bien los diez flujos anuales, resuelve la ecuación con un método numérico que converge y rotula el resultado. Señale la línea defectuosa y clasifique el error.`}
+                        enunciado={`Se le pidió a un modelo de lenguaje la TIR del bono de diez años del fondo, que la curva valora en ${dec(B1.precios[2], 4)}, en la convención en que se cotiza un TES. El código corre, converge y devuelve una tasa de aspecto razonable. Señale la línea defectuosa y clasifique el error.`}
                         lineas={IA_NOMINAL}
                         lineaCorrecta={{ python: 11, r: 6 }}
                         tipos={TIPOS_ERROR_RIESGO}
@@ -4514,7 +4551,7 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                         nota="Antes de la tabla de hoy, el bloque recupera de una vez los tres β de cada uno de los 276 meses: como τ no cambia, la matriz 3×3 es la misma todos los meses y basta resolver una vez con todas las columnas. La segunda mitad saca de cada mes la forward a un año dentro de un año y la compara con la tasa a un año que rigió doce meses después; la última parte la vuelve a contar por años que no se solapan." />
 
                     <ChartFrame id="cap9-spot-fwd" height="chart-h-400"
-                        caption={`La curva del 30/12/2025 en efectiva anual. La spot pasa por los tres vértices del Banco; la forward instantánea arranca en ${dec(BETA[0] + BETA[1], 2)} %, sube hasta 13,68 % cerca de los cinco años y vuelve a bajar, y queda por encima de la spot mientras la spot sube. Los cuadros son las forward anuales que imprime el bloque, puestas en el centro de su año. La zona gris es lo que la curva dice más allá de su último vértice, y la sección 5 muestra que ahí manda τ, no el mercado.`} />
+                        caption={`La curva del 30/12/2025 en efectiva anual. La spot pasa por los tres vértices del Banco; la forward instantánea arranca en ${dec(BETA[0] + BETA[1], 2)} %, sube hasta 13,68 % cerca de los cinco años y vuelve a bajar, y queda por encima de la spot mientras la spot sube. Los cuadros son las forward anuales que imprime el bloque, puestas en el centro de su año. La zona gris es lo que la curva dice más allá de su último vértice publicado: para quien solo tiene los tres vértices, ahí manda τ, y la sección 5 mide cuánto.`} />
 
                     <h3>Una forward no es un pronóstico insesgado, y la historia lo mide</h3>
                     <p>
@@ -4594,7 +4631,7 @@ cat(sprintf("error medio, de 2030 a 2033:     efectiva %+4.0f pb   continua %+4.
                 () => ({
                     separators: ',.', barmode: 'group',
                     margin: { t: 50, r: 16, b: 46, l: 60 },
-                    xaxis: { title: 'año que cubre la forward', type: 'category' },
+                    xaxis: { title: { text: 'año que cubre la forward', standoff: 6 }, type: 'category', automargin: true },
                     yaxis: { title: 'cambio de la forward (pb)', zeroline: true },
                     legend: { orientation: 'h', x: 0, y: 1.02, yanchor: 'bottom' },
                 }), []);
@@ -4681,7 +4718,7 @@ spot <- (df^(-1 / seq_along(df)) - 1) * 100`,
                     />
 
                     <CodeTabs titulo="El bootstrapping sobre los diez bonos a la par, la ida y vuelta, y un precio que llega mal" bloques={EJ_BOOTSTRAP}
-                        nota="El bucle es la ecuación de la derivación, en orden. La segunda mitad repite el cálculo con el precio del bono de cuatro años 0,50 por debajo, y le pasa el resultado a Nelson-Siegel —el modelo de tres parámetros con que el Banco calcula su curva, que la sección 5 desarrolla—: con τ fijo es lineal en los β y se ajusta por mínimos cuadrados en una línea." />
+                        nota="El bucle es la ecuación de la derivación, en orden. La segunda mitad repite el cálculo con el precio del bono de cuatro años 0,50 por debajo, y le pasa el resultado a Nelson-Siegel —el modelo de tres parámetros y una escala con que el Banco calcula su curva, que la sección 5 desarrolla—: con τ fijo es lineal en los β y se ajusta por mínimos cuadrados en una línea." />
 
                     <h3>Lo que imprime el bloque, leído</h3>
                     <p>
@@ -4709,22 +4746,22 @@ spot <- (df^(-1 / seq_along(df)) - 1) * 100`,
 
                     <OrdenaPasos
                         titulo="R5 · El bootstrapping, validado antes de creerle"
-                        enunciado="Ordene los seis pasos para construir la curva de un día por bootstrapping y poder confiar en ella. Hay un par que parece intercambiable y no lo es, y el texto de cada paso dice por qué."
+                        enunciado="Ordene los seis pasos para construir la curva de un día por bootstrapping y poder confiar en ella. Hay un par que parece intercambiable y no lo es."
                         pasos={[
                             'Armar desde la curva del Banco el mercado que implica: un bono a la par por año, del 1 al 10.',
-                            'Correr el bootstrapping sobre esos diez precios, del bono más corto al más largo.',
-                            'Comparar la curva que devuelve con la del Banco: si el código está bien, coinciden hasta centésimas de punto básico.',
+                            'Correr el bootstrapping sobre los precios de los bonos a la par, del más corto al más largo.',
+                            'Comparar con la del Banco la curva que sale de los bonos a la par: si el código está bien, coinciden hasta centésimas de punto básico.',
                             'Correr el mismo código, ya validado, sobre las cotizaciones del mercado.',
-                            'Sacar de la curva que devuelven las cotizaciones la forward de cada año.',
-                            'Buscar en esas forward un zigzag de dos años seguidos, que delata un precio malo aunque los diez bonos se reprecien exactos.',
+                            'Sacar la forward de cada año de la curva construida con las cotizaciones.',
+                            'Buscar en las forward de las cotizaciones un zigzag de dos años seguidos, que delata un precio malo aunque los diez bonos se reprecien exactos.',
                         ]}
                         mezcla={[3, 5, 0, 4, 2, 1]}
-                        pista="El par que parece intercambiable es el de validar y usar: con prisa, se corre el código sobre las cotizaciones y se valida después. Pero una validación posterior no distingue un error del código de un precio malo, porque los dos dan una curva rara; por eso el paso de las cotizaciones dice «ya validado». Y la validación no detecta precios malos —el bootstrapping reprecia exacto también el precio malo—: eso lo hace el zigzag de las forward, que necesita las forward ya calculadas."
+                        pista="Dos pasos corren el mismo código. Piense qué podría concluir de cada uno si la curva saliera rara, y qué detecta cada una de las dos comprobaciones: la que compara con la curva del Banco y la que mira las forward."
                     />
 
                     <Comparador
                         titulo="R4 · Bootstrapping contra Nelson-Siegel, con un precio que llegó mal"
-                        enunciado="Las dos versiones parten de los mismos diez precios, con el del bono de cuatro años 0,50 por debajo de su valor: A los convierte en spot plazo a plazo y B ajusta Nelson-Siegel sobre esas diez spot. Léalas con la pregunta puesta: no cuál es mejor, sino qué hace cada una con el error."
+                        enunciado="Las dos versiones parten de los mismos diez precios, uno de ellos 0,50 por debajo de su valor: A los convierte en spot plazo a plazo y B ajusta Nelson-Siegel sobre esas diez spot. La sección ya midió qué hacen con el error en el bono de cuatro años. Léalas pensando en otro bono: no cuál es mejor, sino qué hace cada una con el error según dónde caiga."
                         a={{
                             etiqueta: 'A · bootstrapping',
                             codigo: {
@@ -4738,7 +4775,7 @@ for (i in 1:10) {                   # plazo a plazo, del corto al largo
 }
 spot <- (df^(-1 / t) - 1) * 100`,
                             },
-                            nota: 'Recibe los diez precios, el de cuatro años con el error.',
+                            nota: 'Recibe los diez precios, uno de ellos con el error.',
                         }}
                         b={{
                             etiqueta: 'B · Nelson-Siegel, τ = 3,7',
@@ -4754,30 +4791,29 @@ suave <- as.vector(L %*% beta)`,
                             },
                             nota: 'Recibe las diez spot que devuelve A y les ajusta una curva de tres parámetros.',
                         }}
-                        pregunta="Un solo precio llegó 0,50 por debajo de su valor. ¿Qué hace cada método con ese error?"
+                        pregunta="Si el precio que llegó 0,50 por debajo hubiera sido el del bono de diez años, ¿qué haría cada método con ese error?"
                         opciones={[
-                            { texto: 'Los dos lo eliminan, porque el bootstrapping promedia los diez precios entre sí y Nelson-Siegel descarta el que no encaja con el resto.', correcta: false },
-                            { texto: 'El bootstrapping lo concentra en dos plazos y lo agranda en la forward, mientras Nelson-Siegel lo reparte entre los diez sin zigzag.', correcta: true, justificacion: 'El bloque lo mide. En el bootstrapping la spot a cuatro años sube 20,23 pb y las siguientes bajan unos 2 pb o menos, pero la forward de 2029 sube 81,79 pb y la de 2030 cae 91,62: un zigzag de más de un punto y medio que no existe en ningún mercado. Nelson-Siegel no mueve ninguna spot más de 4,10 pb, pero contamina plazos que estaban bien, y la forward de 2035 baja 18,41. Ninguno es gratis: el primero reprecia exacto y lee mal la forward, el segundo lee bien la forma y no reprecia exacto ningún bono. Ajustarlo a los precios, como hace el Banco, cambia los decimales y no la lección.' },
-                            { texto: 'El bootstrapping lo pasa completo a los plazos siguientes, y Nelson-Siegel lo deja entero en el bono de cuatro años, donde cayó.', correcta: false },
-                            { texto: 'Ninguno lo nota, y un precio medio punto más bajo mueve la tasa cero cupón menos de un punto básico en los diez plazos.', correcta: false },
+                            { texto: 'El bootstrapping haría el mismo zigzag que con el bono de cuatro años, ahora en 2034 y 2035, y Nelson-Siegel lo repartiría igual que antes.', correcta: false },
+                            { texto: 'El bootstrapping lo dejaría en la spot y la forward del décimo año, sin zigzag, y Nelson-Siegel lo repartiría hasta mover la tasa a un año.', correcta: true, justificacion: 'Cambie el índice del precio malo en el bloque de la sección y lo verá. El bono de diez años es el último de la cadena, así que su error solo entra en d(10): el bootstrapping sube la spot a diez años 17,34 pb y la forward de 2035 174,63 pb, y no toca nada antes. No hay zigzag porque no hay una forward después que compense, y por eso la señal es un salto aislado en el extremo, más difícil de distinguir de una curva que de verdad se empina. Nelson-Siegel lo reparte: la spot a diez años sube 8,25 pb y la de un año 2,01, un plazo que estaba bien. El zigzag delata un precio malo en medio de la curva; en el extremo hay que buscar otra señal.' },
+                            { texto: 'El bootstrapping lo repartiría entre los diez plazos, pues el bono de diez años usa los diez factores, y Nelson-Siegel lo dejaría en ese plazo.', correcta: false },
+                            { texto: 'El bootstrapping lo pasaría a la tasa de cada plazo anterior al resolver hacia atrás, y Nelson-Siegel lo absorbería en β₀ sin tocar la curva corta.', correcta: false },
                         ]}
                     />
 
                     <Emparejamiento
-                        titulo="R6 · Seis tasas a diez años, seis números"
-                        enunciado="El 30/12/2025 todas estas tasas son «la tasa a diez años» para alguien. Empareje cada una con su valor. Salvo el cupón y la versión continua, las cuatro quedan a menos de dos décimas unas de otras: se distinguen razonando, no redondeando. Hágalo sin volver a los bloques, y después compruébelo en ellos."
+                        titulo="R6 · Cinco tasas a siete años, cinco números"
+                        enunciado="El Banco no publica ningún vértice a siete años, y la prosa del capítulo tampoco imprime estas cinco tasas: salen de las tablas de los bloques o de una cuenta de una línea. Empareje cada una con su valor el 30/12/2025 razonando qué tiene que quedar por encima de qué con lo que el capítulo dijo de la forma de la curva. Hágalo sin volver a los bloques, y después compruébelo en ellos."
                         etiquetaIzq="La tasa"
                         etiquetaDer="Lo que vale el 30/12/2025"
                         izquierda={[
-                            'La tasa cero cupón a diez años, tal como la publica el Banco',
+                            'La tasa cero cupón a siete años',
                             'Esa misma tasa, pasada a capitalización continua',
-                            'La TIR efectiva del bono de diez años del fondo',
-                            'La forward del décimo año, de 2034 a 2035',
-                            'La tasa par a diez años',
-                            'El cupón del bono de diez años del fondo',
+                            'La tasa par a siete años',
+                            'La forward del séptimo año, de 2031 a 2032',
+                            'La forward del octavo año, de 2032 a 2033',
                         ]}
-                        derecha={['12,9601 %', '7,25 %', '13,1491 %', '13,0065 %', '13,1300 %', '12,3367 %']}
-                        solucion={[4, 5, 3, 2, 0, 1]}
+                        derecha={['13,4387 %', '12,8833 %', '13,0598 %', '13,5670 %', '12,2747 %']}
+                        solucion={[2, 4, 1, 3, 0]}
                     />
                 </>
             );
@@ -4931,10 +4967,14 @@ suave <- as.vector(L %*% beta)`,
                         Lo que decide τ, entonces, es la curva de quien solo tiene los tres vértices: más allá
                         de diez años, cualquier τ es compatible con ellos. El Banco no está en esa situación,
                         porque ajusta su curva a los precios de todos los TES que se negocian, y los hay hasta
-                        2050: en sus manos los plazos largos tienen mercado detrás. Lo que este archivo no trae
-                        es eso. Un fondo con pasivos a treinta años que descuente con esta reconstrucción no
-                        está usando una tasa de mercado en ese plazo; está usando τ = 3,7. Esa tasa tiene que
-                        salir de los TES largos o de la curva de un proveedor de precios.
+                        2058. Por eso conservar τ = 3,7 no es un supuesto más entre seis: es lo que hace que la
+                        reconstrucción sea la curva del Banco, la que sí vio los TES largos, y cambiarlo es
+                        reemplazar ese ajuste por un supuesto propio. Lo que el archivo no permite es comprobar
+                        la curva; los precios del SEN sí. El 30/12/2025 la curva del Banco le acierta más a los
+                        TES de más de diez años —19 pb de raíz del error cuadrático medio— que a los de menos,
+                        con 50. Un fondo con pasivos a treinta años que descuente con esta reconstrucción usa
+                        una tasa con mercado detrás, pero no la puede auditar con el archivo: tiene que
+                        contrastarla con los TES largos o con la curva de un proveedor de precios.
                     </p>
 
                     <Laboratorio
@@ -5002,8 +5042,10 @@ suave <- as.vector(L %*% beta)`,
                                     esa decisión: todos los que caen fuera de los vértices. Si el comité necesita
                                     una tasa a treinta años que sea de mercado, lo que hace falta no es estimar τ
                                     sino más vértices —precios de bonos largos—, que es exactamente lo que el Banco
-                                    tiene y el archivo público no trae. Una respuesta que no cite al menos dos
-                                    cifras de la sección no está terminada.
+                                    tiene y el archivo público no trae. Mientras tanto, el τ del Banco no es uno
+                                    cualquiera: es el único con el que la reconstrucción coincide con una curva que
+                                    sí se ajustó a los TES largos. Una respuesta que no cite al menos dos cifras de
+                                    la sección no está terminada.
                                 </p>
                             </>}>
                             <p>
@@ -5086,7 +5128,7 @@ suave <- as.vector(L %*% beta)`,
                         filas={[
                             { celdas: ['Nivel', '78,43 %', { v: '86,05 %', lee: 'Casi nueve de cada diez unidades de varianza de los cambios mensuales de la curva son un movimiento en que los tres vértices suben o bajan juntos, aunque no exactamente lo mismo: las cargas van de 0,47 a un año a 0,63 a cinco. Para el tramo del fondo eso quiere decir que una sola cifra —cuánto pierde, en proporción, con un desplazamiento casi paralelo— resume casi todo su riesgo de tasa, y es la cifra con la que arranca el capítulo 10: la duración.' }, '+0,474 · +0,626 · +0,619'] },
                             { celdas: ['Pendiente', '16,18 %', { v: '12,63 %', lee: 'El corto contra el largo: el vértice de un año va en contra de los otros dos. Es el movimiento que deja más expuesto a quien se cubre solo contra el nivel, porque un tramo con bonos de plazos distintos gana en unos y pierde en otros. Pesa menos desde 2018 que en la ventana larga.' }, '−0,854 · +0,153 · +0,498'] },
-                            { celdas: ['Curvatura', '5,38 %', { v: '1,32 %', lee: 'El vértice de cinco años contra los extremos. Desde 2018 casi no aparece: 1,32 % de la varianza, contra 5,38 % en la ventana larga. La consecuencia práctica es que casi todo el riesgo de tasa del tramo se describe con las dos primeras componentes, que es lo que usarán las coberturas del capítulo 10.' }, '−0,217 · +0,764 · −0,607'] },
+                            { celdas: ['Curvatura', '5,38 %', { v: '1,32 %', lee: 'El vértice de cinco años contra los extremos. Desde 2018 casi no aparece: 1,32 % de la varianza, contra 5,38 % en la ventana larga. La consecuencia práctica es que casi todo el riesgo de tasa del tramo se describe con las dos primeras componentes. El capítulo 10 lo cubre con un solo bono, contra el nivel, y mide lo que esa cobertura deja abierto.' }, '−0,217 · +0,764 · −0,607'] },
                         ]}
                         nota="Con tres vértices hay exactamente tres componentes, así que la tabla no descubre formas: las nombra y dice cuánto pesa cada una. La lectura es la clásica de Litterman y Scheinkman para la curva del Tesoro estadounidense, y sobrevive en la colombiana: el nivel manda."
                     />
@@ -5130,19 +5172,24 @@ suave <- as.vector(L %*% beta)`,
                         forward de {dec(B7.fwdDD, 4)} a {dec(B7.fwdCurva, 4)}, {miles(B7.dFwdMill)} millones.
                     </p>
                     <p>
-                        Dos advertencias van pegadas a esa cifra. Seis meses queda antes del primer vértice, así
+                        Tres advertencias van pegadas a esa cifra. Seis meses queda antes del primer vértice, así
                         que esa tasa la pone τ: con τ entre 1 y 15 la call sube entre {miles(B7.callTau1)} y{' '}
                         {miles(B7.callTau15)} millones. Y la curva de los TES no es la única candidata, ni es
                         libre de riesgo en sentido estricto: lleva la prima del emisor soberano y la de
-                        liquidez, y los derivados en pesos se descuentan en la práctica con la curva IBR. La
-                        escala, en cambio, no depende de esos detalles: en el capítulo 12, elegir la σ de 2019
+                        liquidez, y los derivados en pesos se descuentan en la práctica con la curva IBR
+                        (Indicador Bancario de Referencia). Y el plazo corto es justo donde la curva más se aleja
+                        del mercado: el único TES de menos de un año, el de agosto de 2026, se negoció el
+                        30/12/2025 a 9,739 % —en una sola operación— donde la curva marca 11,04 %, y con esa tasa
+                        la brecha sobre ln(1,07) baja a 2,53 pp y la call sube 1 440 millones. Una operación es un
+                        dato débil, pero basta para ver que la incertidumbre de esa tasa no cabe en el rango de
+                        τ. La escala, en cambio, no depende de esos detalles: en el capítulo 12, elegir la σ de 2019
                         o la de 2020 moverá esa misma call 19 653 millones, y todo el error numérico del
                         capítulo cabrá en 47. La tasa queda en medio: unas diez veces menos que la volatilidad,
                         unas cuarenta veces más que el método.
                     </p>
                     <p>
                         La decisión del curso es mantener D-D y declarar la brecha, que es lo que hace este
-                        párrafo y lo que harán los capítulos que la usen. Es la misma regla con que el capítulo
+                        párrafo y lo que repiten, al usarla, las portadas de los capítulos 11 y 12. Es la misma regla con que el capítulo
                         1 conservó su convención de rendimientos y le añadió la columna exacta.
                     </p>
 
@@ -5230,22 +5277,22 @@ suave <- as.vector(L %*% beta)`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 9" preguntas={[
                     {
-                        pregunta: '¿Por qué el bono de diez años del fondo se valora con diez tasas distintas y no con una sola?',
-                        justificacion: 'Un bono con cupón es una cartera de ceros, y dos cosas que pagan igual cuestan igual: su precio es la suma de los precios de sus diez ceros. Con una sola tasa —la del vencimiento— el R3 de la sección 1 subvalora el tramo en 1 695 millones, porque el 30/12/2025 la curva va de 11,30 % a 13,13 % y los cupones tempranos se descontarían de más. La TIR sí es una sola tasa, pero se deduce del precio, no lo produce: es la sección 2.',
+                        pregunta: 'Leída en continua, la curva del Banco pone a diez TES de verdad 81 pb por encima de sus tasas del SEN, en promedio; leída en efectiva, 20. ¿Qué se concluye?',
+                        justificacion: 'Las dos lecturas parten de la misma columna de tasas y del mismo modelo, y lo único que cambia es cómo se capitaliza: a estos niveles eso son unos 60 pb, la distancia entre 81 y 20. Lo que queda en efectiva es del modelo: en el tramo de 2030 a 2033 la media es de −8 pb, contra +56 en continua, y los extremos fallan en las dos lecturas. Con los dieciséis TES del 30/12/2025 la decisión sale más firme, +6 contra +89. Leerla mal le habría restado al tramo 14 487 millones, y el capítulo 10 hereda esta lectura.',
                         opciones: [
-                            { texto: 'Porque cada pago es un bono cero cupón de su propio plazo, y la curva del 30/12/2025 le asigna a cada plazo una tasa distinta.', correcta: true },
-                            { texto: 'Porque el Banco exige descontar cada cupón con la tasa de su año para que la valoración del fondo sea aceptada por la Superintendencia.', correcta: false },
-                            { texto: 'Porque los cupones pagan intereses y el principal no, así que los primeros se descuentan con tasas cortas y el último con la de diez años.', correcta: false },
-                            { texto: 'Porque una sola tasa solo sirve para bonos cero cupón, y un bono con cupón necesita una tasa por pago para tener TIR.', correcta: false },
+                            { texto: 'Que hay que leerla en continua, como el documento de 2002, porque un modelo del Banco no puede fallar por 20 pb en las tasas que él mismo usa.', correcta: false },
+                            { texto: 'Que la curva está mal calculada, y una curva bien construida reproduciría las diez tasas del SEN con un error de cero puntos básicos.', correcta: false },
+                            { texto: 'Que el Banco publica en efectiva aunque su ficha no lo diga, y que lo que sobra en esa lectura es error del modelo y no de la convención.', correcta: true },
+                            { texto: 'Que la convención importa poco frente al modelo, porque las dos lecturas quedan a menos de un punto porcentual de las tasas del SEN.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'Leer la curva del Banco en continua en vez de efectiva le resta al tramo 14 487 millones. ¿De dónde sale esa diferencia?',
                         justificacion: 'Con 13,13 % a diez años, 1,1313^(−10) = 0,2912 y e^(−0,1313·10) = 0,2690: el mismo número da dos factores de descuento. Leído en continua, 13,13 % equivale a 14,03 % efectivo, así que tomarlo como continuo es descontar con una tasa 0,90 pp más alta, y la brecha crece con el plazo. El Banco publica una sola columna y no dice la convención; el curso la decidió contrastando la curva con las tasas del SEN, que la lectura efectiva reproduce en el tramo medio y la continua sobrestima en 81 pb de media.',
                         opciones: [
-                            { texto: 'De que en continua los cupones se reinvierten a la TIR y en efectiva no, lo que cambia los flujos que el bono paga cada año.', correcta: false },
+                            { texto: 'De que en continua los cupones se reinvierten a la TIR y en efectiva a la spot, lo que cambia los flujos que el bono paga cada año.', correcta: false },
                             { texto: 'De que el Banco publica dos curvas distintas, una efectiva y otra continua, y el capítulo escogió la que da el valor más alto del tramo.', correcta: false },
-                            { texto: 'De que la tasa continua incluye la inflación esperada y la efectiva no, así que la primera descuenta los pagos con una tasa nominal más alta.', correcta: false },
+                            { texto: 'De que la tasa continua es nominal y la efectiva es real, así que la primera descuenta los pagos con una tasa más alta que la segunda.', correcta: false },
                             { texto: 'De que la misma cifra descuenta más leída en continua que leída en efectiva, y la brecha crece con el plazo porque se acumula año a año.', correcta: true },
                         ],
                     },
@@ -5255,7 +5302,7 @@ suave <- as.vector(L %*% beta)`,
                         opciones: [
                             { texto: 'Porque la spot de diez años lleva la prima por plazo más alta de toda la curva, y la TIR no paga prima por plazo porque es una tasa de mercado.', correcta: false },
                             { texto: 'Porque el bono cotiza bajo la par, y un bono bajo la par tiene por definición una TIR menor que la tasa cero cupón de su vencimiento.', correcta: false },
-                            { texto: 'Porque la TIR descuenta el riesgo de reinversión de los cupones y la spot no, así que es menor en todo bono con cupón positivo.', correcta: false },
+                            { texto: 'Porque la TIR descuenta el riesgo de reinversión de los cupones, que la spot ignora, así que es menor en todo bono con cupón positivo.', correcta: false },
                             { texto: 'Porque la TIR promedia las tasas de todos los pagos, y con la curva subiendo los pagos tempranos llevan tasas menores que la de diez años.', correcta: true },
                         ],
                     },
@@ -5264,23 +5311,23 @@ suave <- as.vector(L %*% beta)`,
                         justificacion: 'Los dos bonos se valoran con las mismas diez tasas, así que ninguno está caro: los dos están exactamente en la curva. La diferencia de 4,82 pb es el efecto cupón: el de 13,25 % entrega más dinero antes, y los pagos tempranos llevan tasas más bajas, que pesan más en su promedio. Escoger el de mayor TIR sería escoger por la forma de los pagos, no por el precio. Lo que separa las dos cosas es la curva cero cupón, no la TIR.',
                         opciones: [
                             { texto: 'Que el bono de cupón alto está caro frente al del fondo, porque rinde menos por el mismo plazo, y conviene venderlo para comprar el otro.', correcta: false },
-                            { texto: 'Que la TIR depende del cupón además de la curva, así que ordenar bonos por TIR mezcla lo que rinden con cómo reparten sus pagos.', correcta: true },
-                            { texto: 'Que la curva del Banco está mal calibrada en los cupones altos, porque dos bonos del mismo plazo deberían tener la misma TIR.', correcta: false },
+                            { texto: 'Que la TIR no depende solo de la curva sino del cupón, así que ordenar por TIR mezcla lo que rinden con cómo reparten sus pagos.', correcta: true },
+                            { texto: 'Que la curva del Banco está mal calibrada para un cupón alto, porque dos bonos del mismo plazo deberían tener la misma TIR.', correcta: false },
                             { texto: 'Que la diferencia viene del redondeo de los cupones a cuatro decimales, que mueve la TIR unas centésimas en cualquier bono largo.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'En 264 meses, la forward a un año dentro de un año quedó por encima de la tasa que después rigió el 75,4 % de las veces. ¿Qué conclusión sostiene el dato?',
-                        justificacion: 'La forward sale de no arbitraje y no promete nada sobre el futuro. Que quede arriba tres de cada cuatro meses, con un error medio de +1,2903 pp, es lo que se espera si quien presta a plazo largo cobra una prima. Y no es un efecto del solapamiento: contado por años que no se solapan, queda arriba entre 15 y 19 de 22 años, según el mes. Ojo con el argumento de la tendencia: explica parte del sesgo de 2003–2012, pero entre 2013 y 2019 la forward también se pasó en 0,84 pp de media, y en 2020–2024 se quedó corta sin que eso la volviera un pronóstico.',
+                        justificacion: 'La forward sale de no arbitraje y no promete nada sobre el futuro. Que quede arriba tres de cada cuatro meses, con un error medio de +1,2903 pp, es lo que se espera si quien presta a plazo largo cobra una prima. Y el solapamiento no lo explica: contado por años que no se solapan, queda arriba entre 15 y 19 de 22 años, según el mes, y aun 15 de 22 tendría probabilidad 0,0669 sin sesgo. Que la causa sea la prima es compatible con el dato, no demostrado por él: con la curva sola no se separa de la expectativa. Ojo con el argumento de la tendencia: explica parte del sesgo de 2003–2012, pero entre 2013 y 2019 la forward también se pasó en 0,84 pp de media, y en 2020–2024 se quedó corta sin que eso la volviera un pronóstico.',
                         opciones: [
-                            { texto: 'Que el mercado de TES es ineficiente, porque en un mercado eficiente la forward sería un pronóstico insesgado de la tasa que va a regir.', correcta: false },
-                            { texto: 'Que la forward mezcla la expectativa con una prima por plazo, de modo que usarla como pronóstico ha dado un sesgo hacia arriba.', correcta: true },
+                            { texto: 'Que el mercado de TES es ineficiente, porque en un mercado eficiente la forward sería un pronóstico insesgado de la tasa spot que va a regir a ese plazo.', correcta: false },
+                            { texto: 'Que usar la forward como pronóstico ha dado un sesgo hacia arriba, compatible con una prima que cobra quien presta a plazo largo.', correcta: true },
                             { texto: 'Que las tasas bajaron casi todo el periodo, y en una muestra con tasas al alza la forward quedaría siempre por debajo de la realizada.', correcta: false },
                             { texto: 'Que el resultado no significa nada, y con pares que se solapan cualquier proporción de meses puede salir por puro azar.', correcta: false },
                         ],
                     },
                     {
-                        pregunta: 'El 30/12/2025 el TES a diez años rinde 13,13 % en pesos y 6,34 % en UVR, las dos en efectiva anual. ¿Cómo hay que leer la inflación implícita de 6,39 % que sale de ellas?',
+                        pregunta: 'El 30/12/2025 la tasa cero cupón a diez años es 13,13 % en pesos y 6,34 % en UVR, las dos en efectiva anual. ¿Cómo hay que leer la inflación implícita de 6,39 % que sale de ellas?',
                         justificacion: 'En efectiva anual, (1 + 13,13 %)/(1 + 6,34 %) − 1 = 6,39 %: es la inflación con la que los dos bonos rinden lo mismo. La resta simple, 6,79 pp, la exagera en 40 pb, porque solo en continua las tasas se restan. Y no es un pronóstico, por la misma razón por la que la forward no lo es: mezcla la inflación esperada con una prima por el riesgo de que sea otra y con la diferencia de liquidez entre los dos mercados. El Banco las separa con un modelo; la curva sola no puede.',
                         opciones: [
                             { texto: 'Como la inflación que iguala a los dos bonos, que mezcla la que el mercado espera con primas por riesgo y por liquidez.', correcta: true },
@@ -5296,7 +5343,7 @@ suave <- as.vector(L %*% beta)`,
                             { texto: 'Que el bootstrapping y Nelson-Siegel son equivalentes, porque los dos dan la misma curva en los diez plazos cuando los precios son correctos.', correcta: false },
                             { texto: 'Que la curva del Banco tiene un error de menos de un centésimo de punto básico, y el bootstrapping lo corrige al trabajar con los precios.', correcta: false },
                             { texto: 'Que la prueba no sirve, porque si los precios salen de la misma curva el resultado tiene que ser cero exacto con cualquier algoritmo.', correcta: false },
-                            { texto: 'Que el algoritmo está bien escrito, y lo que queda viene de que los cupones de los bonos a la par se cotizan con cuatro decimales.', correcta: true },
+                            { texto: 'Que el código está bien escrito, y la diferencia no viene del algoritmo sino del redondeo de los cupones a la par a cuatro decimales.', correcta: true },
                         ],
                     },
                     {
@@ -5315,7 +5362,7 @@ suave <- as.vector(L %*% beta)`,
                         opciones: [
                             { texto: 'Que el Banco estima los β con un τ distinto del de los vértices, y al reconstruir con τ = 3,7 la diferencia aparece en los tres plazos.', correcta: false },
                             { texto: 'Que los vértices se calculan con capitalización efectiva y los β con continua, así que reconstruir sin convertir deja esa brecha.', correcta: false },
-                            { texto: 'Que se publican en fracción y con dos decimales, con resolución de un punto, mientras los vértices vienen en centésimas.', correcta: true },
+                            { texto: 'Que su formato no deja escribir un β entre 12 % y 13 %, mientras los vértices se publican en centésimas de punto.', correcta: true },
                             { texto: 'Que el ajuste metodológico de 2021 recalculó los vértices desde 2019 pero no los β, que siguen con la metodología anterior.', correcta: false },
                         ],
                     },
@@ -5324,7 +5371,7 @@ suave <- as.vector(L %*% beta)`,
                         justificacion: 'Cuando casi todo lo que mueve la curva es un desplazamiento en bloque, basta una cifra para describir la exposición del tramo: con 100 pb de nivel, el laboratorio de la sección 6 muestra que pierde 17 093 millones. Eso no vuelve intercambiables a los bonos —el de diez años pierde 7 964 y el de dos 3 082— ni compensa nada, porque los tres pierden a la vez. Y la pendiente no es ignorable: 12,63 % desde 2018 y 16,18 % desde 2003, y es justo lo que deja abierto una cobertura solo contra el nivel. El capítulo 10 convertirá esas pérdidas en duración y convexidad.',
                         opciones: [
                             { texto: 'Que los tres bonos del tramo son intercambiables, porque si todos los plazos se mueven juntos da igual en cuál de los tres se invierta.', correcta: false },
-                            { texto: 'Que una sola cifra, su sensibilidad a un desplazamiento casi paralelo de la curva, resume casi todo su riesgo de tasa.', correcta: true },
+                            { texto: 'Que medir cuánto pierde cuando toda la curva sube o baja en bloque describe la mayor parte de su riesgo de tasa.', correcta: true },
                             { texto: 'Que el riesgo de tasa del tramo es bajo, y un factor dominante hace que las pérdidas de un bono se compensen con las de otro.', correcta: false },
                             { texto: 'Que la pendiente y la curvatura se pueden ignorar, porque juntas no explican en ninguna ventana más del 14 % de la varianza.', correcta: false },
                         ],
