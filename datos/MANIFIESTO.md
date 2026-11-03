@@ -162,20 +162,25 @@ corrigen: se declaran.
   días desde el último cupón, por 365, devuelven el cupón. La mediana de cada
   referencia cae a menos de una milésima de punto de un cuarto de punto
   —7,25 % en la de 2034, 6,00 % en la de 2028—.
-- **Precio y TIR van con tres decimales, y no siempre redondeados.** En 174
-  operaciones la TIR publicada queda entre 0,07 y 0,10 pb por debajo de la que
-  da su precio, que es lo que deja un truncamiento. Quien contraste una
-  convención con este archivo tiene que darle una milésima de holgura a cada
-  cifra publicada; sin ella se le caen operaciones que están bien.
+- **Precio y TIR van con tres decimales, y la TIR va truncada, no redondeada.**
+  En las 6 199 operaciones la TIR publicada es la que da su precio cortada al
+  tercer decimal; en 1 236 eso la separa del redondeo y la deja hasta una
+  milésima de punto por debajo. Quien contraste una convención con este archivo
+  tiene que darle una milésima de holgura a cada cifra publicada; sin ella se le
+  caen operaciones que están bien. (Medido el 2026-11-03, en la auditoría del
+  capítulo 10; la versión anterior de esta nota decía «en 174 operaciones».)
 - **Los días se cuentan en NL/365 sobre las fechas del título sin ajustar.** Con
   esa holgura, el precio y la TIR de las 6 199 operaciones se explican uno al
   otro contando los días reales sin el 29 de febrero, sobre 365. Con Actual/365
   solo cuadran 346 —las de las dos referencias que vencen antes del 29 de
   febrero de 2028, donde las dos convenciones cuentan igual—; con 30/360, el
   10,1 %; con Actual/360, ninguna; y moviendo cada pago al día hábil siguiente
-  con los festivos de Colombia, el 29,7 %. La prueba se hace sobre el precio
-  sucio que sale del contravalor, y la mide el bloque de la sección 4 del
-  capítulo 10.
+  con los festivos de Colombia, el 29,7 %. Actual/Actual ICMA también las
+  explica todas: con cupón anual solo cuenta distinto que NL/365 dentro de un
+  periodo de cupón que contenga un 29 de febrero, y en diciembre de 2025 no hay
+  ninguno. Lo que fija NL/365 es la resolución que reglamenta los TES. La prueba
+  se hace sobre el precio sucio que sale del contravalor, y la mide el bloque de
+  la sección 4 del capítulo 10.
 - **Se liquida el mismo día (T+0).** Los intereses causados que trae el
   contravalor van hasta la fecha de la operación: con un día más se separarían
   0,03 por cada 100 en la mediana, y lo observado no pasa de 0,00005.

@@ -22,6 +22,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Auditoría del capítulo 7 | ✅ cerrada 2026-09-13 · **los 5 graves, los 10 medios y los 16 menores** · alcanzó a los capítulos 2, 8, 11 y 12 y a TR-CORE |
 | Auditoría del capítulo 9 | ✅ cerrada 2026-09-30 · cinco revisores · **la curva pasó a efectiva anual** y se cerraron los 5 graves · `AUDITORIA_CAP9.md` |
 | Segunda revisión del capítulo 9 | 🟡 2026-10-07 · los 2 altos y M1–M13 corregidos · **M14 y M15 (mercado de TES, plegar D-D) esperan la decisión del usuario** · `AUDITORIA_CAP9_REVISION.md` |
+| Auditoría del capítulo 10 | 🟡 2026-11-03 · cinco revisores · ningún error de cálculo · **los 4 altos y los 11 medios corregidos**, los menores no · `AUDITORIA_CAP10.md` |
 | Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
 | 5 · Portal y Quarto | pendiente |
 
@@ -113,9 +114,13 @@ QuantLib en las dos pestañas. Sus cifras de referencia: duraciones de Macaulay 
 duración modificada del tramo **3,6681**. Con +100 pb en la TIR de los tres bonos la duración
 anticipa **−17 691** millones, la revaloración da **−17 154** y la aproximación con convexidad
 **−17 139**; con −100 pb el tramo gana 18 258. El DV01 es **176,91** millones por punto básico
-contra la TIR y **176,21** contra la curva: en efectiva anual, mover todas las spot no mueve cada
-TIR lo mismo, y los 61 millones entre los 17 154 de aquí y los 17 093 del laboratorio del 9 son
-eso. El vértice de cinco años carga el **55,1 %** del riesgo. Vender **326 781** millones nominales
+contra la TIR —es la duración; revalorando con +1 pb son 176,85— y **176,21** contra la curva. ⚠️ La
+causa **no es la capitalización efectiva**, como dijo el capítulo hasta el 2026-11-03: es que la curva
+no es plana. La TIR es un promedio de las spot con los pesos del bono, y subirlas todas 1 pb mueve
+la del bono de diez años 0,9940 pb, igual en efectiva que en continua; con la curva plana sería
+exactamente 1. De las 0,70 de diferencia, 0,06 son la convexidad de un punto básico y 0,64 el
+experimento. Los 61 millones entre los 17 154 de aquí y los 17 093 del laboratorio del 9 son eso
+mismo. El vértice de cinco años carga el **55,1 %** del riesgo. Vender **326 781** millones nominales
 del bono a la par de diez años quita el **94,5 %** de la varianza mensual de 2003 a 2025 (97,7 %
 desde 2018); con tres bonos a la par la cobertura quita el 100 %, y eso es del modelo —tres grados
 de libertad— y no del mercado. El VaR histórico mensual del tramo sin cubrir es de **14 031**
@@ -125,7 +130,9 @@ millones al 95 % y **18 139** al 99 %, con 2,75 meses en la cola.
 las fechas del título sin ajustar, y la liquidación es T+0.** Se midió contra las **6 199
 operaciones de contado de TES tasa fija del SEN de diciembre de 2025**, congeladas ese día en
 `datos/sen_tes_dic2025.csv`. Con una milésima de holgura en la TIR y en el precio sucio —que sale
-del contravalor, lo que de verdad se pagó—, NL/365 explica **las 6 199**, Actual/365 **346** (las de
+del contravalor, lo que de verdad se pagó—, NL/365 explica **las 6 199** —y Actual/Actual ICMA también:
+ese mes no tiene ningún periodo de cupón con 29 de febrero, y ahí las dos cuentan igual, así que entre
+ellas decide la resolución y no el barrido—, Actual/365 **346** (las de
 los dos TES que vencen antes del 29/02/2028), 30/360 el **10,1 %**, Actual/360 **ninguna**, y NL/365
 con los pagos movidos al día hábil siguiente, el **29,7 %**: el precio no usa el calendario. ⚠️ **El
 plan decía en un R3 «la convención del papel es 30/360», y era falso** —se cambió por NL/365—. Sobre
@@ -136,7 +143,8 @@ Ministerio de Hacienda que reglamenta los TES (la 3609 de 2022, artículo 5) dic
 medir: es la lección del 9 aplicada en el orden correcto.
 
 ⚠️ **El primer barrido del SEN dio 80,5 %, no 100 %, con la convención buena.** La TIR se publica
-truncada en 174 operaciones y el precio con tres decimales, así que exigir que la TIR recuperada
+truncada al tercer decimal —en las 6 199, no en 174 como se escribió primero; en 1 236 eso la separa
+del redondeo— y el precio con tres decimales, así que exigir que la TIR recuperada
 del precio coincida al tercer decimal rechaza operaciones que están bien. La prueba que vale es de
 consistencia —¿alguna TIR a una milésima de la publicada da un sucio a una milésima del pagado?—, y
 hacerla sobre el sucio del contravalor evita depender de la convención del cupón causado. Y ojo
@@ -214,6 +222,30 @@ que vale para cualquier código que pida una duración.**
 Y una de método: el paso de diferencias finitas con menor error en la convexidad **no es el mismo
 en R que en Python** —1 pb en uno, 0,1 en el otro—, porque por debajo manda el redondeo y cada
 lenguaje evalúa la potencia a su manera. El taller pregunta por el patrón, no por el dígito.
+
+⚠️ **La auditoría del 10 (2026-11-03) dejó cuatro cosas que valen para los capítulos que faltan.**
+
+- **Una zona ciega nueva, la decimoctava: la opción «rara».** Marcar la opción que menos vocabulario
+  comparte con las otras tres sacaba **8,50 de 15** en el 10 —entre 6,0 y 11,5 según cómo se mida—,
+  donde los otros once dan de 1,75 a 6,08: los distractores se escribían copiándose frases entre sí y
+  la correcta traía su propio vocabulario. Ninguna regla lo vigila. Se cerró dándole a la correcta
+  palabras de los distractores y quitando las frases que ellos repetían, y hoy da **4,50**. No hay
+  regla 18: el umbral que se propuso, 0,45 del total, salió de mirar el dato. La medida está descrita
+  en `AUDITORIA_CAP10.md`.
+- **QuantLib y RQuantLib no son dos implementaciones independientes**: RQuantLib es la interfaz de R
+  a la misma biblioteca de C++. Lo independiente es la fórmula a mano contra la librería; Python
+  contra R caza errores de traducción, no de librería. El capítulo lo decía al revés en el RA6.
+- **Un barrido de precios puede no distinguir dos convenciones.** Actual/Actual ICMA cuadra con las
+  mismas 6 199 operaciones que NL/365, porque en diciembre de 2025 ningún periodo de cupón contiene un
+  29 de febrero. Ahí decide el documento: es la lección del 9 en el otro sentido.
+- **Los valores por omisión no se suman.** Los de RQuantLib dan 2 266 juntos y 2 345 sumados uno a
+  uno, y la diferencia no es del cupón semestral, como dijo el revisor que la buscó: es Actual/Actual
+  en la TIR junto con los pagos movidos al día hábil, que resta 150 donde el día hábil solo restaba
+  73. Una interacción se mide probando las piezas de dos en dos, no razonándola.
+
+Y una trampa vieja que volvió: el R5 del 10 se ordenaba siguiendo los «ese código», «esa misma
+valoración» de cada paso, como el del 9 antes de su revisión. Se había corregido la pista y no los
+anclajes.
 
 ✅ **La centésima que el 11 dejó pendiente quedó explicada, y no era un error de nadie.**
 El árbol promediado de 991 a 1 000 da 213,0764 y Black-Scholes 213,0648, pero esos diez
@@ -1500,8 +1532,8 @@ con tres decimales, nominal y contravalor en pesos. Dos descargas dieron el mism
 se lee con la biblioteca estándar —`zipfile` y `xml.etree`— porque el entorno no trae `openpyxl` y
 no compensaba añadir una dependencia para un archivo. **El cupón no viene en el archivo**, pero se
 recupera de él: el sucio (contravalor sobre nominal) menos el limpio son los intereses causados, y
-sobre los días desde el último cupón por 365 dan la tasa. Las advertencias —la TIR truncada en 174
-operaciones, el 8 y el 31 de diciembre sin rueda, T+0— están en `datos/MANIFIESTO.md`.
+sobre los días desde el último cupón por 365 dan la tasa. Las advertencias —la TIR truncada en todas
+las operaciones, el 8 y el 31 de diciembre sin rueda, T+0— están en `datos/MANIFIESTO.md`.
 
 ## Notas de entorno
 

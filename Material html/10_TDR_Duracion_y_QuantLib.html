@@ -2651,7 +2651,7 @@
             horas: 4,
             ra: 'RA5 · RA6',
             contenidoSyllabus: 'U2 · contenidos 4, 5 y 6 — Duración y convexidad; valoración con QuantLib; liquidez de financiación',
-            temas: ['Duración', 'Convexidad', 'DV01 y cobertura', 'QuantLib', 'Convenciones del SEN', 'Verificación', 'LCR, NSFR y SARL'],
+            temas: ['Duración', 'Convexidad', 'DV01 y cobertura', 'QuantLib', 'Convenciones del SEN', 'Verificación', 'LCR, NSFR, IRL y SIAR'],
             nivelIA: 1,
             storageKey: 'tdr_cap10_duracion',
             docente: 'Javier Mauricio Sierra',
@@ -2751,6 +2751,8 @@
         const DV01 = {
             filas: [[-31.23, -18.36, -18.16, 5.30, -31.22], [-62.14, -3.74, -59.69, 1.44, -61.98], [-83.54, -2.63, -19.23, -61.14, -83.00]],
             tramo: [-176.91, -24.74, -97.07, -54.40, -176.21], cinco: 55.1,
+            // la última línea: el tramo con la TIR +1 pb revalorando, y cuánto sube cada TIR con la curva +1 pb
+            rev: -176.85, sube: [0.9998, 0.9978, 0.9940],
         };
 
         // Bloque 4 · la cobertura con bonos a la par y su contraste con la historia
@@ -2774,7 +2776,7 @@
         // Bloque 6 · las convenciones contra el SEN: [convención, cuadran, error mediano del sucio]
         const SEN = [
             ['NL/365', 6199, 0.0010], ['Actual/365', 346, 0.0316], ['30/360', 624, 0.0167],
-            ['Actual/360', 0, 0.6865], ['NL/365, pagos al día hábil', 1839, 0.0080],
+            ['Actual/360', 0, 0.6865], ['NL/365, pagos al día hábil', 1839, 0.0080], ['Actual/Actual ICMA', 6199, 0.0010],
         ];
         const SEN_N = 6199;
 
@@ -2784,8 +2786,9 @@
             // [convención cambiada, precio sucio, millones sobre 200 000 nominales]
             filas: [
                 ['cupón semestral (RQuantLib)', 74.7985, 2370], ['Actual/360', 73.3723, -482], ['Actual/365', 73.6023, -22],
-                ['30/360 (RQuantLib, en el cupón)', 73.6135, 0], ['pagos al día hábil (las dos)', 73.5771, -73],
-                ['liquidación T+1 (RQuantLib)', 73.6375, 48], ['todo lo de RQuantLib a la vez', 74.7465, 2266],
+                ['30/360 (RQuantLib, en el cupón)', 73.6135, 0], ['Actual/Actual en la TIR (RQuantLib)', 73.6135, 0],
+                ['pagos al día hábil (las dos)', 73.5771, -73], ['liquidación T+1 (RQuantLib)', 73.6375, 48],
+                ['al día hábil y Actual/Actual en la TIR', 73.5383, -150], ['todo lo de RQuantLib a la vez', 74.7465, 2266],
             ],
         };
 
@@ -3150,7 +3153,20 @@ for T, cupon in tramo:
 print(f"tramo  {total[0]:7.2f}  {total[1]:+11.2f}  {total[2]:+11.2f}  {total[3]:+12.2f}  {total[4]:7.2f}")
 #> tramo  -176.91       -24.74       -97.07        -54.40  -176.21
 print(f"el vertice de 5 anios carga el {total[2] / total[1:4].sum():.1%} del riesgo del tramo")
-#> el vertice de 5 anios carga el 55.1% del riesgo del tramo`,
+#> el vertice de 5 anios carga el 55.1% del riesgo del tramo
+
+# Las dos cifras del tramo no son el mismo experimento. Revalorando con la TIR +1 pb en vez de
+# usar la duracion, y midiendo cuanto sube la TIR de cada bono cuando sube 1 pb toda la curva:
+rev, sube = 0.0, []
+for T, cupon in tramo:
+    t = np.arange(1, T + 1)
+    tir_de = lambda p: brentq(lambda y: flujos(T, cupon) @ (1 + y) ** (-t) - p, -0.5, 1.0, xtol=1e-14)
+    p = precio_curva(vert, T, cupon)
+    y = tir_de(p)
+    rev += (flujos(T, cupon) @ (1 + y + 1e-4) ** (-t) - p) / 100 * NOMINAL
+    sube.append((tir_de(precio_curva(vert + 0.01, T, cupon)) - y) * 10_000)
+print(f"TIR +1 pb, revalorando: {rev:.2f} | curva +1 pb, la TIR sube", ", ".join(f"{x:.4f}" for x in sube), "pb")
+#> TIR +1 pb, revalorando: -176.85 | curva +1 pb, la TIR sube 0.9998, 0.9978, 0.9940 pb`,
             r: `curva <- read.csv("datos/curva_tes.csv")
 hoy <- curva[nrow(curva), ]
 TAU <- hoy$tau_pesos
@@ -3197,6 +3213,20 @@ cat(sprintf("tramo  %7.2f  %+11.2f  %+11.2f  %+12.2f  %7.2f\\n", total[1], total
 #> tramo  -176.91       -24.74       -97.07        -54.40  -176.21
 cat(sprintf("el vertice de 5 anios carga el %.1f%% del riesgo del tramo\\n", 100 * total[3] / sum(total[2:4])))
 #> el vertice de 5 anios carga el 55.1% del riesgo del tramo
+
+# Las dos cifras del tramo no son el mismo experimento. Revalorando con la TIR +1 pb en vez de
+# usar la duracion, y midiendo cuanto sube la TIR de cada bono cuando sube 1 pb toda la curva:
+rev <- 0; sube <- c()
+for (b in tramo) {
+  T <- b[1]; cupon <- b[2]; t <- 1:T
+  tir_de <- function(p) uniroot(function(y) sum(flujos(T, cupon) * (1 + y)^(-t)) - p, c(-0.5, 1), tol = 1e-14)$root
+  p <- precio_curva(vert, T, cupon)
+  y <- tir_de(p)
+  rev <- rev + (sum(flujos(T, cupon) * (1 + y + 1e-4)^(-t)) - p) / 100 * NOMINAL
+  sube <- c(sube, (tir_de(precio_curva(vert + 0.01, T, cupon)) - y) * 10000)
+}
+cat(sprintf("TIR +1 pb, revalorando: %.2f | curva +1 pb, la TIR sube %s pb\\n", rev, paste(sprintf("%.4f", sube), collapse = ", ")))
+#> TIR +1 pb, revalorando: -176.85 | curva +1 pb, la TIR sube 0.9998, 0.9978, 0.9940 pb
 `,
         };
 
@@ -3539,12 +3569,13 @@ print("el lunes 8 de diciembre es habil en Colombia:", "si" if colombia.isBusine
       "| en Estados Unidos:", "si" if eeuu.isBusinessDay(ql.Date(8, 12, 2025)) else "no")
 #> el lunes 8 de diciembre es habil en Colombia: no | en Estados Unidos: si
 
-# Cinco formas de contar el plazo de cada pago. Con la buena, alguna TIR a una milesima de punto
-# de la publicada tiene que dar un precio sucio a una milesima del que se pago
+# Seis formas de contar el plazo de cada pago. Con la buena, alguna TIR a una milesima de punto
+# de la publicada tiene que dar un precio sucio a una milesima del que se pago. Actual/Actual ICMA
+# cuenta la fraccion del periodo de cupon en curso sobre sus dias reales, mas un anio por periodo
 NL = ql.Actual365Fixed(ql.Actual365Fixed.NoLeap)
 CONTEOS = {"NL/365": (NL, False), "Actual/365": (ql.Actual365Fixed(), False),
            "30/360": (ql.Thirty360(ql.Thirty360.BondBasis), False), "Actual/360": (ql.Actual360(), False),
-           "NL/365, pagos al dia habil": (NL, True)}
+           "NL/365, pagos al dia habil": (NL, True), "Actual/Actual ICMA": ("ICMA", False)}
 for nombre in CONTEOS:
     sen[nombre], sen["error " + nombre] = False, 0.0
 for (fecha, nemo), g in sen.groupby(["fecha", "instrumento"]):
@@ -3555,7 +3586,11 @@ for (fecha, nemo), g in sen.groupby(["fecha", "instrumento"]):
     f[-1] += 100
     y = g["tir"].to_numpy()[:, None] / 100
     for nombre, (conteo, mover) in CONTEOS.items():
-        t = np.array([conteo.yearFraction(hoy, colombia.adjust(p) if mover else p) for p in pagos])
+        if isinstance(conteo, str):                               # ICMA, a mano
+            ultimo = ql.Date(d, m, pagos[0].year() - 1)           # el cupon anterior
+            t = (pagos[0] - hoy) / (pagos[0] - ultimo) + np.arange(len(pagos))
+        else:
+            t = np.array([conteo.yearFraction(hoy, colombia.adjust(p) if mover else p) for p in pagos])
         caro, barato = (1 + y - 1e-5) ** (-t) @ f, (1 + y + 1e-5) ** (-t) @ f
         sen.loc[g.index, nombre] = (caro >= g["sucio"] - 0.001) & (barato <= g["sucio"] + 0.001)
         sen.loc[g.index, "error " + nombre] = np.abs((1 + y) ** (-t) @ f - g["sucio"])
@@ -3570,6 +3605,7 @@ for nombre in CONTEOS:
 #>   30/360                       624 de 6,199 ( 10.1%)   0.0167
 #>   Actual/360                     0 de 6,199 (  0.0%)   0.6865
 #>   NL/365, pagos al dia habil 1,839 de 6,199 ( 29.7%)   0.0080
+#>   Actual/Actual ICMA         6,199 de 6,199 (100.0%)   0.0010
 print("Actual/365 cuadra solo en:", ", ".join(sen.loc[sen["Actual/365"], "instrumento"].unique()))
 #> Actual/365 cuadra solo en: TFIT15260826, TFIT08031127`,
             r: `suppressPackageStartupMessages(library(RQuantLib))
@@ -3619,10 +3655,12 @@ cat("el lunes 8 de diciembre es habil en Colombia:",
     ifelse(isBusinessDay("UnitedStates/GovernmentBond", as.Date("2025-12-08")), "si", "no"), "\\n")
 #> el lunes 8 de diciembre es habil en Colombia: no | en Estados Unidos: si 
 
-# Cinco formas de contar el plazo de cada pago. Con la buena, alguna TIR a una milesima de punto
-# de la publicada tiene que dar un precio sucio a una milesima del que se pago
+# Seis formas de contar el plazo de cada pago. Con la buena, alguna TIR a una milesima de punto
+# de la publicada tiene que dar un precio sucio a una milesima del que se pago. Actual/Actual ICMA
+# cuenta la fraccion del periodo de cupon en curso sobre sus dias reales, mas un anio por periodo
 CONTEOS <- list("NL/365" = c(7, 0), "Actual/365" = c(1, 0), "30/360" = c(6, 0),   # codigos de RQuantLib
-                "Actual/360" = c(0, 0), "NL/365, pagos al dia habil" = c(7, 1))
+                "Actual/360" = c(0, 0), "NL/365, pagos al dia habil" = c(7, 1),
+                "Actual/Actual ICMA" = c(-1, 0))                                  # -1: a mano
 for (nombre in names(CONTEOS)) { sen[[nombre]] <- FALSE; sen[[paste("error", nombre)]] <- 0 }
 for (g in split(seq_len(nrow(sen)), paste(sen$fecha, sen$instrumento))) {
   hoy <- as.Date(sen$fecha[g[1]]); nemo <- sen$instrumento[g[1]]
@@ -3634,7 +3672,10 @@ for (g in split(seq_len(nrow(sen)), paste(sen$fecha, sen$instrumento))) {
   for (nombre in names(CONTEOS)) {
     k <- CONTEOS[[nombre]]
     fin <- if (k[2] == 1) adjust("WeekendsOnly", pagos, 0) else pagos   # 0: Following
-    t <- yearFraction(rep(hoy, length(pagos)), fin, rep(k[1], length(pagos)))
+    t <- if (k[1] < 0) {                                                # ICMA, a mano
+      ultimo <- seq(pagos[1], by = "-1 year", length.out = 2)[2]          # el cupon anterior
+      as.numeric(pagos[1] - hoy) / as.numeric(pagos[1] - ultimo) + seq_along(pagos) - 1
+    } else yearFraction(rep(hoy, length(pagos)), fin, rep(k[1], length(pagos)))
     sucio <- function(r) sapply(r, function(x) sum(f * (1 + x)^(-t)))
     sen[g, nombre] <- sucio(y - 1e-5) >= sen$sucio[g] - 0.001 & sucio(y + 1e-5) <= sen$sucio[g] + 0.001
     sen[g, paste("error", nombre)] <- abs(sucio(y) - sen$sucio[g])
@@ -3653,6 +3694,7 @@ for (nombre in names(CONTEOS)) {
 #>   30/360                       624 de 6,199 ( 10.1%)   0.0167
 #>   Actual/360                     0 de 6,199 (  0.0%)   0.6865
 #>   NL/365, pagos al dia habil 1,839 de 6,199 ( 29.7%)   0.0080
+#>   Actual/Actual ICMA         6,199 de 6,199 (100.0%)   0.0010
 cat("Actual/365 cuadra solo en:", paste(unique(sen$instrumento[sen[["Actual/365"]]]), collapse = ", "), "\\n")
 #> Actual/365 cuadra solo en: TFIT15260826, TFIT08031127 
 `,
@@ -3693,10 +3735,12 @@ casos = {
     "cupon semestral (RQuantLib)": dict(periodo=ql.Semiannual),
     "Actual/360": dict(conteo=ql.Actual360(), conteo_tir=ql.Actual360()),
     "Actual/365": dict(conteo=ql.Actual365Fixed(), conteo_tir=ql.Actual365Fixed()),
-    "30/360 (RQuantLib, en el cupon)": dict(conteo=ql.Thirty360(ql.Thirty360.BondBasis),
-                                            conteo_tir=ql.Thirty360(ql.Thirty360.BondBasis)),
+    "30/360 (RQuantLib, en el cupon)": dict(conteo=ql.Thirty360(ql.Thirty360.BondBasis)),
+    "Act/Act en la TIR (RQuantLib)": dict(conteo_tir=ql.ActualActual(ql.ActualActual.ISMA)),
     "pagos al dia habil (las dos)": dict(ajuste=ql.Following),
     "liquidacion T+1 (RQuantLib)": dict(liquidacion=1),
+    "al dia habil y Act/Act en la TIR": dict(ajuste=ql.Following,
+                                             conteo_tir=ql.ActualActual(ql.ActualActual.ISMA)),
     "todo lo de RQuantLib a la vez": dict(periodo=ql.Semiannual, conteo=ql.Thirty360(ql.Thirty360.BondBasis),
                                           conteo_tir=ql.ActualActual(ql.ActualActual.ISMA), ajuste=ql.Following,
                                           calendario=ql.TARGET(), liquidacion=1),
@@ -3710,8 +3754,10 @@ for nombre, cambio in casos.items():
 #>  Actual/360                          73.3723     -482
 #>  Actual/365                          73.6023      -22
 #>  30/360 (RQuantLib, en el cupon)     73.6135       +0
+#>  Act/Act en la TIR (RQuantLib)       73.6135       +0
 #>  pagos al dia habil (las dos)        73.5771      -73
 #>  liquidacion T+1 (RQuantLib)         73.6375      +48
+#>  al dia habil y Act/Act en la TIR    73.5383     -150
 #>  todo lo de RQuantLib a la vez       74.7465   +2,266`,
             r: `suppressPackageStartupMessages(library(RQuantLib))
 
@@ -3749,9 +3795,11 @@ casos <- list(
   "cupon semestral (RQuantLib)" = list(periodo = "Semiannual"),
   "Actual/360" = list(conteo = "Actual360", conteo_tir = "Actual360"),
   "Actual/365" = list(conteo = "ActualFixed", conteo_tir = "ActualFixed"),
-  "30/360 (RQuantLib, en el cupon)" = list(conteo = "Thirty360", conteo_tir = "Thirty360"),
+  "30/360 (RQuantLib, en el cupon)" = list(conteo = "Thirty360"),
+  "Act/Act en la TIR (RQuantLib)" = list(conteo_tir = "ActualActual.ISMA"),
   "pagos al dia habil (las dos)" = list(ajuste = "Following"),
   "liquidacion T+1 (RQuantLib)" = list(liquidacion = 1),
+  "al dia habil y Act/Act en la TIR" = list(ajuste = "Following", conteo_tir = "ActualActual.ISMA"),
   "todo lo de RQuantLib a la vez" = list(periodo = "Semiannual", conteo = "Thirty360",
                                          conteo_tir = "ActualActual.ISMA", ajuste = "Following",
                                          calendario = "TARGET", liquidacion = 1))
@@ -3767,8 +3815,10 @@ for (nombre in names(casos)) {
 #>  Actual/360                          73.3723     -482
 #>  Actual/365                          73.6023      -22
 #>  30/360 (RQuantLib, en el cupon)     73.6135       +0
+#>  Act/Act en la TIR (RQuantLib)       73.6135       +0
 #>  pagos al dia habil (las dos)        73.5771      -73
 #>  liquidacion T+1 (RQuantLib)         73.6375      +48
+#>  al dia habil y Act/Act en la TIR    73.5383     -150
 #>  todo lo de RQuantLib a la vez       74.7465   +2,266
 `,
         };
@@ -4007,12 +4057,10 @@ for (te in list(c("TFIT16280428", 6.00), c("TFIT16180930", 7.75), c("TFIT1618103
         const PortadaSection = () => (
             <>
                 <Motivacion icon="fa-landmark"
-                    gancho="El tramo de TES del fondo vale 482 287 millones, y el comité de esta semana no pregunta cuánto vale sino cuánto deja de valer. La mesa contesta en un minuto con una sola cifra, 3,67; la tesorería la pide en pesos; y el área de riesgo pregunta con qué programa se calculó, porque un TES valorado con los valores por omisión de una librería conocida sale 2 266 millones más caro de lo que el mercado pagó por él.">
-                    Un bono de tasa fija pierde valor cuando las tasas suben. Este capítulo convierte esa frase
-                    en tres números —duración, convexidad y DV01—, la cubre, la vuelve a calcular con la
-                    librería que usa la industria y la contrasta con los precios del mercado. De paso aparece
-                    algo que ninguna fórmula avisa: buena parte de los errores de valoración no son de
-                    matemática, son de convención.
+                    gancho="El tramo de TES del fondo vale 482 287 millones, y el comité no pregunta cuánto vale sino cuánto deja de valer. La mesa contesta con una sola cifra, 3,67; la tesorería la pide en pesos; y el área de riesgo pregunta con qué programa se calculó, porque con los valores por omisión de una librería muy usada una posición de 200 000 millones en un TES sale 2 266 millones más cara de lo que pagó el mercado.">
+                    Todo el mundo sabe que un bono pierde valor cuando suben las tasas. Casi nadie dice
+                    cuánto, ni con qué cuenta salió la cifra, y buena parte de los errores de valoración no
+                    son de matemática sino de convención.
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
@@ -4043,19 +4091,22 @@ for (te in list(c("TFIT16280428", 6.00), c("TFIT16180930", 7.75), c("TFIT1618103
                     <p style={{ margin: '0 0 0.6rem' }}>
                         <strong>La novena convención del curso: los días se cuentan en NL/365 sobre las fechas
                         del título sin ajustar, y la liquidación es el mismo día.</strong> NL/365 cuenta los días
-                        reales sin el 29 de febrero y los divide entre 365. No sale de un manual: es lo que dicen
-                        las {miles(SEN_N)} operaciones de contado de TES tasa fija del SEN —el sistema de
-                        negociación del Banco— en diciembre de 2025, congeladas en{' '}
+                        reales sin el 29 de febrero y los divide entre 365. Se midió antes de buscarla en la
+                        norma, contra las {miles(SEN_N)} operaciones de contado de TES tasa fija del SEN —el
+                        sistema de negociación del Banco— en diciembre de 2025, congeladas en{' '}
                         <span className="inline-code">datos/sen_tes_dic2025.csv</span>. Con NL/365 cuadran todas;
                         con Actual/365, {SEN[1][1]}; con 30/360, el {dec(100 * SEN[2][1] / SEN_N, 1)} %; con
-                        Actual/360, ninguna. Lo mide la sección 4. Ninguna de las dos librerías trae esos
-                        valores por omisión, y cada bloque los escribe a mano.
+                        Actual/360, ninguna. Actual/Actual ICMA también cuadra con todas, porque en ese mes cuenta
+                        igual que NL/365, y entre las dos decide la resolución que reglamenta los TES. Lo mide
+                        la sección 4. Ninguna de las dos librerías trae esos valores por omisión, y cada bloque
+                        los escribe a mano.
                     </p>
                     <p style={{ margin: '0 0 0.6rem' }}>
                         <strong>La duración y la convexidad se miden contra la TIR de cada bono; la cobertura,
                         contra la curva.</strong> Subir un punto básico la TIR de los tres bonos le resta al
-                        tramo {dec(-DV01.tramo[0], 2)} millones; subir un punto básico toda la curva,{' '}
-                        {dec(-DV01.tramo[4], 2)}. Son dos experimentos distintos, y el capítulo dice cuál usa en
+                        tramo {dec(-DV01.tramo[0], 2)} millones según la duración; subir un punto básico toda la
+                        curva, {dec(-DV01.tramo[4], 2)}. Son dos experimentos distintos —como la curva no es
+                        plana, subir todas sus tasas no sube cada TIR lo mismo—, y el capítulo dice cuál usa en
                         cada cifra.
                     </p>
                     <p style={{ margin: '0 0 0.6rem' }}>
@@ -4366,7 +4417,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         }}
                         pregunta="Con +300 pb, ¿qué hace cada versión con la pérdida del tramo?"
                         opciones={[
-                            { texto: 'Las dos dan casi lo mismo, porque la convexidad del tramo es pequeña frente a su duración y su término se puede despreciar en un estrés.', correcta: false },
+                            { texto: 'Las dos dan casi lo mismo, porque con +300 pb el término de convexidad mueve la pérdida menos de 400 millones y se puede despreciar.', correcta: false },
                             { texto: 'A la exagera en unos 4 580 millones y B la deja a menos de 400 de la exacta, porque la curvatura recoge casi toda la diferencia.', correcta: true, justificacion: 'El bloque lo mide: con +300 pb el tramo pierde 48 492 millones revalorado, la duración sola anticipa 53 072 y la versión con convexidad, 48 107. A se equivoca en un 9 % y B en un 0,8 %. Para el DV01 diario —choques de pocos puntos básicos— A basta, y por eso el mercado reporta duraciones; para un escenario de estrés, la recta exagera la pérdida y la convexidad hace casi todo el trabajo. Lo que queda, 385 millones, ya es de tercer orden.' },
                             { texto: 'B la exagera más que A, porque al sumar la convexidad el término cuadrático aumenta la pérdida cuando la tasa sube con fuerza.', correcta: false },
                             { texto: 'A es la correcta en un estrés y B solo sirve para bajadas de tasas, porque la convexidad favorece al tenedor solo cuando el precio sube.', correcta: false },
@@ -4419,7 +4470,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                             pregunta="¿Por qué la duración sola se equivoca siempre hacia el lado pesimista en los bonos del tramo, suba o baje la TIR?"
                             opciones={[
                                 { texto: 'Porque la duración se calcula con la TIR de hoy, y cuando las tasas se mueven el mercado exige más TIR de la que la duración supone.', correcta: false },
-                                { texto: 'Porque el precio es una curva convexa de la TIR, y la recta tangente queda por debajo de esa curva a los dos lados del punto de hoy.', correcta: true, justificacion: 'La segunda derivada del precio es positiva en todo bono de pagos fijos, así que la tangente subestima el precio en cualquier dirección: exagera la pérdida si la TIR sube y se queda corta con la ganancia si baja. El bloque lo mide en las ocho filas, de −140 millones con −50 pb a −5 411 con −300. El término ½ C (Δy)² corrige hacia arriba en los dos sentidos porque eleva el choque al cuadrado. Con un bono que el emisor puede rescatar, la curva se dobla hacia abajo cuando las tasas caen y la conclusión se invierte.' },
+                                { texto: 'Porque el precio es una curva convexa de la TIR y la duración es su recta tangente, que queda por debajo de ella a los dos lados.', correcta: true, justificacion: 'La segunda derivada del precio es positiva en todo bono de pagos fijos, así que la tangente subestima el precio en cualquier dirección: exagera la pérdida si la TIR sube y se queda corta con la ganancia si baja. El bloque lo mide en las ocho filas, de −140 millones con −50 pb a −5 411 con −300. El término ½ C (Δy)² corrige hacia arriba en los dos sentidos porque eleva el choque al cuadrado. Con un bono que el emisor puede rescatar, la curva se dobla hacia abajo cuando las tasas caen y la conclusión se invierte.' },
                                 { texto: 'Porque la duración modificada divide entre 1 + y, y ese divisor se agranda cuando la TIR sube y reduce la sensibilidad calculada.', correcta: false },
                                 { texto: 'Porque los cupones se reinvierten a la nueva TIR, y esa reinversión compensa una parte de la pérdida que la duración no incluye.', correcta: false },
                             ]}
@@ -4458,16 +4509,18 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                 <>
                     <Motivacion icon="fa-shield-halved"
                         gancho="El comité no quiere vender los TES: son la renta fija de largo plazo del fondo y sus cupones pagan pensiones. Quiere dejar de perder si las tasas suben. La mesa propone vender un bono que pierda lo mismo por punto básico, para que lo que pierda el tramo lo gane la venta. Falta decidir cuál, por cuánto, y qué queda sin cubrir.">
-                        La herramienta es el DV01, que es la duración en pesos. Calcularlo es fácil; lo difícil
-                        es decidir contra qué movimiento de la curva se mide.
+                        Cubrir renta fija es igualar una sensibilidad, no una cantidad de bonos. Esa
+                        sensibilidad en pesos se llama DV01: calcularla es fácil, y lo difícil es decidir contra
+                        qué movimiento de la curva se mide.
                     </Motivacion>
 
                     <h3>El DV01: la duración en pesos</h3>
                     <p>
                         El{' '}
-                        <Termino def="Del inglés dollar value of a basis point: lo que cambia el valor de una posición si la tasa sube un punto básico, en dinero. Para un bono, su duración modificada por su valor, dividido entre diez mil.">DV01</Termino>{' '}
-                        (<em>dollar value of a basis point</em>, el valor de un punto básico) es lo que cambia el
-                        valor de una posición si la tasa sube un punto básico, en pesos. Para un bono es la
+                        <Termino def="Del inglés dollar value of a basis point: lo que pierde una posición si la tasa sube un punto básico, en dinero. Para un bono, su duración modificada por su valor, dividida entre diez mil.">DV01</Termino>{' '}
+                        (<em>dollar value of a basis point</em>, el valor de un punto básico) es lo que pierde una
+                        posición si la tasa sube un punto básico, en pesos. Los bloques lo imprimen con su signo,
+                        como un cambio de valor, y la fórmula lo da en valor absoluto. Para un bono es la
                         duración modificada por el valor, dividida entre diez mil, y el del tramo es{' '}
                         <strong>{dec(-DV01.tramo[0], 2)} millones</strong>: cada punto básico que sube la TIR de
                         los tres bonos le cuesta al fondo casi 177 millones. A diferencia de la duración, que es
@@ -4491,9 +4544,15 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                     <h3>Lo que imprime el bloque, leído</h3>
                     <p>
                         Subir toda la curva un punto básico le cuesta al tramo {dec(-DV01.tramo[4], 2)} millones,
-                        siete décimas menos que subir la TIR de cada bono: en efectiva anual, mover todas las
-                        tasas cero un punto básico no mueve cada TIR exactamente un punto básico. La diferencia
-                        es de 0,4 %, y el capítulo usa cada cifra donde le toca. Lo interesante es el reparto:{' '}
+                        siete décimas menos que los {dec(-DV01.tramo[0], 2)} de la primera columna, y la última
+                        línea del bloque separa las dos razones. Una es de método: la primera columna sale de la
+                        duración, que es una recta, y revalorar con la TIR un punto básico más arriba da{' '}
+                        {dec(-DV01.rev, 2)}; esas {dec(DV01.rev - DV01.tramo[0], 2)} son la convexidad de un punto
+                        básico. La otra es que no es el mismo experimento. La TIR de un bono es un promedio de las
+                        tasas cero con los pesos de sus pagos, y como la curva sube, subirlas todas un punto
+                        básico mueve la TIR del bono de diez años {dec(DV01.sube[2], 4)} pb y no uno. Con una
+                        curva plana coincidirían, se leyera en efectiva o en continua. La diferencia total es de
+                        0,4 %, y el capítulo usa cada cifra donde le toca. Lo interesante es el reparto:{' '}
                         <strong>el vértice de cinco años carga el {dec(DV01.cinco, 1)} % del riesgo del
                         tramo</strong> —{dec(-DV01.tramo[2], 2)} de {dec(-DV01.tramo[4], 2)} millones— aunque el
                         bono de cinco años es solo un tercio del nominal. Nelson-Siegel reparte la influencia de
@@ -4519,7 +4578,34 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         resolver un sistema de tres ecuaciones.
                     </p>
 
-                    <Eq>{'$$N = \\frac{\\text{DV01}_{\\text{tramo}}}{\\text{DV01 por peso nominal de la cobertura}}$$'}</Eq>
+                    <Derivacion
+                        titulo="Del DV01 al nominal que hay que vender"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\Delta V_{\\text{tramo}} - N\\,\\Delta p_{\\text{par}} = 0$$'}</Eq>,
+                                porque: 'Vender N pesos nominales del bono a la par gana N veces lo que baja su precio por cada peso de nominal, Δp_par. Cubrir es que, con un punto básico más, esa ganancia compense lo que cambia el tramo, ΔV_tramo: −176,21 millones con la curva entera un punto básico arriba.',
+                            },
+                            {
+                                eq: <Eq>{'$$N = \\frac{\\Delta V_{\\text{tramo}}}{\\Delta p_{\\text{par}}} = \\frac{\\text{DV01}_{\\text{tramo}}}{\\text{DV01}_{\\text{par}}}$$'}</Eq>,
+                                porque: 'Se despeja N. Los dos cambios son negativos —con tasas más altas los dos bonos valen menos—, así que el cociente es el de los dos DV01 en valor absoluto, el de la cobertura medido por cada peso de nominal. Con el bono a la par de diez años da 326 781 millones nominales.',
+                            },
+                            {
+                                eq: <Eq>{'$$S\\,n = d$$'}</Eq>,
+                                porque: 'Con tres bonos a la par la condición se pide vértice por vértice. S es la matriz de 3 × 3 con lo que cambia cada bono, por peso de nominal, cuando sube cada vértice; d, lo que cambia el tramo con cada vértice, que son las columnas de la tabla del DV01; y n, los tres nominales. Es un sistema lineal, y su solución son los 162 028, 205 351 y 165 281 millones del bloque.',
+                            },
+                        ]}
+                        cierre="Igualar el DV01 total cubre un desplazamiento paralelo de la curva. Igualarlo vértice por vértice es cubrir lo que el mercado llama duraciones por vértice (key rate durations), y cubre además la pendiente y la curvatura que la curva del modelo sabe hacer."
+                    />
+
+                    <Box type="warn" label="Vender un bono que el fondo no tiene">
+                        El fondo no tiene el bono a la par que el bloque vende: es una posición corta, y el
+                        capítulo 7 ya dijo que el fondo no puede vender prestado. La venta del capítulo es el
+                        equivalente de estudio de una posición corta en un derivado de tasa —un futuro sobre
+                        TES o un swap—, que el régimen de inversión de las administradoras admite con fines de
+                        cobertura, documentada y con su efectividad medida (Decreto 2555 de 2010, libro 6,
+                        título 12). El DV01 que hay que igualar es el mismo; cambian el instrumento, su costo y
+                        el riesgo de contraparte, que la solución del R7 deja abierto.
+                    </Box>
 
                     <p>
                         Una cobertura diseñada así se juzga contra la historia: el bloque toma cada cambio
@@ -4612,7 +4698,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
             usePlotly('cap10-conteo',
                 () => {
                     // Nombres cortos y la cifra dentro de la etiqueta: en un teléfono no cabe al lado de la barra
-                    const corto = ['NL/365', 'Actual/365', '30/360', 'Actual/360', 'NL/365 al día hábil'];
+                    const corto = ['NL/365', 'Actual/365', '30/360', 'Actual/360', 'NL/365 al día hábil', 'Actual/Actual ICMA'];
                     return [{
                         y: SEN.map((s, i) => `${corto[i]} · ${miles(s[1])}`).reverse(), x: SEN.map(s => 100 * s[1] / SEN_N).reverse(),
                         type: 'bar', orientation: 'h',
@@ -4632,8 +4718,9 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                 <>
                     <Motivacion icon="fa-gears"
                         gancho="La mesa quiere dejar la hoja de cálculo y valorar con QuantLib, la librería de código abierto que usan bancos y proveedores de precios. El primer bono le pide argumentos que la fórmula de la sección 1 nunca preguntó: un calendario, una base de conteo de días, un ajuste de fechas, unos días de liquidación. Si se omiten, la librería no protesta: pone los de otro mercado.">
-                        La sección valora el tramo con QuantLib y comprueba que da lo mismo que a mano. Después
-                        averigua, con los precios del SEN, cuáles son las convenciones de un TES.
+                        Una librería de valoración no sabe nada del mercado en que se usa: lo que no se le dice,
+                        lo pone ella. Las respuestas buenas para un TES no están en su manual sino en los precios
+                        del SEN.
                     </Motivacion>
 
                     <h3>Los objetos de QuantLib</h3>
@@ -4658,10 +4745,13 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                     <p>
                         QuantLib y RQuantLib reproducen a la cuarta cifra decimal lo que las secciones 1 y 2
                         calcularon a mano: precios, TIR, las dos duraciones y la convexidad de los tres bonos, y
-                        los {miles(B1.total)} millones del tramo. Dos implementaciones independientes que
-                        coinciden en todas las cifras no prueban que el cálculo esté bien —podrían compartir el
-                        mismo supuesto equivocado—, pero sí que ninguna de las dos tiene un error propio, y esa
-                        es la mitad de una verificación.
+                        los {miles(B1.total)} millones del tramo. La fórmula a mano y la librería son dos
+                        cálculos independientes, y que coincidan en todas las cifras no prueba que el resultado
+                        esté bien —podrían compartir el mismo supuesto equivocado—, pero sí que ninguno de los
+                        dos tiene un error propio, y esa es la mitad de una verificación. Python contra R no es
+                        lo mismo: RQuantLib es la puerta de R a la misma biblioteca de C++ que usa Python, así
+                        que su acuerdo prueba que los dos guiones le pasan los mismos argumentos, no que la
+                        biblioteca esté bien. Caza errores de traducción, y la sección 5 muestra uno caro.
                     </p>
                     <p>
                         La última línea muestra algo que la fórmula a mano escondía: la base de conteo no solo
@@ -4692,15 +4782,17 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         Cada operación dice dos cosas a la vez, el precio y la TIR, con tres decimales. Con la
                         convención buena, una TIR a una milésima de punto de la publicada tiene que dar un precio
                         sucio a una milésima del pagado. El bloque lo prueba operación por operación con las
-                        cuatro bases y con una quinta variante: NL/365, pero moviendo cada pago al día hábil
-                        siguiente con los festivos de Colombia.
+                        cuatro bases; con una quinta variante, NL/365 pero moviendo cada pago al día hábil
+                        siguiente con los festivos de Colombia; y con Actual/Actual ICMA, la base de muchos bonos
+                        soberanos, que divide los días del periodo de cupón en curso entre los que ese periodo
+                        tiene de verdad.
                     </p>
 
                     <CodeTabs titulo="Las convenciones de un TES, medidas contra las 6 199 operaciones del SEN" bloques={EJ_SEN}
-                        nota="El cupón de cada TES no viene en el archivo, pero se recupera de él: el sucio menos el limpio son los intereses causados, y esos intereses sobre los días desde el último cupón, por 365, dan la tasa; la mediana de cada referencia cae a menos de una milésima de punto de un cuarto de punto. La holgura de una milésima en las dos cifras no es generosidad: en 174 operaciones la TIR publicada está truncada, no redondeada." />
+                        nota="El cupón de cada TES no viene en el archivo, pero se recupera de él: el sucio menos el limpio son los intereses causados, y esos intereses sobre los días desde el último cupón, por 365, dan la tasa; la mediana de cada referencia cae a menos de una milésima de punto de un cuarto de punto. La holgura de una milésima en las dos cifras no es generosidad: el SEN publica la TIR truncada a tres decimales, no redondeada, y una milésima es justo el ancho de ese truncamiento." />
 
-                    <ChartFrame id="cap10-conteo" height="chart-h-320"
-                        caption={`De las ${miles(SEN_N)} operaciones de contado de diciembre de 2025, cuántas tienen un precio y una TIR que se explican uno al otro con cada convención. Solo NL/365, con las fechas del título sin mover, explica todas. Actual/365 explica las 346 de los dos TES que vencen antes del 29 de febrero de 2028, y 30/360 un 10 % en que la diferencia cabe en el redondeo de las cifras publicadas.`} />
+                    <ChartFrame id="cap10-conteo" height="chart-h-360"
+                        caption={`De las ${miles(SEN_N)} operaciones de contado de diciembre de 2025, cuántas tienen un precio y una TIR que se explican uno al otro con cada convención. NL/365, con las fechas del título sin mover, explica todas, y Actual/Actual ICMA también: este mes no las distingue. Actual/365 explica las 346 de los dos TES que vencen antes del 29 de febrero de 2028, y 30/360 un 10 % en que la diferencia cabe en el redondeo de las cifras publicadas.`} />
 
                     <h3>Lo que imprime el bloque, leído</h3>
                     <p>
@@ -4714,6 +4806,15 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         {dec(100 * SEN[4][1] / SEN_N, 1)} %: <strong>el precio de un TES usa las fechas del
                         título, caigan en domingo o en festivo</strong>. Esa es la novena convención del curso, y
                         la portada la declara.
+                    </p>
+                    <p>
+                        Actual/Actual ICMA cuadra con las mismas {miles(SEN[5][1])}, y no por casualidad. Con
+                        cupón anual, ICMA y NL/365 solo cuentan distinto dentro de un periodo de cupón que
+                        contenga un 29 de febrero, y en diciembre de 2025 ninguna operación cae en uno: los
+                        primeros empiezan en 2027. <strong>Este mes no separa las dos bases.</strong> Las separa
+                        la resolución del recuadro de la sección 5, que fija febrero de 28 días también en año
+                        bisiesto, y eso es NL/365. Es la lección del capítulo 9 en el otro sentido: el precio es
+                        la mejor evidencia, salvo cuando no distingue, y entonces decide el documento.
                     </p>
 
                     <Box type="info" label="El calendario no entra en el precio, pero sí en la fecha en que se liquida">
@@ -4738,12 +4839,12 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · la fecha de cumplimiento de una venta"
-                        enunciado="Se le pidió a un modelo de lenguaje que calculara cuánto recibe el fondo por vender 200 000 millones nominales del TES de 2034, pactados el viernes 20/03/2026 a una TIR de 12,661 % para cumplirse el día hábil siguiente. El código usa NL/365, no mueve las fechas de pago y descuenta en efectiva anual: las convenciones del SEN. Devuelve una fecha y una cifra plausibles. Señale la línea defectuosa y clasifique el error."
+                        enunciado="Se le pidió a un modelo de lenguaje que calculara cuánto recibe el fondo por vender 200 000 millones nominales del TES de 2034, pactados el viernes 20/03/2026 a una TIR de 12,661 % para cumplirse el día hábil siguiente: una venta a un día, no de contado. Devuelve una fecha y una cifra plausibles. Señale la línea defectuosa y clasifique el error."
                         lineas={IA_CALENDARIO}
                         lineaCorrecta={{ python: 7, r: 7 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.convencion}
-                        explicacion="La línea que arma el calendario usa el de los bonos del Tesoro de Estados Unidos. QuantLib no trae uno de Colombia y el modelo tomó el primero que conocía. El lunes 23 de marzo de 2026 es hábil en Estados Unidos y festivo en Colombia —San José, que la Ley 51 de 1983 corre al lunes—, así que el código fija el cumplimiento un día en que en Colombia no se liquida. Ojo con clasificarlo como supuesto no verificado: lo que falla es una convención con nombre propio, el calendario, y la taxonomía la pone en la cuarta categoría. Y no es un error de conteo: NL/365 está bien, y las fechas de pago sin mover también."
+                        explicacion="La línea que arma el calendario usa el de los bonos del Tesoro de Estados Unidos. QuantLib no trae uno de Colombia y el modelo tomó el primero que conocía. El lunes 23 de marzo de 2026 es hábil en Estados Unidos y festivo en Colombia —San José, que la Ley 51 de 1983 corre al lunes—, así que el código fija el cumplimiento un día en que en Colombia no se liquida. Ojo con clasificarlo como supuesto no verificado: lo que falla es una convención con nombre propio, el calendario, y la taxonomía la pone en la cuarta categoría. Y no es un error de conteo: NL/365 está bien, las fechas de pago sin mover también, y el 1 de la línea del bono es la liquidación a un día que se pactó; el T+0 de la novena convención es el de la rueda de contado."
                         impacto="El código dice que el fondo recibe 151 273 millones el lunes 23 de marzo. Con el calendario de Colombia el cumplimiento es el martes 24 y el monto, 151 322: 49 millones más, que son un día más de intereses y de acercamiento al vencimiento. Pero la cifra es lo de menos. Una instrucción de liquidación para un festivo no se cumple, y la tesorería que contaba con esos 151 000 millones el lunes no los tiene. La comprobación barata es pedirle al calendario sus festivos del año y compararlos con los de la ley: el de Estados Unidos no tiene el 23 de marzo, y tiene varios que Colombia no."
                     />
 
@@ -4770,7 +4871,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
             usePlotly('cap10-omision',
                 () => {
                     // Nombres cortos y la cifra dentro de la etiqueta: en un teléfono no cabe al lado de la barra
-                    const corto = ['cupón semestral', 'Actual/360', 'Actual/365', '30/360', 'al día hábil', 'T+1', 'todo RQuantLib'];
+                    const corto = ['cupón semestral', 'Actual/360', 'Actual/365', '30/360', 'Act/Act en la TIR', 'al día hábil', 'T+1', 'hábil y Act/Act', 'todo RQuantLib'];
                     const f = OMISION.filas.map((x, i) => [`${corto[i]} · ${firmadoMiles(x[2])}`, x[2], x[0]]).reverse();
                     return [{
                         y: f.map(x => x[0]), x: f.map(x => x[1]), type: 'bar', orientation: 'h', customdata: f.map(x => x[2]),
@@ -4799,7 +4900,9 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         Un código de valoración se verifica con tres clases de evidencia, y ninguna sustituye a
                         las otras. Está el caso de respuesta conocida: la sección 4 valoró el tramo con QuantLib
                         y obtuvo, a la cuarta cifra, lo calculado a mano. Está el acuerdo entre implementaciones:
-                        Python y R, QuantLib y RQuantLib. Esas dos prueban que el código hace lo que se le pidió,
+                        la fórmula a mano contra la librería, que son independientes, y Python contra R, que no
+                        lo son del todo, porque RQuantLib es la puerta de R a la misma biblioteca de C++ y su
+                        acuerdo caza errores de traducción y no de librería. Esas dos prueban que el código hace lo que se le pidió,
                         pero no que se le pidió lo correcto —un código que use Actual/360 en las dos pestañas
                         coincide consigo mismo—. Y está el mercado: una operación real, y después todas las del
                         mes, porque una sola puede cuadrar por casualidad. El bloque toma la primera operación
@@ -4807,23 +4910,31 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                     </p>
 
                     <CodeTabs titulo="Una operación real del SEN, reproducida, y lo que cuesta cada valor por omisión" bloques={EJ_OMISION}
-                        nota="Cada argumento de la función es una convención, y su valor por omisión es el del SEN. La tabla cambia uno a la vez, y la última fila deja a RQuantLib con todos los suyos: cupón semestral, 30/360 en el cupón, Actual/Actual en la TIR, calendario europeo, pagos movidos al día hábil y liquidación al día siguiente. Es lo que obtiene quien solo le pasa las fechas y el cupón." />
+                        nota="Cada argumento de la función es una convención, y su valor por omisión es el del SEN. La tabla cambia uno a la vez —dos en la penúltima fila—, y la última deja a RQuantLib con todos los suyos: cupón semestral, 30/360 en el cupón, Actual/Actual en la TIR, calendario europeo, pagos movidos al día hábil y liquidación al día siguiente. Es lo que obtiene quien solo le pasa las fechas y el cupón." />
 
-                    <ChartFrame id="cap10-omision" height="chart-h-360"
-                        caption="Lo que cambia el monto que se paga por 200 000 millones nominales del TES de 2034, a la misma TIR del SEN, al cambiar una convención a la vez. El cupón semestral es el más caro; la base de conteo y la fecha de liquidación cuestan decenas o centenas de millones; 30/360 cuesta cero en esta operación y no en el mes. En rojo, lo que el código pagaría de más; en azul verdoso, lo que pagaría de menos." />
+                    <ChartFrame id="cap10-omision" height="chart-h-420"
+                        caption="Lo que cambia el monto que se paga por 200 000 millones nominales del TES de 2034, a la misma TIR del SEN, al cambiar una convención a la vez. El cupón semestral es el más caro; la base de conteo y la fecha de liquidación cuestan decenas o centenas de millones; 30/360 cuesta cero en esta operación y no en el mes, y Actual/Actual en la TIR cuesta cero sola y 150 junto con el día hábil. En rojo, lo que el código pagaría de más; en azul verdoso, lo que pagaría de menos." />
 
                     <h3>Lo que imprime el bloque, leído</h3>
                     <p>
                         QuantLib, configurado como el SEN, reproduce la operación de las 10:51:{' '}
                         {dec(OMISION.qlLimpio, 4)} contra el {dec(OMISION.limpio, 3)} publicado y{' '}
-                        {dec(OMISION.qlSucio, 4)} contra {dec(OMISION.sucio, 3)}; el SEN trunca a tres decimales.
+                        {dec(OMISION.qlSucio, 4)} contra {dec(OMISION.sucio, 3)}; el SEN publica tres decimales.
                         Con el cupón semestral que RQuantLib pone si no se le dice, la misma TIR da{' '}
                         {miles(OMISION.filas[0][2])} millones más: partir el cupón en dos adelanta medio año la
                         mitad de cada pago, y medio año antes vale más. Con Actual/360 da {miles(-OMISION.filas[1][2])}{' '}
-                        menos; con los pagos movidos al día hábil, {miles(-OMISION.filas[4][2])} menos, porque el
+                        menos; con los pagos movidos al día hábil, {miles(-OMISION.filas[5][2])} menos, porque el
                         periodo de intereses arranca el lunes 20 de octubre y no el sábado 18; con la liquidación
-                        al día siguiente, {miles(OMISION.filas[5][2])} más. Todo lo de RQuantLib a la vez,{' '}
-                        <strong>{miles(OMISION.filas[6][2])} millones de más</strong>.
+                        al día siguiente, {miles(OMISION.filas[6][2])} más. Todo lo de RQuantLib a la vez,{' '}
+                        <strong>{miles(OMISION.filas[8][2])} millones de más</strong>.
+                    </p>
+                    <p>
+                        Y no es la suma de las filas. Actual/Actual en la TIR, que RQuantLib también pone, no
+                        cambia nada con las fechas del título. Con los pagos movidos al día hábil, en cambio, los
+                        periodos de cupón dejan de medir un año, y la pareja resta{' '}
+                        {miles(-OMISION.filas[7][2])} donde el día hábil solo restaba{' '}
+                        {miles(-OMISION.filas[5][2])}. Los valores por omisión no se suman: interactúan, y por
+                        eso se prueban juntos.
                     </p>
                     <p>
                         Y 30/360 cuesta cero, pero no porque esté bien. Del 18 de octubre al 30 de diciembre hay
@@ -4836,7 +4947,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · el tramo en QuantLib"
-                        enunciado="Se le pidió a un modelo de lenguaje que valorara el tramo del fondo con QuantLib a partir de las TIR del capítulo 9. El código arma bien los tres bonos —cupón anual, fechas sin mover, liquidación el mismo día— y descuenta con la TIR efectiva anual. Devuelve 481 077 millones, a un 0,25 % de la cifra del capítulo. Señale la línea defectuosa y clasifique el error."
+                        enunciado="Se le pidió a un modelo de lenguaje que valorara el tramo del fondo con QuantLib a partir de las TIR del capítulo 9. Devuelve 481 077 millones, a un 0,25 % de la cifra del capítulo. Señale la línea defectuosa y clasifique el error."
                         lineas={IA_CONTEO}
                         lineaCorrecta={{ python: 5, r: 5 }}
                         tipos={TIPOS_ERROR_RIESGO}
@@ -4847,17 +4958,16 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
 
                     <OrdenaPasos
                         titulo="R5 · Una verificación, en el orden en que sirve"
-                        enunciado="Ordene los seis pasos para verificar un código de valoración de TES antes de confiarle el tramo. Hay pares que parecen intercambiables y no lo son, y el texto de cada paso dice por qué."
+                        enunciado="Ordene los cinco pasos para verificar un código de valoración de TES antes de confiarle el tramo. Hay dos pares que con prisa se invierten."
                         pasos={[
                             'Fijar la fecha de evaluación y escribir explícitas las convenciones del TES, sin dejar ninguna por omisión.',
-                            'Valorar con ese código un caso de respuesta conocida, el tramo calculado a mano, y exigir que coincida a la cuarta cifra.',
-                            'Repetir esa misma valoración en el otro lenguaje, con la otra librería, y exigir otra vez la misma cifra.',
-                            'Con las dos implementaciones ya de acuerdo, reproducir una operación real del SEN: su precio limpio y su sucio.',
-                            'Correr esa misma configuración sobre todas las operaciones del mes, porque una sola puede cuadrar por casualidad.',
-                            'Partiendo de la configuración que reprodujo el mes, cambiar una convención a la vez y medir lo que cuesta cada una.',
+                            'Valorar el tramo calculado a mano con QuantLib en Python y con RQuantLib en R, y exigir las mismas cifras hasta el cuarto decimal.',
+                            'Reproducir el precio limpio y el sucio de una operación real del SEN, cuando un desacuerdo ya no pueda deberse a un error de programación.',
+                            'Correr la configuración sobre las 6 199 operaciones del mes, porque una sola puede cuadrar por casualidad, como 30/360 con la de las 10:51.',
+                            'Cambiar una convención a la vez y medir lo que cuesta cada una, partiendo de una configuración que explique el mes entero.',
                         ]}
-                        mezcla={[4, 1, 5, 2, 0, 3]}
-                        pista="Hay dos pares que con prisa se invierten. En uno, piense qué se podría concluir si una operación del SEN no cuadrara con un código que todavía nadie ha validado. En el otro, recuerde qué le pasó a 30/360 con la operación de las 10:51."
+                        mezcla={[3, 0, 4, 1, 2]}
+                        pista="Cada comprobación sirve si se sabe a qué atribuir un fallo. Antes de poner un paso, pregúntese qué concluiría si ese paso saliera mal."
                     />
 
                     <h3>Los supuestos de la curva</h3>
@@ -4927,7 +5037,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                                 </p>
                                 <p>
                                     <strong>El costo es el de sus valores por omisión.</strong> Una librería que no
-                                    protesta pone las convenciones de otro mercado: {miles(OMISION.filas[6][2])}{' '}
+                                    protesta pone las convenciones de otro mercado: {miles(OMISION.filas[8][2])}{' '}
                                     millones de más en una posición del TES de 2034 con los de RQuantLib, y{' '}
                                     {miles(-SUP.difPy)} de menos en el tramo si la curva se lee en continua. Compensa
                                     cuando cada argumento se escribe explícito y el resultado se contrasta con el
@@ -4952,15 +5062,14 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
         };
 
         /* ============================================================
-           SECCIÓN 6 — LIQUIDEZ DE FINANCIACIÓN: LCR, NSFR Y SARL
+           SECCIÓN 6 — LIQUIDEZ DE FINANCIACIÓN: LCR, NSFR, IRL Y SIAR
         ============================================================ */
         const Seccion6 = () => (
             <>
                 <Motivacion icon="fa-droplet"
                     gancho="Un mes malo para las tasas puede ser también un mes en que el fondo necesita efectivo: pensiones que pagar, afiliados que se trasladan a otra administradora, devoluciones. El tramo de TES es lo más líquido que tiene, y con 100 pb más vale 17 154 millones menos justo cuando hay que venderlo. ¿Qué exige la regulación sobre ese colchón, y a quién?">
-                    Es la lectura autónoma del capítulo. Las fichas dicen qué exige cada norma y qué cálculo
-                    de este capítulo la alimenta, y la sorpresa está al final: ninguna de las cuatro reglas
-                    obliga al fondo del curso.
+                    Es la lectura autónoma del capítulo: cuatro fichas, cada una con lo que pide la norma y el
+                    cálculo de las secciones anteriores que la alimenta.
                 </Motivacion>
 
                 <h3>Dos liquideces</h3>
@@ -4973,6 +5082,13 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                     es otra: tener que pagar algo en una fecha y no tener el efectivo. Las dos se juntan en el
                     peor momento, porque para conseguir efectivo hay que vender, y vender en un mercado tenso
                     cuesta.
+                </p>
+                <p>
+                    Esta sección trata la segunda. La primera tiene cifra en la parte 4 del taller del
+                    capítulo, con las mismas operaciones del SEN: sin pasar del 20 % de lo que se negoció en
+                    cada rueda, en todo diciembre de 2025 el fondo habría colocado 172 500 de sus 200 000
+                    millones nominales en el TES de 2034. El tramo es lo más líquido que tiene, y aun así no
+                    se vende en un mes.
                 </p>
                 <p>
                     La regulación de la liquidez de financiación nació para los bancos, que prestan a años con
@@ -5002,27 +5118,29 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                 <FichaNorma
                     norma="Indicador de Riesgo de Liquidez (IRL) y Coeficiente de Fondeo Estable Neto (CFEN)"
                     emisor="Superintendencia Financiera de Colombia"
-                    referencia="IRL desde la Circular Externa 016 de 2008 · CFEN desde la 019 de 2019 · hoy en la Circular Básica Financiera, anexos 9 y 12"
-                    exige="El IRL es la versión colombiana del LCR para los establecimientos de crédito: activos líquidos ajustados por liquidez de mercado menos el requerimiento neto de liquidez, a 7 y a 30 días. En monto tiene que ser mayor o igual a cero y en razón mayor o igual al 100 %, con el mismo tope del 75 % a las entradas que usa Basilea. Los TES cuentan como activos líquidos de alta calidad, con un descuento: el que aplica el Banco de la República a cada título en sus operaciones repo. El CFEN es la versión colombiana del NSFR, a un año: al menos 100 % para los bancos grandes y 80 % para los demás."
+                    referencia="IRL desde la Circular Externa 016 de 2008 · CFEN desde la 019 de 2019 · hoy en el SIAR de la Circular Básica Financiera, parte 1, capítulo 1"
+                    exige="El IRL es la regla colombiana de corto plazo para los establecimientos de crédito, anterior al LCR y con su misma lógica: activos líquidos ajustados por liquidez de mercado menos el requerimiento neto de liquidez, a 7 y a 30 días. En monto tiene que ser mayor o igual a cero y en razón mayor o igual al 100 %, con el mismo tope del 75 % a las entradas que usa Basilea. Los TES cuentan como activos líquidos de alta calidad, con un descuento por liquidez de mercado que publica el Banco de la República para cada título. El CFEN es la versión colombiana del NSFR, a un año: al menos 100 % para el grupo de los bancos más grandes y 80 % para el segundo grupo; para el tercero es solo informativo."
                     enElCapitulo="Las dos piezas que el indicador necesita de cada TES son su valor de mercado y cuánto se mueve. La primera la calcula la sección 4 con las convenciones del SEN; la segunda es el DV01 de la sección 3. Un título de más duración pierde más con la misma subida de tasas, que es lo que un descuento quiere cubrir."
-                    enlace="https://www.superfinanciera.gov.co/loader.php?lServicio=Tools2&lTipo=descargas&lFuncion=descargar&idFile=1081487"
+                    enlace="https://www.superfinanciera.gov.co/visualizadorCBJ/visualizadorCBF/inicio"
                 />
 
                 <FichaNorma
                     norma="Riesgo de liquidez de los fondos de pensiones"
                     emisor="Superintendencia Financiera de Colombia · Gobierno nacional"
                     referencia="Sistema Integral de Administración de Riesgos (SIAR), Circular Básica Financiera, parte 1, capítulo 1 · Decreto 2555 de 2010, libro 6"
-                    exige="Ningún indicador estándar. El Sistema de Administración del Riesgo de Liquidez (SARL), que reguló la liquidez desde 2008 hasta 2023, nunca cubrió los fondos de seguridad social, y su sucesor, el SIAR, pide a las administradoras gestionar el riesgo de liquidez de los fondos de pensiones voluntarias, de cesantías y de retiro programado con modelos internos, sin un límite fijado por el supervisor. A los fondos obligatorios de acumulación les queda la regla general del régimen de inversión: invertir con seguridad, rentabilidad y liquidez, y describir el riesgo de liquidez en la política de inversión de cada fondo."
+                    exige="Ningún indicador estándar. El Sistema de Administración del Riesgo de Liquidez (SARL), que creó la Circular Externa 016 de 2008 y rigió hasta 2023, nunca cubrió los fondos de seguridad social, y su sucesor, el SIAR, pide a las administradoras gestionar el riesgo de liquidez de los fondos de pensiones voluntarias, de cesantías y de retiro programado con modelos internos, sin un límite fijado por el supervisor. A los fondos obligatorios de acumulación les queda la regla general del régimen de inversión —invertir con seguridad, rentabilidad y liquidez— y una restricción: solo pueden endeudarse con repos y simultáneas pasivas para atender retiros o gastos."
                     enElCapitulo={`El fondo del curso es de pensiones obligatorias: su modelo de liquidez es suyo, y este capítulo le da las piezas. Valorar el tramo con las convenciones del mercado —sección 4—, saber cuánto pierde por punto básico —sección 3— y cuánto puede perder en un mes malo: el VaR histórico mensual del tramo, ${miles(COB.desde03.var95)} millones al 95 %.`}
+                    enlace="https://www.superfinanciera.gov.co/visualizadorCBJ/visualizadorCBF/inicio"
                 />
 
                 <Box type="warn" label="Una advertencia sobre las citas normativas">
                     Las normas colombianas de liquidez cambiaron de lugar dos veces en tres años. El SARL vivía
                     en el capítulo VI de la Circular Básica Contable y Financiera y pasó en junio de 2023 al
                     SIAR (Circular Externa 018 de 2021), y la circular entera fue sustituida el 1 de junio de
-                    2026 por la Circular Básica Financiera (Circular Externa 004 de 2026), que conserva la
-                    numeración de los anexos. Las fichas citan cada norma por su nombre y por la circular que la
-                    creó, que no cambian. Antes de usar una referencia de este material en un documento que
+                    2026 por la Circular Básica Financiera (Circular Externa 004 de 2026), que ordena su
+                    contenido por temas: toda referencia a la circular vieja se entiende hecha a la nueva, en
+                    el tema que corresponda. Las fichas citan cada norma por su nombre, por la circular que la
+                    creó y por el lugar donde vive hoy. Antes de usar una referencia de este material en un documento que
                     salga del aula, contraste el texto vigente en la página de la Superintendencia: verificar la
                     fuente es la misma lección de la sección 5, aplicada a una norma.
                 </Box>
@@ -5046,7 +5164,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         'Activos líquidos ajustados menos requerimiento neto, a 7 y a 30 días, en monto y en razón',
                         'Activos líquidos de alta calidad sobre las salidas netas de 30 días en estrés, con tope a las entradas',
                         'Una política de inversión que describa el riesgo de liquidez, sin ningún coeficiente que cumplir',
-                        'Fondeo estable neto a un año: 100 % para los bancos grandes y 80 % para los demás',
+                        'Fondeo estable neto a un año: 100 % para los bancos más grandes y 80 % para el grupo siguiente',
                     ]}
                     solucion={[3, 0, 2, 5, 1, 4]}
                 />
@@ -5090,13 +5208,13 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         ],
                     },
                     {
-                        pregunta: 'Con una duración modificada de 3,6681, la mesa anticipó que el tramo pierde 17 691 millones si la TIR de los tres bonos sube 100 pb. Revalorado, pierde 17 154. ¿De dónde salen los 537 millones de diferencia?',
-                        justificacion: 'La duración es la pendiente de la curva precio-TIR en el punto de hoy, y esa curva se dobla hacia arriba: la recta tangente queda por debajo y exagera la pérdida. El término de convexidad, ½ C (Δy)², corrige casi todo: con él la estimación es 17 139, a 15 millones de la exacta. Los 61 millones que separan 17 154 de los 17 093 del capítulo 9 son otra cosa: allí se movía la curva entera, aquí la TIR de cada bono.',
+                        pregunta: 'El DV01 del tramo, 176,91 millones, es la suma de los de sus tres bonos: 31,23 + 62,14 + 83,54. ¿Por qué su duración modificada, 3,6681, no es la suma de las de los tres bonos?',
+                        justificacion: 'El DV01 es un cambio de valor en pesos, y los cambios de valor de una cartera se suman. La duración es un cambio porcentual, y el del tramo es el promedio de los de sus bonos pesado por lo que vale cada uno: 3,6681, no los 11,5813 de la suma. Promediarlas sin pesos daría 3,8604 y anticiparía una pérdida de 18 618 millones con +100 pb en vez de 17 691. Por eso la sección 3 diseña la cobertura dividiendo DV01: el nominal que hay que vender sale de pesos, no de porcentajes.',
                         opciones: [
-                            { texto: 'De que la duración usa la TIR de hoy y el mercado exige más TIR cuando las tasas suben, así que el precio cae menos.', correcta: false },
-                            { texto: 'De que la duración es una recta tangente y el precio es convexo en la TIR, así que la recta exagera la pérdida.', correcta: true },
-                            { texto: 'De que la duración se calcula bono por bono y la pérdida del tramo incluye la correlación entre los tres bonos.', correcta: false },
-                            { texto: 'De que los cupones se reinvierten a la TIR nueva, más alta, y esa reinversión compensa parte de la caída del precio.', correcta: false },
+                            { texto: 'Porque el DV01 incluye la convexidad de cada bono y la duración no, y por eso solo los cambios con convexidad se pueden sumar.', correcta: false },
+                            { texto: 'Porque la duración mide un cambio en porcentaje y el DV01 en pesos, y los porcentajes de una cartera se promedian por valor.', correcta: true },
+                            { texto: 'Porque los tres bonos tienen TIR distintas, y solo con una TIR común las duraciones se podrían sumar como los DV01.', correcta: false },
+                            { texto: 'Porque las duraciones se suman igual pero divididas entre tres, el número de bonos, y eso da el porcentaje del tramo.', correcta: false },
                         ],
                     },
                     {
@@ -5110,23 +5228,23 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         ],
                     },
                     {
-                        pregunta: 'Subir un punto básico la TIR de los tres bonos le quita al tramo 176,91 millones; subir un punto básico toda la curva, 176,21. ¿Por qué no es lo mismo?',
-                        justificacion: 'La TIR es la tasa única que reproduce el precio de la curva, y en capitalización efectiva mover todas las tasas cero un punto básico no mueve la TIR de cada bono exactamente un punto básico: cada pago se descuenta con su propia tasa y el promedio que es la TIR se mueve un poco menos. La diferencia es de 0,4 %. Las dos cifras son correctas y responden a dos experimentos distintos, y el capítulo dice cuál usa en cada cálculo: la duración, la TIR; la cobertura, la curva.',
+                        pregunta: 'Según la duración, subir un punto básico la TIR de los tres bonos le quita al tramo 176,91 millones; subir un punto básico toda la curva, 176,21. ¿De dónde sale casi toda la diferencia?',
+                        justificacion: 'Casi toda, 0,64 de 0,70, es que no se trata del mismo experimento. La TIR de un bono es un promedio de las tasas cero con los pesos de sus pagos, y como la curva sube, subirlas todas un punto básico mueve la TIR del bono de diez años 0,9940 pb. Con una curva plana coincidirían, en efectiva o en continua. El resto, 0,06, es de método: 176,91 sale de la duración, que es una recta, y revalorando con la TIR un punto básico arriba el tramo pierde 176,85. El capítulo usa la TIR para la duración y la curva para la cobertura.',
                         opciones: [
-                            { texto: 'Porque mover todas las tasas cero no mueve la TIR de cada bono exactamente lo mismo, de modo que son dos experimentos distintos.', correcta: true },
-                            { texto: 'Porque uno de los dos cálculos tiene un error de redondeo de siete décimas, que es lo que se acumula en los tres bonos.', correcta: false },
-                            { texto: 'Porque el DV01 por la curva incluye la convexidad y el de la TIR no, y la convexidad le resta siete décimas a la pérdida.', correcta: false },
-                            { texto: 'Porque la curva se mueve en efectiva y la TIR en continua, y la diferencia entre las dos convenciones es justo de siete décimas.', correcta: false },
+                            { texto: 'De que la curva sube, y subir sus tasas cero un punto básico mueve la TIR de cada bono un poco menos de un punto básico.', correcta: true },
+                            { texto: 'De un error de redondeo de siete décimas en uno de los dos cálculos, que se acumula al sumar los tres bonos del tramo.', correcta: false },
+                            { texto: 'De la convexidad, que el DV01 por la curva incluye porque revalora y que pone toda la diferencia entre las dos cifras.', correcta: false },
+                            { texto: 'De que la curva del Banco está en efectiva anual y la TIR en continua, y las dos capitalizaciones no se mueven al mismo paso.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'El vértice de cinco años carga el 55,1 % del riesgo del tramo, aunque el bono de cinco años es un tercio del nominal. ¿Qué implica para una cobertura con el bono a la par de diez años?',
                         justificacion: 'Con τ fijo, el vértice de cinco años mueve todos los plazos intermedios, y el bono de diez años le debe casi un cuarto de su riesgo. Una venta del bono a la par de diez años iguala el DV01 total frente a un movimiento paralelo, pero queda expuesta a los cambios de pendiente: en abril de 2004 el tramo habría perdido 13 689 millones sin cubrir y 10 997 cubierto. Aun así, desde 2003 esa venta quita el 94,5 % de la varianza mensual, porque la mayor parte del movimiento de la curva es nivel.',
                         opciones: [
-                            { texto: 'Que no sirve de nada, porque el bono de diez años no tiene sensibilidad al vértice de cinco años y deja todo ese riesgo sin cubrir.', correcta: false },
-                            { texto: 'Que cubre el nivel de la curva pero no sus cambios de pendiente, y en los meses en que la curva se tuerce deja residuos grandes.', correcta: true },
-                            { texto: 'Que hay que vender el 55,1 % del nominal en bonos de cinco años, porque la cobertura se reparte en proporción al riesgo de cada vértice.', correcta: false },
-                            { texto: 'Que la cobertura es perfecta, porque el DV01 total de la venta es igual al del tramo y eso cubre cualquier movimiento de la curva.', correcta: false },
+                            { texto: 'Que no sirve, porque el bono de diez años no responde al vértice de cinco años y deja sin cubrir más de la mitad del riesgo.', correcta: false },
+                            { texto: 'Que la venta cubre el riesgo de nivel y no el de pendiente entre vértices, y deja residuos grandes si la curva se tuerce.', correcta: true },
+                            { texto: 'Que hay que vender bonos de cinco años por el 55,1 % del nominal, en proporción a lo que pesa cada plazo en el tramo.', correcta: false },
+                            { texto: 'Que es perfecta, porque el DV01 total de la venta iguala el del tramo y eso basta para cualquier movimiento de las tasas.', correcta: false },
                         ],
                     },
                     {
@@ -5150,12 +5268,12 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         ],
                     },
                     {
-                        pregunta: 'En el SEN de diciembre de 2025, Actual/365 cuadra con 346 operaciones de 6 199, y todas son de los dos TES que vencen antes del 29 de febrero de 2028. ¿Qué prueba ese detalle?',
+                        pregunta: 'En el SEN de diciembre de 2025, Actual/365 cuadra con 346 operaciones de 6 199, y todas son de los dos TES más cortos, los que vencen en 2026 y en 2027. ¿Qué prueba ese detalle?',
                         justificacion: 'Actual/365 y NL/365 cuentan igual mientras ningún plazo cruce un 29 de febrero, y los dos TES de 2026 y 2027 no cruzan ninguno. En cuanto un pago cae después, Actual/365 cuenta un día de más y el sucio se separa tres centésimas de mediana. Que el desacuerdo aparezca justo donde las dos bases difieren, y en ningún otro sitio, es la mejor prueba de que la diferencia es el 29 de febrero, que es lo único que NL/365 cambia. Coincide con la resolución del Ministerio de Hacienda que reglamenta los TES: febrero de 28 días, inclusive en años bisiestos.',
                         opciones: [
-                            { texto: 'Que los TES cortos se negocian en Actual/365 y los largos en NL/365, porque cada plazo tiene su propia convención en el SEN.', correcta: false },
+                            { texto: 'Que los TES que vencen antes del 29 de febrero de 2028 se negocian en Actual/365 y los demás en NL/365, cada plazo con la suya.', correcta: false },
                             { texto: 'Que el mercado no tiene una convención fija, y cada operador escoge la base de conteo que prefiere para su cotización.', correcta: false },
-                            { texto: 'Que la diferencia entre las bases es solo el 29 de febrero, así que donde ningún pago lo cruza las dos cuentan igual.', correcta: true },
+                            { texto: 'Que las dos bases solo se separan en un 29 de febrero, y los pagos de esos dos TES no cruzan ninguno antes de su vencimiento.', correcta: true },
                             { texto: 'Que el redondeo a tres decimales esconde el error de Actual/365 en los bonos cortos, cuya TIR es menos sensible al precio.', correcta: false },
                         ],
                     },
@@ -5164,19 +5282,19 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                         justificacion: 'El precio de un TES se calcula con las fechas del título, caigan en domingo o en festivo: con ellas cuadran las 6 199 operaciones. El calendario decide otra cosa: qué días se puede negociar y liquidar, y cuándo llega el dinero. Ahí un error no cuesta centésimas sino una liquidación que no se cumple, como la del R3 de la sección 4, fijada para un lunes festivo en Colombia y hábil en Estados Unidos. QuantLib no trae el calendario de Colombia, y armarlo sobre WeekendsOnly lo cambia para toda la sesión.',
                         opciones: [
                             { texto: 'En ninguna parte, porque si el precio no lo usa tampoco lo usa la liquidación, que se hace con las mismas fechas del título.', correcta: false },
-                            { texto: 'En la fecha en que se liquida una operación y en que llega el dinero, que tiene que ser un día hábil en Colombia.', correcta: true },
+                            { texto: 'En la fecha en que se liquida la operación y llega el dinero, que tiene que ser un día hábil del calendario colombiano.', correcta: true },
                             { texto: 'En los intereses causados, que se cuentan solo en días hábiles, mientras el descuento de los pagos usa días calendario.', correcta: false },
-                            { texto: 'En la TIR, que el SEN calcula con días hábiles en lugar de días calendario, por eso las fechas movidas descuadran.', correcta: false },
+                            { texto: 'En la TIR, que el SEN calcula contando solo las ruedas de negociación, y por eso los pagos movidos descuadran.', correcta: false },
                         ],
                     },
                     {
                         pregunta: 'Valorado con todos los valores por omisión de RQuantLib, el TES de 2034 sale 2 266 millones más caro sobre 200 000 nominales que con las convenciones del SEN. ¿Cuál de esos valores pesa más?',
-                        justificacion: 'El cupón semestral, que RQuantLib pone si no se le dice el periodo: a la misma TIR, partir el cupón en dos adelanta medio año la mitad de cada pago, y eso solo suma 2 370 millones. Las demás diferencias se compensan en parte: Actual/360 resta 482, mover los pagos al día hábil resta 73, liquidar al día siguiente suma 48, y 30/360 no suma nada en esta operación aunque el mes la rechace. Ninguna lanza un error: por eso cada argumento se escribe explícito y el resultado se contrasta con una operación del SEN.',
+                        justificacion: 'RQuantLib lo pone si no se le dice el periodo, y sobre 200 000 nominales vale 2 370 millones a la misma TIR: más que los 2 266 de todos los valores por omisión juntos. Lo demás casi se compensa. Pagar al día hábil resta 73 y liquidar al día siguiente suma 48; 30/360 en el cupón y Actual/Actual en la TIR no cambian nada por separado, pero Actual/Actual junto con el día hábil resta 150: los valores por omisión no se suman. Ninguno lanza un error, y por eso cada argumento se escribe explícito y el resultado se contrasta con una operación del SEN.',
                         opciones: [
                             { texto: 'La liquidación al día siguiente, porque un día más de intereses causados sobre 200 000 millones nominales es la mayor parte de la diferencia.', correcta: false },
                             { texto: 'El calendario europeo, porque mueve todas las fechas de pago del bono y cambia los plazos con los que se descuenta cada uno.', correcta: false },
                             { texto: 'La base 30/360 del cupón, porque cuenta meses de 30 días y eso le suma intereses al bono en todos los periodos de pago.', correcta: false },
-                            { texto: 'El cupón semestral, porque a la misma TIR adelanta medio año la mitad de cada pago, y eso solo suma 2 370 millones.', correcta: true },
+                            { texto: 'El cupón semestral, porque a la misma TIR adelanta medio año la mitad de cada pago, y eso solo ya supera el total.', correcta: true },
                         ],
                     },
                 ]} />
