@@ -24,6 +24,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Segunda revisión del capítulo 9 | 🟡 2026-10-07 · los 2 altos y M1–M13 corregidos · **M14 y M15 (mercado de TES, plegar D-D) esperan la decisión del usuario** · `AUDITORIA_CAP9_REVISION.md` |
 | Auditoría del capítulo 10 | 🟡 2026-11-03 · cinco revisores · ningún error de cálculo · **los 4 altos y los 11 medios corregidos**, los menores no · `AUDITORIA_CAP10.md` |
 | Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
+| Taller calificado del corte III (T3) | ✅ 2026-11-07 · integrador de los capítulos 1–10 · `Material html/T3_TDR_Taller_integrador.html`, enlazado desde el portal · **sustituye al proyecto integrador** (`talleres/PLAN_TDR-PI.md`) · plan privado en `talleres/clave/T3/PLAN_TDR-T3.md` |
 | 5 · Portal y Quarto | pendiente |
 
 Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
@@ -298,12 +299,48 @@ la clave, la rúbrica y la lista de lo que `D` no puede traer viven en `talleres
   y el HTML salía distinto con el `python3` del sistema (3.10) que con el del entorno; la regla 3
   lo cazó. Hoy los dos arman el mismo archivo, byte a byte.
 
+El instrumento calificado del **corte III** es **`Material html/T3_TDR_Taller_integrador.html`**
+(2026-11-07), enlazado desde `index.html` entre la unidad 2 y la 3: «La junta directiva», integrador
+de los capítulos 1 a 10, ocho bloques y veintiuna respuestas, **8 horas**, en casa con IA declarada y
+sustentación oral de quince minutos con el tope del T2. **Sustituye al proyecto integrador**
+(`talleres/PLAN_TDR-PI.md`, que queda como antecedente). Su centro es lo que ningún instrumento del
+curso había preguntado: **validar con la unidad 1 lo que decidió la unidad 2** —el backtest del
+capítulo 6 sobre las carteras que el comité reoptimiza— y **medir el fondo entero**, acciones y tramo
+de TES juntos, en mensual. Tres ejes: **el fondo y el TES del T2, heredados con su sal**, y la
+**ventana del comité** W ∈ {250, 500, 750} con sal 2. Se arma con `armar_taller.py --taller T3`
+desde `_plantilla/tr-taller3-contenido.jsx` y se verifica con `talleres/clave/T3/verificar_taller_t3.py`:
+21 reglas —la 21, que el bloque 1 que calcula el navegador coincida con la clave en las 72
+combinaciones— y `--autoprueba`. Todo lo demás es **privado**, en `talleres/clave/T3/`.
+
+⚠️ **Lo que el T3 dejó de método, para los instrumentos que faltan.** Sus resultados —qué pasa,
+qué falla, qué se distingue— son respuestas del taller y viven solo en `talleres/clave/T3/`: este
+archivo es público y la calibración del T2 mostró que un modelo lo lee.
+
+- **Un veredicto que cuelga de una o dos excepciones puede cambiar con la convención de
+  rendimientos** (logarítmicos contra simples). El congelador midió los dos, y el enunciado y la clave
+  solo construyen sobre lo que resiste ambos.
+- **Juntar acciones en cierres ajustados con un tramo revalorado sin cupón compara un rendimiento
+  total con uno de precio.** Todo P&L conjunto declara su carry, como el T3 hace con dos tablas.
+- **Un `Emparejamiento` de 6 × 6 no admite ningún orden en que cada corrimiento acierte una sola
+  pareja** (Hall–Paige: con n par, Σ(sol[i] − i) ≡ 0 y harían falta Σ k ≡ n/2). Hace falta una opción
+  de sobra o una fila menos; la regla 19 del verificador del T3 lo dice y propone el orden.
+- **El código que calcula una afirmación de un informe auditado puede delatar el defecto**, porque
+  viaja al HTML: las cifras de todas las afirmaciones van hechas en `D`, juntas y con nombres neutros.
+- **Con el tope por la oral, los criterios A < 55 % y B < 80 % de la calibración se cumplen por
+  construcción**: con la oral en 2,0 nadie pasa de 2,65. Lo que informa es la nota del taller sin la
+  oral y lo que CT1 cobra en el pase C.
+- **Un enunciado nuevo de este archivo puede ser una fuga**: antes de escribir aquí lo que un taller
+  midió, pregúntese si es la respuesta de una pregunta.
+- **Desde un worktree, el armador y los verificadores necesitan `talleres/clave`**: un enlace
+  simbólico a la carpeta del checkout principal, excluido en `.git/info/exclude` (la regla del
+  `.gitignore` solo casa directorios), y guiones con `Path(__file__).absolute()`, no `resolve()`.
+
 ⚠️ **`talleres/TDR-U1.qmd` dejó de ser el calificado el 2026-08-19** y bajó a **práctica
 previa**; no se toca. Los **doce** talleres de capítulo son práctica —`TDR-07.qmd` y
 `TDR-08.qmd`, del 2026-08-24, son los primeros que se renderizaron de verdad con Quarto;
 `TDR-11.qmd`, del 2026-08-25, es el tercero, `TDR-12.qmd`, del 2026-09-05, el cuarto,
 `TDR-09.qmd`, del 2026-09-29, el quinto, y `TDR-10.qmd`, del 2026-10-01, el sexto—. La unidad 2 tiene el suyo desde el 2026-10-05
-—el T2, arriba—; la 3 lo necesita, y va en la tarea 22.
+—el T2, arriba—, y el corte III tiene el T3, integrador de los capítulos 1–10, desde el 2026-11-07.
 
 ⚠️ **El taller 7 se revisó el 2026-09-19 y el 8 el 2026-09-26, y por razones distintas: no dé
 por supuesto que un taller viejo está desincronizado.** El 7 lo estaba —el capítulo le había

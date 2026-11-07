@@ -312,20 +312,26 @@ def region(texto: str, ini: str, fin: str) -> tuple[int, int]:
     return i, f + len(fin)
 
 
-def parchear_core_t2(taller: str) -> str:
-    """TALLER-CORE del T1 → el del T2, sin tocar el archivo fuente."""
-    mjs = SEMILLA_T2.read_text(encoding="utf-8")
+def parchear_core(taller: str, semilla: Path, parches: list, nombre: str) -> str:
+    """TALLER-CORE del T1 → el de otro taller, sin tocar el archivo fuente: el núcleo
+    de su semilla y sus sustituciones exactas, cada una con su número de casos."""
+    mjs = semilla.read_text(encoding="utf-8")
     i, f = region(mjs, NUCLEO_INI, NUCLEO_FIN)
     nucleo = mjs[i:f]
     i, f = region(taller, NUCLEO_INI, NUCLEO_FIN)
     taller = taller[:i] + nucleo + taller[f:]
-    for viejo, nuevo, n in PARCHES_T2:
+    for viejo, nuevo, n in parches:
         k = taller.count(viejo)
         if k != n:
             raise SystemExit(f"✗ el parche «{viejo[:50]}…» casa {k} veces y se esperaban {n}. "
-                             f"TALLER-CORE cambió: revise `PARCHES_T2`")
+                             f"TALLER-CORE cambió: revise `{nombre}`")
         taller = taller.replace(viejo, nuevo)
     return taller
+
+
+def parchear_core_t2(taller: str) -> str:
+    """TALLER-CORE del T1 → el del T2, sin tocar el archivo fuente."""
+    return parchear_core(taller, SEMILLA_T2, PARCHES_T2, "PARCHES_T2")
 
 
 def _sub(d: dict, campos: list) -> dict:
@@ -462,11 +468,189 @@ def main_t2() -> int:
     return 0
 
 
+
+# ============================================================================
+# T3 · el taller integrador del corte III (capítulos 1–10)
+# ============================================================================
+
+CIFRAS_T3 = RAIZ / "talleres" / "clave" / "T3" / "cifras_t3.json"
+SEMILLA_T3 = RAIZ / "talleres" / "clave" / "T3" / "semilla_t3.mjs"
+CONTENIDO_T3 = AQUI / "tr-taller3-contenido.jsx"
+DESTINO_T3 = MATERIAL / "T3_TDR_Taller_integrador.html"
+PROHIBIDOS_T3 = RAIZ / "talleres" / "clave" / "T3" / "prohibidos_t3.json"
+
+# Los parches del T3 son los del T2 con otro instrumento y un TERCER eje: la ventana
+# con que el comité reestima los pesos. Se arman desde `PARCHES_T2` cambiando solo el
+# texto nuevo de los que lo piden, para que un cambio de TALLER-CORE rompa los dos a
+# la vez y no uno solo en silencio.
+_T3_NUEVO = {
+    "   TALLER-CORE · componentes del instrumento calificado de la unidad 1\n":
+        "   TALLER-CORE · componentes del instrumento calificado de la unidad 1\n"
+        "   ⚠️ ESTA COPIA ES LA DEL TALLER INTEGRADOR (corte III): `armar_taller.py\n"
+        "   --taller T3` la arma desde la del T1 con el núcleo de su propia semilla y\n"
+        "   las sustituciones de `PARCHES_T3`. No se edita aquí.\n",
+    "const PREFIJO = 'tdr_u1t_';": "const PREFIJO = 'tdr_t3_';",
+    "instrumento: 'TDR-U1T',": "instrumento: 'TDR-T3',",
+    "style={{ margin: 0 }}>{ejes.emisorRotulo}</p>":
+        "style={{ margin: 0 }}>{ejes.tesRotulo}</p>\n"
+        "                    </div>\n"
+        "                    <div>\n"
+        "                        <p className=\"text-[0.65rem] uppercase tracking-wider font-bold text-gray-500\" style={{ margin: 0 }}>Ventana del comité</p>\n"
+        "                        <p className=\"font-bold text-secondary\" style={{ margin: 0, fontFamily: \"'Fira Code', monospace\" }}>{ejes.ventana} ruedas</p>",
+    "salen <strong>la ventana de estimación</strong> y{' '}\n"
+    "                <strong>el emisor</strong> con los que":
+        "salen <strong>su fondo</strong> y <strong>su TES</strong> —los mismos del taller\n"
+        "                de la unidad 2— y <strong>la ventana del comité</strong> con los que",
+    "le corresponde la ventana de <strong>{previsto.ventana} ruedas</strong>{' '}\n"
+    "                    y el emisor <strong>{previsto.emisorRotulo}</strong>":
+        "le corresponde el fondo <strong>{previsto.fondo}</strong>, el{' '}\n"
+        "                    <strong>{previsto.tesRotulo}</strong> y la ventana de <strong>{previsto.ventana} ruedas</strong>",
+    "            ventana: datos.ejes.ventana,\n            emisor: datos.ejes.emisor,":
+        "            fondo: datos.ejes.fondo,\n            tes: datos.ejes.tes,\n            ventana: datos.ejes.ventana,",
+    "`TDR-U1T_${datos.ejes.canonico}": "`TDR-T3_${datos.ejes.canonico}",
+}
+PARCHES_T3 = [(v, _T3_NUEVO.get(v, n), k) for v, n, k in PARCHES_T2]
+
+# Lo único del congelador del T3 que puede viajar. El resto —todo lo que es una
+# conclusión: qué mes, qué cartera, qué choque, si se distingue— se queda en la parte
+# privada y lo vigila `prohibidos_t3.json`. El bloque 1 viaja como SERIES: el
+# navegador calcula el VaR, el ES, ρ y el componente de cada combinación.
+CAMPOS_PUBLICOS_T3 = {
+    "meta": ["fecha_valoracion", "fondo_mm", "nominal_mm", "tope", "ventanas", "inicio_comun",
+             "ventana_var", "cada"],
+    "backtest": ["x", "n", "esperadas", "lr_uc", "lr_ind", "lr_cc", "var_medio_pct", "N250", "zona",
+                 "m", "var60_pct", "capital_mm", "exc"],
+    "malla": ["tope", "x", "lr_uc", "lr_cc", "var_medio_pct"],
+    "tes": ["nemo", "valor_mm", "cupon", "t", "f", "n10", "pyg_sin", "pyg_con"],
+    "c4": ["beta_2003", "se_2003", "r2_2003", "beta_is", "se_is", "r2_is", "beta_2018", "se_2018",
+           "n10", "quita_dur_pct", "quita_beta_pct", "ic_dif_pp", "boot"],
+    "c2": ["valor_mm", "sd_mes_mm", "vol_anual_pct", "carry_mes_mm", "tir_ponderada_pct"],
+    "raiz": ["diario_mm", "escalado_mm", "mensual_mm"],
+    "potencia": ["rechaza_bajo", "rechaza_alto", "tamano", "potencia_2a", "potencia_3a"],
+}
+
+
+def podar_t3(c: dict) -> dict:
+    P = CAMPOS_PUBLICOS_T3
+    fechas = c["panel"]["fechas"]
+    bt = lambda b: _sub(b, P["backtest"])
+    d = {
+        "meta": _sub(c["meta"], P["meta"]),
+        "panel": {"fechas": fechas, "cortos": c["panel"]["cortos"], "desde": fechas[0], "hasta": fechas[-1],
+                  "sesiones": len(fechas)},
+        "mensual": {"fechas": c["mensual"]["fechas"], "emisores": c["mensual"]["emisores"],
+                    "estudio": {k: _sub(v, ["pyg_sin", "pyg_con", "valor_mm"]) for k, v in c["mensual"]["estudio"].items()}},
+        "curva": _sub(c["curva"], ["beta", "tau", "par10"]),
+        "estudio_bonos": c["estudio_bonos"],
+        "fondos": {}, "comite": {}, "malla_tope": {}, "tes": {},
+        "potencia": {k: _sub(v, P["potencia"]) for k, v in c["potencia"].items()},
+        "publicado": _sub(c["publicado"], ["bt_x", "bt_n", "capital_mm", "var_tramo_99"]),
+    }
+    for nombre, v in c["fondos"].items():
+        dd = v["diario"]
+        d["fondos"][nombre] = {
+            "pesos": v["pesos"],
+            "fijo": {k: bt(v["fijo"][k]) for k in ("cap6", "comun")},
+            "raiz": {a: _sub(dd[f"raiz_{a}"], P["raiz"]) for a in ("95", "99")},
+            "ruedas_mes": dd["ruedas_mes"],
+            # Las cifras del informe del bloque 5, todas juntas: estar aquí no distingue
+            # a ninguna afirmación de las otras.
+            "informe": {"ventanas": dd["solapadas"]["ventanas"], "exc_validacion": dd["solapadas"]["x"],
+                        "lr_validacion": dd["solapadas"]["lr_uc_ingenuo"],
+                        "rho_diaria": dd["rho_diaria_media"],
+                        "var99_param": dd["var99_normal_rho_diaria"],
+                        "sigma_hoy": dd["ewma_garch"]["sigma_ewma_dia_pct"],
+                        "sigma_lp": dd["ewma_garch"]["sigma_largo_plazo_pct"],
+                        "persistencia": dd["ewma_garch"]["persistencia"],
+                        "var99_mes": dd["ewma_garch"]["var99_ewma_mes_mm"]},
+        }
+    # Las cifras del informe del bloque 5 que dependen de la combinación: hechas aquí, con
+    # nombres neutros (una por afirmación) y todas juntas, para que el JSX solo las imprima
+    # y ninguna fórmula a la vista distinga una afirmación de otra.
+    for nombre in d["fondos"]:
+        inf = d["fondos"][nombre]["informe"]
+        inf["a1"], inf["a2"], inf["a6"], inf["a8"] = {}, {}, {}, {}
+        for nemo in c["tes"]:
+            k = c["combinaciones"][f"{nombre}|{nemo}"]
+            sin = k["sin"]
+            inf["a1"][nemo] = [k["var99_pct_tot"], k["var99_pct_acc"]]
+            inf["a2"][nemo] = [sin["div95"], sin["div99"]]
+            inf["a6"][nemo] = [sin["es975_tot"], sin["var99_tot"], round((sin["es975_tot"] / sin["var99_tot"] - 1) * 100)]
+        for W, est in c["comite"].items():
+            inf["a8"][W] = round(3 * est["cvar30"]["var60_pct"] / 100 * math.sqrt(10) * c["meta"]["fondo_mm"])
+    for W, est in c["comite"].items():
+        d["comite"][W] = {k: bt(b) for k, b in est.items()}
+    # P3.1: el conteo con los pesos de toda la muestra, al lado del reestimado.
+    d["toda_muestra"] = {k: {"x": v["x"]} for k, v in c["adelante"].items()}
+    for W, tipos in c["malla_tope"].items():
+        d["malla_tope"][W] = {t: [_sub(f, P["malla"]) for f in fila] for t, fila in tipos.items()}
+    for nemo, v in c["tes"].items():
+        b = _sub(v["muestra"], P["tes"])
+        b["c4"] = _sub(v["clave"]["c4"], P["c4"])
+        b["c2"] = _sub(c["c2"][nemo], P["c2"])
+        d["tes"][nemo] = b
+
+    crudo = json.dumps(d, ensure_ascii=False)
+    if not PROHIBIDOS_T3.exists():
+        raise SystemExit(f"✗ falta {PROHIBIDOS_T3}: sin la segunda red no se arma")
+    prohibidas = set(json.loads(PROHIBIDOS_T3.read_text(encoding="utf-8"))["campos"])
+    for k in sorted(prohibidas):
+        if f'"{k}":' in crudo:
+            raise SystemExit(f"✗ FUGA: «{k}» iba a quedar dentro del HTML")
+    return d
+
+
+def main_t3() -> int:
+    for ruta in (CIFRAS_T3, SEMILLA_T3, CONTENIDO_T3):
+        if not ruta.exists():
+            raise SystemExit(f"✗ falta {ruta}")
+    cifras = json.loads(CIFRAS_T3.read_text(encoding="utf-8"))
+    if not cifras["meta"].get("contraste_ok"):
+        raise SystemExit("✗ el congelador no reprodujo lo publicado: no se arma sobre él")
+    datos = podar_t3(cifras)
+
+    head = (AQUI / "tr-head.html").read_text(encoding="utf-8")
+    for viejo, nuevo in (
+            ("<title>Teoría del Riesgo — Plantilla base</title>",
+             "<title>Taller integrador · La junta directiva — Teoría del Riesgo</title>"),
+            ("Plantilla base y catálogo de componentes del material de Teoría del Riesgo. "
+             "Universidad Santo Tomás.",
+             "Instrumento calificado del corte III: validar con las herramientas de la unidad 1 lo que "
+             "decidió la unidad 2, y medir el fondo entero, acciones y TES. Universidad Santo Tomás.")):
+        if head.count(viejo) != 1:
+            raise SystemExit(f"✗ la cabecera cambió: no casa «{viejo[:40]}…»")
+        head = head.replace(viejo, nuevo)
+
+    cap = CAPITULO_FUENTE.read_text(encoding="utf-8")
+    i = cap.index("/* === TR-CORE INICIO")
+    f = cap.index("/* === TR-CORE FIN ===") + len("/* === TR-CORE FIN === */")
+    tr_core = cap[i:f]
+
+    taller = parchear_core((AQUI / "tr-taller.jsx").read_text(encoding="utf-8"), SEMILLA_T3, PARCHES_T3,
+                           "PARCHES_T3")
+    contenido = CONTENIDO_T3.read_text(encoding="utf-8")
+
+    bloque_datos = (
+        "\n        /* === DATOS INICIO — los genera armar_taller.py desde el "
+        "congelador. No se editan a mano === */\n"
+        "        const D = " + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";\n"
+        "        /* === DATOS FIN === */\n"
+    )
+
+    DESTINO_T3.write_text(
+        head + "\n" + tr_core + "\n" + bloque_datos + "\n" + taller + "\n" + contenido,
+        encoding="utf-8")
+    print(f"✓ {DESTINO_T3.name} · {DESTINO_T3.stat().st_size // 1024} KB")
+    print(f"  {len(datos['fondos'])} fondos · {len(datos['tes'])} TES · {len(datos['comite'])} ventanas · "
+          f"{len(PARCHES_T3)} parches a TALLER-CORE · D pesa {len(json.dumps(datos, separators=(',', ':'))) // 1024} KB")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Arma un taller calificado.")
-    ap.add_argument("--taller", choices=("T1", "T2"), default="T1")
+    ap.add_argument("--taller", choices=("T1", "T2", "T3"), default="T1")
     a = ap.parse_args()
-    return main_t2() if a.taller == "T2" else main_t1()
+    return {"T1": main_t1, "T2": main_t2, "T3": main_t3}[a.taller]()
 
 
 if __name__ == "__main__":

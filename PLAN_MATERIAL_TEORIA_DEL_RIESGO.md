@@ -1222,7 +1222,8 @@ recorrido recursivo: devolvería «limpio» sin haber mirado.
 🟡 **El taller de la U3 se separó a plan propio** (2026-08-17): asciende a **proyecto
 integrador de las tres unidades**, individualizado por documento y con defensa oral, y tiene
 su propio plan en [`talleres/PLAN_TDR-PI.md`](talleres/PLAN_TDR-PI.md) — 22 tareas en cuatro
-fases, con auditoría en cuatro capas. **Propuesta pendiente de aprobación.** Lo que la tarea
+fases, con auditoría en cuatro capas. **Propuesta que no se aprobó: el 2026-11-07 la sustituyó el T3**, el
+taller integrador del corte III sobre los capítulos 1–10 (`Material html/T3_TDR_Taller_integrador.html`). Lo que la tarea
 22 conserva es el taller de la U2 y los quince de capítulo. Ojo con una decisión de ese plan
 que sale de su alcance: sus congeladores de cifras (fase B) quedan **canónicos**, y los
 capítulos 8 a 15 tendrán que reproducirlos.
@@ -2824,6 +2825,26 @@ Chrome, WebKit y Firefox sobre tres combinaciones, con laboratorios, andamios y 
 clave; la entrega leída y sellada por el calificador; una calibración adversaria en tres pases y
 una revisión independiente. **Sin verificar: el tiempo.** Es un modelo —de 4 h 40 a 5 h 40— y
 nadie lo ha medido con una persona; lo medirá la duración que registran las entregas.
+
+### Fase 5 — Tarea 22: el taller calificado del corte III, integrador de los capítulos 1–10 · 2026-11-07
+
+**Entregado:** `Material html/T3_TDR_Taller_integrador.html` (384 KB), su fuente
+`Material html/_plantilla/tr-taller3-contenido.jsx`, `armar_taller.py` con `--taller T3` —el T1 y el T2
+salen byte a byte iguales— y la tarjeta del portal. El congelador (79 cifras del T2 y 17 propias
+reproducidas antes de calcular), el contraste en R (10 044 de 10 044), la clave, la rúbrica, el
+calificador, el verificador de 21 reglas, la calibración y las revisiones están en
+`talleres/clave/T3/`, privado, con su registro en `PLAN_TDR-T3.md`.
+
+**Decidido con el usuario:** corte III calificado sobre los capítulos 1–10, en casa con IA declarada y
+sustentación oral al 35 % con el tope del T2, HTML individualizado, integrador largo (2026-11-07); **el
+T3 sustituye al proyecto integrador** y hereda el fondo y el TES del T2 con un eje nuevo, la ventana del
+comité; en el punto de control D, **8 horas sin recortar**.
+
+**Verificado:** 21 reglas y su autoprueba; seis revisores de contenido en paralelo (ningún error de
+cálculo, unos 80 cambios); el recorrido en pantalla de los ocho bloques, con A1 y A2 resueltos, el
+bloque 1 y el laboratorio de la curva contra la clave, y 375 px sin desborde; una calibración adversaria
+en tres pases con calificador independiente; una revisión T3-16 con cronómetro. **Sin verificar: el
+tiempo con una persona** (el modelo da 7 h 20 – 8 h 05) y el recorrido en tres motores del T2.
 
 ### Revisión 2 del plan · 2026-08-07
 - P1–P5 resueltas. El curso pasa de 14 a 15 capítulos por la partición de ES y backtesting.

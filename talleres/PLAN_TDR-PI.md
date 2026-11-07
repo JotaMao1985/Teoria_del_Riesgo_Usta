@@ -1,7 +1,11 @@
 # Plan del proyecto integrador — `TDR-PI.qmd`
 ## Teoría del Riesgo · Unidades 1, 2 y 3 · RA1–RA9 · instrumento calificado con defensa oral
 
-> **Estado:** propuesta, pendiente de aprobación. Este documento planifica un instrumento;
+> ⚠️ **Sustituido el 2026-11-07 por el T3** —`Material html/T3_TDR_Taller_integrador.html`, el taller
+> integrador calificado del corte III sobre los capítulos 1–10—, por decisión del usuario. Este plan queda
+> como antecedente: el T3 tomó de él la idea de las contradicciones entre unidades, sin la unidad 3.
+>
+> **Estado original:** propuesta, pendiente de aprobación. Este documento planifica un instrumento;
 > no lo escribe. El plan maestro sigue siendo
 > [`PLAN_MATERIAL_TEORIA_DEL_RIESGO.md`](../PLAN_MATERIAL_TEORIA_DEL_RIESGO.md) y este es
 > subordinado suyo — concretamente, el tercero de los tres talleres de unidad que la
