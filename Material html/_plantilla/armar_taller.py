@@ -553,16 +553,9 @@ def podar_t3(c: dict) -> dict:
             "fijo": {k: bt(v["fijo"][k]) for k in ("cap6", "comun")},
             "raiz": {a: _sub(dd[f"raiz_{a}"], P["raiz"]) for a in ("95", "99")},
             "ruedas_mes": dd["ruedas_mes"],
-            # Las cifras del informe del bloque 5, todas juntas: estar aquí no distingue
-            # a ninguna afirmación de las otras.
-            "informe": {"ventanas": dd["solapadas"]["ventanas"], "exc_validacion": dd["solapadas"]["x"],
-                        "lr_validacion": dd["solapadas"]["lr_uc_ingenuo"],
-                        "rho_diaria": dd["rho_diaria_media"],
-                        "var99_param": dd["var99_normal_rho_diaria"],
-                        "sigma_hoy": dd["ewma_garch"]["sigma_ewma_dia_pct"],
-                        "sigma_lp": dd["ewma_garch"]["sigma_largo_plazo_pct"],
-                        "persistencia": dd["ewma_garch"]["persistencia"],
-                        "var99_mes": dd["ewma_garch"]["var99_ewma_mes_mm"]},
+            # Las cifras del informe del bloque 5, todas juntas y ya armadas en el congelador:
+            # estar aquí no distingue a ninguna afirmación de las otras.
+            "informe": dict(dd["informe"]),
         }
     # Las cifras del informe del bloque 5 que dependen de la combinación: hechas aquí, con
     # nombres neutros (una por afirmación) y todas juntas, para que el JSX solo las imprima

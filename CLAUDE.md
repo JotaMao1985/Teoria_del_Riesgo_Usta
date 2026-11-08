@@ -326,6 +326,9 @@ archivo es público y la calibración del T2 mostró que un modelo lo lee.
   de sobra o una fila menos; la regla 19 del verificador del T3 lo dice y propone el orden.
 - **El código que calcula una afirmación de un informe auditado puede delatar el defecto**, porque
   viaja al HTML: las cifras de todas las afirmaciones van hechas en `D`, juntas y con nombres neutros.
+- **El armador también es público**: un nombre de campo que juzgue lo que lee delata lo mismo que una
+  fórmula en el contenido. Lo que describe un resultado se resuelve en el congelador privado, y el
+  barrido de fugas mira `_plantilla/`.
 - **Con el tope por la oral, los criterios A < 55 % y B < 80 % de la calibración se cumplen por
   construcción**: con la oral en 2,0 nadie pasa de 2,65. Lo que informa es la nota del taller sin la
   oral y lo que CT1 cobra en el pase C.
