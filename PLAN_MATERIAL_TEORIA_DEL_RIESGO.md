@@ -177,6 +177,12 @@ El capítulo 1 de LP pesa 263 KB. Aquí se suman MathJax denso y datos embebidos
 series de las gráficas se embeben decimadas, máximo 1500 puntos por serie**, y un capítulo
 que pase de 400 KB se parte. Lo comprueba la regla 12, nueva.
 
+**Revisada el 2026-11-11 (decisión del docente): el tope pasa de 400 a 420 KB.** El circuito
+de citas (reglas 18 a 24, portado de LPF) suma unos 16–17 KB a TR-CORE en cada capítulo, y el
+capítulo 7 pasó de 388 a 408 KB sin que su contenido cambiara. Subir el tope cuesta menos que
+partir un capítulo por una librería. Por encima de 420 KB la regla sigue siendo la misma: el
+capítulo se parte.
+
 ### D7 · Hilo conductor único
 
 LP usa «un crédito de libre inversión de un banco colombiano». Aquí: **el portafolio de un

@@ -33,9 +33,11 @@ demo sobre `tr-base.html`—:
      fondo de la página se use como color de texto sin querer.
  11. ENUNCIADOS — que ningún ejercicio pida escribir un programa desde cero:
      está excluido por diseño de la taxonomía; eso es de los talleres.
- 12. PESO — que ningún capítulo pase de 400 KB. Con MathJax denso, gráficas y
+ 12. PESO — que ningún capítulo pase de 420 KB. Con MathJax denso, gráficas y
      datos embebidos es un límite que se cruza sin darse cuenta, y del otro
-     lado el capítulo tarda en abrir en el equipo de un estudiante.
+     lado el capítulo tarda en abrir en el equipo de un estudiante. Fue de
+     400 KB hasta el 2026-11-11, cuando el circuito de citas le sumó ~17 KB a
+     TR-CORE (D6 del plan).
  13. LONGITUD DE LAS OPCIONES — que la opción correcta no sea sistemáticamente
      la más larga. `barajarOpciones` cerró la pista de la POSICIÓN y dejó
      abierta la de la LONGITUD, que el barajado no toca: en la primera pasada
@@ -230,7 +232,9 @@ LENGUAJES = ("python", "r")
 PREFIJOS_AJENOS = {"//>": "pseudocódigo", "'>": "VBA"}
 PREFIJO_PROPIO = "#>"
 
-PESO_MAXIMO_KB = 400
+# 400 hasta el 2026-11-11; 420 desde ese día, decisión del docente: el circuito de
+# citas sumó ~17 KB a TR-CORE y dejó el capítulo 7 en 408 KB (ver D6 del plan).
+PESO_MAXIMO_KB = 420
 
 # Regla 13. La fracción no es cero a propósito: con cuatro opciones, que la
 # correcta salga la más larga por azar pasa una vez de cada cuatro, así que

@@ -284,7 +284,7 @@ for (r in c(-0.0191, 0.0139, 0.0149)) {
                     <h3>Gráficas</h3>
                     <p>
                         Las series se embeben decimadas —máximo 1500 puntos— y un capítulo que pase de
-                        400 KB se parte. Lo comprueba la regla 12. Una gráfica y el bloque que la
+                        420 KB se parte. Lo comprueba la regla 12. Una gráfica y el bloque que la
                         produce van juntos y con las <strong>mismas cifras</strong>: si la línea del
                         VaR de la figura no coincide con el número que imprime el código, el material
                         contiene el error que enseña a cazar.
@@ -692,7 +692,7 @@ var <- mu + 1.6449 * sd`,
                                 <li><strong>1 · Deriva.</strong> El bloque TR-CORE coincide byte a byte con la plantilla.</li>
                                 <li><strong>3 · Componentes.</strong> Todo componente usado existe.</li>
                                 <li><strong>5 · Motivación.</strong> Cada sección del curriculum abre con <span className="inline-code">&lt;Motivacion&gt;</span>.</li>
-                                <li><strong>12 · Peso.</strong> Ningún capítulo pasa de 400 KB.</li>
+                                <li><strong>12 · Peso.</strong> Ningún capítulo pasa de 420 KB.</li>
                             </ul>
                         ),
                     },

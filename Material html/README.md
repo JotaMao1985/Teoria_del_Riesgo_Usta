@@ -68,7 +68,7 @@ una opción que no existe):
 | 9 | **Salidas ejecutadas** — lo declarado tras `#>` es lo que el código produce. Se pide con `--con-salidas` |
 | 10 | **Contraste** — ningún color por debajo de 3,0:1 sobre el fondo se usa como texto sin confirmar. Sale como **aviso** |
 | 11 | **Enunciados** — ningún ejercicio pide construir un programa o un modelo desde cero |
-| 12 | **Peso** — ningún capítulo pasa de 400 KB |
+| 12 | **Peso** — ningún capítulo pasa de 420 KB (400 hasta el 2026-11-11; ver D6 del plan). Por encima, el capítulo se parte |
 | 13 | **Longitud de las opciones** — la correcta no es la más larga en ninguna pregunta ni la más corta en más de un tercio, y mide entre 0,75 y 1,30 veces la media de sus distractores |
 | 14 | **Posición de la correcta** — la letra en que sale tras el barajado está repartida: ninguna pasa de la mitad y ninguna falta. Se arregla moviendo la correcta de índice en el fuente |
 | 15 | **Opciones completas** — toda opción declara `correcta`; una sin ella no la ven las reglas 13, 14 y 16 |
@@ -276,7 +276,9 @@ python3 "Material html/_plantilla/verificar.py"
 - **Una norma se registra en Zotero como informe con autor institucional**, no como
   `legislation`: con ese tipo el estilo APA no separa autor y año, y la cita en el texto no
   se puede armar. En «Para profundizar» sí cabe.
-- **El peso**: los componentes suman unos 17 KB a TR-CORE en cada capítulo.
+- **El peso**: los componentes suman unos 17 KB a TR-CORE en cada capítulo. El capítulo 7
+  pasó de 388 a 408 KB, y por eso el docente subió el tope de la regla 12 de 400 a 420 KB
+  el 2026-11-11 (D6 del plan). Partir el capítulo sigue siendo la regla por encima del tope.
 - **Las pruebas negativas se vuelven a correr** con
   `python3 "Material html/_plantilla/pruebas_fuentes/negativas.py"`: arma una copia del
   capítulo 1 que cita las obras ficticias y comprueba que cada regla de la 18 a la 24 falla
