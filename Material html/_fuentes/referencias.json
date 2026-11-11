@@ -193,6 +193,30 @@
     "language": "en"
   },
   {
+    "id": "bachelier1900",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Bachelier",
+        "given": "Louis"
+      }
+    ],
+    "title": "Théorie de la spéculation",
+    "container-title": "Annales scientifiques de l'École normale supérieure",
+    "issued": {
+      "date-parts": [
+        [
+          "1900"
+        ]
+      ]
+    },
+    "volume": "17",
+    "page": "21-86",
+    "DOI": "10.24033/asens.476",
+    "URL": "https://doi.org/10.24033/asens.476",
+    "language": "fr"
+  },
+  {
     "id": "baesens2016",
     "type": "book",
     "author": [
@@ -624,6 +648,32 @@
     "language": "en"
   },
   {
+    "id": "cont2001",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Cont",
+        "given": "Rama"
+      }
+    ],
+    "title": "Empirical properties of asset returns: Stylized facts and statistical issues",
+    "container-title": "Quantitative Finance",
+    "issued": {
+      "date-parts": [
+        [
+          "2001",
+          2
+        ]
+      ]
+    },
+    "volume": "1",
+    "issue": "2",
+    "page": "223-236",
+    "DOI": "10.1080/713665670",
+    "URL": "https://doi.org/10.1080/713665670",
+    "language": "en"
+  },
+  {
     "id": "cox1979",
     "type": "article-journal",
     "author": [
@@ -685,6 +735,36 @@
       ]
     },
     "URL": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=40032",
+    "language": "es"
+  },
+  {
+    "id": "decreto4327-2005",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Presidencia de la República de Colombia"
+      }
+    ],
+    "title": "Decreto 4327 de 2005",
+    "issued": {
+      "date-parts": [
+        [
+          "2005",
+          11,
+          25
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=18320",
     "language": "es"
   },
   {
@@ -792,6 +872,36 @@
     "page": "987",
     "DOI": "10.2307/1912773",
     "URL": "https://doi.org/10.2307/1912773",
+    "language": "en"
+  },
+  {
+    "id": "fsf2009",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Financial Stability Forum"
+      }
+    ],
+    "title": "FSF principles for sound compensation practices",
+    "issued": {
+      "date-parts": [
+        [
+          "2009",
+          4,
+          2
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.fsb.org/uploads/r_0904b.pdf",
     "language": "en"
   },
   {
@@ -925,6 +1035,95 @@
     "language": "en"
   },
   {
+    "id": "iia2013",
+    "type": "report",
+    "author": [
+      {
+        "literal": "The Institute of Internal Auditors"
+      }
+    ],
+    "title": "The Three Lines of Defense in Effective Risk Management and Control",
+    "issued": {
+      "date-parts": [
+        [
+          "2013",
+          1
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://web.archive.org/web/20220126/https://na.theiia.org/standards-guidance/Public%20Documents/PP%20The%20Three%20Lines%20of%20Defense%20in%20Effective%20Risk%20Management%20and%20Control.pdf",
+    "language": "en"
+  },
+  {
+    "id": "iia2020",
+    "type": "report",
+    "author": [
+      {
+        "literal": "The Institute of Internal Auditors"
+      }
+    ],
+    "title": "The IIA's Three Lines Model: An update of the Three Lines of Defense",
+    "issued": {
+      "date-parts": [
+        [
+          "2020",
+          7
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.theiia.org/globalassets/site/communication/2020/three-lines-model-updated.pdf",
+    "language": "en"
+  },
+  {
+    "id": "iso2018",
+    "type": "report",
+    "author": [
+      {
+        "literal": "International Organization for Standardization"
+      }
+    ],
+    "title": "Risk management: Guidelines",
+    "issued": {
+      "date-parts": [
+        [
+          "2018",
+          2,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "ISO 31000:2018",
+    "URL": "https://www.iso.org/standard/65694.html",
+    "language": "en"
+  },
+  {
     "id": "jpmorgan1996",
     "type": "report",
     "author": [
@@ -957,6 +1156,37 @@
       ]
     },
     "URL": "https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document",
+    "language": "en"
+  },
+  {
+    "id": "knight1921",
+    "type": "book",
+    "author": [
+      {
+        "family": "Knight",
+        "given": "Frank H."
+      }
+    ],
+    "title": "Risk, uncertainty and profit",
+    "publisher": "Houghton Mifflin",
+    "publisher-place": "Boston",
+    "issued": {
+      "date-parts": [
+        [
+          "1921"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://archive.org/details/riskuncertaintyp00knig",
     "language": "en"
   },
   {
@@ -1067,6 +1297,31 @@
     },
     "ISBN": "0-87014-032-9",
     "URL": "https://www.nber.org/books-and-chapters/some-theoretical-problems-suggested-movements-interest-rates-bond-yields-and-stock-prices-united",
+    "language": "en"
+  },
+  {
+    "id": "mandelbrot1963",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Mandelbrot",
+        "given": "Benoit"
+      }
+    ],
+    "title": "The variation of certain speculative prices",
+    "container-title": "The Journal of Business",
+    "issued": {
+      "date-parts": [
+        [
+          "1963"
+        ]
+      ]
+    },
+    "volume": "36",
+    "issue": "4",
+    "page": "394",
+    "DOI": "10.1086/294632",
+    "URL": "https://doi.org/10.1086/294632",
     "language": "en"
   },
   {
@@ -1386,6 +1641,30 @@
     "language": "en"
   },
   {
+    "id": "planck2020",
+    "type": "article-journal",
+    "author": [
+      {
+        "literal": "Planck Collaboration"
+      }
+    ],
+    "title": "Planck 2018 results: VI. Cosmological parameters",
+    "container-title": "Astronomy & Astrophysics",
+    "issued": {
+      "date-parts": [
+        [
+          "2020",
+          9
+        ]
+      ]
+    },
+    "volume": "641",
+    "page": "A6",
+    "DOI": "10.1051/0004-6361/201833910",
+    "URL": "https://doi.org/10.1051/0004-6361/201833910",
+    "language": "en"
+  },
+  {
     "id": "psf2026python",
     "type": "software",
     "author": [
@@ -1630,6 +1909,36 @@
       ]
     },
     "URL": "https://www.superfinanciera.gov.co/publicaciones/10106589/normativa/normativa-general/circulares-externas-cartas-circulares-y-resoluciones-desde-el-ano-/circulares-externas/circulares-externas--10106589/",
+    "language": "es"
+  },
+  {
+    "id": "sfc2025cbj",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Financiera de Colombia"
+      }
+    ],
+    "title": "Circular Externa 006 de 2025: Reexpedición de la Circular Básica Jurídica",
+    "issued": {
+      "date-parts": [
+        [
+          "2025",
+          6,
+          25
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/10115459/circulares-externas-2025/",
     "language": "es"
   },
   {
