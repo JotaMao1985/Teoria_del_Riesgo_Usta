@@ -16,6 +16,11 @@ Composición:
                         componentes de ejercicio R1…R9 y los propios del curso
     TR-CORE FIN
     tr-demo.jsx         capítulo de demostración + App
+    tr-demo-referencias.html   la isla de referencias de la demo, DESPUÉS del
+                        </script> de Babel. La genera
+                        `estampar_referencias.py --demo` con las obras ficticias
+                        de `pruebas_fuentes/`; aquí solo se copia, para que
+                        ensamblar no necesite pandoc.
 
 Diferencia con el guion equivalente de Lógica de Programación: allí el `head` y
 la primera mitad de la librería se extraían del capítulo 1 del propio curso, lo
@@ -37,6 +42,7 @@ MATERIAL = AQUI.parent
 PIEZAS_CORE = ("tr-core-base.jsx", "tr-core-extra.jsx")
 HEAD = AQUI / "tr-head.html"
 DEMO = AQUI / "tr-demo.jsx"
+DEMO_REFS = AQUI / "tr-demo-referencias.html"
 SALIDA = AQUI / "tr-base.html"
 
 SENTINELA_INICIO = "        /* === TR-CORE INICIO — no editar a mano: se genera con ensamblar.py === */"
@@ -46,7 +52,7 @@ FA_MINIMA = (6, 5, 0)
 
 
 def main():
-    fuentes = [HEAD, *(AQUI / p for p in PIEZAS_CORE), DEMO]
+    fuentes = [HEAD, *(AQUI / p for p in PIEZAS_CORE), DEMO, DEMO_REFS]
     faltan = [f for f in fuentes if not f.exists()]
     if faltan:
         for f in faltan:
@@ -86,6 +92,9 @@ def main():
         "",
         DEMO.read_text(encoding="utf-8").rstrip("\n"),
         "    </script>",
+        # La isla va fuera del script Babel: dentro, las reglas de texto de
+        # verificar.py la leerían como prosa del capítulo.
+        DEMO_REFS.read_text(encoding="utf-8").rstrip("\n"),
         "</body>",
         "",
         "</html>",

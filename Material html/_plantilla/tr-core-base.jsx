@@ -641,8 +641,12 @@
            teléfono. El `responsive: true` de Plotly solo escucha el `resize`
            de la VENTANA, así que en esos tres casos la figura queda más ancha
            que su tarjeta y se sale por la derecha — sin ningún error en
-           consola, que es lo que hace que llegue al aula. */
-        const ChartFrame = ({ id, height = 'chart-h-360', caption }) => {
+           consola, que es lo que hace que llegue al aula.
+
+           `fuente` (desde el 2026-11-11) dice de dónde salen los datos:
+           "clave", { k, loc }, { propia: true }, { ilustrativo: true } o un
+           <Fuente> ya armado. La regla 22 avisa de la gráfica que no la trae. */
+        const ChartFrame = ({ id, height = 'chart-h-360', caption, fuente }) => {
             const caja = useRef(null);
             useEffect(() => {
                 const el = caja.current;
@@ -667,7 +671,10 @@
                     <div className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm my-3">
                         <div ref={caja} id={id} className={height} style={{ width: '100%' }}></div>
                     </div>
-                    {caption && <p className="text-xs text-gray-500 italic text-center mb-4">{caption}</p>}
+                    {caption && <p className="text-xs text-gray-500 italic text-center mb-4"
+                        {...(fuente ? { style: { marginBottom: '0.2rem' } } : {})}>{caption}</p>}
+                    {fuente && (React.isValidElement(fuente) ? fuente
+                        : typeof fuente === 'string' ? <Fuente k={fuente} /> : <Fuente {...fuente} />)}
                 </>
             );
         };
