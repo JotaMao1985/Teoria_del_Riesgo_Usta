@@ -26,6 +26,29 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
 | Taller calificado del corte III (T3) | ✅ 2026-11-07 · integrador de los capítulos 1–10 · `Material html/T3_TDR_Taller_integrador.html`, enlazado desde el portal · **sustituye al proyecto integrador** (`talleres/PLAN_TDR-PI.md`) · plan privado en `talleres/clave/T3/PLAN_TDR-T3.md` |
 | 5 · Portal y Quarto | pendiente |
+| Gestión documental (F0–F4) | 🟡 2026-11-10 · **F0 y F1 hechas**: vault privado de Obsidian en la carpeta principal y respaldo de Zotero · **PC1 espera la revisión del usuario** · F2 (Zotero), F3 (citas en el HTML) y F4 (línea base del capítulo 1) pendientes |
+
+## Gestión documental: vault y Zotero (desde el 2026-11-10)
+
+El material no tenía bibliografía: ningún capítulo trae referencias, y las obras que nombra van
+sin página ni DOI. Desde el 2026-11-10 se monta el mismo sistema que Lógica de Programación
+Financiera ya probó (`Usta 2026II/Logica de programacion/`):
+
+- **Zotero es la única autoridad bibliográfica**: colección «Docencia → TDR Teoría del Riesgo»,
+  con `1 Básica`, `2 Complementaria`, `3 Fuentes primarias` y `4 Datos y software`. Una
+  referencia solo existe si está allí, y entra con metadatos copiados de Crossref, de un catálogo
+  o de la página oficial, **nunca de memoria**.
+- **El vault de Obsidian es la carpeta principal del curso**, y lo que produce vive en `Vault/`:
+  una nota por fuente, por afirmación, por convención, por símbolo, por figura y por decisión. El
+  estado está en `Vault/00 Inicio.md` y las propiedades en `Vault/Esquema de datos.md`.
+  **`Vault/` y `.obsidian/` son privados** (`.gitignore` y `.git/info/exclude`): llevan los
+  extractos de libros y normas. `Vault/` tiene su propio git local. Desde un worktree el vault
+  **no se ve**: está en la carpeta principal y solo la sesión maestra lo escribe (D08).
+- **Una afirmación solo se atribuye a una fuente cuyo pasaje está copiado, con página, en su
+  nota**, y la lista «Referencias» del HTML se genera desde Zotero, nunca se teclea. Una norma se
+  cita como vigente solo con la fecha en que se contrastó su texto vigente.
+- Las **convenciones declaradas** del curso tienen nota propia en `Vault/Convenciones/`,
+  transcritas de este archivo y pendientes de cotejar contra los capítulos.
 
 Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
 **diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción
