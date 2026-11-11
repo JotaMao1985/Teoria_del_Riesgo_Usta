@@ -78,3 +78,11 @@ __pycache__/
 # Configuración local del servidor de vista previa: suele llevar rutas
 # absolutas del equipo de cada quien. Se versiona la plantilla.
 .claude/launch.json
+
+# ---------------------------------------------------------------------------
+# Vault privado de Obsidian (gestión documental, desde el 2026-11-10).
+# Lleva los extractos de libros y normas con su página: no se publican. Al
+# repositorio solo va lo que el verificador necesita, en `Material html/_fuentes/`.
+# El vault tiene su propio git local dentro de `Vault/`.
+/Vault/
+/.obsidian/
