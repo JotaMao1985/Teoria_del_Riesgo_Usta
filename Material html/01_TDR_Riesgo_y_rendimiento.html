@@ -4085,11 +4085,11 @@ real      <- p[length(p)] / p[1] - 1`,
                                 porque: 'Es la desigualdad de Jensen. La exponencial es convexa, así que el promedio ponderado de los e elevado a r es mayor o igual que e elevado al promedio de los r; tomando logaritmos queda esta línea. Por eso la convención nunca da un rendimiento mayor que el exacto: en las 1 916 ruedas del panel la brecha es negativa o cero.',
                             },
                             {
-                                eq: <Eq>{'$$\\sum_i w_i\\, r_{i,t} - r_{p,t} \\;\\approx\\; -\\tfrac{1}{2}\\Big[\\sum_i w_i\\, r_{i,t}^2 - \\Big(\\sum_i w_i\\, r_{i,t}\\Big)^{2}\\Big]$$'}</Eq>,
-                                porque: 'Se desarrolla la exponencial hasta el segundo orden. Lo que queda entre corchetes es la varianza de los cuatro rendimientos del día, ponderada por los pesos: no mide cuánto se movió el fondo, sino cuánto se separaron sus acciones entre sí.',
+                                eq: <Eq>{'$$\\begin{gathered} \\sum_i w_i\\, r_{i,t} - r_{p,t} \\;\\approx\\; -\\tfrac{1}{2}\\, D_t \\\\[4pt] D_t = \\sum_i w_i\\, r_{i,t}^2 - \\Big(\\sum_i w_i\\, r_{i,t}\\Big)^{2} \\end{gathered}$$'}</Eq>,
+                                porque: 'Se desarrolla la exponencial hasta el segundo orden. D_t es la varianza de los cuatro rendimientos del día, ponderada por los pesos: no mide cuánto se movió el fondo, sino cuánto se separaron sus acciones entre sí.',
                             },
                             {
-                                eq: <Eq>{'$$\\begin{gathered} \\text{31/3/2022:}\\quad r_i = (1{,}67;\\ -31{,}74;\\ 10{,}88;\\ -1{,}39)\\,\\% \\\\[4pt] -\\tfrac{1}{2}\\big[\\,\\cdots\\big] = -110\\ \\text{pb} \\qquad \\text{exacta: } -104\\ \\text{pb} \\end{gathered}$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} \\text{31/3/2022:} \\\\ r_i = (1{,}67;\\ -31{,}74;\\ 10{,}88;\\ -1{,}39)\\,\\% \\\\[4pt] -\\tfrac{1}{2}\\, D_t = -110\\ \\text{pb} \\\\ \\text{brecha exacta: } -104\\ \\text{pb} \\end{gathered}$$'}</Eq>,
                                 porque: 'La peor brecha del panel. Ese día el fondo perdió 2,41 %, pero Banco de Bogotá cayó 31,7 % en logarítmicos y Grupo Sura subió 10,9 %. La aproximación del paso anterior da −110 pb contra los −104 exactos, y sobre las 1 916 ruedas reproduce la brecha diaria con una correlación de 0,9992.',
                             },
                         ]}
@@ -4768,9 +4768,9 @@ curtosis <- mean(z^4) - 3`,
 
                 <Quiz titulo="Cuestionario integrador del capítulo 1" preguntas={[
                     {
-                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Riesgo tampoco es la posibilidad de perder: lo que el curso mide de aquí al capítulo 15 es dispersión, y un activo que solo pudiera ganar, pero por cuantías muy distintas, también tendría riesgo.',
+                        pregunta: 'Un activo rinde exactamente 8 % todos los años, sin excepción. Otro rinde 30 % o −20 % con la misma probabilidad. ¿Cuál tiene más riesgo financiero?', justificacion: 'El segundo activo tiene un rendimiento esperado del 5 %, menor que el 8 % del primero: aquí riesgo y rendimiento van en direcciones opuestas, y con eso basta para separar las dos ideas. Con cualquiera de las dos lecturas de la sección 1 el segundo tiene más riesgo: sus resultados se dispersan y además puede perder; el primero no tiene ni lo uno ni lo otro.',
                         opciones: [
-                            { texto: 'El segundo, porque el riesgo es la dispersión de los resultados posibles, más que el nivel del rendimiento.', correcta: true },
+                            { texto: 'El segundo, porque el riesgo depende de cómo se reparten los resultados, no del nivel del rendimiento.', correcta: true },
                             { texto: 'El primero, porque un rendimiento de 8 % está por debajo de la media del segundo, que es 5 %.', correcta: false },
                             { texto: 'Los dos igual: el riesgo se mide sobre el rendimiento esperado y ambos tienen uno definido.', correcta: false },
                             { texto: 'El segundo, pero solo si su rendimiento esperado es menor que 8 %; si es mayor, el riesgo queda compensado.', correcta: false },
