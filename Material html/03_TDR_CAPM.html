@@ -3048,6 +3048,11 @@
            exactamente por el punto del mercado en β = 1, que es lo que el pie
            de la gráfica afirma. Redondeado a dos decimales —que es como lo
            muestra el hover— sigue siendo el 8,10 % del bloque. */
+        /* El rombo del portafolio en REG es w′μ, la convención del capítulo 1:
+           sirve para la beta y no para el nivel. Este es el fondo rebalanceado
+           cada rueda, componiendo los aritméticos: la última fila del bloque
+           de la sección 3. */
+        const PORT_EXACTO = { beta: 0.6756, anual: 11.83 };
         const MERCADO = { beta: 1, anual: 8.1026, sd: 1.3085, nombre: 'ICOLCAP (mercado)', color: '#6B7280' };
 
         /* Las tres constantes de la SML van en la convención del curso:
@@ -3222,6 +3227,15 @@ for a in acciones + ["PORTAFOLIO"]:
 #> ISA.CL         0.6165   +7.59 %    +12.88 %       +5.29 %
 #> PORTAFOLIO     0.6779   +7.67 %     +7.69 %       +0.02 %
 
+# La fila PORTAFOLIO es w'mu, la convencion del capitulo 1: sirve para la beta,
+# que es dispersion, y no para decir cuanto rindio el fondo, que es un nivel.
+# El fondo rebalanceado cada rueda a 30/20/25/25 compone los aritmeticos:
+y = np.log(1 + (np.exp(r[acciones].values) - 1) @ w)
+b = beta(y, rm)
+esp, obs = (rf + b * prima) * 252 * 100, y.mean() * 252 * 100
+print(f"{'PORT. EXACTO':14s} {b:6.4f}  {esp:+6.2f} %    {obs:+6.2f} %      {obs-esp:+6.2f} %")
+#> PORT. EXACTO   0.6756   +7.67 %    +11.83 %       +4.16 %
+
 ee = rm.std(ddof=1) / np.sqrt(len(rm))
 print(f"Error estandar de la media del mercado : {ee*252*100:.2f} pp anuales")
 #> Error estandar de la media del mercado : 7.53 pp anuales
@@ -3262,6 +3276,15 @@ for (a in c(acciones, "PORTAFOLIO")) {
 #> GRUPOSURA.CL   0.7369   +7.75 %     +6.77 %       -0.99 %
 #> ISA.CL         0.6165   +7.59 %    +12.88 %       +5.29 %
 #> PORTAFOLIO     0.6779   +7.67 %     +7.69 %       +0.02 %
+
+# La fila PORTAFOLIO es w'mu, la convencion del capitulo 1: sirve para la beta,
+# que es dispersion, y no para decir cuanto rindio el fondo, que es un nivel.
+# El fondo rebalanceado cada rueda a 30/20/25/25 compone los aritmeticos:
+y <- log(1 + as.vector((exp(r[, acciones]) - 1) %*% w))
+b <- beta(y, rm)
+esp <- (rf + b * prima) * 252 * 100; obs <- mean(y) * 252 * 100
+cat(sprintf("%-14s %6.4f  %+6.2f %%    %+6.2f %%      %+6.2f %%\\n", "PORT. EXACTO", b, esp, obs, obs - esp))
+#> PORT. EXACTO   0.6756   +7.67 %    +11.83 %       +4.16 %
 
 ee <- sd(rm) / sqrt(length(rm))
 cat(sprintf("Error estandar de la media del mercado : %.2f pp anuales\\n", ee * 252 * 100))
@@ -4034,6 +4057,13 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                             hovertemplate: 'β %{x:.4f} · observado %{y:.2f} % anual<extra>' + q.nombre + '</extra>',
                         })),
                         {
+                            x: [PORT_EXACTO.beta], y: [PORT_EXACTO.anual], type: 'scatter', mode: 'markers+text',
+                            marker: { size: 15, color: '#3D008D', symbol: 'diamond-open', line: { width: 2, color: '#3D008D' } },
+                            text: ['Portafolio, exacto'], textposition: 'middle right', textfont: { size: 10 },
+                            name: 'Portafolio, exacto', showlegend: false,
+                            hovertemplate: 'β %{x:.4f} · rebalanceado cada rueda %{y:.2f} % anual<extra>Portafolio, exacto</extra>',
+                        },
+                        {
                             x: [MERCADO.beta], y: [MERCADO.anual], type: 'scatter', mode: 'markers+text',
                             marker: { size: 12, color: MERCADO.color, symbol: 'square' },
                             text: ['Mercado'], textposition: 'top center', textfont: { size: 10 },
@@ -4054,11 +4084,12 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                 <>
                     <Motivacion icon="fa-scale-balanced"
                         gancho="El CAPM no dice qué rindió un activo: dice qué tenía derecho a rendir. La distancia entre las dos cosas tiene nombre, y se usa para decidir bonos de gestores.">
-                        La junta del fondo evalúa al gestor: el portafolio rindió 7,69 % anual y el
-                        mercado 8,10 %, así que alguien propone recortar el bono por quedarse por debajo
-                        del índice. El gestor responde que su cartera tiene menos exposición al mercado y
-                        que compararla contra el índice entero es compararla contra otra cosa. Los dos
-                        tienen un argumento; solo uno de los dos se puede poner en una fórmula.
+                        La junta del fondo evalúa al gestor con el informe en la mano: el portafolio
+                        rindió 7,69 % anual y el mercado 8,10 %, así que alguien propone recortar el bono
+                        por quedarse por debajo del índice. El gestor responde que su cartera tiene menos
+                        exposición al mercado y que compararla contra el índice entero es compararla
+                        contra otra cosa. Los dos tienen un argumento; solo uno se puede poner en una
+                        fórmula. Y nadie ha preguntado de dónde salió el 7,69.
                     </Motivacion>
 
                     <h3>De una regresión a una teoría</h3>
@@ -4106,7 +4137,7 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                         nota="Las tres últimas líneas son las que cambian el capítulo: estiman con qué precisión se conoce la prima de mercado que las diez líneas anteriores acaban de usar. Léalas antes de sacar conclusiones de la tabla." />
 
                     <ChartFrame id="cap3-sml" height="chart-h-420"
-                        caption="Cada punto es una posición del fondo: su beta contra lo que rindió de verdad entre 2018 y 2025. La recta morada es la SML con la prima estimada; las punteadas grises son la misma recta con la prima movida un solo error estándar. Que las tres quepan en la gráfica y que ISA quede cinco puntos por encima y Banco de Bogotá siete por debajo es todo lo que hay que ver: con ocho años, la banda es más ancha que la dispersión que pretende explicar." />
+                        caption="Cada punto es una posición del fondo: su beta contra lo que rindió de verdad entre 2018 y 2025. El portafolio sale dos veces: el rombo lleno es w′μ, la convención con que se estima su beta, y el hueco es lo que rindió el fondo rebalanceado cada rueda, 11,83 %. La recta morada es la SML con la prima estimada; las punteadas grises son la misma recta con la prima movida un solo error estándar. Que las tres quepan en la gráfica y que ISA quede cinco puntos por encima y Banco de Bogotá siete por debajo es todo lo que hay que ver: con ocho años, la banda es más ancha que la dispersión que pretende explicar." />
 
                     <TablaTraza
                         titulo="R1 · De la beta al rendimiento exigido, y de ahí al alfa"
@@ -4140,7 +4171,7 @@ alfa    <- obs_isa - exigido`,
                             { paso: '3', instruccion: 'rendimiento exigido = 6,77 + 0,82', valor: '7.59' },
                             { paso: '4', instruccion: 'alfa de Jensen = 12,88 − 7,59', valor: '5.29' },
                             { paso: '5', instruccion: 'lo mismo para el portafolio: 6,77 + 0,6779 × 1,33', valor: '7.67' },
-                            { paso: '6', instruccion: 'alfa del portafolio = 7,69 − 7,67', valor: '0.02' },
+                            { paso: '6', instruccion: 'alfa del portafolio en la convención w′μ = 7,69 − 7,67', valor: '0.02' },
                         ]}
                         ocultas={['valor']}
                         pista="Los seis valores tienen que coincidir con los del bloque de código de esta sección, y coinciden. Si le sale 7,68 en el paso 3 es porque metió el 7,00 % efectivo en vez del 6,77 % logarítmico: son la misma tasa en las dos convenciones del capítulo 1, y confundirlas cuesta nueve centésimas de punto. Guárdelas, porque la sección 5 muestra que el error estándar de la prima que acaba de usar es ochenta veces mayor que esas nueve centésimas."
@@ -4159,16 +4190,30 @@ alfa    <- obs_isa - exigido`,
                     </Box>
 
                     <p>
-                        El paso 6 es el que respondía a la junta de la motivación. El portafolio rindió
-                        7,69 % contra 8,10 % del mercado —cuarenta puntos básicos por debajo— pero su
-                        beta es 0,6779, así que lo que le correspondía era 7,67 % y su alfa es{' '}
-                        <strong>+0,02 puntos porcentuales</strong>. Medido contra el índice, el gestor
-                        perdió; medido contra su propia exposición, empató. Cuál de las dos comparaciones
-                        es la correcta depende de si el mandato fijaba la beta, y esa es una pregunta de
-                        gobernanza —capítulo 1— y no de estadística.
+                        El paso 6 es el que respondía a la junta de la motivación, y la responde con la
+                        cifra del informe: 7,69 % contra 8,10 % del mercado —cuarenta puntos básicos por
+                        debajo—, con beta 0,6779, así que lo que le correspondía era 7,67 % y su alfa
+                        es <strong>+0,02 puntos porcentuales</strong>. Pero el 7,69 % es w′μ, la serie de
+                        la convención del capítulo 1, y esa serie sirve para estimar la beta —que es
+                        dispersión— y no para decir cuánto rindió el fondo, que es un nivel. La última
+                        fila del bloque hace lo que el capítulo 1 manda para un nivel, componer los
+                        aritméticos: el fondo rebalanceado cada rueda a 30/20/25/25 rindió{' '}
+                        <strong>11,83 %</strong> anual —el +145,82 % de los ocho años—, con beta
+                        0,6756, y su alfa es <strong>+4,16 puntos</strong>.
+                    </p>
+                    <p>
+                        Con la cifra exacta, el gestor no perdió contra el índice: le ganó 3,73 puntos.
+                        Lo que no se mueve es lo que se puede concluir. Ese alfa tiene un error estándar
+                        de 7,50 puntos —t = 0,55— y no se distingue de cero, igual que el +0,02 de la
+                        convención. Y casi toda la ventaja la pone el rebalanceo diario que el curso
+                        supone, no la elección de los emisores: con los mismos pesos comprados el primer
+                        día y sin tocarlos, la cartera habría rendido 8,34 %. Cuál de las dos
+                        comparaciones es la pertinente —el índice o la exposición— depende de si el
+                        mandato fijaba la beta, y esa es una pregunta de gobernanza —capítulo 1— y no de
+                        estadística.
                     </p>
 
-                    <Box type="danger" label="Un alfa de +5,20 no significa que ISA fuera una buena inversión">
+                    <Box type="danger" label="Un alfa de +5,29 no significa que ISA fuera una buena inversión">
                         Significa que rindió más de lo que su beta explicaba. Hay por lo menos cuatro
                         explicaciones alternativas antes de llegar a «el mercado se equivocó», y todas
                         salen de este capítulo: que la beta esté mal estimada por no sincronía —sección
@@ -4194,9 +4239,11 @@ alfa    <- obs_isa - exigido`,
                         <Reto titulo="R7 · La diapositiva del comité de inversiones">
                             <p>
                                 El comité del fondo revisa el desempeño de 2018–2025 y usted prepara una
-                                diapositiva. Los datos son los de este capítulo: el portafolio rindió
-                                7,69 % anual con beta 0,6779, el mercado 8,10 %, la tasa libre de riesgo
-                                declarada es 7,00 % y el alfa resultante es +0,02 puntos porcentuales.
+                                diapositiva. Los datos son los de este capítulo: el fondo, rebalanceado
+                                cada rueda, rindió 11,83 % anual con beta 0,6756 —7,69 % y 0,6779 en la
+                                convención w′μ—, el mercado 8,10 %, la tasa libre de riesgo declarada es
+                                7,00 % y el alfa resultante es +4,16 puntos porcentuales, con un error
+                                estándar de 7,50.
                                 Dentro del portafolio, ISA tiene un alfa de +5,29 y Banco de Bogotá de
                                 −6,92.
                             </p>
@@ -4365,7 +4412,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     }}
                     pregunta="El reparto por partes iguales da menos volatilidad que el del fondo. ¿Qué se puede concluir de eso?"
                     opciones={[
-                        { texto: 'Que el reparto del fondo concentra un poco más y que sobre esta muestra eso costó tres centésimas de punto de volatilidad diaria, nada más.', correcta: true, justificacion: 'Tres centésimas de punto son la respuesta correcta a la pregunta equivocada. El reparto 30/20/25/25 es una decisión declarada del curso —D-A del plan, con sus tres criterios— y compararla contra el equiponderado sobre la misma muestra con la que se juzga no prueba nada: el contraste deja fuera el rendimiento y ninguno de los dos repartos se eligió optimizando, así que no hay criterio de decisión detrás. Quien optimiza de verdad es el capítulo 7, con una frontera, una restricción de concentración y una ventana distinta de la de evaluación.' },
+                        { texto: 'Que el reparto del fondo concentra un poco más y que sobre esta muestra eso costó tres centésimas de punto de volatilidad diaria, nada más.', correcta: true, justificacion: 'Tres centésimas de punto son la respuesta correcta a la pregunta equivocada. El reparto 30/20/25/25 es una decisión declarada del curso —el capítulo 1 la fija con tres criterios— y compararla contra el equiponderado sobre la misma muestra con la que se juzga no prueba nada: el contraste deja fuera el rendimiento y ninguno de los dos repartos se eligió optimizando, así que no hay criterio de decisión detrás. Quien optimiza de verdad es el capítulo 7, con una frontera, una restricción de concentración y una ventana distinta de la de evaluación.' },
                         { texto: 'Que los pesos del fondo están mal elegidos y deberían sustituirse por el reparto equiponderado, que domina en riesgo sobre la misma muestra.', correcta: false },
                         { texto: 'Que el equiponderado está mejor diversificado por definición, porque reparte el riesgo idiosincrásico entre las cuatro posiciones por igual y eso siempre minimiza la varianza.', correcta: false },
                         { texto: 'Que la diferencia no significa nada porque tres centésimas están dentro del error de estimación, y con 1 916 observaciones ninguna diferencia de volatilidad por debajo de una décima es detectable.', correcta: false },
@@ -4762,7 +4809,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'El alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?', justificacion: 'El alfa tiene error estándar propio, y no es el 7,53 de la prima: son parámetros distintos, de regresiones distintas, y confundirlos es el error que la sección 5 desmonta. La regresión de Jensen deja el alfa en +0,0176 pp anuales con un error estándar de 7,5040 pp, t = 0,0024 y un intervalo al 95 % que va de −14,69 % a +14,73 %. Presentar ese +0,02 como valor añadido es exactamente lo que el R7 de esta sección pide desmontar ante la junta.',
+                        pregunta: 'Con la convención w′μ del capítulo 1, el alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?', justificacion: 'El alfa tiene error estándar propio, y no es el 7,53 de la prima: son parámetros distintos, de regresiones distintas, y confundirlos es el error que la sección 5 desmonta. La regresión de Jensen deja el alfa en +0,0176 pp anuales con un error estándar de 7,5040 pp, t = 0,0024 y un intervalo al 95 % que va de −14,69 % a +14,73 %. Presentar ese +0,02 como valor añadido es exactamente lo que el R7 de esta sección pide desmontar ante la junta. Y son cifras de la convención: con el fondo rebalanceado de verdad, el alfa sube a +4,16 pp con un error estándar de 7,50, t = 0,55, y es el índice el que queda 3,73 puntos por debajo. La cifra cambia y la respuesta a la junta no, porque ninguno de los dos alfas se distingue de cero.',
                         opciones: [
                             { texto: 'Que medido contra su exposición al mercado el portafolio empató, y que el contraste pertinente depende de si el mandato fijaba una beta objetivo.', correcta: true },
                             { texto: 'Que el gestor añadió valor, porque un alfa positivo es rendimiento que la exposición al mercado no explica.', correcta: false },
