@@ -62,6 +62,20 @@ dentro, y lo que delata que un archivo cambió bajo los pies del material.
 
 ---
 
+## Sustituciones en el universo de `bvc_diario.csv`
+
+Dos series que el plan pedía no existen en Yahoo Finance, y se sustituyeron al
+descargar (2026-08-07); la razón queda también en `descargar.py`:
+
+- **El índice COLCAP (`^COLCAP`) no existe como serie descargable.** La
+  referencia de mercado es `ICOLCAP.CL`, el ETF que lo replica. No es lo mismo:
+  un ETF cotiza, con su propia oferta y demanda, su prima o descuento frente a
+  la canasta y sus propias ruedas sin negociación.
+- **Bancolombia (`BCOLOMBIA.CL`, `PFBCOLOM.CL`) no tiene serie.** Se usa Banco
+  de Bogotá, que cumple el mismo papel en el universo: un banco comercial puro.
+
+---
+
 ## Anomalías conocidas de `bvc_diario.csv`
 
 Encontradas al escribir el capítulo 4 (2026-08-08). **No se corrigen en el

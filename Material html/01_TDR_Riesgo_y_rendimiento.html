@@ -3572,7 +3572,9 @@ for (nombre in names(declarado)) {
                     30 %, Banco de Bogotá 20 %, Grupo Sura 25 % e ISA 25 %. En la unidad 2 se le añade
                     un tramo de TES y en la 3 una opción de cobertura. Los precios diarios de 2018 a
                     2025 están congelados en <span className="inline-code">datos/bvc_diario.csv</span>:
-                    los bloques de los quince capítulos los leen de allí, y por eso las cifras de la
+                    los bloques que trabajan con las acciones del fondo los leen de allí en cualquier
+                    capítulo —el tramo de TES y los datos de crédito y de pérdidas tienen sus propios
+                    archivos congelados—, y por eso las cifras de la
                     pantalla no envejecen.
                 </Box>
 
@@ -3656,7 +3658,7 @@ for (nombre in names(declarado)) {
                         es la pérdida: es la <strong>dispersión</strong> de los resultados posibles. Un
                         activo que rinde 8 % todos los años sin excepción no tiene riesgo aunque su
                         rendimiento sea bajo; uno que rinde 30 % o −20 % con la misma probabilidad lo
-                        tiene, aunque su media sea mejor. Y hay una distinción anterior, que es de
+                        tiene, y su media, de 5 %, es además más baja. Y hay una distinción anterior, que es de
                         Knight y que el oficio suele saltarse: <strong>riesgo</strong> es lo que se
                         puede describir con una distribución, e <strong>incertidumbre</strong> es lo que
                         no. Todo este curso trata del primero. La parte difícil del trabajo real es
@@ -3718,7 +3720,7 @@ for (nombre in names(declarado)) {
                         <MCQ
                             pregunta="El fondo tiene 40 000 millones en un bono corporativo de un emisor local que no se negocia hace tres semanas. La última operación fue a 98,5. ¿Qué riesgo está midiendo mal el informe si valora la posición a 98,5?"
                             opciones={[
-                                { texto: 'Liquidez sobre todo, y de paso el de mercado: la volatilidad medida sobre precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'Un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 sin variación en ningún precio, y el capítulo 3 cifra lo que cuestan — se llevan un tercio de la beta del portafolio, que sale 0,6779 contra su propio índice en vez de 0,95 midiendo por semanas—. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
+                                { texto: 'Liquidez sobre todo, y de paso el de mercado: la volatilidad medida sobre precios repetidos sale artificialmente baja.', correcta: true, justificacion: 'Un precio de hace tres semanas no es un precio al que se pueda vender hoy, y la diferencia solo aparece cuando hay que vender. No es un caso de laboratorio: el panel del curso tiene 101 ruedas de 1 916 en que ninguno de los cuatro emisores cambia de precio, y el capítulo 3 mide lo que cuesta negociar poco: la beta del portafolio contra su propio índice sale 0,6779 con datos diarios y 0,95 por semanas, y esas 101 ruedas explican solo un quinto de la diferencia; el resto lo pone la negociación no simultánea. Un precio que no se mueve porque nadie negoció se parece demasiado a un riesgo que no existe.' },
                                 { texto: 'Crédito, porque un bono que deja de negociarse es señal de que el emisor está en dificultades y la probabilidad de incumplimiento subió.', correcta: false },
                                 { texto: 'Ninguno: 98,5 es el último precio observado y valorar a último precio es la práctica estándar del mercado.', correcta: false },
                                 { texto: 'Operativo, porque dejar un precio sin actualizar durante tres semanas es una falla del proceso de valoración.', correcta: false },
@@ -3983,7 +3985,7 @@ real      <- p[length(p)] / p[1] - 1`,
                     columnas={['Magnitud', 'Exacto', 'Con la convención', 'Diferencia']}
                     filas={[
                         { celdas: ['Brecha diaria media', '—', { v: '−1,643 pb', lee: 'Un punto básico es la centésima parte de un punto porcentual. La brecha media es negativa porque el logaritmo es cóncavo: la aproximación se queda sistemáticamente por debajo, y por tanto exagera las pérdidas. En riesgo eso es conservador, que es la única razón por la que la convención resulta tolerable.' }, 'sesgo sistemático'] },
-                        { celdas: ['Peor brecha de una rueda', '—', { v: '103,95 pb', lee: 'Un punto porcentual entero en una sola rueda. Ocurre donde tenía que ocurrir: en los días de movimiento extremo, donde ln(1+x) ya no se parece a x. La aproximación falla justo donde el curso mira.' }, '35 ruedas de 1 916 pasan de 10 pb'] },
+                        { celdas: ['Peor brecha de una rueda', '—', { v: '103,95 pb', lee: 'Un punto porcentual entero en una sola rueda, y no en un día de pánico: el 31 de marzo de 2022 el fondo se movió −2,41 %, pero el precio de Banco de Bogotá cayó 27,2 % y el de Grupo Sura subió 11,5 %. La brecha no crece con el movimiento del portafolio sino con la dispersión entre sus activos —es la desigualdad de Jensen de la sección 5—, y por eso la convención falla más en los días en que los cuatro emisores se separan.' }, '35 ruedas de 1 916 pasan de 10 pb'] },
                         { celdas: ['Volatilidad diaria', '1,5739 %', { v: '1,5764 %', lee: 'Dos milésimas de punto porcentual de diferencia, un 0,16 % relativo. Cualquier otra decisión del capítulo 4 —la ventana, el método, el tratamiento de las anomalías— mueve la volatilidad más que esto.' }, '+0,16 % relativo'] },
                         { celdas: ['Cuantil al 1 %', '−3,9553 %', { v: '−4,0771 %', lee: 'Aquí sí se nota: doce centésimas de punto, un 3 % relativo. Sobre 800 000 millones de pesos son unos 975 millones de VaR de más. La convención cobra su factura en la cola, que es donde la aproximación es peor, y la cobra por el lado prudente.' }, '+3,1 % relativo'] },
                     ]}
@@ -4193,9 +4195,10 @@ acumulado <- exp(sum(r)) - 1`,
                         gancho="La media y la desviación describen el centro. Las decisiones de riesgo se toman en los extremos, y allí mandan el tercer y el cuarto momento.">
                         El informe del fondo trae dos cifras: rendimiento medio y volatilidad. Con ellas
                         se calcula un intervalo, se firma un límite y se duerme tranquilo. El 16 de marzo
-                        de 2020 el portafolio perdió 17,76 % en una rueda: <strong>once desviaciones
+                        de 2020 el fondo perdió 16,12 % en una rueda, unos 129 000 millones: en la escala
+                        logarítmica con que el curso mide la dispersión, <strong>once desviaciones
                         típicas</strong>. Bajo el modelo que produjo el informe, eso ocurre una vez cada
-                        10²⁷ años. El universo tiene 1,4 × 10¹⁰.
+                        10²⁶ años. El universo tiene 1,4 × 10¹⁰.
                     </Motivacion>
 
                     <h3>Los cuatro momentos</h3>
@@ -4245,7 +4248,7 @@ acumulado <- exp(sum(r)) - 1`,
                     </p>
 
                     <ChartFrame id="cap1-qq" height="chart-h-400"
-                        caption="En el rango central los puntos se pegan a la diagonal: el cuerpo de la distribución es razonablemente normal. En los extremos se despegan hacia arriba a la derecha y hacia abajo a la izquierda, y ese es el dibujo de una cola pesada: los eventos raros observados son mucho más grandes que los que la normal predice. La observación más extrema está a 11,3 desviaciones donde la normal esperaba 3,5." />
+                        caption="En el rango central los puntos quedan más cerca de cero que la diagonal —un cuarto de desviación entre 0,5 y 2—: el cuerpo es más angosto de lo que dice una normal con esta desviación, porque las colas la inflan. En los extremos se despegan hacia arriba a la derecha y hacia abajo a la izquierda, y ese es el dibujo de una cola pesada: los eventos raros observados son mucho más grandes que los que la normal predice. La observación más extrema está a 11,3 desviaciones donde la normal esperaba 3,5." />
 
                     <CodeTabs titulo="Cuántas ruedas superan k desviaciones, y cuántas debería haber" bloques={EJ_SIGMAS}
                         nota="La columna de la razón es la que decide. Con dos desviaciones hay menos ruedas de las esperadas —la distribución es más puntiaguda en el centro, y eso también es parte del fenómeno—; a partir de cuatro, el modelo normal deja de ser una aproximación pobre para ser una afirmación falsa." />
@@ -4309,7 +4312,7 @@ curtosis <- mean(z^4) - 3`,
                             { paso: '8', instruccion: 'curtosis de exceso = paso 7 / n − 3', valor: '0.8685' },
                         ]}
                         ocultas={['valor']}
-                        pista="Los pasos 5 y 6 concentran casi todo el paso 7: entre las dos aportan 30,94 de los 30,95. Las otras seis ruedas suman una centésima. Y hay una sorpresa que conviene explicarse: la curtosis de esta ventana es solo +0,87, mucho menor que el 25,77 de la muestra completa, a pesar de que aquí están las dos ruedas más extremas de los ocho años. La razón es el paso 4."
+                        pista="Los pasos 5 y 6 concentran casi todo el paso 7: entre las dos aportan 30,94 de los 30,95. Las otras seis ruedas suman una centésima. Y hay una sorpresa que conviene explicarse: la curtosis de esta ventana es solo +0,87, mucho menor que el 25,77 de la muestra completa, a pesar de que aquí están dos de las tres ruedas más extremas de los ocho años. La razón es el paso 4."
                     />
 
                     <Box type="warn" label="Por qué esa ventana tiene poca curtosis teniendo los peores datos">
@@ -4452,7 +4455,7 @@ curtosis <- mean(z^4) - 3`,
                 </p>
                 <Accordion items={[
                     {
-                        titulo: '1. Ciento una ruedas de 1 916 en las que ningún precio se mueve',
+                        titulo: '1. Ciento una ruedas de 1 916 en las que ninguno de los cuatro emisores se mueve',
                         contenido: 'El panel se cruza por fechas comunes con el ETF ICOLCAP, que cotiza días en los que las acciones no registran negociación efectiva; Yahoo arrastra entonces el cierre anterior. Se concentran en 2018-2019 y en 2022. No son un error de la fuente sino una propiedad del mercado local, y diluyen la volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria. Aparecen en el ejercicio R1 de la sección 3, en la rueda que da rendimiento cero.',
                     },
                     {
@@ -4525,13 +4528,14 @@ curtosis <- mean(z^4) - 3`,
                         La convención es, entonces: <strong>los datos van literales o del CSV
                         congelado</strong>, nunca simulados dentro de un bloque cuyas dos pestañas deban
                         coincidir. Este capítulo no simula nada y por eso todas sus cifras son idénticas
-                        en los dos lenguajes. Donde el curso simula de verdad —el Montecarlo del
-                        capítulo 4 y el del 12— el texto lo dice y la distancia entre las dos pestañas{' '}
-                        <em>es</em> el contenido: mide el error de simulación. El otro sitio donde las
-                        dos pestañas difieren a propósito es el capítulo 2, y allí no es por azar sino
-                        por optimización numérica: <span className="inline-code">arch</span> y{' '}
+                        en los dos lenguajes. Donde el curso simula de verdad —los Montecarlo de
+                        los capítulos 4, 5 y 12— el texto lo dice y la distancia entre las dos pestañas{' '}
+                        <em>es</em> el contenido: mide el error de simulación. Hay otros dos sitios
+                        donde las dos pestañas difieren a propósito, y en ninguno es por azar: el
+                        capítulo 2, por optimización numérica —<span className="inline-code">arch</span> y{' '}
                         <span className="inline-code">rugarch</span> paran en puntos distintos de la
-                        misma verosimilitud.
+                        misma verosimilitud—, y una línea del capítulo 10, donde cada pestaña mide el
+                        error que comete su librería con sus valores por omisión.
                     </p>
                 </CalloutPro>
 
@@ -4707,7 +4711,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene las dos ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?', justificacion: 'Medidos contra su propia desviación inflada, esos dos valores ya no están lejos. La curtosis es un cociente y el dato anómalo entra en el numerador y en el denominador a la vez. Es la razón de no fiarlo todo a un indicador: esa misma ventana, que por curtosis parece mansa, tiene una desviación de 7,74 %, casi cinco veces la del panel completo.',
+                        pregunta: 'La ventana del 14 al 25 de febrero de 2025 contiene dos de las tres ruedas más extremas de los ocho años y sin embargo su curtosis de exceso es solo +0,87. ¿Por qué?', justificacion: 'Medidos contra su propia desviación inflada, esos dos valores ya no están lejos. La curtosis es un cociente y el dato anómalo entra en el numerador y en el denominador a la vez. Es la razón de no fiarlo todo a un indicador: esa misma ventana, que por curtosis parece mansa, tiene una desviación de 7,74 %, casi cinco veces la del panel completo.',
                         opciones: [
                             { texto: 'Porque esos dos valores inflan la desviación de la ventana hasta 7,74 % y dejan de estar lejos.', correcta: true },
                             { texto: 'Porque las dos ruedas tienen signos opuestos y sus contribuciones a la curtosis se cancelan.', correcta: false },
