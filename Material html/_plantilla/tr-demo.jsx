@@ -284,7 +284,7 @@ for (r in c(-0.0191, 0.0139, 0.0149)) {
                     <h3>Gráficas</h3>
                     <p>
                         Las series se embeben decimadas —máximo 1500 puntos— y un capítulo que pase de
-                        400 KB se parte. Lo comprueba la regla 12. Una gráfica y el bloque que la
+                        420 KB se parte. Lo comprueba la regla 12. Una gráfica y el bloque que la
                         produce van juntos y con las <strong>mismas cifras</strong>: si la línea del
                         VaR de la figura no coincide con el número que imprime el código, el material
                         contiene el error que enseña a cazar.
@@ -572,6 +572,24 @@ var <- mu + 1.6449 * sd`,
                     enlace="https://www.bis.org/bcbs/publ/d457.htm"
                 />
 
+                <h3>Citas y fuentes</h3>
+                <p>
+                    Lo que depende de una fuente externa lleva su cita al lado, con localizador: el
+                    VaR no es subaditivo <Cita k="ficticio_autor2019" loc="p. 112" />, y una cola
+                    pesada lo hace más grave <Cita k="ficticio_entidad2024" loc="p. 51" />. Las
+                    obras de esta plantilla son ficticias: viven en <span className="inline-code">pruebas_fuentes/</span> para
+                    probar el circuito sin la colección real. Al pulsar una cita se va a la lista
+                    del final y se puede volver.
+                </p>
+                <FichaNorma
+                    norma="Circular de prueba 000"
+                    emisor="Superintendencia Ficticia"
+                    referencia="2026"
+                    exige="Reportar el Expected Shortfall de la cartera con su ventana de estimación declarada."
+                    enElCapitulo="El ES de la sección 2, con la ventana de 250 ruedas."
+                    k="ficticio_norma2026" loc="num. 2.1"
+                />
+
                 <h3>Tablas de resultados de un modelo</h3>
                 <p>
                     La salida de un <span className="inline-code">arch_model</span> no es decoración:
@@ -674,7 +692,7 @@ var <- mu + 1.6449 * sd`,
                                 <li><strong>1 · Deriva.</strong> El bloque TR-CORE coincide byte a byte con la plantilla.</li>
                                 <li><strong>3 · Componentes.</strong> Todo componente usado existe.</li>
                                 <li><strong>5 · Motivación.</strong> Cada sección del curriculum abre con <span className="inline-code">&lt;Motivacion&gt;</span>.</li>
-                                <li><strong>12 · Peso.</strong> Ningún capítulo pasa de 400 KB.</li>
+                                <li><strong>12 · Peso.</strong> Ningún capítulo pasa de 420 KB.</li>
                             </ul>
                         ),
                     },
@@ -711,6 +729,9 @@ var <- mu + 1.6449 * sd`,
                         escribiendo <span className="inline-code">contraste-ok</span> con el motivo.
                     </p>
                 </CalloutPro>
+
+                <Referencias />
+                <ParaProfundizar k="ficticio_lectura2021" />
             </>
         );
 
@@ -745,12 +766,39 @@ var <- mu + 1.6449 * sd`,
             const ActiveComponent = activeLesson.component;
             const progreso = Math.round(((safeIndex + 1) / curriculum.length) * 100);
 
+            // Una cita lleva a «Referencias», que está en la última lección y
+            // no se pinta a la vez: `Cita` lanza `tr:ir-a` y aquí se cambia de
+            // lección y, ya pintada, se va al ancla y no al principio.
+            const anclaPendiente = useRef(null);
+
             useEffect(() => {
+                TR_NAV.leccion = safeIndex;
                 localStorage.setItem(CONFIG.storageKey, String(safeIndex));
                 typesetMath();
+                const pendiente = anclaPendiente.current;
+                anclaPendiente.current = null;
+                if (pendiente && irAlAncla(pendiente)) {
+                    // MathJax y Plotly mueven lo de debajo al terminar: se resitúa una vez.
+                    const t = setTimeout(() => irAlAncla(pendiente, false), 450);
+                    return () => clearTimeout(t);
+                }
                 const cont = document.getElementById('contenido-scroll');
                 if (cont) cont.scrollTo({ top: 0, behavior: 'smooth' });
             }, [safeIndex]);
+
+            useEffect(() => {
+                const alIr = (e) => {
+                    const d = (e && e.detail) || {};
+                    const ultima = curriculum.length - 1;
+                    const destino = d.leccion === 'ultima' ? ultima
+                        : Number.isInteger(d.leccion) ? Math.max(0, Math.min(d.leccion, ultima)) : TR_NAV.leccion;
+                    if (destino === TR_NAV.leccion) { irAlAncla(d); return; }
+                    anclaPendiente.current = d;
+                    setActiveLessonIndex(destino);
+                };
+                window.addEventListener('tr:ir-a', alIr);
+                return () => window.removeEventListener('tr:ir-a', alIr);
+            }, []);
 
             // El `<head>` NO lo estampa `migrar.py`, así que un capítulo nacido
             // de copiar `tr-base.html` arrastra su título y su descripción sin

@@ -11,6 +11,11 @@ el navegador los cachea).
 ```
 Material html/
 ├── 01_TDR_Riesgo_y_rendimiento.html   … 15_TDR_Valores_extremos.html
+├── _fuentes/
+│   ├── referencias.json      exportación de Zotero (CSL-JSON) — no se edita a mano
+│   ├── apa-es.csl            estilo APA 7 en español
+│   ├── afirmaciones/NN.yaml  registro público de las citas leídas (sin el extracto)
+│   └── POLITICA_DE_FUENTES.md
 └── _plantilla/
     ├── tr-base.html          PLANTILLA GENERADA — no se edita a mano
     ├── tr-head.html          <head>, estilos y apertura del <script>   (fuente)
@@ -19,8 +24,15 @@ Material html/
     ├── tr-demo.jsx           capítulo de demostración + App            (fuente)
     ├── ensamblar.py          fuentes → tr-base.html
     ├── migrar.py             plantilla → capítulos
-    ├── verificar.py          comprueba los capítulos (diecisiete reglas)
-    └── ejecutar_salidas.py   ejecuta Python y R y contrasta lo declarado
+    ├── verificar.py          comprueba los capítulos (veinticuatro reglas)
+    ├── ejecutar_salidas.py   ejecuta Python y R y contrasta lo declarado
+    ├── fuentes.py            lo que comparten el estampador y las reglas 18–23
+    ├── exportar_zotero.py    Zotero (API local, solo lectura) → _fuentes/referencias.json
+    ├── estampar_referencias.py   citas del capítulo → isla TR-REFS (pandoc + citeproc)
+    ├── registrar_afirmaciones.py vault privado → _fuentes/afirmaciones/NN.yaml
+    ├── comprobar_fuentes.js  reglas 22 y 24 (Node + Babel)
+    ├── tr-demo-referencias.html  la isla de la demo (la genera estampar --demo)
+    └── pruebas_fuentes/      obras ficticias para probar el circuito, y negativas.py
 ```
 
 ## Flujo de trabajo
@@ -40,7 +52,8 @@ python3 "Material html/_plantilla/migrar.py"        # plantilla → capítulos
 python3 "Material html/_plantilla/verificar.py"     # comprueba
 ```
 
-`verificar.py` comprueba diecisiete cosas y devuelve ≠ 0 si algo falla:
+`verificar.py` comprueba veinticuatro cosas y devuelve ≠ 0 si algo falla (2 si se le pasa
+una opción que no existe):
 
 | # | Qué comprueba |
 |---|---|
@@ -55,12 +68,24 @@ python3 "Material html/_plantilla/verificar.py"     # comprueba
 | 9 | **Salidas ejecutadas** — lo declarado tras `#>` es lo que el código produce. Se pide con `--con-salidas` |
 | 10 | **Contraste** — ningún color por debajo de 3,0:1 sobre el fondo se usa como texto sin confirmar. Sale como **aviso** |
 | 11 | **Enunciados** — ningún ejercicio pide construir un programa o un modelo desde cero |
-| 12 | **Peso** — ningún capítulo pasa de 400 KB |
+| 12 | **Peso** — ningún capítulo pasa de 420 KB (400 hasta el 2026-11-11; ver D6 del plan). Por encima, el capítulo se parte |
 | 13 | **Longitud de las opciones** — la correcta no es la más larga en ninguna pregunta ni la más corta en más de un tercio, y mide entre 0,75 y 1,30 veces la media de sus distractores |
 | 14 | **Posición de la correcta** — la letra en que sale tras el barajado está repartida: ninguna pasa de la mitad y ninguna falta. Se arregla moviendo la correcta de índice en el fuente |
 | 15 | **Opciones completas** — toda opción declara `correcta`; una sin ella no la ven las reglas 13, 14 y 16 |
 | 16 | **Marcas de forma** — ninguna marca señala a la correcta ni a un distractor, ni cuando la lleva una sola opción ni cuando le falta a una sola. Ver «Las opciones no se delatan por su forma» |
 | 17 | **Emparejamiento** — la solución no se adivina por las filas. Ver «`Emparejamiento` no baraja la columna derecha» |
+| 18 | **Clave citada existe** — toda clave de `Cita`, `Fuente`, `FichaNorma`, `ChartFrame fuente` y `ParaProfundizar` es literal, está en `_fuentes/referencias.json` y en la isla del capítulo, y ninguna está citada y recomendada a la vez |
+| 19 | **Referencias exactas** — la isla trae lo citado y lo recomendado y nada más; un único `<Referencias />` en la última lección, y `<ParaProfundizar>` después de él |
+| 20 | **Bloque al día** — la isla TR-REFS es la que `estampar_referencias.py` escribiría hoy: su `huella` (lo que entró) y su `sello` (lo que salió). Con `--con-pandoc` se vuelve a formatear |
+| 21 | **Entrada verificable** — cada entrada de `referencias.json` tiene autor, título y DOI, ISBN o URL (con fecha de consulta si solo hay URL), y ningún campo fuera de la lista blanca. Una vez, no por capítulo; lo que falta para verificar es **aviso** en una entrada que nadie usa |
+| 22 | **Figura sin fuente** — cada gráfica, tabla o diagrama dice de dónde salen sus datos. Sale como **aviso** |
+| 23 | **Afirmación leída** — cada par clave–localizador citado tiene su fila en `_fuentes/afirmaciones/NN.yaml`, y el ancla de la fila sigue en el capítulo |
+| 24 | **Entidad o norma sin cita** — el texto no nombra una entidad o una norma sin citarla ni declararla ilustrativa. Sale como **aviso** |
+
+Las reglas 18 a 24 son el circuito de citas, ver «Las fuentes se citan desde Zotero». Además,
+una vez antes de los capítulos, se leen la isla de la demo en `tr-base.html` (reglas 18 a 20
+con `pruebas_fuentes/`) y `referencias.json` (regla 21). Las 22 y 24 necesitan Node con
+`@babel/core` y `@babel/preset-react` en global; si faltan, avisan.
 
 ```bash
 python3 "Material html/_plantilla/verificar.py" --con-salidas
@@ -211,6 +236,54 @@ correcta, o 1/4 si no queda ninguna.
 
 ---
 
+### Las fuentes se citan desde Zotero
+
+Desde el 2026-11-11 el material tiene el circuito de citas de Lógica de Programación
+Financiera, copiado y adaptado (no es una librería compartida). La política —qué se cita,
+cuándo y con qué localizador— está en [`_fuentes/POLITICA_DE_FUENTES.md`](_fuentes/POLITICA_DE_FUENTES.md).
+
+```
+Zotero ──exportar_zotero.py──▶ _fuentes/referencias.json          (CSL-JSON, lista blanca de campos)
+capítulo <Cita k="…"/> ──estampar_referencias.py──▶ isla TR-REFS   (pandoc --citeproc, apa-es.csl, es-CO)
+vault/Afirmaciones ──registrar_afirmaciones.py──▶ _fuentes/afirmaciones/NN.yaml
+```
+
+```jsx
+<Cita k="clave" loc="p. 12" />              (Autor, 2024, p. 12)
+<Cita k="clave" narrativa />                Autor (2024)
+<Cita k="a; b" pre="véase" />               (véase A, 2019; B, 2024)
+<FichaNorma … k="clave" loc="art. 5" />     la ficha cita su norma, con «Fuente: …» al pie
+<ChartFrame … fuente={{ propia: true }} />  "clave", { k, loc }, { propia } o { ilustrativo }
+<Fuente propia />                           debajo de una tabla
+<Referencias />                             una vez, en la última lección
+<ParaProfundizar k="a; b" />                lo que se recomienda sin citarlo, después de la lista
+```
+
+```bash
+python3 "Material html/_plantilla/exportar_zotero.py" --coleccion "TDR Teoría del Riesgo"
+python3 "Material html/_plantilla/estampar_referencias.py"        # todos los capítulos
+python3 "Material html/_plantilla/registrar_afirmaciones.py"      # lee el vault, no lo escribe
+python3 "Material html/_plantilla/verificar.py"
+```
+
+- **La isla va después del `</script>` de Babel**, entre `<!-- === TR-REFS INICIO … -->` y
+  `<!-- === TR-REFS FIN === -->`: dentro, las reglas de texto la leerían como prosa. `migrar.py`
+  no la toca (está después del ancla del `App`), y `estampar_referencias.py` la quita si el
+  capítulo deja de citar. No se edita a mano: la regla 20 recalcula su sello.
+- **`estampar_referencias.py` necesita pandoc; `ensamblar.py` y `migrar.py` no.** La isla de
+  la plantilla la genera `estampar_referencias.py --demo` en `tr-demo-referencias.html`, con
+  las obras ficticias de `pruebas_fuentes/`, y `ensamblar.py` solo la copia.
+- **Una norma se registra en Zotero como informe con autor institucional**, no como
+  `legislation`: con ese tipo el estilo APA no separa autor y año, y la cita en el texto no
+  se puede armar. En «Para profundizar» sí cabe.
+- **El peso**: los componentes suman unos 17 KB a TR-CORE en cada capítulo. El capítulo 7
+  pasó de 388 a 408 KB, y por eso el docente subió el tope de la regla 12 de 400 a 420 KB
+  el 2026-11-11 (D6 del plan). Partir el capítulo sigue siendo la regla por encima del tope.
+- **Las pruebas negativas se vuelven a correr** con
+  `python3 "Material html/_plantilla/pruebas_fuentes/negativas.py"`: arma una copia del
+  capítulo 1 que cita las obras ficticias y comprueba que cada regla de la 18 a la 24 falla
+  —o avisa— cuando se le rompe lo suyo.
+
 ## Catálogo de componentes
 
 | Componente | Uso |
@@ -221,11 +294,14 @@ correcta, o 1/4 si no queda ninguna.
 | `Eq` · `Termino` | Fórmula destacada, que se encoge sola si no cabe · término con definición emergente |
 | `Derivacion` | **Propio del curso.** Fórmula paso a paso, cada paso con su porqué plegable |
 | `Anatomia` | **Propio del curso.** Qué es cada pieza de una fórmula y cuánto vale en el capítulo |
-| `FichaNorma` | **Propio del curso.** Qué exige la norma y qué cálculo del capítulo la satisface |
+| `FichaNorma` | **Propio del curso.** Qué exige la norma y qué cálculo del capítulo la satisface; con `k` y `loc`, cita la norma |
+| `Cita` · `Referencias` | Cita APA en el texto (`k`, `loc`, `narrativa`, `pre`) · la lista, una vez, en la última lección |
+| `ParaProfundizar` | Lecturas recomendadas que el capítulo **no** cita (`k="a; b"`), después de `<Referencias />` |
+| `Fuente` · `Ilustrativo` | De dónde salen los datos de una figura (`k`, `propia` o `ilustrativo`) · nota de datos inventados |
 | `TablaResultados` | **Propio del curso.** Salida de un modelo con lectura por celda |
 | `NivelIA` | **Propio del curso.** Insignia AIAS, por capítulo o por ejercicio |
 | `Pipeline` · `Timeline` · `Tabs` · `Accordion` | Estructuras de contenido |
-| `ChartFrame` + `usePlotly` | Gráficas interactivas |
+| `ChartFrame` + `usePlotly` | Gráficas interactivas; `fuente` dice de dónde salen los datos |
 | `TablaTraza` | **R1** traza de cálculo |
 | `DetectaError` | **R3** audita a la IA: ubicar la línea + clasificar el error |
 | `Comparador` | **R4** dos versiones lado a lado + veredicto |

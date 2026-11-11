@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ficticio_autor2019",
+    "type": "book",
+    "author": [
+      { "family": "Autora Ficticia", "given": "Ana María" },
+      { "family": "Coautor Inventado", "given": "Luis" }
+    ],
+    "title": "Medición del riesgo de mercado de prueba: una obra que no existe",
+    "edition": "2",
+    "publisher": "Editorial Inexistente",
+    "publisher-place": "Bogotá",
+    "issued": { "date-parts": [[2019]] },
+    "ISBN": "978-0-00-000000-2",
+    "language": "es"
+  },
+  {
+    "id": "ficticio_entidad2024",
+    "type": "article-journal",
+    "author": [
+      { "literal": "Entidad Ficticia de Supervisión" }
+    ],
+    "title": "Colas pesadas en un mercado accionario inventado",
+    "container-title": "Revista Ficticia de Riesgo",
+    "volume": "12",
+    "issue": "3",
+    "page": "45-67",
+    "issued": { "date-parts": [[2024]] },
+    "DOI": "10.0000/ficticio.2024.0001",
+    "language": "es"
+  },
+  {
+    "id": "ficticio_lectura2021",
+    "type": "webpage",
+    "author": [
+      { "family": "Lectora Imaginaria", "given": "Marta" }
+    ],
+    "title": "Notas abiertas de prueba sobre el riesgo de tasa de interés",
+    "issued": { "date-parts": [[2021, 6, 1]] },
+    "accessed": { "date-parts": [[2026, 11, 11]] },
+    "URL": "https://example.org/notas-de-prueba/riesgo-de-tasa",
+    "language": "es"
+  },
+  {
+    "id": "ficticio_norma2026",
+    "type": "report",
+    "author": [
+      { "literal": "Superintendencia Ficticia" }
+    ],
+    "title": "Circular de prueba 000 de 2026, sobre la medición del riesgo de mercado (norma ficticia)",
+    "genre": "Circular externa",
+    "number": "000",
+    "issued": { "date-parts": [[2026, 6, 1]] },
+    "accessed": { "date-parts": [[2026, 11, 11]] },
+    "URL": "https://example.org/normas/circular-de-prueba-000-de-2026",
+    "language": "es"
+  }
+]
