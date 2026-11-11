@@ -3606,6 +3606,7 @@ for (nombre in names(declarado)) {
                     { year: '1963', text: 'Mandelbrot mide las colas de los precios del algodón y concluye que no son normales. Sesenta años después seguimos midiendo la misma cosa, y sigue sin serlo — la sección 4 lo hace con los datos de este curso.' },
                     { year: '1994', text: 'J. P. Morgan publica RiskMetrics y regala la metodología. El riesgo de mercado deja de ser un modelo interno y se vuelve el idioma común del sector.' },
                     { year: '2005', text: 'Nace la Superintendencia Financiera de Colombia de la fusión de las superintendencias Bancaria y de Valores. De su circular básica salen los cuatro sistemas —SARM, SARC, SARO y SARL— que la sección 1 empareja con los cuatro riesgos.' },
+                    { year: '2023', text: 'Entra en vigor el SIAR, que la Circular Externa 018 de 2021 creó para administrar los riesgos en un solo sistema: los cuatro dejan de ser capítulos separados de la circular básica. Desde el 1 de junio de 2026 el SIAR es la parte 1, capítulo 1, de la nueva Circular Básica Financiera.' },
                 ]} />
             </>
         );
@@ -3699,7 +3700,7 @@ for (nombre in names(declarado)) {
 
                     <Emparejamiento
                         titulo="R6 · Cada riesgo con el sistema que lo administra"
-                        enunciado="La Superintendencia Financiera de Colombia no pide «medir el riesgo»: pide un sistema de administración por cada tipo, con manual, órganos responsables, límites y reportes. Empareje cada uno con lo que administra."
+                        enunciado="La Superintendencia Financiera de Colombia no pide «medir el riesgo»: pide un sistema de administración, con manual, órganos responsables, límites y reportes. Hasta mayo de 2023 pedía uno por cada tipo de riesgo; desde junio de 2023, lo que eran el SARM, el SARC, el SARO y el SARL son partes de un solo sistema, el SIAR, y el SARLAFT sigue aparte, en la Circular Básica Jurídica. Empareje cada sigla con lo que administra."
                         etiquetaIzq="Sistema"
                         etiquetaDer="Qué administra"
                         izquierda={['SARM', 'SARC', 'SARO', 'SARL', 'SARLAFT']}
@@ -3773,11 +3774,12 @@ for (nombre in names(declarado)) {
                 </p>
 
                 <FichaNorma
-                    norma="SARM · Sistema de Administración de Riesgo de Mercado"
+                    norma="Sistema Integral de Administración de Riesgos (SIAR) · riesgo de mercado"
                     emisor="Superintendencia Financiera de Colombia"
-                    referencia="Circular Básica Contable y Financiera, Capítulo XXI"
-                    exige="Que las entidades vigiladas —incluidas las administradoras de fondos de pensiones— cuenten con una metodología documentada para medir su exposición al riesgo de mercado, con los supuestos declarados por escrito, órganos de control con funciones separadas de las áreas que toman el riesgo, y pruebas retrospectivas periódicas sobre el modelo."
+                    referencia="Circular Básica Financiera, parte 1, capítulo 1 · hasta 2023, SARM: capítulo XXI de la Circular Básica Contable y Financiera"
+                    exige="Que las entidades vigiladas —incluidas las administradoras de fondos de pensiones— gestionen el riesgo de mercado desde un marco de apetito de riesgo que aprueba la junta directiva, con las metodologías y los modelos documentados en un manual, una función de gestión de riesgos independiente de las áreas que toman el riesgo, y pruebas de desempeño —así llama la norma a las pruebas retrospectivas— sobre los modelos internos que usen."
                     enElCapitulo="La cadena de esta sección y la sección 5 entera: el manual del que habla la norma es, en la práctica, la decisión sobre qué definición de rendimiento se usa, sobre qué instantánea de datos y con qué tratamiento de las anomalías. Las pruebas retrospectivas son el capítulo 6."
+                    enlace="https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"
                 />
 
                 <FichaNorma
@@ -4768,10 +4770,10 @@ curtosis <- mean(z^4) - 3`,
                         label: 'Los cuatro riesgos',
                         content: (
                             <ul>
-                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2. SARM.</li>
-                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14. SARC.</li>
-                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15. SARO.</li>
-                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10. SARL.</li>
+                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2. SIAR, antes SARM.</li>
+                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14. SIAR, antes SARC.</li>
+                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15. SIAR, antes SARO.</li>
+                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10. SIAR, antes SARL.</li>
                             </ul>
                         ),
                     },

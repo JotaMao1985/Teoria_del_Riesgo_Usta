@@ -1,1 +1,1716 @@
-[]
+[
+  {
+    "id": "acerbi2014",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Acerbi",
+        "given": "Carlo"
+      },
+      {
+        "family": "Székely",
+        "given": "Balázs"
+      }
+    ],
+    "title": "Back-testing expected shortfall",
+    "container-title": "Risk",
+    "issued": {
+      "date-parts": [
+        [
+          "2014",
+          12
+        ]
+      ]
+    },
+    "page": "76-81",
+    "URL": "https://www.risk.net/risk-management/2381658/back-testing-expected-shortfall",
+    "language": "en"
+  },
+  {
+    "id": "agrawal2018",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Agrawal",
+        "given": "Akshay"
+      },
+      {
+        "family": "Verschueren",
+        "given": "Robin"
+      },
+      {
+        "family": "Diamond",
+        "given": "Steven"
+      },
+      {
+        "family": "Boyd",
+        "given": "Stephen"
+      }
+    ],
+    "title": "A rewriting system for convex optimization problems",
+    "container-title": "Journal of Control and Decision",
+    "issued": {
+      "date-parts": [
+        [
+          "2018"
+        ]
+      ]
+    },
+    "volume": "5",
+    "issue": "1",
+    "page": "42-60",
+    "DOI": "10.1080/23307706.2017.1397554",
+    "URL": "https://doi.org/10.1080/23307706.2017.1397554",
+    "language": "en"
+  },
+  {
+    "id": "arango2002",
+    "type": "report",
+    "author": [
+      {
+        "family": "Arango",
+        "given": "Luis Eduardo"
+      },
+      {
+        "family": "Melo",
+        "given": "Luis Fernando"
+      },
+      {
+        "family": "Vásquez",
+        "given": "Diego Mauricio"
+      }
+    ],
+    "title": "Estimación de la estructura a plazo de las tasas de interés en Colombia",
+    "collection-title": "Borradores de Economía",
+    "publisher": "Banco de la República",
+    "publisher-place": "Bogotá",
+    "issued": {
+      "date-parts": [
+        [
+          "2002",
+          1
+        ]
+      ]
+    },
+    "number": "196",
+    "DOI": "10.32468/be.196",
+    "URL": "https://doi.org/10.32468/be.196",
+    "language": "es"
+  },
+  {
+    "id": "aroussi-yfinance",
+    "type": "software",
+    "author": [
+      {
+        "family": "Aroussi",
+        "given": "Ran"
+      }
+    ],
+    "title": "yfinance: Download market data from Yahoo! Finance's API",
+    "publisher": "GitHub",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "URL": "https://github.com/ranaroussi/yfinance"
+  },
+  {
+    "id": "artzner1997",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Artzner",
+        "given": "Philippe"
+      },
+      {
+        "family": "Delbaen",
+        "given": "Freddy"
+      },
+      {
+        "family": "Eber",
+        "given": "Jean-Marc"
+      },
+      {
+        "family": "Heath",
+        "given": "David"
+      }
+    ],
+    "title": "Thinking coherently",
+    "container-title": "Risk",
+    "issued": {
+      "date-parts": [
+        [
+          "1997",
+          11
+        ]
+      ]
+    },
+    "volume": "10",
+    "issue": "11",
+    "page": "68-71",
+    "language": "en"
+  },
+  {
+    "id": "artzner1999",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Artzner",
+        "given": "Philippe"
+      },
+      {
+        "family": "Delbaen",
+        "given": "Freddy"
+      },
+      {
+        "family": "Eber",
+        "given": "Jean-Marc"
+      },
+      {
+        "family": "Heath",
+        "given": "David"
+      }
+    ],
+    "title": "Coherent measures of risk",
+    "container-title": "Mathematical Finance",
+    "issued": {
+      "date-parts": [
+        [
+          "1999",
+          7
+        ]
+      ]
+    },
+    "volume": "9",
+    "issue": "3",
+    "page": "203-228",
+    "DOI": "10.1111/1467-9965.00068",
+    "URL": "https://doi.org/10.1111/1467-9965.00068",
+    "language": "en"
+  },
+  {
+    "id": "baesens2016",
+    "type": "book",
+    "author": [
+      {
+        "family": "Baesens",
+        "given": "Bart"
+      },
+      {
+        "family": "Rösch",
+        "given": "Daniel"
+      },
+      {
+        "family": "Scheule",
+        "given": "Harald"
+      }
+    ],
+    "title": "Credit risk analytics: Measurement techniques, applications, and examples in SAS",
+    "publisher": "John Wiley & Sons",
+    "issued": {
+      "date-parts": [
+        [
+          "2016"
+        ]
+      ]
+    },
+    "ISBN": "978-1-119-14398-7",
+    "URL": "https://www.wiley.com/en-us/Credit+Risk+Analytics%3A+Measurement+Techniques%2C+Applications%2C+and+Examples+in+SAS-p-9781119143987",
+    "language": "en"
+  },
+  {
+    "id": "banrep-curva-tes",
+    "type": "dataset",
+    "author": [
+      {
+        "literal": "Banco de la República"
+      }
+    ],
+    "title": "Tasas cero cupón de los TES y parámetros de Nelson-Siegel (series 15272–15285)",
+    "publisher": "Banco de la República, SUAMECA",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          9,
+          29
+        ]
+      ]
+    },
+    "URL": "https://suameca.banrep.gov.co/",
+    "language": "es"
+  },
+  {
+    "id": "banrep-sen-2025",
+    "type": "dataset",
+    "author": [
+      {
+        "literal": "Banco de la República"
+      }
+    ],
+    "title": "Cierres puntuales del Sistema Electrónico de Negociación (SEN), diciembre de 2025",
+    "publisher": "Banco de la República",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          10,
+          1
+        ]
+      ]
+    },
+    "URL": "https://www.banrep.gov.co/sites/default/files/CierrespuntualesDiciembre2025.zip",
+    "language": "es"
+  },
+  {
+    "id": "bcbs1996backtesting",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Supervisory framework for the use of “backtesting” in conjunction with the internal models approach to market risk capital requirements",
+    "issued": {
+      "date-parts": [
+        [
+          "1996",
+          1
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS 22",
+    "URL": "https://www.bis.org/publ/bcbs22.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs1996mercado",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Amendment to the capital accord to incorporate market risks",
+    "issued": {
+      "date-parts": [
+        [
+          "1996",
+          1
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS 24",
+    "URL": "https://www.bis.org/publ/bcbs24.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs2013agregacion",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Principles for effective risk data aggregation and risk reporting",
+    "issued": {
+      "date-parts": [
+        [
+          "2013",
+          1,
+          9
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS 239",
+    "URL": "https://www.bis.org/publ/bcbs239.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs2013lcr",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Basel III: The Liquidity Coverage Ratio and liquidity risk monitoring tools",
+    "issued": {
+      "date-parts": [
+        [
+          "2013",
+          1,
+          7
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS 238",
+    "URL": "https://www.bis.org/publ/bcbs238.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs2014nsfr",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Basel III: The net stable funding ratio",
+    "issued": {
+      "date-parts": [
+        [
+          "2014",
+          10,
+          31
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS d295",
+    "URL": "https://www.bis.org/bcbs/publ/d295.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs2019frtb",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Minimum capital requirements for market risk",
+    "issued": {
+      "date-parts": [
+        [
+          "2019",
+          1,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "number": "BCBS d457",
+    "URL": "https://www.bis.org/bcbs/publ/d457.htm",
+    "language": "en"
+  },
+  {
+    "id": "bcbs2020mar33",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "MAR33: Internal models approach: capital requirements calculation",
+    "issued": {
+      "date-parts": [
+        [
+          "2020",
+          6,
+          5
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.bis.org/basel_framework/chapter/MAR/33.htm",
+    "language": "en"
+  },
+  {
+    "id": "black1973",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Black",
+        "given": "Fischer"
+      },
+      {
+        "family": "Scholes",
+        "given": "Myron"
+      }
+    ],
+    "title": "The pricing of options and corporate liabilities",
+    "container-title": "Journal of Political Economy",
+    "issued": {
+      "date-parts": [
+        [
+          "1973",
+          5
+        ]
+      ]
+    },
+    "volume": "81",
+    "issue": "3",
+    "page": "637-654",
+    "DOI": "10.1086/260062",
+    "URL": "https://doi.org/10.1086/260062",
+    "language": "en"
+  },
+  {
+    "id": "bocharov-pyextremes",
+    "type": "software",
+    "author": [
+      {
+        "family": "Bocharov",
+        "given": "George"
+      }
+    ],
+    "title": "pyextremes: Extreme value analysis (EVA) in Python",
+    "publisher": "GitHub",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "URL": "https://github.com/georgebv/pyextremes"
+  },
+  {
+    "id": "bollerslev1986",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Bollerslev",
+        "given": "Tim"
+      }
+    ],
+    "title": "Generalized autoregressive conditional heteroskedasticity",
+    "container-title": "Journal of Econometrics",
+    "issued": {
+      "date-parts": [
+        [
+          "1986",
+          4
+        ]
+      ]
+    },
+    "volume": "31",
+    "issue": "3",
+    "page": "307-327",
+    "DOI": "10.1016/0304-4076(86)90063-1",
+    "URL": "https://doi.org/10.1016/0304-4076(86)90063-1",
+    "language": "en"
+  },
+  {
+    "id": "boyle1977",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Boyle",
+        "given": "Phelim P."
+      }
+    ],
+    "title": "Options: A Monte Carlo approach",
+    "container-title": "Journal of Financial Economics",
+    "issued": {
+      "date-parts": [
+        [
+          "1977",
+          5
+        ]
+      ]
+    },
+    "volume": "4",
+    "issue": "3",
+    "page": "323-338",
+    "DOI": "10.1016/0304-405x(77)90005-8",
+    "URL": "https://doi.org/10.1016/0304-405x(77)90005-8",
+    "language": "en"
+  },
+  {
+    "id": "christoffersen1998",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Christoffersen",
+        "given": "Peter F."
+      }
+    ],
+    "title": "Evaluating interval forecasts",
+    "container-title": "International Economic Review",
+    "issued": {
+      "date-parts": [
+        [
+          "1998",
+          11
+        ]
+      ]
+    },
+    "volume": "39",
+    "issue": "4",
+    "page": "841",
+    "DOI": "10.2307/2527341",
+    "URL": "https://doi.org/10.2307/2527341",
+    "language": "en"
+  },
+  {
+    "id": "cox1979",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Cox",
+        "given": "John C."
+      },
+      {
+        "family": "Ross",
+        "given": "Stephen A."
+      },
+      {
+        "family": "Rubinstein",
+        "given": "Mark"
+      }
+    ],
+    "title": "Option pricing: A simplified approach",
+    "container-title": "Journal of Financial Economics",
+    "issued": {
+      "date-parts": [
+        [
+          "1979",
+          9
+        ]
+      ]
+    },
+    "volume": "7",
+    "issue": "3",
+    "page": "229-263",
+    "DOI": "10.1016/0304-405x(79)90015-1",
+    "URL": "https://doi.org/10.1016/0304-405x(79)90015-1",
+    "language": "en"
+  },
+  {
+    "id": "decreto2555-2010",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Presidencia de la República de Colombia"
+      }
+    ],
+    "title": "Decreto 2555 de 2010",
+    "issued": {
+      "date-parts": [
+        [
+          "2010",
+          7,
+          15
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=40032",
+    "language": "es"
+  },
+  {
+    "id": "delara2004",
+    "type": "book",
+    "author": [
+      {
+        "family": "De Lara Haro",
+        "given": "Alfonso"
+      }
+    ],
+    "title": "Medición y control de riesgos financieros",
+    "publisher": "Limusa",
+    "publisher-place": "México",
+    "issued": {
+      "date-parts": [
+        [
+          "2004"
+        ]
+      ]
+    },
+    "edition": "3",
+    "ISBN": "978-968-18-6444-6",
+    "language": "es"
+  },
+  {
+    "id": "diamond2016",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Diamond",
+        "given": "Steven"
+      },
+      {
+        "family": "Boyd",
+        "given": "Stephen"
+      }
+    ],
+    "title": "CVXPY: A Python-embedded modeling language for convex optimization",
+    "container-title": "Journal of Machine Learning Research",
+    "issued": {
+      "date-parts": [
+        [
+          "2016"
+        ]
+      ]
+    },
+    "volume": "17",
+    "issue": "83",
+    "page": "1-5",
+    "URL": "https://jmlr.org/papers/v17/15-408.html",
+    "language": "en"
+  },
+  {
+    "id": "eddelbuettel-rquantlib",
+    "type": "software",
+    "author": [
+      {
+        "family": "Eddelbuettel",
+        "given": "Dirk"
+      },
+      {
+        "family": "Nguyen",
+        "given": "Khanh"
+      },
+      {
+        "family": "Leitch",
+        "given": "Terry"
+      }
+    ],
+    "title": "RQuantLib: R interface to the 'QuantLib' library",
+    "publisher": "CRAN",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "DOI": "10.32614/CRAN.package.RQuantLib",
+    "URL": "https://CRAN.R-project.org/package=RQuantLib"
+  },
+  {
+    "id": "engle1982",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Engle",
+        "given": "Robert F."
+      }
+    ],
+    "title": "Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation",
+    "container-title": "Econometrica",
+    "issued": {
+      "date-parts": [
+        [
+          "1982",
+          7
+        ]
+      ]
+    },
+    "volume": "50",
+    "issue": "4",
+    "page": "987",
+    "DOI": "10.2307/1912773",
+    "URL": "https://doi.org/10.2307/1912773",
+    "language": "en"
+  },
+  {
+    "id": "galanos-rugarch",
+    "type": "software",
+    "author": [
+      {
+        "family": "Galanos",
+        "given": "Alexios"
+      }
+    ],
+    "title": "rugarch: Univariate GARCH models",
+    "publisher": "CRAN",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "DOI": "10.32614/CRAN.package.rugarch",
+    "URL": "https://CRAN.R-project.org/package=rugarch"
+  },
+  {
+    "id": "hammersley1956",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Hammersley",
+        "given": "J. M."
+      },
+      {
+        "family": "Morton",
+        "given": "K. W."
+      }
+    ],
+    "title": "A new Monte Carlo technique: Antithetic variates",
+    "container-title": "Mathematical Proceedings of the Cambridge Philosophical Society",
+    "issued": {
+      "date-parts": [
+        [
+          "1956",
+          7
+        ]
+      ]
+    },
+    "volume": "52",
+    "issue": "3",
+    "page": "449-475",
+    "DOI": "10.1017/s0305004100031455",
+    "URL": "https://doi.org/10.1017/s0305004100031455",
+    "language": "en"
+  },
+  {
+    "id": "hastie2009",
+    "type": "book",
+    "author": [
+      {
+        "family": "Hastie",
+        "given": "Trevor"
+      },
+      {
+        "family": "Tibshirani",
+        "given": "Robert"
+      },
+      {
+        "family": "Friedman",
+        "given": "Jerome"
+      }
+    ],
+    "title": "The elements of statistical learning: Data mining, inference, and prediction",
+    "publisher": "Springer",
+    "publisher-place": "New York, NY",
+    "issued": {
+      "date-parts": [
+        [
+          "2009"
+        ]
+      ]
+    },
+    "edition": "2",
+    "DOI": "10.1007/978-0-387-84858-7",
+    "ISBN": "978-0-387-84857-0",
+    "URL": "https://hastie.su.domains/ElemStatLearn/",
+    "language": "en"
+  },
+  {
+    "id": "hofmann1994",
+    "type": "dataset",
+    "author": [
+      {
+        "family": "Hofmann",
+        "given": "Hans"
+      }
+    ],
+    "title": "Statlog (German Credit Data)",
+    "publisher": "UCI Machine Learning Repository",
+    "issued": {
+      "date-parts": [
+        [
+          "1994"
+        ]
+      ]
+    },
+    "DOI": "10.24432/C5NC77",
+    "URL": "https://doi.org/10.24432/C5NC77",
+    "language": "en"
+  },
+  {
+    "id": "hull2022",
+    "type": "book",
+    "author": [
+      {
+        "family": "Hull",
+        "given": "John C."
+      }
+    ],
+    "title": "Options, futures, and other derivatives",
+    "publisher": "Pearson",
+    "issued": {
+      "date-parts": [
+        [
+          "2022"
+        ]
+      ]
+    },
+    "edition": "11",
+    "ISBN": "978-0-13-693997-9",
+    "URL": "https://www.pearson.com/en-us/subject-catalog/p/options-futures-and-other-derivatives/P200000005938/9780136939979",
+    "language": "en"
+  },
+  {
+    "id": "jpmorgan1996",
+    "type": "report",
+    "author": [
+      {
+        "literal": "J.P. Morgan"
+      },
+      {
+        "literal": "Reuters"
+      }
+    ],
+    "title": "RiskMetrics: Technical document",
+    "publisher": "Morgan Guaranty Trust Company",
+    "publisher-place": "New York",
+    "issued": {
+      "date-parts": [
+        [
+          "1996",
+          12,
+          17
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document",
+    "language": "en"
+  },
+  {
+    "id": "kupiec1995",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Kupiec",
+        "given": "Paul H."
+      }
+    ],
+    "title": "Techniques for verifying the accuracy of risk measurement models",
+    "container-title": "The Journal of Derivatives",
+    "issued": {
+      "date-parts": [
+        [
+          "1995",
+          11,
+          30
+        ]
+      ]
+    },
+    "volume": "3",
+    "issue": "2",
+    "page": "73-84",
+    "DOI": "10.3905/jod.1995.407942",
+    "URL": "https://doi.org/10.3905/jod.1995.407942",
+    "language": "en"
+  },
+  {
+    "id": "latane1976",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Latané",
+        "given": "Henry A."
+      },
+      {
+        "family": "Rendleman",
+        "given": "Richard J."
+      }
+    ],
+    "title": "Standard deviations of stock price ratios implied in option prices",
+    "container-title": "The Journal of Finance",
+    "issued": {
+      "date-parts": [
+        [
+          "1976",
+          5
+        ]
+      ]
+    },
+    "volume": "31",
+    "issue": "2",
+    "page": "369-381",
+    "DOI": "10.1111/j.1540-6261.1976.tb01892.x",
+    "URL": "https://doi.org/10.1111/j.1540-6261.1976.tb01892.x",
+    "language": "en"
+  },
+  {
+    "id": "ley51-1983",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Congreso de Colombia"
+      }
+    ],
+    "title": "Ley 51 de 1983",
+    "issued": {
+      "date-parts": [
+        [
+          "1983",
+          12,
+          22
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=4954",
+    "language": "es"
+  },
+  {
+    "id": "macaulay1938",
+    "type": "book",
+    "author": [
+      {
+        "family": "Macaulay",
+        "given": "Frederick R."
+      }
+    ],
+    "title": "Some theoretical problems suggested by the movements of interest rates, bond yields and stock prices in the United States since 1856",
+    "publisher": "National Bureau of Economic Research",
+    "publisher-place": "New York",
+    "issued": {
+      "date-parts": [
+        [
+          "1938"
+        ]
+      ]
+    },
+    "ISBN": "0-87014-032-9",
+    "URL": "https://www.nber.org/books-and-chapters/some-theoretical-problems-suggested-movements-interest-rates-bond-yields-and-stock-prices-united",
+    "language": "en"
+  },
+  {
+    "id": "markowitz1952",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Markowitz",
+        "given": "Harry"
+      }
+    ],
+    "title": "Portfolio selection",
+    "container-title": "The Journal of Finance",
+    "issued": {
+      "date-parts": [
+        [
+          "1952",
+          3
+        ]
+      ]
+    },
+    "volume": "7",
+    "issue": "1",
+    "page": "77-91",
+    "DOI": "10.1111/j.1540-6261.1952.tb01525.x",
+    "URL": "https://doi.org/10.1111/j.1540-6261.1952.tb01525.x",
+    "language": "en"
+  },
+  {
+    "id": "mcneil2015",
+    "type": "book",
+    "author": [
+      {
+        "family": "McNeil",
+        "given": "Alexander J."
+      },
+      {
+        "family": "Frey",
+        "given": "Rüdiger"
+      },
+      {
+        "family": "Embrechts",
+        "given": "Paul"
+      }
+    ],
+    "title": "Quantitative risk management: Concepts, techniques and tools",
+    "publisher": "Princeton University Press",
+    "publisher-place": "Princeton, NJ",
+    "issued": {
+      "date-parts": [
+        [
+          "2015"
+        ]
+      ]
+    },
+    "edition": "Revised",
+    "ISBN": "978-0-691-16627-8",
+    "URL": "https://press.princeton.edu/books/hardcover/9780691166278/quantitative-risk-management",
+    "language": "en"
+  },
+  {
+    "id": "merton1973",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Merton",
+        "given": "Robert C."
+      }
+    ],
+    "title": "Theory of rational option pricing",
+    "container-title": "The Bell Journal of Economics and Management Science",
+    "issued": {
+      "date-parts": [
+        [
+          "1973"
+        ]
+      ]
+    },
+    "volume": "4",
+    "issue": "1",
+    "page": "141",
+    "DOI": "10.2307/3003143",
+    "URL": "https://doi.org/10.2307/3003143",
+    "language": "en"
+  },
+  {
+    "id": "mhcp2022res3609",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Ministerio de Hacienda y Crédito Público"
+      }
+    ],
+    "title": "Resolución 3609 de 2022",
+    "issued": {
+      "date-parts": [
+        [
+          "2022",
+          12,
+          30
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "language": "es"
+  },
+  {
+    "id": "mhcp2026res1002",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Ministerio de Hacienda y Crédito Público"
+      }
+    ],
+    "title": "Resolución 1002 de 2026",
+    "issued": {
+      "date-parts": [
+        [
+          "2026",
+          5,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.banrep.gov.co/sites/default/files/reglamentacion/archivos/resolucion_1002_mayo_14_2026.pdf",
+    "language": "es"
+  },
+  {
+    "id": "moscote2013",
+    "type": "book",
+    "author": [
+      {
+        "family": "Moscote Flórez",
+        "given": "Orlando"
+      }
+    ],
+    "title": "Elementos de estadística en riesgo financiero",
+    "publisher": "Ediciones USTA",
+    "issued": {
+      "date-parts": [
+        [
+          "2013"
+        ]
+      ]
+    },
+    "ISBN": "978-958-631-824-2",
+    "URL": "https://ediciones.usta.edu.co/index.php/publicaciones/ciencias-naturales/elementos-de-estad%C3%ADstica-en-riesgo-financiero-detail",
+    "language": "es"
+  },
+  {
+    "id": "nelson1987",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Nelson",
+        "given": "Charles R."
+      },
+      {
+        "family": "Siegel",
+        "given": "Andrew F."
+      }
+    ],
+    "title": "Parsimonious modeling of yield curves",
+    "container-title": "The Journal of Business",
+    "issued": {
+      "date-parts": [
+        [
+          "1987",
+          1
+        ]
+      ]
+    },
+    "volume": "60",
+    "issue": "4",
+    "page": "473",
+    "DOI": "10.1086/296409",
+    "URL": "https://doi.org/10.1086/296409",
+    "language": "en"
+  },
+  {
+    "id": "pedregosa2011",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Pedregosa",
+        "given": "Fabian"
+      },
+      {
+        "family": "Varoquaux",
+        "given": "Gaël"
+      },
+      {
+        "family": "Gramfort",
+        "given": "Alexandre"
+      },
+      {
+        "family": "Michel",
+        "given": "Vincent"
+      },
+      {
+        "family": "Thirion",
+        "given": "Bertrand"
+      },
+      {
+        "family": "Grisel",
+        "given": "Olivier"
+      },
+      {
+        "family": "Blondel",
+        "given": "Mathieu"
+      },
+      {
+        "family": "Prettenhofer",
+        "given": "Peter"
+      },
+      {
+        "family": "Weiss",
+        "given": "Ron"
+      },
+      {
+        "family": "Dubourg",
+        "given": "Vincent"
+      },
+      {
+        "family": "Vanderplas",
+        "given": "Jake"
+      },
+      {
+        "family": "Passos",
+        "given": "Alexandre"
+      },
+      {
+        "family": "Cournapeau",
+        "given": "David"
+      },
+      {
+        "family": "Brucher",
+        "given": "Matthieu"
+      },
+      {
+        "family": "Perrot",
+        "given": "Matthieu"
+      },
+      {
+        "family": "Duchesnay",
+        "given": "Édouard"
+      }
+    ],
+    "title": "Scikit-learn: Machine learning in Python",
+    "container-title": "Journal of Machine Learning Research",
+    "issued": {
+      "date-parts": [
+        [
+          "2011"
+        ]
+      ]
+    },
+    "volume": "12",
+    "issue": "85",
+    "page": "2825-2830",
+    "URL": "https://jmlr.org/papers/v12/pedregosa11a.html",
+    "language": "en"
+  },
+  {
+    "id": "perkins2024",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Perkins",
+        "given": "Mike"
+      },
+      {
+        "family": "Furze",
+        "given": "Leon"
+      },
+      {
+        "family": "Roe",
+        "given": "Jasper"
+      },
+      {
+        "family": "MacVaugh",
+        "given": "Jason"
+      }
+    ],
+    "title": "The Artificial Intelligence Assessment Scale (AIAS): A framework for ethical integration of generative AI in educational assessment",
+    "container-title": "Journal of University Teaching and Learning Practice",
+    "issued": {
+      "date-parts": [
+        [
+          "2024",
+          4,
+          19
+        ]
+      ]
+    },
+    "volume": "21",
+    "issue": "06",
+    "DOI": "10.53761/q3azde36",
+    "URL": "https://doi.org/10.53761/q3azde36",
+    "language": "en"
+  },
+  {
+    "id": "psf2026python",
+    "type": "software",
+    "author": [
+      {
+        "literal": "Python Software Foundation"
+      }
+    ],
+    "title": "The Python language reference",
+    "publisher": "Python Software Foundation",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "URL": "https://docs.python.org/3.12/reference/index.html"
+  },
+  {
+    "id": "quantlib",
+    "type": "software",
+    "author": [
+      {
+        "literal": "The QuantLib contributors"
+      }
+    ],
+    "title": "QuantLib: A free/open-source library for quantitative finance",
+    "publisher": "Zenodo",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "DOI": "10.5281/zenodo.21353005",
+    "URL": "https://www.quantlib.org/"
+  },
+  {
+    "id": "rcoreteam2026",
+    "type": "software",
+    "author": [
+      {
+        "literal": "R Core Team"
+      }
+    ],
+    "title": "R: A language and environment for statistical computing",
+    "publisher": "R Foundation for Statistical Computing",
+    "publisher-place": "Vienna, Austria",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "DOI": "10.32614/R.manuals",
+    "URL": "https://www.R-project.org/"
+  },
+  {
+    "id": "redington1952",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Redington",
+        "given": "F. M."
+      }
+    ],
+    "title": "Review of the principles of life-office valuations",
+    "container-title": "Journal of the Institute of Actuaries",
+    "issued": {
+      "date-parts": [
+        [
+          "1952",
+          12
+        ]
+      ]
+    },
+    "volume": "78",
+    "issue": "3",
+    "page": "286-340",
+    "DOI": "10.1017/s0020268100052811",
+    "URL": "https://doi.org/10.1017/s0020268100052811",
+    "language": "en"
+  },
+  {
+    "id": "rockafellar2000",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Rockafellar",
+        "given": "R. Tyrrell"
+      },
+      {
+        "family": "Uryasev",
+        "given": "Stanislav"
+      }
+    ],
+    "title": "Optimization of conditional value-at-risk",
+    "container-title": "The Journal of Risk",
+    "issued": {
+      "date-parts": [
+        [
+          "2000"
+        ]
+      ]
+    },
+    "volume": "2",
+    "issue": "3",
+    "page": "21-41",
+    "DOI": "10.21314/jor.2000.038",
+    "URL": "https://doi.org/10.21314/jor.2000.038",
+    "language": "en"
+  },
+  {
+    "id": "sb1995cbcf",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Bancaria de Colombia"
+      }
+    ],
+    "title": "Circular Externa 100 de 1995: Circular Básica Contable y Financiera",
+    "issued": {
+      "date-parts": [
+        [
+          "1995",
+          11,
+          24
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/15466",
+    "language": "es"
+  },
+  {
+    "id": "sfc2008ce016",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Financiera de Colombia"
+      }
+    ],
+    "title": "Circular Externa 016 de 2008",
+    "issued": {
+      "date-parts": [
+        [
+          "2008",
+          5,
+          6
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/20146/normativa/normativa-general/circulares-externas-cartas-circulares-y-resoluciones-desde-el-ano-/circulares-externas/-20146/",
+    "language": "es"
+  },
+  {
+    "id": "sfc2019ce019",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Financiera de Colombia"
+      }
+    ],
+    "title": "Circular Externa 019 de 2019",
+    "issued": {
+      "date-parts": [
+        [
+          "2019",
+          7,
+          23
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/10099659/normativanormativa-generalcirculares-externas-cartas-circulares-y-resoluciones-desde-el-ano-circulares-externascirculares-externas-10099659/",
+    "language": "es"
+  },
+  {
+    "id": "sfc2021siar",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Financiera de Colombia"
+      }
+    ],
+    "title": "Circular Externa 018 de 2021: Sistema Integral de Administración de Riesgos (SIAR)",
+    "issued": {
+      "date-parts": [
+        [
+          "2021",
+          9,
+          22
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/10106589/normativa/normativa-general/circulares-externas-cartas-circulares-y-resoluciones-desde-el-ano-/circulares-externas/circulares-externas--10106589/",
+    "language": "es"
+  },
+  {
+    "id": "sfc2026cbf",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Superintendencia Financiera de Colombia"
+      }
+    ],
+    "title": "Circular Externa 004 de 2026: Circular Básica Financiera",
+    "issued": {
+      "date-parts": [
+        [
+          "2026",
+          4,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          11
+        ]
+      ]
+    },
+    "URL": "https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/",
+    "language": "es"
+  },
+  {
+    "id": "sheppard-arch",
+    "type": "software",
+    "author": [
+      {
+        "family": "Sheppard",
+        "given": "Kevin"
+      }
+    ],
+    "title": "arch",
+    "publisher": "Zenodo",
+    "issued": {
+      "date-parts": [
+        [
+          "2025"
+        ]
+      ]
+    },
+    "genre": "Computer software",
+    "DOI": "10.5281/zenodo.17404619",
+    "URL": "https://github.com/bashtage/arch"
+  },
+  {
+    "id": "yahoo-finance",
+    "type": "dataset",
+    "author": [
+      {
+        "literal": "Yahoo Finance"
+      }
+    ],
+    "title": "Cierres diarios ajustados de ECOPETROL.CL, BOGOTA.CL, GRUPOSURA.CL, ISA.CL, ICOLCAP.CL y ^GSPC",
+    "publisher": "Yahoo",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          8,
+          7
+        ]
+      ]
+    },
+    "URL": "https://finance.yahoo.com/",
+    "language": "en"
+  }
+]
