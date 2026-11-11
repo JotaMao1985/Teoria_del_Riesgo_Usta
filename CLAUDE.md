@@ -26,7 +26,8 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Taller calificado de la U2 (T2) | ✅ 2026-10-05 · `Material html/T2_TDR_Taller_unidad_2.html`, enlazado desde el portal · plan privado en `talleres/clave/T2/PLAN_TDR-U2T.md` |
 | Taller calificado del corte III (T3) | ✅ 2026-11-07 · integrador de los capítulos 1–10 · `Material html/T3_TDR_Taller_integrador.html`, enlazado desde el portal · **sustituye al proyecto integrador** (`talleres/PLAN_TDR-PI.md`) · plan privado en `talleres/clave/T3/PLAN_TDR-T3.md` |
 | 5 · Portal y Quarto | pendiente |
-| Gestión documental (F0–F4) | 🟡 2026-11-10 · **F0 y F1 hechas**: vault privado de Obsidian en la carpeta principal y respaldo de Zotero · **PC1 espera la revisión del usuario** · F2 (Zotero), F3 (citas en el HTML) y F4 (línea base del capítulo 1) pendientes |
+| Gestión documental (F0–F4) | ✅ 2026-11-11 · vault, 69 referencias en Zotero, circuito de citas (reglas 18–24, tope 420 KB), línea base del capítulo 1 · PC1–PC4 aprobados |
+| Mejora del capítulo 1 | 🟡 2026-11-11 · fases 0–7 hechas: **31 citas APA verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF · quedan 47 afirmaciones por revisar y el PC5 · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
 
 ## Gestión documental: vault y Zotero (desde el 2026-11-10)
 
