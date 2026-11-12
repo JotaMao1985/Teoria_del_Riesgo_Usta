@@ -27,7 +27,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Taller calificado del corte III (T3) | ✅ 2026-11-07 · integrador de los capítulos 1–10 · `Material html/T3_TDR_Taller_integrador.html`, enlazado desde el portal · **sustituye al proyecto integrador** (`talleres/PLAN_TDR-PI.md`) · plan privado en `talleres/clave/T3/PLAN_TDR-T3.md` |
 | 5 · Portal y Quarto | pendiente |
 | Gestión documental (F0–F4) | ✅ 2026-11-11 · vault, 69 referencias en Zotero, circuito de citas (reglas 18–24, tope 420 KB), línea base del capítulo 1 · PC1–PC4 aprobados |
-| Mejora del capítulo 1 | 🟡 2026-11-11 · fases 0–7 hechas: **31 citas APA verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF · quedan 47 afirmaciones por revisar y el PC5 · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
+| Mejora del capítulo 1 | 🟡 2026-11-12 · fases 0–8 hechas: **40 afirmaciones citadas y verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF, R6 con las definiciones vigentes; ninguna afirmación de la línea base queda por revisar · **espera el PC5** · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
 
 ## Gestión documental: vault y Zotero (desde el 2026-11-10)
 
