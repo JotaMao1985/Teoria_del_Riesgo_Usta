@@ -89,7 +89,7 @@ ellas—. Limpiar el panel en silencio enseñaría que los datos llegan limpios.
   arrastra el cierre anterior. Se concentran en 2018-2019 y 2022. Diluyen la
   volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria.
 - **19 y 20 de febrero de 2025: cotización defectuosa.** Los cuatro emisores
-  caen entre 10 % y 20 % el 19 y recuperan lo mismo el 20, mientras el ETF que
+  caen entre 9 % y 18 % el 19 y suben entre 13 % y 23 % el 20, mientras el ETF que
   los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF.
   Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 %, el VaR histórico
   al 99 % de la muestra completa de 4,077 % a 4,037 %, y el de la ventana de

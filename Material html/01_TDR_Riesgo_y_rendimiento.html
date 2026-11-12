@@ -3544,7 +3544,7 @@ for (nombre in names(declarado)) {
         const PortadaSection = () => (
             <>
                 <Motivacion icon="fa-file-invoice"
-                    gancho="El informe decía que la pérdida diaria máxima esperada era 1,8 %. Ayer perdimos 6,3 %. Nadie mintió: el modelo suponía una normal y el mercado no la leyó.">
+                    gancho="El informe decía que solo una rueda de cada cien perdería más de 1,8 %. Ayer perdimos 6,3 %. Nadie mintió: el modelo suponía una normal y el mercado no la leyó.">
                     El informe mensual del fondo llega el día cinco, con una tabla de dos columnas y una
                     frase debajo. Nadie discute la frase, porque el número que la acompaña salió de un
                     cálculo que nadie mira. Este capítulo es sobre esa cadena: qué se midió, con qué
@@ -3553,10 +3553,10 @@ for (nombre in names(declarado)) {
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
-                    nota="Nivel del capítulo. Dentro de él, cada tipo de ejercicio declara el suyo: los R8 admiten colaboración con IA y bitácora; los R3 —auditar a la IA— no admiten ninguna, porque pedirle a un modelo que audite a otro es circular." />
+                    nota="Nivel del capítulo. Dentro de él, cada tipo de ejercicio declara el suyo: los R8 admiten colaboración con IA y bitácora; los R3 —auditar a la IA— no admiten ninguna: el criterio que entrenan es el que después se usa para revisar lo que produce un modelo." />
 
                 <CalloutPro tema="info" titulo="Qué se lleva de aquí"
-                    subtitulo="Cuatro horas · RA1 y RA3 · el capítulo del que dependen los otros catorce">
+                    subtitulo="Cuatro horas · RA1 y RA3 · el capítulo cuyas convenciones heredan los demás">
                     <p>
                         Al terminar, usted sabrá distinguir los cuatro riesgos financieros y decir cuál
                         de ellos vive dentro de una serie de precios y cuáles no; elegir entre
@@ -3584,24 +3584,23 @@ for (nombre in names(declarado)) {
                     <p>
                         No se estimaron ni se copiaron de un portafolio real: se fijaron con tres
                         criterios declarados. <strong>Cuatro sectores separados</strong> —petróleo,
-                        banca, holding e infraestructura regulada— porque en el capítulo 3 esa
-                        separación es la que hace visible la descomposición entre riesgo sistemático y
-                        no sistemático, y con dos emisores del mismo sector no se vería.{' '}
+                        banca, holding e infraestructura regulada— porque el capítulo 3 descompone el riesgo de cada emisor en sistemático y no
+                        sistemático, y el curso quiso que las cuatro descomposiciones fueran de negocios
+                        distintos.{' '}
                         <strong>Un tope de concentración del 30 %</strong> por emisor, que es la clase
                         de límite que un régimen de inversión impone —el de los fondos de pensiones
                         obligatorios es más estricto: 10 % por emisor{' '}
                         <Cita k="decreto2555-2010" loc="art. 2.6.12.1.12" />— y que el capítulo 7
                         vuelve a encontrar como restricción del problema de optimización. Y{' '}
-                        <strong>un tamaño redondo</strong>, del orden de magnitud del portafolio de
-                        renta variable local de un fondo mediano, para que las cifras en pesos se
+                        <strong>un tamaño redondo</strong>, para que las cifras en pesos se
                         puedan leer sin calculadora.
                     </p>
                     <p>
                         Que sean una decisión y no una estimación tiene una consecuencia práctica: son{' '}
                         <strong>discutibles, y el capítulo 7 los discute</strong>. Allí el mismo
                         universo de cuatro activos se optimiza y se ve cuánto se pierde por no haberlo
-                        hecho. Lo que no cambia en ningún capítulo es el universo ni el archivo de
-                        precios.
+                        hecho. Lo que no cambia en ningún capítulo que trabaje con las acciones del fondo es el
+                        universo de cuatro emisores ni el archivo de precios.
                     </p>
                 </CalloutPro>
 
@@ -3634,7 +3633,7 @@ for (nombre in names(declarado)) {
 
                 <Timeline eventos={[
                     { year: '1900', text: <>Louis Bachelier modela las variaciones del precio de un activo como un paseo aleatorio, deduce una ley de probabilidad de forma gaussiana y la escribe como una ecuación de Fourier, que él llama ley de difusión de la probabilidad <Cita k="bachelier1900" loc="pp. 40–46" />.</> },
-                    { year: '1952', text: 'Markowitz demuestra que el riesgo de un portafolio no es la suma de los riesgos de sus partes. Es el punto de partida de la unidad 2.' },
+                    { year: '1952', text: 'Markowitz publica «Portfolio selection» en el Journal of Finance. Es el punto de partida de la unidad 2 de este curso.' },
                     { year: '1963', text: <>Mandelbrot estudia los precios del algodón y señala que la normal no describe sus variaciones <Cita k="cont2001" loc="pp. 226–227" pre="según" />. Más de sesenta años después las colas siguen siendo más pesadas que las de una normal: la sección 4 lo mide con los datos de este curso.</> },
                     { year: '1994', text: <>En octubre, J. P. Morgan lanza RiskMetrics y publica gratis su metodología y sus series de volatilidades y correlaciones, con el propósito declarado de fijar una referencia común para medir el riesgo de mercado <Cita k="jpmorgan1996" loc="p. iii y portada" />.</> },
                     { year: '2005', text: <>La Superintendencia Bancaria se fusiona en la de Valores, que pasa a llamarse Superintendencia Financiera de Colombia <Cita k="decreto4327-2005" loc="art. 1" />. La Circular Básica Contable y Financiera, que la Superintendencia Bancaria había expedido en 1995 <Cita k="sb1995cbcf" loc="carta de presentación" />, sigue rigiendo bajo la nueva entidad hasta 2026 <Cita k="sfc2026cbf" loc="instrucciones primera y sexta" />.</> },
@@ -3675,11 +3674,11 @@ for (nombre in names(declarado)) {
                 <>
                     <Motivacion icon="fa-layer-group"
                         gancho="Si los cuatro riesgos se miden con la misma herramienta, tres de ellos no se están midiendo.">
-                        En un mismo año, un fondo colombiano perdió dinero cuatro veces por cuatro
-                        razones distintas: cayó la acción de un emisor, un pagaré no se pagó, un error
-                        de digitación duplicó una orden, y hubo que vender una posición ilíquida a
-                        descuento para atender retiros. El comité revisó las cuatro con el mismo
-                        informe. Solo la primera estaba dentro de él.
+                        Imagine un fondo colombiano que en un mismo año pierde dinero cuatro veces por
+                        cuatro razones distintas: cae la acción de un emisor, un pagaré no se paga, un
+                        error de digitación duplica una orden y hay que vender una posición ilíquida a
+                        descuento para atender retiros. El comité revisa las cuatro con el mismo
+                        informe. Solo la primera está dentro de él.
                     </Motivacion>
 
                     <h3>Dos maneras de leer el riesgo</h3>
@@ -3709,9 +3708,9 @@ for (nombre in names(declarado)) {
 
                     <h3>Los cuatro riesgos, y cuál de ellos vive en un archivo de precios</h3>
                     <Pipeline steps={[
-                        { num: 'M', title: 'Mercado', desc: 'El precio de lo que tengo se mueve. Es el único que una serie de precios mide directamente, y el de las unidades 1 y 2.' },
-                        { num: 'C', title: 'Crédito', desc: 'Quien me debe no paga. No está en el precio: está en la probabilidad de incumplimiento, y esa se modela con datos del deudor. Capítulos 13 y 14.' },
-                        { num: 'O', title: 'Operativo', desc: 'Falla el proceso, el sistema o la persona. Sus datos son registros internos de eventos, no cotizaciones. Capítulo 15.' },
+                        { num: 'M', title: 'Mercado', desc: 'El precio de lo que tengo se mueve. Es el único que una serie de cierres mide sin más datos, y el de las unidades 1 y 2.' },
+                        { num: 'C', title: 'Crédito', desc: 'Quien me debe no paga. Una serie de cierres de acciones no basta para medirlo: el curso lo modela con la probabilidad de incumplimiento y datos del deudor, en los capítulos 13 y 14.' },
+                        { num: 'O', title: 'Operativo', desc: 'Falla el proceso, el sistema o la persona, o llega un evento externo. Sus datos son registros de pérdidas, no cotizaciones. Capítulo 15.' },
                         { num: 'L', title: 'Liquidez', desc: <>No poder cumplir a tiempo los pagos esperados e inesperados: porque falta fondeo, o porque el activo no se puede vender al precio que dice la pantalla, que miente justo cuando importa. La norma cuenta las dos <Cita k="sfc2026cbf" loc="1.1.2.140–1.1.2.142" />. Capítulo 10.</> },
                     ]} />
 
@@ -3731,28 +3730,29 @@ for (nombre in names(declarado)) {
                         caption="Las cinco series y el fondo, en base 100. La línea morada gruesa es el fondo rebalanceado cada rueda a 30/20/25/25, con su rendimiento exacto: termina en 245,8, por encima de tres de sus cuatro emisores y por debajo de ISA, y casi nunca sale del rango entre la mejor y la peor serie. Diversificar no busca el máximo sino quitarle los extremos al resultado: es la tesis de la unidad 2. El desplome de marzo de 2020 se ve en todas las series; el par defectuoso de febrero de 2025, que la sección 4 vuelve a encontrar, no se ve aquí, porque el gráfico muestra una rueda de cada cuatro." />
 
                     <Box type="warn" label="El ETF y no el índice">
-                        En Yahoo Finance el índice COLCAP no existe como serie descargable, así que la
+                        En Yahoo Finance el índice COLCAP no existía como serie descargable cuando se
+                        congeló el panel, en agosto de 2026, así que la
                         referencia de mercado del curso es <span className="inline-code">ICOLCAP.CL</span>,
                         el ETF que lo replica. No es lo mismo: un ETF cotiza, así que su precio lo fija su
                         propia oferta y demanda y no tiene por qué coincidir con el valor de la canasta; en
                         este panel, además, se mueve en 97 de las 101 ruedas en que sus cuatro emisores se
-                        quedan quietos. Se usa igual porque es lo que hay, y porque para
-                        lo que este curso necesita —un contraste con el mercado— la diferencia es de
-                        segundo orden. Está anotado en{' '}
+                        quedan quietos. Se usa igual porque es lo que hay; cuánto se separa
+                        del índice no se ha medido, y cada capítulo que lo use como mercado tiene que
+                        tenerlo presente. Está anotado en{' '}
                         <span className="inline-code">datos/MANIFIESTO.md</span>, que es donde tiene que
                         estar una sustitución para que alguien pueda auditarla.
                     </Box>
 
                     <Emparejamiento
-                        titulo="R6 · Cada riesgo con el sistema que lo administra"
-                        enunciado="La Superintendencia Financiera de Colombia no pide «medir el riesgo»: pide un sistema de administración, con manual, órganos responsables, límites y reportes. Hasta mayo de 2023 pedía uno por cada tipo de riesgo; desde junio de 2023, lo que eran el SARM, el SARC, el SARO y el SARL son partes de un solo sistema, el SIAR, y el SARLAFT sigue aparte, en la Circular Básica Jurídica. Empareje cada sigla con lo que administra."
-                        etiquetaIzq="Sistema"
-                        etiquetaDer="Qué administra"
-                        izquierda={['SARM', 'SARC', 'SARO', 'SARL', 'SARLAFT']}
+                        titulo="R6 · Cada riesgo con la definición que le da la norma"
+                        enunciado={<>La Superintendencia Financiera de Colombia no pide solo «medir el riesgo»: pide un sistema integral de administración de riesgos, el SIAR, con manual, órganos responsables, límites y reportes, y en él define cada riesgo por separado <Cita k="sfc2026cbf" loc="1.1.1.2, 1.1.1.37, 1.1.1.59, 1.1.1.63, 1.1.2.4, 1.1.2.76, 1.1.2.84, 1.1.2.114 y 1.1.2.140" />. El de lavado de activos y financiación del terrorismo sigue en su propio sistema, el SARLAFT, en la Circular Básica Jurídica <Cita k="sfc2025cbj" loc="parte I, tít. IV, cap. IV" />. Empareje cada riesgo con su definición.</>}
+                        etiquetaIzq="Riesgo"
+                        etiquetaDer="Cómo lo define la norma"
+                        izquierda={['Mercado', 'Crédito', 'Operacional', 'Liquidez', 'Lavado de activos (SARLAFT)']}
                         derecha={[
                             'La posibilidad de que la entidad sea usada para lavar activos o financiar el terrorismo',
-                            'Las pérdidas por fallas en procesos, personas, sistemas o eventos externos',
-                            'La pérdida por movimientos en las tasas, los precios y los tipos de cambio de las posiciones',
+                            'La posibilidad de pérdidas por fallas en los procesos, la tecnología, la infraestructura o las personas, o por eventos externos',
+                            'La posibilidad de pérdida por variaciones en el precio de las posiciones: tasas, tipos de cambio, precios de acciones',
                             'La posibilidad de pérdidas por no poder cumplir, de manera plena y oportuna, los flujos de caja esperados e inesperados',
                             'La posibilidad de que la entidad pierda valor en sus activos porque un deudor o una contraparte incumple',
                         ]}
@@ -3798,8 +3798,8 @@ for (nombre in names(declarado)) {
                     presentó como una diferenciación de roles <Cita k="iia2020" loc="portada, pp. 1 y 3 (nota 1) y última página" />. Reparte el trabajo entre quien toma el
                     riesgo, quien lo mide y lo controla, y quien da aseguramiento independiente. Lo
                     esencial, como criterio de este curso, es que <strong>quien evalúa un número no sea
-                    quien lo produjo</strong>: quien construyó un modelo es la persona con menos
-                    capacidad del mundo para ver lo que le falta.
+                    quien lo produjo</strong>: quien construyó un modelo suele ser quien menos ve
+                    lo que le falta.
                 </p>
                 <Pipeline steps={[
                     { num: 1, title: 'Toma el riesgo', desc: <>La mesa, el área de inversiones, el originador de crédito. Toma o genera la exposición al riesgo y es responsable de su gestión continua <Cita k="sfc2026cbf" loc="1.1.1.38" />. Decide la posición y tiene un interés directo en que el número salga bien, y ese conflicto es el que la segunda línea existe para neutralizar.</> },
@@ -3844,8 +3844,8 @@ for (nombre in names(declarado)) {
                     emisor="Comité de Supervisión Bancaria de Basilea"
                     referencia="BCBS 239 (2013) · dirigidos a los bancos de importancia sistémica"
                     exige="Que los datos con los que se calcula el riesgo sean exactos y confiables, estén conciliados con sus fuentes y tengan controles tan sólidos como los de los datos contables, y que la entidad pueda generar datos agregados de riesgo a demanda, también en situaciones de estrés. Los principios se dirigen a los bancos de importancia sistémica; el curso los toma como referencia para un fondo de pensiones."  
-                    enElCapitulo="La razón de que la sección 5 exista. La instantánea congelada, su huella SHA-256 en el manifiesto y la declaración explícita de las anomalías del panel son lo que estos principios piden, en la escala de un curso."
-                    enlace="https://www.bis.org/publ/bcbs239.htm"
+                    enElCapitulo="La razón de que la sección 5 exista. La instantánea congelada, su huella SHA-256 en el manifiesto y la declaración explícita de las anomalías del panel van en la dirección de lo que estos principios piden —datos conciliados con su fuente y procesos documentados—, en la escala de un curso."
+                    enlace="https://www.bis.org/publications/201301-guidelines-principles-effective-risk-data-aggregation-and-risk-reporting"
                     k="bcbs2013agregacion"
                     loc="§13–15, §36 y principio 6"
                 />
@@ -3920,8 +3920,8 @@ for (nombre in names(declarado)) {
                     Dos analistas reportan el rendimiento acumulado de ISA en ocho años. Uno dice
                     148,7 % y el otro 166,2 %. Los dos partieron del mismo archivo, calcularon
                     rendimientos diarios y los agregaron. La diferencia son 17,5 puntos porcentuales —
-                    sobre una posición de 200 000 millones, 35 000 millones de pesos— y está entera en
-                    la definición que cada uno eligió sin pensarlo.
+                        sobre una posición de 200 000 millones, 35 000 millones de pesos— y no está en
+                        los datos: está en cómo agregó cada uno, y uno de los dos sumó lo que no se suma.
                 </Motivacion>
 
                 <h3>Las dos definiciones</h3>
@@ -3961,8 +3961,8 @@ for (nombre in names(declarado)) {
                     rendimientos aritméticos da 11,7913 % y <strong>no es el acumulado</strong>: no es
                     una aproximación mala, es una magnitud distinta. La suma de los logarítmicos da
                     11,4924 %, que tampoco lo es —pero <em>elevada a exponencial y restándole uno</em>{' '}
-                    devuelve 12,1788 % exacto. Esa es la propiedad, y es la única razón por la que este
-                    curso trabaja con logaritmos.
+                    devuelve 12,1788 % exacto. Esa es la propiedad, y la razón principal por la que este
+                        curso trabaja con logaritmos.
                 </p>
 
                 <Derivacion
@@ -4054,7 +4054,7 @@ real      <- p[length(p)] / p[1] - 1`,
                     subtitulo="1 916 sesiones · 2018-01 a 2025-12 · las cifras salen del bloque de arriba"
                     columnas={['Magnitud', 'Exacto', 'Con la convención', 'Diferencia']}
                     filas={[
-                        { celdas: ['Brecha diaria media', '—', { v: '−1,643 pb', lee: 'Un punto básico es la centésima parte de un punto porcentual. La brecha media es negativa porque el logaritmo es cóncavo: la aproximación se queda sistemáticamente por debajo, y por tanto exagera las pérdidas. En riesgo eso es conservador, que es la única razón por la que la convención resulta tolerable.' }, 'sesgo sistemático'] },
+                        { celdas: ['Brecha diaria media', '—', { v: '−1,643 pb', lee: 'Un punto básico es la centésima parte de un punto porcentual. La brecha media es negativa porque el logaritmo es cóncavo: la aproximación se queda sistemáticamente por debajo, y por tanto exagera las pérdidas. En pérdidas y cuantiles eso es conservador, y es una de las razones por las que la convención se tolera para medir riesgo; sobre los niveles no lo es, como muestra la sección 5.' }, 'sesgo sistemático'] },
                         { celdas: ['Peor brecha de una rueda', '—', { v: '103,95 pb', lee: 'Un punto porcentual entero en una sola rueda, y no en un día de pánico: el 31 de marzo de 2022 el fondo se movió −2,41 %, pero el precio de Banco de Bogotá cayó 27,2 % y el de Grupo Sura subió 11,5 %. La brecha no crece con el movimiento del portafolio sino con la dispersión entre sus activos —es la desigualdad de Jensen de la sección 5—, y por eso la convención falla más en los días en que los cuatro emisores se separan.' }, '35 ruedas de 1 916 pasan de 10 pb'] },
                         { celdas: ['Volatilidad diaria', '1,5739 %', { v: '1,5764 %', lee: 'Dos milésimas de punto porcentual de diferencia, un 0,16 % relativo. Cualquier otra decisión del capítulo 4 —la ventana, el método, el tratamiento de las anomalías— mueve la volatilidad más que esto.' }, '+0,16 % relativo'] },
                         { celdas: ['Cuantil al 1 %', '−3,9553 %', { v: '−4,0771 %', lee: 'Aquí sí se nota: doce centésimas de punto, un 3 % relativo. Sobre 800 000 millones de pesos son unos 975 millones de VaR de más. La convención cobra su factura en la cola, que es donde la aproximación es peor, y la cobra por el lado prudente.' }, '+3,1 % relativo'] },
@@ -4121,7 +4121,7 @@ acumulado <- exp(sum(r)) - 1`,
                     }}
                     pregunta="Las dos devuelven 166,2 %. ¿Cuál de las afirmaciones resiste?"
                     opciones={[
-                        { texto: 'Son la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho.', correcta: true, justificacion: 'El acumulado de la muestra da 166,2 % por las dos vías porque exp(Σ ln(1+R)) = Π(1+R) es una identidad y no una aproximación. B se prefiere por dos razones numéricas: la suma acumula menos error de coma flotante que un producto de 1 916 factores, y su magnitud intermedia —la suma de los logarítmicos— es la que después se puede modelar. La aproximación de primer orden —confundir r con R— es otra cosa muy distinta, y esa sí cuesta las doce centésimas de punto que la sección mide en el cuantil al 1 %.' },
+                        { texto: 'Son la misma operación y coinciden hasta el error de redondeo de coma flotante: B es A con el logaritmo aplicado y deshecho.', correcta: true, justificacion: 'El acumulado de la muestra da 166,2 % por las dos vías porque exp(Σ ln(1+R)) = Π(1+R) es una identidad y no una aproximación. B se prefiere porque su magnitud intermedia —la suma de los logarítmicos— es la que después se puede modelar. Numéricamente las dos son igual de exactas: con los 1 916 factores de ISA, los dos errores de coma flotante quedan en el orden del épsilon de máquina. La aproximación de primer orden —confundir r con R— es otra cosa muy distinta, y esa sí cuesta las doce centésimas de punto que la sección mide en el cuantil al 1 %.' },
                         { texto: 'A es la correcta y B una aproximación de primer orden que casualmente da bien porque los rendimientos diarios son pequeños.', correcta: false },
                         { texto: 'Coinciden solo porque la serie no tiene rendimientos negativos grandes; con una caída del 50 % B daría un resultado distinto.', correcta: false },
                         { texto: 'B es la correcta y A tiene un sesgo al alza, porque el producto de factores mayores que uno crece más rápido que la suma de sus logaritmos.', correcta: false },
@@ -4135,7 +4135,7 @@ acumulado <- exp(sum(r)) - 1`,
                     lineaCorrecta={{ python: 9, r: 8 }}
                     tipos={TIPOS_ERROR_RIESGO}
                     tipoCorrecto={IDX_ERROR.medida}
-                    explicacion="Los rendimientos están bien calculados: son aritméticos, que es una definición legítima. Lo que no se puede hacer con ellos es sumarlos, porque la agregación temporal de los aritméticos es multiplicativa. La suma de rendimientos aritméticos es una magnitud real —el rendimiento acumulado sin reinversión, el que tendría alguien que retirara la utilidad cada día— pero no es lo que la línea del comentario dice que se está calculando. Hay dos formas correctas: multiplicar los factores (1 + R) o pasar a logarítmicos, sumarlos y deshacer el logaritmo con exp."
+                    explicacion="Los rendimientos están bien calculados: son aritméticos, que es una definición legítima. Lo que no se puede hacer con ellos es sumarlos, porque la agregación temporal de los aritméticos es multiplicativa. La suma de rendimientos aritméticos es una magnitud real —el rendimiento acumulado sin reinversión, el de quien mantiene invertido el mismo capital cada día, retirando las ganancias y reponiendo las pérdidas— pero no es lo que la línea del comentario dice que se está calculando. Hay dos formas correctas: multiplicar los factores (1 + R) o pasar a logarítmicos, sumarlos y deshacer el logaritmo con exp."
                     impacto="La suma da 148,7 % y el acumulado real es 166,2 %: la IA se queda corta en 17,5 puntos porcentuales. Sobre la posición de 200 000 millones que el fondo tiene en ISA son 35 000 millones de pesos de utilidad que el informe no reporta. Y el signo del error no es fijo: en una serie que hubiera caído, la misma suma habría exagerado la pérdida."
                 />
 
@@ -4220,12 +4220,11 @@ acumulado <- exp(sum(r)) - 1`,
                     />
                 </Ejercicio>
 
-                <Box type="tip" label="La regla que resuelve el 90 % de los casos">
+                <Box type="tip" label="Una regla práctica">
                     ¿Va a agregar <strong>en el tiempo</strong> —varios días, escalar un horizonte,
                     modelar una varianza—? Logarítmicos. ¿Va a agregar <strong>entre activos</strong>{' '}
                     —combinar posiciones con pesos, repartir una utilidad—? Aritméticos. ¿Va a reportarle
-                    una rentabilidad a alguien que la va a cobrar? Aritméticos, siempre, porque es lo que
-                    entra en la cuenta. Y cuando las dos cosas hagan falta a la vez, que es el caso de
+                    una rentabilidad a alguien que la va a cobrar? Aritméticos compuestos —el producto de los factores, menos uno—, porque es lo que entra en la cuenta. Y cuando las dos cosas hagan falta a la vez, que es el caso de
                     este curso, se elige una, se mide el costo y se declara — que es lo que acaba de
                     hacer la tabla de arriba.
                 </Box>
@@ -4346,7 +4345,7 @@ acumulado <- exp(sum(r)) - 1`,
                         columnas={['Momento', 'Portafolio BVC', 'S&P 500', 'Qué significa']}
                         filas={[
                             { celdas: ['Media diaria', { v: '+0,0305 %', lee: <>Anualizada con 252 ruedas, 7,69 % en logarítmicos. No es lo que el fondo ganó por año —eso sale de los aritméticos, y la sección 5 lo cuenta—: es el centro de la serie con que el curso mide la dispersión. Es unas 52 veces menor que la desviación diaria, y su cuadrado es unas 2 700 veces menor que el segundo momento. RiskMetrics fija en cero la media diaria al estimar volatilidades, porque la media muestral se estima con mucha imprecisión <Cita k="jpmorgan1996" loc="pp. 91–93" />.</> }, '+0,0468 %', 'Dónde está el centro'] },
-                            { celdas: ['Desviación diaria', { v: '1,5764 %', lee: 'Anualizada, 25,02 %. Un 27 % más alta que la del S&P 500, lo cual es esperable en un mercado con menos profundidad, menos emisores y ruedas en las que algunos precios no se mueven. Este número es el que el capítulo 2 deja de tratar como una constante.' }, '1,2384 %', 'Cuánto se dispersa'] },
+                            { celdas: ['Desviación diaria', { v: '1,5764 %', lee: 'Anualizada, 25,02 %. Un 27 % más alta que la del S&P 500, lo que no extraña en un portafolio de cuatro emisores frente a un índice de quinientos. Las ruedas en que los emisores no se mueven la bajan, no la suben: sin ellas, la desviación sube a 1,6197 %. Este número es el que el capítulo 2 deja de tratar como una constante.' }, '1,2384 %', 'Cuánto se dispersa'] },
                             { celdas: ['Asimetría', { v: '−0,512', lee: <>Negativa: la cola izquierda es más larga que la derecha. Las caídas grandes superan a las subidas grandes, un hecho estilizado de las acciones y de los índices bursátiles, no de los tipos de cambio <Cita k="cont2001" loc="p. 224" />. Con colas así, la desviación típica sola no describe la variabilidad <Cita k="cont2001" loc="§4.1" />. El capítulo 8 optimiza contra esto.</> }, '−0,654', 'Hacia qué lado se estira'] },
                             { celdas: ['Curtosis de exceso', { v: '25,77', lee: 'Veinticinco puntos por encima del cero de la normal, y casi el doble que la del S&P 500. Es el número que descarta la hipótesis de normalidad sin necesidad de ninguna prueba formal, y el que fija en 4,23 los grados de libertad de la t que usa el capítulo 4, con ν = 6/κ + 4, que solo vale si ν > 4. Ojo: es frágil. Una parte la producen las dos ruedas defectuosas de febrero de 2025, y sin las ocho ruedas que pasan de cinco desviaciones la curtosis cae a 2,54 y los grados de libertad suben a 6,37.' }, '14,73', 'Cuánta masa hay lejos del centro'] },
                         ]}
@@ -4440,8 +4439,7 @@ curtosis <- mean(z^4) - 3`,
                         distribución</strong>: elevan la desviación de la ventana a 7,74 % —cinco veces
                         la de la muestra completa— y, medidos contra su propia desviación inflada, ya no
                         están lejos. Sin ese par, las seis ruedas restantes tienen una desviación de
-                        1,32 % y una curtosis de exceso de −1,12. Un dato malo no siempre sube la
-                        curtosis: siempre sube la varianza, y la curtosis es un cociente entre las dos.
+                        1,32 % y una curtosis de exceso de −1,12. Un dato extremo no siempre sube la curtosis de su ventana: también infla la varianza, y la curtosis es un cociente entre las dos.
                         Quien use la curtosis como detector de datos anómalos se va a llevar sorpresas.
                     </Box>
 
@@ -4452,7 +4450,7 @@ curtosis <- mean(z^4) - 3`,
                         lineaCorrecta={{ python: 8, r: 6 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.convencion}
-                        explicacion="El factor de anualización no es una constante del oficio: es la raíz del número de periodos que hay en un año, y ese número depende de la periodicidad de la serie que se está escalando. Con datos diarios son 252 ruedas; con datos mensuales son 12 meses. El código remuestrea a cierre de mes —y ese paso está bien— y después escala como si la serie siguiera siendo diaria, así que multiplica por la raíz de 252 una desviación que ya era mensual. El 252 es correcto para otra serie, y por eso no hay nada roto que ver."
+                        explicacion="El factor de anualización no es una constante del oficio: es la raíz del número de periodos que hay en un año, y ese número depende de la periodicidad de la serie que se está escalando. Con datos diarios, la convención del curso es 252 ruedas —el panel trae 239,5 por año—; con datos mensuales son 12 meses. El código remuestrea a cierre de mes —y ese paso está bien— y después escala como si la serie siguiera siendo diaria, así que multiplica por la raíz de 252 una desviación que ya era mensual. El 252 es correcto para otra serie, y por eso no hay nada roto que ver."
                         impacto="La cifra reportada es 156,9 % anual. La correcta con esos mismos datos mensuales es 34,2 %, y la que da la serie diaria es 38,6 %: la IA exagera por un factor de 4,58, que es la raíz de 252 sobre 12. Un límite de riesgo fijado con ese número obliga a liquidar posiciones que no había que liquidar; presentado ante un comité, destruye la credibilidad de toda la mesa de riesgos en una diapositiva."
                     />
 
@@ -4499,9 +4497,9 @@ curtosis <- mean(z^4) - 3`,
                             return `Con ventanas de ${miles(v)} ruedas la curtosis de exceso va de ${dec(Math.min(...ys))} `
                                 + `a ${dec(Math.max(...ys))}, y la última vale ${dec(ys[ys.length - 1])}. `
                                 + `De las ${ys.length} ventanas dibujadas, ${bajo} quedan por debajo de 1, es decir `
-                                + `${dec(bajo / ys.length * 100, 1)} % del tiempo en que la serie se podría confundir con una normal.`;
+                                + `${dec(bajo / ys.length * 100, 1)} % del tiempo con la curtosis de la ventana por debajo de 1. Con ventanas cortas eso no basta para decir que la serie es normal: la curtosis de pocas ruedas es muy imprecisa.`;
                         }}
-                        pregunta="Con ventanas cortas la curtosis baja y se estabiliza; con ventanas largas sube y se queda arriba. ¿Significa eso que el riesgo de cola es menor en el corto plazo? Diga qué está midiendo realmente cada ventana, y qué implicación tiene para alguien que estime la curtosis con un año de datos para decidir si usa una normal."
+                        pregunta="Con ventanas cortas la curtosis suele salir baja —con 60 ruedas, la mediana es 0,92—, salvo cuando la ventana atrapa marzo de 2020 o febrero de 2025, y entonces se dispara; con 250 ruedas la mediana sube a 2,46. ¿Significa eso que el riesgo de cola es menor en el corto plazo? Diga qué está midiendo realmente cada ventana, y qué implicación tiene para alguien que estime la curtosis con un año de datos para decidir si usa una normal."
                         nota="Todo se calcula en el navegador sobre la misma serie RP que producen los bloques, y con el mismo divisor n en los momentos. La curva se evalúa cada cuatro ruedas para que el deslizador responda; los valores no cambian por ello."
                     />
 
@@ -4558,8 +4556,7 @@ curtosis <- mean(z^4) - 3`,
                 <Box type="warn" label="La instantánea la congela git, no el guion de descarga">
                     <span className="inline-code">datos/descargar.py</span> documenta cómo se
                     construyeron los archivos, pero volver a ejecutarlo produce una instantánea{' '}
-                    <em>equivalente</em> y no <em>idéntica</em>: Yahoo recalcula los precios ajustados
-                    hacia atrás con cada dividendo. Con cuatro decimales cambiaban 6 757 de 9 585
+                    <em>equivalente</em> y no <em>idéntica</em>: Yahoo recalcula hacia atrás los precios ajustados entre una descarga y otra. Con cuatro decimales cambiaban 6 757 de 9 585
                     celdas entre dos ejecuciones seguidas; redondeando a pesos enteros —la precisión con
                     la que cotiza la Bolsa de Valores de Colombia— quedaban 24, de un peso cada una.
                     Quien reponga datos tiene que mirar el <span className="inline-code">git diff</span>{' '}
@@ -4568,7 +4565,7 @@ curtosis <- mean(z^4) - 3`,
 
                 <h3>Las dos anomalías de este panel, que no se corrigen</h3>
                 <p>
-                    El archivo con el que trabajan los quince capítulos tiene dos defectos conocidos.
+                    El archivo con que trabajan los capítulos de acciones tiene dos defectos conocidos.
                     Están declarados en <span className="inline-code">datos/MANIFIESTO.md</span> y{' '}
                     <strong>no se corrigen</strong>. Conviene entender por qué antes de tropezar con
                     ellos en el capítulo 2.
@@ -4576,15 +4573,15 @@ curtosis <- mean(z^4) - 3`,
                 <Accordion items={[
                     {
                         titulo: '1. Ciento una ruedas de 1 916 en las que ninguno de los cuatro emisores se mueve',
-                        contenido: 'El panel se cruza por fechas comunes con el ETF ICOLCAP, que cotiza días en los que las acciones no registran negociación efectiva; Yahoo arrastra entonces el cierre anterior. Se concentran en 2018-2019 y en 2022. No son un error de la fuente sino una propiedad del mercado local, y diluyen la volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria. Aparecen en el ejercicio R1 de la sección 3, en la rueda que da rendimiento cero.',
+                        contenido: 'El panel se cruza por fechas comunes con el ETF ICOLCAP, que cotiza días en los que los cuatro emisores no cambian de precio. Lo más probable es que no hubiera negociación y Yahoo arrastrara el cierre anterior, pero el archivo no permite distinguirlo de un error del proveedor. Se concentran en 2018-2019 y en 2022, y diluyen la volatilidad estimada: excluirlas la sube de 1,5764 % a 1,6197 % diaria. Aparecen en el ejercicio R1 de la sección 3, en la rueda que da rendimiento cero.',
                     },
                     {
                         titulo: '2. El 19 y el 20 de febrero de 2025: una cotización defectuosa',
-                        contenido: 'Los cuatro emisores caen entre 10 % y 20 % el 19 y recuperan lo mismo el 20, mientras el ETF que los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF, y el contraste con el índice es el diagnóstico que lo demuestra; está implementado en la sección 3 del capítulo 4. Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 % —un 5 %— y el VaR histórico de la ventana de 250 ruedas un 10 %. Son las dos ruedas del ejercicio R1 de la sección 4 de este capítulo.',
+                        contenido: 'Los cuatro emisores caen entre 9 % y 18 % el 19 y suben entre 13 % y 23 % el 20, mientras el ETF que los replica sube 1,5 % y 2,0 %. Un desplome real habría arrastrado al ETF, y el contraste con el índice es el diagnóstico que lo demuestra; está implementado en la sección 3 del capítulo 4. Excluir el par mueve la volatilidad de 1,5764 % a 1,4963 % —un 5 %— y el VaR histórico al 99 % de la ventana de 250 ruedas un 10 %. Son las dos ruedas del ejercicio R1 de la sección 4 de este capítulo.',
                     },
                     {
                         titulo: '¿Por qué no se limpian, entonces?',
-                        contenido: <>Por dos razones. La primera es que limpiar en silencio enseña que los datos llegan limpios, que es la creencia que más dinero cuesta en esta profesión: el trabajo real empieza con un panel sucio, y la decisión de qué hacer con él se toma por escrito y con nombre y firma. La segunda es que el episodio resultó ser buen material: el mismo dato malo mueve el VaR histórico de la muestra completa cuatro centésimas de punto, la volatilidad un 5 % y el VaR de la ventana corta un 10 %. Tres estimadores, tres sensibilidades, un solo defecto. Lo que el curso sí hace, en la línea de lo que piden los principios de BCBS 239 —documentar y explicar las excepciones y las limitaciones de los datos— <Cita k="bcbs2013agregacion" loc="§39–40, §43 y §53 c" />, es declararlo en el manifiesto y volver a nombrarlo en cada capítulo que lo toque.</>,
+                        contenido: <>Por dos razones. La primera es que limpiar en silencio enseña que los datos llegan limpios, una creencia cara en esta profesión: el trabajo real empieza con un panel sucio, y la decisión de qué hacer con él se toma por escrito y con nombre y firma. La segunda es que el episodio resultó ser buen material: el mismo dato malo mueve el VaR histórico de la muestra completa cuatro centésimas de punto, la volatilidad un 5 % y el VaR al 99 % de la ventana corta un 10 %. Tres estimadores, tres sensibilidades, un solo defecto. Lo que el curso sí hace, en la línea de lo que piden los principios de BCBS 239 —documentar y explicar las excepciones y las limitaciones de los datos— <Cita k="bcbs2013agregacion" loc="§39–40, §43 y §53 c" />, es declararlo en el manifiesto y volver a nombrarlo en cada capítulo que lo toque.</>,
                     },
                 ]} />
 
@@ -4617,11 +4614,8 @@ curtosis <- mean(z^4) - 3`,
                     y sobre el <strong>cuantil al 1 %</strong> —un 3,1 %—: las dos son medidas de
                     dispersión, y en las dos la convención sale barata. Sobre un <strong>nivel</strong>{' '}
                     no sale barata, porque el sesgo de −1,643 pb por rueda no se promedia, se acumula.
-                    En 2022 la convención reporta <strong>−0,08 %</strong> para un año en que el fondo
-                    ganó <strong>10,21 %</strong> —el signo, no la cifra—, y en los ocho años juntos se
-                    deja <strong>66 puntos porcentuales</strong>. De aquí sale la regla que rige los
-                    catorce capítulos siguientes: los logarítmicos del portafolio sirven para medir
-                    dispersión, nunca para reportar cuánto se ganó.
+                    En 2022 la convención reporta <strong>−0,08 %</strong> para un año en que el fondo rebalanceado ganó <strong>10,21 %</strong> —el signo, no la cifra—, y en los ocho años juntos se
+                    deja <strong>66 puntos porcentuales</strong>. De aquí sale la regla que el curso aplica desde aquí: los logarítmicos del portafolio sirven para medir dispersión, y no para reportar cuánto se ganó. Donde un capítulo reporta un nivel con ellos, lo dice y pone la cifra exacta al lado.
                 </p>
 
                 <p>
@@ -4720,17 +4714,13 @@ curtosis <- mean(z^4) - 3`,
                                 cómo se construyen series que confirman lo que su autor esperaba.
                                 Segunda, el impacto no es uniforme y decirlo es informativo: la
                                 volatilidad se mueve un 5 %, el VaR histórico de la muestra completa un
-                                1 % y el de la ventana de 250 ruedas un 10 %. Un lector que vea las dos
+                                1 % y el de la ventana de 250 ruedas, al 99 %, un 10 %. Un lector que vea las dos
                                 columnas sabe cuánto de la conclusión depende de esas dos ruedas.
-                                Tercera, la decisión de excluir es de la primera línea de datos, no del
-                                analista que calcula: lo que corresponde es escalarla al dueño del dato
-                                y documentar la respuesta.
+                                Tercera, la decisión de excluir no la toma sola quien calcula: se escala, por escrito, al responsable de los datos, y su respuesta se documenta.
                             </p>
                             <p>
                                 Lo que <strong>no</strong> resiste: sustituir los dos precios por una
-                                interpolación. En una serie de rendimientos eso fabrica dos ruedas de
-                                volatilidad casi nula, y contamina exactamente lo que el capítulo 2 va a
-                                estimar. Rellenar huecos es la corrección que más silenciosamente
+                                interpolación. En una serie de rendimientos eso fabrica dos ruedas casi iguales, sin la dispersión que tendría cualquier par de ruedas reales, y contamina la dinámica de la volatilidad que el capítulo 2 va a estimar. Rellenar huecos es la corrección que más silenciosamente
                                 estropea una serie de riesgo.
                             </p>
                         </>}>
@@ -4738,8 +4728,7 @@ curtosis <- mean(z^4) - 3`,
                             Usted es responsable de la serie con la que el fondo mide su riesgo de
                             mercado. El panel trae dos ruedas en las que los cuatro emisores caen entre
                             10 % y 20 % y recuperan lo mismo al día siguiente, mientras el ETF que los
-                            replica sube. Excluirlas baja la volatilidad estimada un 5 % y el VaR de la
-                            ventana corta un 10 %.
+                            replica sube. Excluirlas baja la volatilidad estimada un 5 % y el VaR al 99 % de la ventana corta un 10 %.
                         </p>
                         <p>
                             Argumente su decisión en un párrafo. La respuesta tiene que decir qué
@@ -4762,8 +4751,8 @@ curtosis <- mean(z^4) - 3`,
                     gancho="De este capítulo no se sale sabiendo calcular nada nuevo. Se sale sabiendo qué se está calculando, que es lo que se defiende en la oral.">
                     Las diez preguntas de abajo no piden ninguna cuenta que no se pueda hacer de cabeza.
                     Piden decir qué significa un número, de dónde salió y qué le pasaría si el supuesto
-                    de debajo fallara. Es la clase de pregunta que el examen final presencial hace, y la
-                    que más barato sale descubrir a solas.
+                    de debajo fallara. Es la clase de pregunta que se defiende en la oral, y la que más
+                    barato sale descubrir a solas.
                 </Motivacion>
 
                 <Quiz titulo="Cuestionario integrador del capítulo 1" preguntas={[
@@ -4786,7 +4775,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?', justificacion: 'La agregación temporal de los aritméticos es multiplicativa, no aditiva. La brecha son 17,5 puntos porcentuales sobre una sola posición del fondo. No es un decimal perdido: es la diferencia entre sumar y multiplicar, y crece con el horizonte y con la volatilidad.',
+                        pregunta: 'La suma de los rendimientos aritméticos diarios de ISA en ocho años da 148,7 %. El precio pasó de 9 192 a 24 471. ¿Qué es ese 148,7 %?', justificacion: 'La agregación temporal de los aritméticos es multiplicativa, no aditiva. La brecha son 17,5 puntos porcentuales sobre una sola posición del fondo. No es un decimal perdido: es la diferencia entre sumar y multiplicar, y crece con el horizonte y con la volatilidad. Y los dos números salen de los mismos cierres ajustados, que ya incluyen los dividendos: la opción que los culpa falla por su premisa.',
                         opciones: [
                             { texto: 'Una magnitud real —el acumulado sin reinversión— pero no el rendimiento acumulado, que es 166,2 %.', correcta: true },
                             { texto: 'El rendimiento acumulado correcto; el 166,2 % incluye el efecto de los dividendos, que la serie de rendimientos no recoge.', correcta: false },
@@ -4849,7 +4838,7 @@ curtosis <- mean(z^4) - 3`,
                         ],
                     },
                     {
-                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?', justificacion: 'Contra una fuente en vivo el número cambia cada día y la única salida sería dejar de comprobarlo. Es la decisión D3 del plan y la condición de existencia de la regla 9 del verificador, que ejecuta cada bloque de los quince capítulos en los dos lenguajes y compara su salida con la declarada. Contra una fuente en vivo esa regla no podría existir.',
+                        pregunta: 'La carpeta de datos del curso está versionada en el repositorio en vez de ignorada. ¿Cuál es la razón?', justificacion: 'Contra una fuente en vivo el número cambia cada día y la única salida sería dejar de comprobarlo. Es una decisión declarada del curso, y es la que permite que cada bloque del material se vuelva a ejecutar, en los dos lenguajes, contra el mismo archivo y con la misma salida. Contra una fuente en vivo esa regla no podría existir.',
                         opciones: [
                             { texto: 'Que sin instantánea congelada nadie puede comprobar que las cifras sean las que el código produce.', correcta: true },
                             { texto: 'Que así los estudiantes sin conexión pueden trabajar, que es la única ventaja frente a descargar los datos.', correcta: false },
@@ -4896,10 +4885,10 @@ curtosis <- mean(z^4) - 3`,
                         label: 'Los cuatro riesgos',
                         content: (
                             <ul>
-                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2. SIAR, antes SARM.</li>
-                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14. SIAR, antes SARC.</li>
-                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15. SIAR, antes SARO.</li>
-                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10. SIAR, antes SARL.</li>
+                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2. SIAR.</li>
+                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14. SIAR.</li>
+                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15. SIAR.</li>
+                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10. SIAR.</li>
                             </ul>
                         ),
                     },

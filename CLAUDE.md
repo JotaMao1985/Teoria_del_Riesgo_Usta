@@ -1537,7 +1537,7 @@ idéntica** —Yahoo reajusta los precios hacia atrás con cada dividendo—. Si
 ⚠️ **`bvc_diario.csv` tiene dos defectos conocidos y NO se corrigen**: 101 ruedas de 1 916
 sin variación en ninguno de los **cuatro precios de los emisores** —no en ningún precio: el
 ETF sí cotiza esos días, y solo en 4 de las 101 se quedó quieto él también—, y el par 19–20
-de febrero de 2025, que es una cotización defectuosa (los cuatro emisores caen 10–20 % y el
+de febrero de 2025, que es una cotización defectuosa (los cuatro emisores caen 9–18 % y el
 ETF que los replica sube). Están declarados en `datos/MANIFIESTO.md` y la sección 3 del
 capítulo 4 los diagnostica con código. Limpiar el panel en silencio rompería las cifras del
 capítulo 4 y el argumento del material.
