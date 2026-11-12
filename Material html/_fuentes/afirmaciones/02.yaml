@@ -1,0 +1,14 @@
+# Registro público de las afirmaciones citadas del capítulo 02.
+# Lo genera registrar_afirmaciones.py desde las notas del vault: no se edita a mano.
+# No lleva el extracto de la fuente, solo su sha256.
+- id: "c02-s7-a17"
+  seccion: "7. Pronóstico a h días"
+  ancla: "pide documentar los modelos de riesgo y sus metodologías"
+  clave: "sfc2026cbf"
+  loc: "1.1.1.63"
+  tema: "norma"
+  leido:
+    fecha: "2026-11-12"
+    medio: "acceso-abierto"
+    por: "Claude (lector y verificador independiente, Opus)"
+  extracto_sha256: "000ec278bb439476b102b1bcf16c7dd3a5ea86a9989b32c72c47a081e85770d2"
