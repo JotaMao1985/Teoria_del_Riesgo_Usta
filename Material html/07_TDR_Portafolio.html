@@ -4222,7 +4222,7 @@ ponderada   <- w * sE + w * sI`,
                 </p>
 
                 <CodeTabs titulo="El programa cuadrático, con cvxpy y con quadprog" bloques={EJ_QP}
-                    nota="Dos solucionadores distintos y la misma respuesta hasta el sexto decimal: 20,760313 % en Ecopetrol por las dos vías. Conviene saberlo porque no siempre pasa — el capítulo 2 declara una discrepancia entre `arch` y `rugarch` sobre la misma verosimilitud—. Aquí no la hay, y la razón es que el problema es estrictamente convexo." />
+                    nota="Dos solucionadores distintos y la misma respuesta hasta el sexto decimal: 20,760313 % en Ecopetrol por las dos vías. Conviene saberlo porque no siempre pasa — el capítulo 2 declara una discrepancia entre `arch` y `rugarch`, que ni siquiera maximizan la misma función porque arrancan la recursión distinto—. Aquí no la hay, y la razón es que el problema es estrictamente convexo." />
 
                 <h3>Lo que la covarianza propone frente a lo que el comité decidió</h3>
                 <p>
@@ -5317,8 +5317,8 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                         ],
                     },
                     {
-                        pregunta: 'En este capítulo cvxpy y quadprog coinciden hasta el sexto decimal, y en el capítulo 2 arch y rugarch discrepan sobre la misma verosimilitud. ¿Cuál es la diferencia relevante?',
-                        justificacion: 'La convexidad viene de Σ, que es semidefinida positiva siempre, y no de las restricciones; la unicidad, de que la de este panel sea además definida positiva. Por eso aquí se puede escribir «la» cartera de mínima varianza y en el capítulo 2 hay que declarar qué implementación se usó: ajustar un GARCH por máxima verosimilitud es un problema no convexo, con óptimos locales y dependencia del punto de arranque.',
+                        pregunta: 'En este capítulo cvxpy y quadprog coinciden hasta el sexto decimal, y en el capítulo 2 arch y rugarch no dan los mismos coeficientes. ¿Cuál es la diferencia relevante?',
+                        justificacion: 'La convexidad viene de Σ, que es semidefinida positiva siempre, y no de las restricciones; la unicidad, de que la de este panel sea además definida positiva. Por eso aquí se puede escribir «la» cartera de mínima varianza y en el capítulo 2 hay que declarar qué implementación se usó: ajustar un GARCH por máxima verosimilitud es un problema no convexo, sin garantía de un único óptimo. En el capítulo 2 la discrepancia es aún más de base: los dos paquetes arrancan la recursión de la varianza con valores distintos y maximizan funciones distintas; con el mismo arranque, la diferencia de log-verosimilitud baja de 0,28 a 0,005.',
                         opciones: [
                             { texto: 'Que este problema es estrictamente convexo y la verosimilitud de un GARCH no lo es, así que aquí los dos solucionadores llegan por fuerza al mismo punto y allá no.', correcta: true },
                             { texto: 'Que cvxpy y quadprog son ambos solucionadores de programación cuadrática mientras arch y rugarch implementan familias de modelos distintas, con parametrizaciones que no se corresponden.', correcta: false },

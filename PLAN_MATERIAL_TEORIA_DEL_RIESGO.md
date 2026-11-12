@@ -927,8 +927,12 @@ Medido el 2026-08-08 sobre las 1 916 sesiones del portafolio, GARCH(1,1) con inn
 | ν | 3,9768 | 3,9747 |
 | log-verosimilitud | −3150,7748 | −3150,4906 |
 
-No es un defecto: son dos optimizadores que paran en puntos distintos de la misma superficie
-de verosimilitud, y el de R encuentra un máximo marginalmente mejor. El problema es de
+No es un defecto, y tampoco son dos optimizadores parando en puntos distintos de la misma
+superficie, como decía este plan hasta el 2026-11-12: cada paquete arranca la recursión de la
+varianza con un valor distinto (`rugarch`, la media de todos los residuos al cuadrado, 2,4841;
+`arch`, su *backcast*, 1,6524), así que maximizan funciones distintas. Con el arranque de
+`rugarch`, `arch` da persistencia 0,926398 y log-verosimilitud −3150,4955: de los 0,28 de
+diferencia, 0,275 son el arranque y 0,005 el optimizador (medido en la mejora del capítulo 2). El problema es de
 presentación: **la persistencia —el número que más se cita de un GARCH— redondea a 0,92 en
 una pestaña y a 0,93 en la otra**. A dos decimales α y β sí coinciden; a tres no coincide
 nada. El ajuste tarda 0,0 s en Python y 0,1 s en R, muy por debajo del límite de 90 s de la
@@ -941,7 +945,8 @@ regla 9, así que el tiempo no es el problema.
 | (c) Ajustar en Python y que R lea los coeficientes | Rompe la regla de los dos lenguajes. Descartada. |
 
 Con (a) el material tendría **dos** excepciones declaradas a «las dos pestañas coinciden», y
-las dos donde corresponde: simulación (C4 §4) y estimación numérica (C2).
+las dos donde corresponde: simulación (C4 §4) y estimación numérica (C2). Hoy son más —los
+Montecarlo del 4, el 5 y el 12, la cobertura del 12 y una línea del 10—, y el capítulo 1 las lista.
 
 #### D-C · Lo que se cambie del capítulo 4 se repite catorce veces
 

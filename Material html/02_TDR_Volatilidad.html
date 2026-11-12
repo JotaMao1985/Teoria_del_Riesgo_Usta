@@ -3683,8 +3683,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     gancho="La volatilidad de ayer predice la de hoy mucho mejor que la de hace un año. Todo el capítulo sale de tomarse esa frase en serio.">
                     El capítulo 1 midió una desviación diaria de 1,5764 % y la anualizó en 25,02 %. Ese
                     número describe ocho años a la vez y no describe bien ninguno: 2018 cerró en 17,49 %
-                    y 2020 en 40,87 %. Un límite de riesgo fijado con el promedio es holgado la mitad del
-                    tiempo y se rompe la otra mitad.
+                    y 2020 en 40,87 %. Un límite de riesgo fijado con el promedio es holgado unos años y se rompe otros: frente al 25,02 % del panel, cinco de los ocho años quedan por debajo y tres por encima.
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
@@ -3735,11 +3734,11 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                 </Box>
 
                 <Timeline eventos={[
-                    { year: '1982', text: 'Robert Engle publica ARCH: la varianza de hoy depende de los errores de ayer. Es la primera vez que un modelo trata la volatilidad como algo que se predice y no como un parámetro.' },
-                    { year: '1986', text: 'Tim Bollerslev, doctorando de Engle, añade el término autorregresivo y obtiene GARCH. Con dos parámetros hace lo que ARCH necesitaba diez.' },
-                    { year: '1994', text: 'RiskMetrics fija λ = 0,94 para datos diarios. Es un GARCH con las manos atadas —sin varianza de largo plazo— y a cambio no hay nada que estimar.' },
-                    { year: '2003', text: 'Engle recibe el Nobel de Economía por ARCH. La cita del comité menciona explícitamente la gestión de riesgo financiero.' },
-                    { year: '2016', text: 'El FRTB exige medir el riesgo con horizontes de liquidez distintos por factor. Sin un modelo de volatilidad que se proyecte a h días, esa exigencia no se puede cumplir.' },
+                    { year: '1982', text: <>Robert Engle publica ARCH: la varianza condicional de hoy depende de los errores al cuadrado de los días anteriores <Cita k="nobel2003ciencia" loc="pp. 14–15" />. Antes de ARCH casi no había métodos para pronosticar la varianza <Cita k="engle2001" loc="p. 159" />.</> },
+                    { year: '1986', text: <>Tim Bollerslev, estudiante de posgrado de Engle, añade la varianza de ayer a la ecuación y obtiene GARCH: con tres parámetros hace lo que ARCH necesitaba en muchos rezagos <Cita k="nobel2003ciencia" loc="p. 15" />.</> },
+                    { year: '1994', text: <>J. P. Morgan lanza RiskMetrics <Cita k="jpmorgan1996" loc="p. iii" />. Su documento técnico usa λ = 0,94 para datos diarios: un IGARCH sin constante —un GARCH sin varianza de largo plazo— y sin nada que estimar sobre la serie propia <Cita k="jpmorgan1996" loc="p. 87, nota 4, y pp. 99–100" />.</> },
+                    { year: '2003', text: <>Engle recibe el Nobel de Economía, compartido con Clive Granger, «por métodos para analizar series de tiempo económicas con volatilidad variable en el tiempo (ARCH)». El comunicado añade que los analistas los usan para evaluar el riesgo de las carteras <Cita k="nobel2003prensa" />.</> },
+                    { year: '2016', text: <>El FRTB mide el ES con horizontes de liquidez de 10 a 120 días según el factor de riesgo, y llega a ellos desde un ES calculado a 10 días, escalando con raíces del tiempo —√((LHⱼ − LHⱼ₋₁)/10) por grupo de factores— <Cita k="bcbs2016frtb" loc="párr. 181(c)" />: la regla que la sección 7 pone a prueba. Una versión revisada lo reemplazó en 2019 <Cita k="bcbs2016frtb" loc="aviso de cada página" />, y hoy rige consolidado en MAR33 <Cita k="bcbs2020mar33" loc="MAR33.4" />.</> },
                 ]} />
             </>
         );
@@ -3821,13 +3820,17 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     <h3>Agrupamiento</h3>
                     <p>
                         El{' '}
-                        <Termino def="Tendencia de los rendimientos grandes a venir seguidos de otros grandes, y de los pequeños a venir seguidos de pequeños, con independencia del signo. Lo describió Mandelbrot en 1963 y es el hecho estilizado más robusto de las series financieras.">agrupamiento de volatilidad</Termino>{' '}
+                        <Termino def="Tendencia de los rendimientos grandes a venir seguidos de otros grandes, y de los pequeños a venir seguidos de pequeños, con independencia del signo. Es uno de los hechos estilizados de las series financieras.">agrupamiento de volatilidad</Termino>{' '}
                         es lo que se ve en la gráfica de abajo y lo que la línea roja no ve: hay tramos
                         enteros por encima de la desviación de la muestra y tramos enteros por debajo. Si
-                        la volatilidad fuera constante, los picos estarían repartidos al azar.
+                        la volatilidad fuera constante, los picos estarían repartidos al azar. Mandelbrot
+                        ya lo había observado en 1963 —a los cambios grandes los siguen cambios grandes, de
+                        cualquier signo— sin llegar a modelarlo <Cita k="nobel2003ciencia" loc="p. 15" />,
+                        y Cont lo cuenta entre los hechos estilizados de los rendimientos financieros{' '}
+                        <Cita k="cont2001" loc="p. 224" />.
                     </p>
 
-                    <ChartFrame id="cap2-abs" height="chart-h-400"
+                    <ChartFrame id="cap2-abs" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
                         caption="Valor absoluto del rendimiento diario del portafolio en la serie de la convención del capítulo 1 (por eso el 16/3/2020 marca 17,76 % donde el fondo perdió 16,12 %). La línea roja es la desviación de toda la muestra, 1,5764 %. Marzo de 2020 se ve desde lejos y dura meses; en 2019 y 2024 solo una de cada siete u ocho ruedas pasa la línea. Los dos círculos son el par defectuoso de febrero de 2025, que no es volatilidad sino un error de cotización. Para no pasar de 958 puntos se dibuja la mayor de cada par de ruedas: ningún pico se pierde." />
 
                     <h3>La prueba: r casi no se autocorrelaciona; |r| y r², mucho</h3>
@@ -3851,15 +3854,25 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                         por poco —algo de autocorrelación hay en r, pequeña—; el segundo lo cruza
                         veinticuatro veces.
                     </p>
+                    <p>
+                        Que la autocorrelación de |r| y de r² siga siendo positiva durante días, a veces
+                        semanas, es otro de los hechos estilizados, y la de |r| se describe cayendo como
+                        una potencia del rezago <Cita k="cont2001" loc="pp. 224 y 230" />.
+                        Conviene tenerlo presente desde ahora: el GARCH de la sección 5 la reproduce con
+                        un decaimiento geométrico, que es más rápido.
+                    </p>
 
-                    <ChartFrame id="cap2-acf" height="chart-h-400"
+                    <ChartFrame id="cap2-acf" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
                         caption="Autocorrelación de r (gris), de |r| (magenta) y de r² (morado) hasta el rezago 20. Las líneas punteadas son ±2/√n, la banda dentro de la cual una autocorrelación no se distingue de cero al 95 % con 1 916 observaciones. Las barras grises salen de la banda en cinco rezagos sueltos, ninguno por encima de 0,08; las magenta se quedan fuera los diecisiete primeros; las moradas empiezan más altas, en +0,26, y caen antes: fuera en nueve de los veinte, y cerca de cero desde el 18. Con el tamaño medido como |r|, la memoria dura más que con r², que pesa demasiado unos pocos días extremos." />
 
                     <Box type="tip" label="Por qué esto no contradice la eficiencia del mercado">
                         Que r² sea predecible no significa que se pueda ganar dinero con ello. La
-                        hipótesis de eficiencia dice que el <strong>signo</strong> no se predice, y la
-                        primera columna del bloque es consistente con eso. Lo que se predice es la
-                        magnitud, y con la magnitud no se especula: se dimensionan límites, se calcula
+                        ausencia de autocorrelación lineal en los rendimientos se cita a menudo como
+                        respaldo de la hipótesis de eficiencia <Cita k="cont2001" loc="p. 229" />, y la
+                        primera columna del bloque casi la cumple: el <strong>signo</strong> no se
+                        predice. Lo que persiste es la autocorrelación de |r| y de r², que da cierta
+                        capacidad de predecir la amplitud <Cita k="cont2001" loc="p. 230" />. Lo que se
+                        predice es la magnitud, y con la magnitud no se especula: se dimensionan límites, se calcula
                         capital y se cotizan opciones. Todo el negocio de la gestión de riesgo vive en
                         esa distinción.
                     </Box>
@@ -3896,12 +3909,14 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                 <h3>El estimador más usado y el menos discutido</h3>
                 <p>
                     La volatilidad de ventana móvil toma las últimas n ruedas y calcula su desviación.
-                    Es el estimador por omisión de casi todo informe de riesgo, y su forma revela el
-                    problema:
+                    Es el estimador más simple de explicar, y su forma revela el problema:
                 </p>
-                <Eq>{'$$\\hat\\sigma_t^2 = \\frac{1}{n-1}\\sum_{i=1}^{n}\\left(r_{t-i} - \\bar r\\right)^2$$'}</Eq>
+                <Eq>{'$$\\hat\\sigma_t^2 = \\frac{1}{n-1}\\sum_{i=0}^{n-1}\\left(r_{t-i} - \\bar r_t\\right)^2$$'}</Eq>
                 <p>
-                    Las n observaciones pesan <strong>lo mismo</strong> y las anteriores pesan{' '}
+                    con r̄ₜ la media de esas mismas n ruedas, de la t hacia atrás: la ventana del día t
+                    incluye el rendimiento de ese día, así que es una medida de cierre y no un
+                    pronóstico —EWMA y GARCH, en cambio, usan hasta la rueda anterior—. Las n
+                    observaciones pesan <strong>lo mismo</strong> y las anteriores pesan{' '}
                     <strong>cero</strong>. Un rendimiento de hace 249 ruedas cuenta tanto como el de
                     ayer, y el de hace 251 no cuenta nada. Ese salto de peso —de 1/n a 0, de un día para
                     otro— es todo el defecto.
@@ -3922,8 +3937,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     <p>
                         Quien lea el escalón como una mejora del perfil de riesgo reduce coberturas
                         exactamente cuando no ha cambiado nada. Y el fantasma tiene un gemelo hacia
-                        arriba: el día en que <em>entra</em> una rueda mala, el estimador salta, y el
-                        salto se atribuye al mercado cuando la mitad es aritmética de la ventana.
+                        arriba: el día en que <em>entra</em> una rueda mala, el estimador salta, y el salto se atribuye al mercado cuando una parte es aritmética de la ventana.
                     </p>
                     <p>
                         <strong>La misma serie aparece en el capítulo 4</strong>, sección 3, medida con
@@ -3988,6 +4002,12 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                 </p>
                 <Eq>{'$$\\hat\\sigma_t^2 = \\lambda\\,\\hat\\sigma_{t-1}^2 + (1-\\lambda)\\,r_{t-1}^2$$'}</Eq>
                 <p>
+                    Va r² sin restar la media: la convención de RiskMetrics, que este curso hereda,
+                    es suponer que la media diaria es cero <Cita k="jpmorgan1996" loc="§5.3.1.1, pp. 92–93" />.
+                    Y la recursión necesita una semilla, σ̂²₀: aquí, la varianza de las 250 primeras
+                    ruedas.
+                </p>
+                <p>
                     Escrita así parece que solo mira una rueda hacia atrás. Desplegando la recursión se
                     ve que las mira todas, con pesos que se apagan:
                 </p>
@@ -4011,9 +4031,9 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     columnas={['λ', 'Peso de ayer', 'Vida media', 'σ final', 'Qué se está eligiendo']}
                     filas={[
                         { celdas: ['0,90', '10,0 %', '6,6 ruedas', { v: '1,2817 %', lee: 'El más nervioso de los tres. Reacciona en una semana y también reacciona al ruido: con esta memoria, dos ruedas malas seguidas mueven el límite de riesgo del fondo.' }, 'Reaccionar rápido, y aceptar falsas alarmas'] },
-                        { celdas: ['0,94', '6,0 %', '11,2 ruedas', { v: '1,3325 %', lee: 'El de RiskMetrics para datos diarios. No salió de optimizar esta serie ni ninguna otra en particular: J. P. Morgan lo calibró en 1994 sobre una colección de mercados y lo publicó como convención. Que funcione aquí es una comprobación pendiente, no un dato.' }, 'El estándar de la industria desde 1994'] },
-                        { celdas: ['0,97', '3,0 %', '22,8 ruedas', { v: '1,3034 %', lee: 'Casi un mes de vida media. Es estable y llega tarde; en la práctica se parece más a una ventana de 60 ruedas bien ponderada que a un modelo de volatilidad.' }, 'Estabilidad, y aceptar llegar tarde'] },
-                        { celdas: ['Ventana 250', 'igual para 250', '—', { v: '1,8470 %', lee: 'Medio punto porcentual por encima de las tres. No es que vea más riesgo: es que todavía tiene dentro el par defectuoso de febrero de 2025 que el capítulo 1 declaró, y lo tendrá 250 ruedas.' }, 'Nada: n se elige a ojo'] },
+                        { celdas: ['0,94', '6,0 %', '11,2 ruedas', { v: '1,3325 %', lee: <>El de RiskMetrics para datos diarios. No salió de optimizar esta serie: es un promedio de los λ que minimizaban el error del pronóstico de la varianza en 480 series, ponderado por la precisión de cada una <Cita k="jpmorgan1996" loc="pp. 99–100" />. Que funcione aquí es una comprobación pendiente, no un dato.</> }, 'La convención de RiskMetrics'] },
+                        { celdas: ['0,97', '3,0 %', '22,8 ruedas', { v: '1,3034 %', lee: 'Casi un mes de vida media. Es estable y llega tarde: la edad media de lo que pondera, λ/(1−λ) ≈ 32 ruedas, es la de una ventana de unas 65.' }, 'Estabilidad, y aceptar llegar tarde'] },
+                        { celdas: ['Ventana 250', 'igual para 250', '—', { v: '1,8470 %', lee: 'Medio punto porcentual por encima de las tres. No es que vea más riesgo: es que todavía tiene dentro el par defectuoso de febrero de 2025 que el capítulo 1 declaró, y lo tendrá 39 ruedas más después del cierre del panel. Sin esas dos ruedas, esta misma ventana marcaría 1,2317 %.' }, 'Nada: n se elige a ojo'] },
                     ]}
                     nota="Las tres cifras de EWMA salen del bloque de arriba. La cuarta fila es la del bloque de la sección 2, puesta aquí para que la comparación quepa en una sola tabla."
                 />
@@ -4027,15 +4047,15 @@ r = [-2.99, -12.77, 0.11, -4.07, -9.59]
 
 v = 1.20 ** 2                      # varianza de arranque
 for x in r:
-    v = lam * v + (1 - lam) * x ** 2
-    print(v, v ** 0.5)`,
+    v = round(lam * v + (1 - lam) * x ** 2, 4)   # cuatro decimales, como en la tabla
+    print(v, round(v ** 0.5, 4))`,
                         r: `lam <- 0.94
 r <- c(-2.99, -12.77, 0.11, -4.07, -9.59)
 
 v <- 1.20^2                        # varianza de arranque
 for (x in r) {
-  v <- lam * v + (1 - lam) * x^2
-  cat(v, sqrt(v), "\\n")
+  v <- round(lam * v + (1 - lam) * x^2, 4)   # cuatro decimales, como en la tabla
+  cat(v, round(sqrt(v), 4), "\\n")
 }`,
                     }}
                     columnas={[
@@ -4047,21 +4067,22 @@ for (x in r) {
                     filas={[
                         { paso: '06-mar', instruccion: '−2,99', v: '1.8900', sigma: '1.3748' },
                         { paso: '09-mar', instruccion: '−12,77', v: '11.5610', sigma: '3.4001' },
-                        { paso: '10-mar', instruccion: '+0,11', v: '10.8680', sigma: '3.2967' },
+                        { paso: '10-mar', instruccion: '+0,11', v: '10.8681', sigma: '3.2967' },
                         { paso: '11-mar', instruccion: '−4,07', v: '11.2099', sigma: '3.3481' },
                         { paso: '12-mar', instruccion: '−9,59', v: '16.0554', sigma: '4.0069' },
                     ]}
                     ocultas={['v', 'sigma']}
-                    pista="Mire la tercera fila. El 10 de marzo el mercado se movió 0,11 % —un día tranquilo— y la estimación solo baja de 3,4001 a 3,2967, un 3 %. La recursión sube rápido y baja despacio, y esa asimetría no es un defecto: con λ = 0,94 hacen falta once ruedas tranquilas para deshacer la mitad de un susto. La rueda siguiente a la última de la tabla, el 16 de marzo, fue de −17,76 %."
+                    pista="Lleve σ² de una fila a la siguiente con los cuatro decimales que escribió, no con los que da la calculadora. Y mire la tercera fila: el 10 de marzo el mercado se movió 0,11 % —un día tranquilo— y la estimación apenas baja. La recursión sube rápido y baja despacio, y esa asimetría no es un defecto: con λ = 0,94 hacen falta once ruedas tranquilas para deshacer la mitad de un susto. La rueda siguiente a la última de la tabla, el 16 de marzo, fue de −17,76 %."
                 />
 
                 <Box type="tip" label="Lo que EWMA gana y lo que pierde">
                     Gana el efecto fantasma —ninguna observación se cae de golpe— y gana un parámetro
                     con interpretación en vez de una ventana elegida a ojo. Pierde dos cosas.{' '}
                     <strong>No tiene varianza de largo plazo</strong>: como los coeficientes suman
-                    exactamente uno, un choque no se olvida nunca del todo y la estimación no tiende a
-                    ningún nivel. Y <strong>λ no se estima</strong>: 0,94 es una convención heredada, no
-                    un resultado de estos datos. Las dos carencias tienen el mismo remedio, y se llama
+                    exactamente uno, el pronóstico no revierte —lo que espera para dentro de diez días
+                    es la varianza de hoy— y la estimación no tiende a ningún nivel. El choque sí se
+                    olvida, porque su peso cae como λᵏ; lo que no se olvida es dónde dejó la varianza. Y <strong>λ no se estima con estos datos</strong>: 0,94 se calibró sobre
+                    otras series y se hereda como convención. Las dos carencias tienen el mismo remedio, y se llama
                     GARCH.
                 </Box>
 
@@ -4125,16 +4146,19 @@ for (x in r) {
             <>
                 <Motivacion icon="fa-lightbulb"
                     gancho="Engle no propuso una fórmula de suavizamiento: propuso tratar la varianza como una ecuación que se estima, con residuos y con pruebas.">
-                    Hasta 1982 la volatilidad era un parámetro: se calculaba y se ponía en la fórmula.
-                    Engle preguntó qué pasaría si en vez de calcularla se la <em>modelara</em>, con su
-                    ecuación, sus coeficientes y sus contrastes. Veintiún años después le dieron el
-                    Nobel por esa pregunta, y la mención del comité habla de gestión de riesgo.
+                    Antes de 1982 casi no había métodos para pronosticar la varianza{' '}
+                    <Cita k="engle2001" loc="p. 159" />. Engle supuso que la varianza condicional
+                    cambia en el tiempo y la <em>modeló</em>, con su ecuación, sus coeficientes y sus
+                    contrastes <Cita k="nobel2003ciencia" loc="pp. 14–15" />. Veintiún años después le
+                    dieron el Nobel por esos métodos.
                 </Motivacion>
 
                 <h3>La especificación</h3>
                 <p>
                     ARCH(q) escribe la varianza condicional de hoy como una constante más una
-                    combinación de los q rendimientos al cuadrado anteriores:
+                    combinación de las q sorpresas al cuadrado anteriores —ε², el rendimiento menos su
+                    media—, con ω &gt; 0 y todos los αᵢ ≥ 0 para que la varianza no pueda salir negativa{' '}
+                    <Cita k="nobel2003ciencia" loc="p. 15" />:
                 </p>
                 <Eq>{'$$r_t = \\mu + \\varepsilon_t, \\qquad \\varepsilon_t = \\sigma_t z_t, \\qquad \\sigma_t^2 = \\omega + \\sum_{i=1}^{q}\\alpha_i\\,\\varepsilon_{t-i}^2$$'}</Eq>
                 <p>
@@ -4149,7 +4173,7 @@ for (x in r) {
                     <Termino def="El factor aleatorio de la ecuación: una extracción independiente e idénticamente distribuida en cada rueda, con media cero y varianza uno. Su contrapartida empírica es el residuo estandarizado (r − μ̂) / σ̂, que es lo que diagnostica la sección 6.">innovación estandarizada</Termino>—
                     pone el <strong>signo y la forma de la cola</strong>: una extracción nueva cada
                     rueda, independiente de las anteriores, con media cero y varianza uno, y de la que
-                    el modelo no predice nada.
+                    el modelo no predice nada <Cita k="nobel2003ciencia" loc="p. 14" />.
                 </p>
                 <p>
                     Esa división es la asimetría de la sección 1 escrita en una línea —el tamaño se
@@ -4169,8 +4193,10 @@ for (x in r) {
 
                 <h3>La prueba que decide si hace falta</h3>
                 <p>
-                    Antes de ajustar nada, Engle propuso una prueba con una idea directa: si la varianza
-                    depende del pasado, entonces <span className="inline-code">r²</span> debe poder
+                    Antes de ajustar nada, Engle propuso una prueba de multiplicadores de Lagrange para
+                    la hipótesis de que no hay efecto ARCH <Cita k="nobel2003ciencia" loc="p. 15" />, con
+                    una idea directa: si la varianza
+                    depende del pasado, entonces <span className="inline-code">ε²</span> debe poder
                     explicarse con sus propios rezagos. Se corre esa regresión y el estadístico es{' '}
                     <span className="inline-code">n·R²</span>, que bajo la hipótesis de varianza
                     constante se distribuye como una chi-cuadrado con q grados de libertad.
@@ -4190,16 +4216,16 @@ for (x in r) {
                     subtitulo="ARCH necesita muchos rezagos, y muchos rezagos son muchos parámetros">
                     <p>
                         Mire los cinco coeficientes de la regresión con q = 5: +0,2395, +0,1154,
-                        −0,0262, +0,2467 y −0,1113. No decaen de forma ordenada —el cuarto es casi tan
-                        grande como el primero— y <strong>dos son negativos</strong>. En una regresión
+                        −0,0262, +0,2467 y −0,1113. No decaen de forma ordenada —el cuarto es mayor que el primero— y <strong>dos son negativos</strong>. En una regresión
                         auxiliar eso es normal; en un ARCH es fatal, porque un coeficiente negativo
                         puede producir una varianza negativa, que no existe.
                     </p>
                     <p>
-                        Para capturar una dependencia que dura veinte rezagos, un ARCH honesto necesita
-                        del orden de veinte α positivos y ordenados. Son veinte parámetros que estimar
-                        con restricciones de signo, sobre una muestra en la que las colas ya son pesadas.
-                        Es factible y nadie lo hace. La sección siguiente es la razón.
+                        Para capturar una dependencia que dura más de quince rezagos —los diecisiete en
+                        que |r| se queda fuera de la banda en la sección 1—, un ARCH honesto necesita del
+                        orden de veinte α positivos y ordenados. Son veinte parámetros que estimar con
+                        restricciones de signo, sobre una muestra en la que las colas ya son pesadas. Es
+                        factible, y la sección siguiente lo vuelve innecesario.
                     </p>
                 </CalloutPro>
 
@@ -4207,7 +4233,7 @@ for (x in r) {
                     <MCQ
                         pregunta="La prueba ARCH-LM con q = 10 da 398,0 contra un crítico de 23,2. Un analista concluye que hay que ajustar un ARCH(10). ¿Qué falta en ese razonamiento?"
                         opciones={[
-                            { texto: 'La prueba dice que la varianza no es constante, no qué modelo la describe: rechazar la nula no selecciona una especificación.', correcta: true, justificacion: 'Rechazar no es especificar. El propio capítulo lo muestra: el GARCH(1,1) reproduce esa dependencia larga con tres parámetros y una persistencia de 0,9248, mientras que un ARCH(10) necesita once y queda peor condicionado. La prueba dice que hay algo que modelar; qué modelo lo deciden el criterio de información y el diagnóstico de los residuos estandarizados de la sección 6.' },
+                            { texto: 'La prueba dice que la varianza no es constante, no qué modelo la describe: rechazar la nula no selecciona una especificación.', correcta: true, justificacion: 'Rechazar no es especificar. El propio capítulo lo muestra: el GARCH(1,1) reproduce esa dependencia de muchos rezagos con tres coeficientes en la ecuación de la varianza y una persistencia de 0,9248, donde un ARCH(10) necesita once. La prueba dice que hay algo que modelar; qué modelo, lo dice el diagnóstico de los residuos estandarizados de la sección 6, y una comparación entre ajustes que este capítulo no hace.' },
                             { texto: 'Falta comprobar que la serie sea estacionaria antes de aplicar la prueba; con datos no estacionarios el estadístico no sigue una chi-cuadrado.', correcta: false },
                             { texto: 'Falta corregir el nivel de significancia por comparaciones múltiples, ya que la prueba no se aplicó con un único valor de q.', correcta: false },
                             { texto: 'Nada falta: el estadístico es máximo en q = 10, así que ese es el orden que los datos seleccionan.', correcta: false },
@@ -4224,9 +4250,11 @@ for (x in r) {
             <>
                 <Motivacion icon="fa-gears"
                     gancho="Dos coeficientes hacen lo que ARCH necesitaba veinte, y su suma —la persistencia— es el primer número que se lee de un modelo de volatilidad.">
-                    Bollerslev era doctorando de Engle cuando añadió un término a la ecuación de su
-                    director. El término dice que la varianza de hoy depende también de la de ayer, y
-                    con eso una memoria de muchos rezagos sale gratis: no hay que estimar veinte coeficientes, basta con dos. Es el modelo que ajusta hoy cualquier mesa de riesgo del mundo.
+                    Bollerslev era estudiante de posgrado de Engle cuando añadió un término a la
+                    ecuación de Engle <Cita k="nobel2003ciencia" loc="p. 15" />. El término dice que la varianza de hoy depende también de la de ayer, y
+                    con eso una memoria de muchos rezagos sale gratis: no hay que estimar veinte coeficientes, basta
+                    con dos. En 2003 ARCH y GARCH ya eran herramientas indispensables de la gestión
+                    de riesgo <Cita k="nobel2003ciencia" loc="p. 21" />.
                 </Motivacion>
 
                 <Derivacion
@@ -4252,6 +4280,22 @@ for (x in r) {
                     cierre="Ese último paso deja ver la relación entre los dos modelos de una vez: EWMA es un GARCH(1,1) con media cero, ω = 0, α = 1 − λ y β = λ. La persistencia vale exactamente uno y por eso EWMA no revierte a nada."
                 />
 
+                <Anatomia
+                    titulo="Las piezas del GARCH(1,1), con lo que vale cada una en este portafolio"
+                    subtitulo="Las cifras son las de la columna de Python del bloque de abajo, sobre las 1 916 ruedas"
+                    piezas={[
+                        { simbolo: '\\(\\mu\\)', que: 'La media diaria del rendimiento. Se estima con el resto y se le resta a r para obtener la sorpresa ε.', vale: '0,0512 %' },
+                        { simbolo: '\\(\\omega\\)', que: 'La constante de la ecuación. Sola no se interpreta: depende de la escala de los datos.', vale: '0,1681' },
+                        { simbolo: '\\(\\alpha\\)', que: 'El peso de la sorpresa de ayer al cuadrado.', vale: '0,1146' },
+                        { simbolo: '\\(\\beta\\)', que: 'El peso de la varianza de ayer: la inercia.', vale: '0,8102' },
+                        { simbolo: '\\(\\alpha+\\beta\\)', que: 'La persistencia: el factor por el que se multiplica cada rueda la distancia del pronóstico a su nivel de largo plazo.', vale: '0,9248' },
+                        { simbolo: '\\(\\omega/(1-\\beta)\\)', que: 'El piso: la varianza a la que se llegaría si todas las sorpresas fueran cero.', vale: '0,8857 · σ de 0,94 %' },
+                        { simbolo: '\\(\\sigma_\\infty^2\\)', que: 'La varianza de largo plazo, ω/(1 − α − β): el nivel al que vuelve el pronóstico.', vale: '2,2354 · σ de 1,4951 %' },
+                        { simbolo: '\\(\\nu\\)', que: 'Los grados de libertad de la t que sigue z: cuánta cola queda después del GARCH.', vale: '3,98' },
+                    ]}
+                    nota="Cinco se estiman —μ, ω, α, β y ν— y tres se derivan de ellos. La vida media de 8,9 ruedas de la tabla de abajo sale de la persistencia: ln(0,5)/ln(0,9248)."
+                />
+
                 <h3>El ajuste</h3>
                 <p>
                     Se estiman cinco parámetros —la media μ, los tres de la ecuación y los grados de
@@ -4271,9 +4315,12 @@ for (x in r) {
                         <span className="inline-code">arch</span> y{' '}
                         <span className="inline-code">rugarch</span> no maximizan exactamente la misma
                         verosimilitud. La recursión necesita un σ₀² para la primera rueda y cada
-                        paquete pone el suyo: <span className="inline-code">rugarch</span>, la media de
-                        todos los residuos al cuadrado, 2,4841; <span className="inline-code">arch</span>,
-                        un promedio ponderado de los primeros, 1,6524. Con otro arranque cambia la
+                        paquete pone el suyo: <span className="inline-code">rugarch</span>, la varianza calculada
+                        con todos los datos <Cita k="galanos-rugarch" loc="ugarchfit, fit.control, p. 73" />,
+                        que es la media de todos los residuos al cuadrado, 2,4841;{' '}
+                        <span className="inline-code">arch</span>, un promedio de los cuadrados de las 75
+                        primeras ruedas con pesos 0,94ⁱ, 1,6524{' '}
+                        <Cita k="sheppard-arch" loc="GARCH.backcast y ARCHModel.fit, v. 8.0.0" />. Con otro arranque cambia la
                         función que se maximiza, y por eso −3150,4906 y −3150,7748 no se comparan como
                         si R hubiera encontrado un punto mejor. La prueba es la última línea de la
                         pestaña de Python: con el arranque de <span className="inline-code">rugarch</span>,{' '}
@@ -4306,7 +4353,7 @@ for (x in r) {
                     columnas={['Parámetro', 'arch · Python', 'rugarch · R', 'Qué controla']}
                     filas={[
                         { celdas: ['ω', { v: '0,168134', lee: 'La constante de la ecuación. No es el piso de la varianza —ese es ω/(1−β), 0,8857, una σ de 0,94 %— y no se interpreta sola: su tamaño depende de la escala de los datos —aquí, porcentajes— y de lo lejos que esté la persistencia de uno. Lo que se lee es ω/(1−α−β), que sí tiene unidades entendibles.' }, '0,164254', 'La constante; con β, fija el piso de la varianza'] },
-                        { celdas: ['α', { v: '0,114614', lee: 'Cuánto pesa la sorpresa de ayer. Un 11 % del cuadrado del error de ayer entra en la varianza de hoy. No hay un valor «normal» que sirva de referencia sin decir la muestra: en este mismo portafolio, según el tramo de dos años, α va de 0,02 a 0,26 (la tabla de abajo).' }, '0,112637', 'Cuánto reacciona la varianza a la sorpresa'] },
+                        { celdas: ['α', { v: '0,114614', lee: <>Cuánto pesa la sorpresa de ayer. Un 11 % del cuadrado del error de ayer entra en la varianza de hoy. No hay un valor «normal» que sirva de referencia sin decir la muestra: en este mismo portafolio, según el tramo de dos años, α va de 0,02 a 0,26 (la tabla de abajo), y en la cartera del ejemplo de Engle, α = 0,077 con β = 0,905 <Cita k="engle2001" loc="p. 163, tabla 3" />.</> }, '0,112637', 'Cuánto reacciona la varianza a la sorpresa'] },
                         { celdas: ['β', { v: '0,810171', lee: 'Cuánto arrastra la varianza de ayer. Es el término que Bollerslev añadió y el que alarga la memoria: con β = 0,81, la sorpresa de hace once ruedas pesa en la varianza de hoy un 12 % de lo que pesa la de ayer (0,81¹⁰ = 0,12).' }, '0,813622', 'Cuánta inercia tiene la varianza'] },
                         { celdas: ['α + β', { v: '0,924785', lee: 'La persistencia, y el número más citado del modelo. Redondea a 0,92 aquí y a 0,93 en la otra columna. Mide a qué ritmo vuelve el pronóstico a su nivel: la distancia esperada al largo plazo se multiplica por 0,9248 cada rueda y se reduce a la mitad en ln(0,5)/ln(0,9248) ≈ 8,9 ruedas, unas dos semanas. No es lo mismo que el 12 % de β, que mide el peso de una sorpresa vieja en la varianza de un día. Cuanto más cerca de uno, más lento el retorno a la normalidad.' }, '0,926259', 'Cuánto dura un choque de volatilidad'] },
                         { celdas: ['ν', { v: '3,976783', lee: 'Los grados de libertad de la t que sigue z. Un valor cercano a 4 dice que las innovaciones estandarizadas siguen teniendo colas gruesas después de descontar el agrupamiento: el GARCH explica parte de la curtosis del capítulo 1, no toda. Por debajo de 4 la curtosis de la t ni siquiera existe, así que este ajuste está en el borde.' }, '3,974681', 'Cuánta cola queda después del GARCH'] },
@@ -4458,15 +4505,28 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                         El modelo dice que <span className="inline-code">r = μ + σ·z</span> con{' '}
                         <span className="inline-code">z</span> independientes de varianza uno. Si eso es
                         cierto, la serie <strong>estandarizada</strong> —dividida por la σ que el propio
-                        modelo estimó para cada día— no debe tener ni autocorrelación ni agrupamiento:
+                        modelo estimó para cada día— no debe tener ni autocorrelación ni agrupamiento, y una prueba de autocorrelación de
+                        sus cuadrados —a menudo un Ljung-Box— es una forma de detectar que el modelo falló{' '}
+                        <Cita k="engle2001" loc="p. 161" />:
                     </p>
                     <Eq>{'$$\\hat z_t = \\frac{r_t - \\hat\\mu}{\\hat\\sigma_t} \\qquad\\Longrightarrow\\qquad \\hat z_t \\ \\text{y} \\ \\hat z_t^2 \\ \\text{sin estructura}$$'}</Eq>
                     <p>
                         El punto que se pasa por alto es que la división es <strong>por σ de cada
                         día</strong> y no por una constante. Dividir por la desviación de la muestra
-                        deja la serie exactamente igual de agrupada que estaba, y el diagnóstico que se
-                        haga sobre ella rechazará siempre.
+                        deja la serie exactamente igual de agrupada que estaba —la autocorrelación no
+                        cambia con la escala—, y el diagnóstico que se haga sobre ella rechazará siempre
+                        que haya agrupamiento, que es justo lo que se quería saber si el modelo quitó.
                     </p>
+
+                    <p>
+                        El estadístico es el de Box y Ljung, sobre las m primeras autocorrelaciones ρ̂ₖ de
+                        la serie, y bajo la hipótesis de que no hay autocorrelación se compara con una
+                        chi-cuadrado. Cuando se aplica a los residuos de un modelo ARMA, los grados de libertad se
+                        corrigen por los parámetros estimados <Cita k="nist-ljungbox" loc="§6.4.4.8.1" />.
+                        Sobre los z² de un GARCH la corrección es más delicada y este capítulo no la hace;
+                        aunque se restaran los parámetros, 11,1 seguiría muy por debajo del crítico.
+                    </p>
+                    <Eq>{'$$Q = n(n+2)\\sum_{k=1}^{m}\\frac{\\hat\\rho_k^{\\,2}}{n-k}$$'}</Eq>
 
                     <CodeTabs titulo="El mismo Ljung-Box, antes y después del modelo" bloques={EJ_DIAGNOSTICO}
                         nota="Las dos pestañas dan cifras cercanas pero no iguales, y viene del ajuste: la z de cada lenguaje se calculó con su propia σ. Las dos filas de arriba —los datos crudos— sí coinciden hasta el último decimal, porque ahí no hay nada estimado." />
@@ -4474,14 +4534,14 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                     <p>
                         Las dos primeras filas son el problema y las dos últimas, el veredicto.{' '}
                         <strong>Q pasa de 567,5 en r² a 11,1 en z²</strong>, muy por debajo del crítico
-                        de 18,3: el agrupamiento desapareció. Y la curtosis de exceso pasa de 25,77 a
+                        de 23,2 al 1 %: el agrupamiento desapareció. Y la curtosis de exceso pasa de 25,77 a
                         5,95, lo cual dice dos cosas a la vez —que el GARCH explica el grueso de las
                         colas pesadas del capítulo 1, y que <strong>no las explica todas</strong>—. Ese
                         resto es exactamente lo que justifica haber pedido innovaciones t y no normales,
                         y ν ≈ 3,98 es la respuesta del modelo a esa misma pregunta.
                     </p>
 
-                    <ChartFrame id="cap2-tres" height="chart-h-420"
+                    <ChartFrame id="cap2-tres" height="chart-h-420" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado (datos/bvc_diario.csv); el GARCH, ajustado con arch como en la sección 5' }}
                         caption="Las tres estimaciones sobre las mismas 1 916 ruedas, más el nivel de largo plazo del GARCH. La gris llega tarde y se va tarde —los escalones de marzo de 2021 son el efecto fantasma—. La azul y la morada reaccionan a la rueda siguiente, porque las dos usan el rendimiento de ayer: el 16/3/2020 marcan 3,99 % y 4,90 %, y saltan el 17. En los sustos la morada se parece a la azul; en la calma queda por debajo de la línea roja —el 91,5 % de las ruedas de 2019 y el 94,8 % de las de 2024— y baja hacia su piso de 0,94 %. Lo que la línea roja ancla no es esta serie sino el pronóstico de la sección 7, y ese anclaje es lo único que EWMA no tiene." />
 
                     <DetectaError
@@ -4542,12 +4602,12 @@ sigma <- as.numeric(sigma(aj))`,
                             'Fijar por política, con ese rechazo ya en la mano y antes de ver ningún ajuste, la especificación y la distribución de las innovaciones',
                             'Estimar los parámetros por máxima verosimilitud y comprobar que el optimizador convergió',
                             'Verificar que la persistencia sea menor que uno antes de calcular ninguna magnitud derivada',
-                            'Estandarizar los residuos dividiendo por la σ condicional de cada día',
+                            'Con esa persistencia comprobada, estandarizar los residuos dividiendo por la σ condicional de cada día',
                             'Diagnosticar sobre los residuos estandarizados: Ljung-Box en z y en z², y curtosis restante',
                             'Contrastar el pronóstico contra la volatilidad realizada de un periodo que no se usó para estimar',
                             'Dejar por escrito el paquete, su versión, los coeficientes obtenidos y el diagnóstico',
                         ]}
-                        pista="Dos trampas. La verificación de la persistencia va antes de calcular la varianza de largo plazo y no después: si se hace después, la fórmula ya devolvió un número y alguien lo copió. Y el diagnóstico exige estandarizar primero; hacerlo sobre los residuos crudos es el error que el ejercicio R3 de esta sección audita, y da siempre el veredicto contrario."
+                        pista="Dos pares piden cuidado. Uno es dónde va la comprobación de la persistencia respecto de todo lo que se calcula con ella. El otro, qué tiene que existir ya antes de diagnosticar, y sobre qué serie."
                     />
                 </>
             );
@@ -4598,9 +4658,10 @@ sigma <- as.numeric(sigma(aj))`,
             return (
                 <>
                     <Motivacion icon="fa-clock"
-                        gancho="El supervisor no pide la volatilidad de mañana: pide la de los próximos diez días. Y multiplicar la de mañana por la raíz de diez solo vale si la volatilidad es constante, que es justo lo que este capítulo desmintió.">
+                        gancho="El límite del fondo no se mide a un día sino a diez. Y multiplicar la volatilidad de mañana por la raíz de diez solo vale si la volatilidad es constante, que es justo lo que este capítulo desmintió.">
                         El capítulo 4 escala el VaR de un día a diez con la raíz del tiempo y advierte de
-                        que la regla tiene una condición. Aquí está la otra mitad de esa advertencia:
+                        que la regla exige rendimientos sin autocorrelación. Aquí está la otra condición,
+                        la de igual varianza cada día:
                         cuando la volatilidad de hoy está por debajo de su nivel de reposo, la raíz del
                         tiempo se queda corta, y cuando está por encima, se pasa. Con el GARCH ajustado,
                         la corrección se calcula.
@@ -4609,20 +4670,39 @@ sigma <- as.numeric(sigma(aj))`,
                     <h3>La recursión hacia adelante</h3>
                     <p>
                         A un día el pronóstico usa el rendimiento observado. A partir del segundo ya no
-                        hay dato, así que la sorpresa se sustituye por su esperanza —que es la propia
-                        varianza— y los términos de α y β se funden:
+                        hay dato, y la recursión se cierra sola:
                     </p>
-                    <Eq>{'$$E_t\\!\\left[\\sigma_{t+h}^2\\right] = \\sigma_\\infty^2 + (\\alpha+\\beta)^{\\,h-1}\\left(\\sigma_{t+1}^2 - \\sigma_\\infty^2\\right)$$'}</Eq>
+                    <Derivacion
+                        titulo="El pronóstico a h días, paso a paso"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$E_t\\!\\left[\\sigma_{t+k+1}^2\\right] = \\omega + \\alpha\\,E_t\\!\\left[\\varepsilon_{t+k}^2\\right] + \\beta\\,E_t\\!\\left[\\sigma_{t+k}^2\\right]$$'}</Eq>,
+                                porque: 'La ecuación del GARCH, tomando la esperanza con lo que se sabe hoy. Para k ≥ 1 la sorpresa del día t + k todavía no se observó.',
+                            },
+                            {
+                                eq: <Eq>{'$$E_t\\!\\left[\\sigma_{t+k+1}^2\\right] - \\sigma_\\infty^2 = (\\alpha+\\beta)\\left(E_t\\!\\left[\\sigma_{t+k}^2\\right] - \\sigma_\\infty^2\\right)$$'}</Eq>,
+                                porque: 'Como ε = σz con z independiente de varianza uno, E_t[ε²ₜ₊ₖ] = E_t[σ²ₜ₊ₖ]: los términos de α y β se funden en la persistencia. Restando a los dos lados σ∞² = ω + (α+β)σ∞², la constante desaparece.',
+                            },
+                            {
+                                eq: <Eq>{'$$E_t\\!\\left[\\sigma_{t+h}^2\\right] = \\sigma_\\infty^2 + (\\alpha+\\beta)^{\\,h-1}\\left(\\sigma_{t+1}^2 - \\sigma_\\infty^2\\right)$$'}</Eq>,
+                                porque: 'Aplicando el paso anterior h − 1 veces desde el pronóstico a un día, que sí usa el último rendimiento observado. La distancia al largo plazo se multiplica por α + β en cada rueda.',
+                            },
+                        ]}
+                        cierre={<>Es la reversión a la media en una línea: cada paso del pronóstico queda un poco más cerca de la varianza de largo plazo, y a horizonte lejano es esa varianza, siempre que α + β &lt; 1 <Cita k="engle2001" loc="p. 160" />. Con EWMA la persistencia es uno y la distancia no se cierra nunca.</>}
+                    />
                     <p>
                         La lectura es directa: el pronóstico parte de la varianza de mañana y se acerca
                         al nivel de largo plazo a una velocidad que fija la persistencia.{' '}
                         <strong>Con α + β = 0,9248, la mitad de la distancia se cierra en 8,9
                         ruedas.</strong> Y para el VaR a h días lo que hace falta no es σ del día h sino
-                        la varianza acumulada, que es la suma de las h varianzas diarias.
+                        la varianza acumulada, que es la suma de las h varianzas diarias si los
+                        rendimientos no se autocorrelacionan —la sección 1 midió que casi no lo hacen—.
+                        Con innovaciones t, además, la suma de h días no es una t, así que el cuantil no
+                        se escala con la σ acumulada sin un supuesto más: el capítulo 4 lo enfrenta.
                     </p>
 
                     <CodeTabs titulo="Pronóstico a veinte ruedas, contra la raíz del tiempo" bloques={EJ_PRONOSTICO}
-                        nota="La columna del medio es la varianza acumulada correcta —la raíz de la suma de las h varianzas diarias— y la línea final compara con lo que daría escalar el día 1 por la raíz de h. Las dos pestañas difieren en la cuarta cifra porque parten de ajustes distintos; la columna de la distancia al largo plazo, que es relativa, coincide en las dos." />
+                        nota="La columna del medio es la σ acumulada correcta —la raíz de la suma de las h varianzas diarias— y la línea final compara con lo que daría escalar el día 1 por la raíz de h. Las dos pestañas difieren en la cuarta cifra porque parten de ajustes distintos; la columna de la distancia al largo plazo, que es relativa, coincide en las dos." />
 
                     <CalloutPro tema="info" titulo="Por qué la raíz del tiempo se queda corta aquí"
                         subtitulo="6,15 % contra 6,41 %, y el signo del error depende de dónde esté hoy la volatilidad">
@@ -4646,7 +4726,7 @@ sigma <- as.numeric(sigma(aj))`,
                         </p>
                     </CalloutPro>
 
-                    <ChartFrame id="cap2-abanico" height="chart-h-400"
+                    <ChartFrame id="cap2-abanico" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado (datos/bvc_diario.csv); el pronóstico, del GARCH de la sección 5 ajustado con arch' }}
                         caption="La σ condicional de las últimas cuarenta ruedas, una de cada dos, y las veinte pronosticadas. La línea rosada sube desde 1,3751 % hacia la roja de largo plazo sin llegar a tocarla: a veinte ruedas todavía le falta un 1,8 %. Es la forma que tiene todo pronóstico de GARCH, y su velocidad la fija la persistencia." />
 
                     <Laboratorio
@@ -4726,7 +4806,9 @@ sigma <- as.numeric(sigma(aj))`,
                         <Reto titulo="R7 · Los diez días del límite interno">
                             <p>
                                 El fondo fija su límite interno de pérdida con un VaR al 99 % a diez días
-                                hábiles. Hoy la σ condicional del
+                                hábiles, el horizonte y el nivel del marco de Basilea de 1996, que permite
+                                además llegar a diez días escalando con la raíz del tiempo{' '}
+                                <Cita k="bcbs1996mercado" loc="p. 44, B.4 (b)–(c)" />. Hoy la σ condicional del
                                 portafolio está en 1,2922 % y su nivel de reposo en 1,4951 %. Un
                                 compañero propone tomar el VaR de un día del capítulo 4 y multiplicarlo
                                 por la raíz de diez.
@@ -4875,7 +4957,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'El Ljung-Box sobre r² vale 567,5 y sobre z² vale 11,1, con un crítico de 18,3. ¿Qué se concluye?', justificacion: 'Conviene no confundir dos cosas que este capítulo separa a propósito: que el optimizador converja no dice si el modelo sirve, y que el modelo sirva no dice que los dos paquetes den los mismos coeficientes. El Ljung-Box sobre z² contesta lo segundo y nada más.',
+                        pregunta: 'El Ljung-Box sobre r² vale 567,5 y sobre z² vale 11,1, con un crítico de 23,2 al 1 %. ¿Qué se concluye?', justificacion: 'Conviene no confundir dos cosas que este capítulo separa a propósito: que el optimizador converja no dice si el modelo sirve, y que el modelo sirva no dice que los dos paquetes den los mismos coeficientes. El Ljung-Box sobre z² contesta lo segundo y nada más.',
                         opciones: [
                             { texto: 'Que el modelo está sobreajustado, porque un estadístico tan bajo indica que absorbió también el ruido.', correcta: false },
                             { texto: 'Que hay que aumentar el orden del GARCH hasta que el estadístico sobre z² baje de 5.', correcta: false },
@@ -5195,12 +5277,89 @@ sigma <- as.numeric(sigma(aj))`,
     <script type="application/json" id="tr-referencias">
 {
   "v": 2,
-  "huella": "47b2e46c9a512685a59772baee89107423f6637cefac21421e8f446fad60048c",
-  "sello": "6e753c2c26505ccd98d36c973225dad1ad813b0135316649e764ee45b7cbd873",
+  "huella": "4115bd076c647dcdc4614aded91d0ec8f8f1783f29932297279b1329e795dfe4",
+  "sello": "a5094003d660e11c0545846cf8c03d0b29ac37f03faa6007ba6b52d749db311e",
   "orden": [
+    "bcbs1996mercado",
+    "bcbs2016frtb",
+    "bcbs2020mar33",
+    "cont2001",
+    "engle2001",
+    "galanos-rugarch",
+    "jpmorgan1996",
+    "nist-ljungbox",
+    "nobel2003ciencia",
+    "nobel2003prensa",
+    "sheppard-arch",
     "sfc2026cbf"
   ],
   "entradas": {
+    "bcbs1996mercado": {
+      "autor": "Basel Committee on Banking Supervision",
+      "anio": "1996",
+      "html": "Basel Committee on Banking Supervision. (1996). \u003cem>Amendment to the capital accord to incorporate market risks\u003c/em> (BCBS 24). \u003ca href=\"https://www.bis.org/publ/bcbs24.htm\">https://www.bis.org/publ/bcbs24.htm\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (1996). Amendment to the capital accord to incorporate market risks (BCBS 24). https://www.bis.org/publ/bcbs24.htm"
+    },
+    "bcbs2016frtb": {
+      "autor": "Basel Committee on Banking Supervision",
+      "anio": "2016",
+      "html": "Basel Committee on Banking Supervision. (2016). \u003cem>Minimum capital requirements for market risk\u003c/em> (Nos. 978-92-9197-416-0; Standards). Bank for International Settlements. \u003ca href=\"https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\">https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (2016). Minimum capital requirements for market risk (Nos. 978-92-9197-416-0; Standards). Bank for International Settlements. https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf"
+    },
+    "bcbs2020mar33": {
+      "autor": "Basel Committee on Banking Supervision",
+      "anio": "2020",
+      "html": "Basel Committee on Banking Supervision. (2020). \u003cem>MAR33: Internal models approach: capital requirements calculation\u003c/em>. \u003ca href=\"https://www.bis.org/basel_framework/chapter/MAR/33.htm\">https://www.bis.org/basel_framework/chapter/MAR/33.htm\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (2020). MAR33: Internal models approach: capital requirements calculation. https://www.bis.org/basel_framework/chapter/MAR/33.htm"
+    },
+    "cont2001": {
+      "autor": "Cont",
+      "anio": "2001",
+      "html": "Cont, R. (2001). Empirical properties of asset returns: Stylized facts and statistical issues. \u003cem>Quantitative Finance\u003c/em>, \u003cem>1\u003c/em>(2), 223-236. \u003ca href=\"https://doi.org/10.1080/713665670\">https://doi.org/10.1080/713665670\u003c/a>",
+      "plano": "Cont, R. (2001). Empirical properties of asset returns: Stylized facts and statistical issues. Quantitative Finance, 1(2), 223-236. https://doi.org/10.1080/713665670"
+    },
+    "engle2001": {
+      "autor": "Engle",
+      "anio": "2001",
+      "html": "Engle, R. (2001). GARCH 101: The Use of ARCH/GARCH Models in Applied Econometrics. \u003cem>Journal of Economic Perspectives\u003c/em>, \u003cem>15\u003c/em>(4), 157-168. \u003ca href=\"https://doi.org/10.1257/jep.15.4.157\">https://doi.org/10.1257/jep.15.4.157\u003c/a>",
+      "plano": "Engle, R. (2001). GARCH 101: The Use of ARCH/GARCH Models in Applied Econometrics. Journal of Economic Perspectives, 15(4), 157-168. https://doi.org/10.1257/jep.15.4.157"
+    },
+    "galanos-rugarch": {
+      "autor": "Galanos",
+      "anio": "2026",
+      "html": "Galanos, A. (2026). \u003cem>rugarch: Univariate GARCH models\u003c/em> [Computer software]. CRAN. \u003ca href=\"https://doi.org/10.32614/CRAN.package.rugarch\">https://doi.org/10.32614/CRAN.package.rugarch\u003c/a>",
+      "plano": "Galanos, A. (2026). rugarch: Univariate GARCH models [Computer software]. CRAN. https://doi.org/10.32614/CRAN.package.rugarch"
+    },
+    "jpmorgan1996": {
+      "autor": "J.P. Morgan y Reuters",
+      "anio": "1996",
+      "html": "J.P. Morgan, y Reuters. (1996). \u003cem>RiskMetrics: Technical document\u003c/em>. Morgan Guaranty Trust Company. \u003ca href=\"https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document\">https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document\u003c/a>",
+      "plano": "J.P. Morgan, y Reuters. (1996). RiskMetrics: Technical document. Morgan Guaranty Trust Company. https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document"
+    },
+    "nist-ljungbox": {
+      "autor": "NIST/SEMATECH",
+      "anio": "2022",
+      "html": "NIST/SEMATECH. (2022, abril 27). \u003cem>Box-Ljung test\u003c/em>. National Institute of Standards and Technology. NIST/SEMATECH e-Handbook of Statistical Methods. \u003ca href=\"https://doi.org/10.18434/M32189\">https://doi.org/10.18434/M32189\u003c/a>",
+      "plano": "NIST/SEMATECH. (2022, abril 27). Box-Ljung test. National Institute of Standards and Technology. NIST/SEMATECH e-Handbook of Statistical Methods. https://doi.org/10.18434/M32189"
+    },
+    "nobel2003ciencia": {
+      "autor": "Royal Swedish Academy of Sciences",
+      "anio": "2003a",
+      "html": "Royal Swedish Academy of Sciences. (2003a). \u003cem>Time-series Econometrics: Cointegration and Autoregressive Conditional Heteroskedasticity\u003c/em> (Advanced Information on the Bank of Sweden Prize in Economic Sciences in Memory of Alfred Nobel). Royal Swedish Academy of Sciences. \u003ca href=\"https://www.nobelprize.org/uploads/2018/06/advanced-economicsciences2003.pdf\">https://www.nobelprize.org/uploads/2018/06/advanced-economicsciences2003.pdf\u003c/a>",
+      "plano": "Royal Swedish Academy of Sciences. (2003a). Time-series Econometrics: Cointegration and Autoregressive Conditional Heteroskedasticity (Advanced Information on the Bank of Sweden Prize in Economic Sciences in Memory of Alfred Nobel). Royal Swedish Academy of Sciences. https://www.nobelprize.org/uploads/2018/06/advanced-economicsciences2003.pdf"
+    },
+    "nobel2003prensa": {
+      "autor": "Royal Swedish Academy of Sciences",
+      "anio": "2003b",
+      "html": "Royal Swedish Academy of Sciences. (2003b, octubre 8). \u003cem>Press release: The Prize in Economic Sciences 2003\u003c/em>. NobelPrize.org. \u003ca href=\"https://www.nobelprize.org/prizes/economic-sciences/2003/press-release/\">https://www.nobelprize.org/prizes/economic-sciences/2003/press-release/\u003c/a>",
+      "plano": "Royal Swedish Academy of Sciences. (2003b, octubre 8). Press release: The Prize in Economic Sciences 2003. NobelPrize.org. https://www.nobelprize.org/prizes/economic-sciences/2003/press-release/"
+    },
+    "sheppard-arch": {
+      "autor": "Sheppard",
+      "anio": "2025",
+      "html": "Sheppard, K. (2025). \u003cem>arch\u003c/em> [Computer software]. Zenodo. \u003ca href=\"https://doi.org/10.5281/zenodo.17404619\">https://doi.org/10.5281/zenodo.17404619\u003c/a>",
+      "plano": "Sheppard, K. (2025). arch [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.17404619"
+    },
     "sfc2026cbf": {
       "autor": "Superintendencia Financiera de Colombia",
       "anio": "2026",

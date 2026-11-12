@@ -458,6 +458,39 @@
     "language": "en"
   },
   {
+    "id": "bcbs2016frtb",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Basel Committee on Banking Supervision"
+      }
+    ],
+    "title": "Minimum capital requirements for market risk",
+    "collection-title": "Standards",
+    "publisher": "Bank for International Settlements",
+    "issued": {
+      "date-parts": [
+        [
+          "2016",
+          1,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          12
+        ]
+      ]
+    },
+    "number": "978-92-9197-416-0",
+    "URL": "https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf",
+    "language": "en"
+  },
+  {
     "id": "bcbs2019frtb",
     "type": "report",
     "author": [
@@ -872,6 +905,32 @@
     "page": "987",
     "DOI": "10.2307/1912773",
     "URL": "https://doi.org/10.2307/1912773",
+    "language": "en"
+  },
+  {
+    "id": "engle2001",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Engle",
+        "given": "Robert"
+      }
+    ],
+    "title": "GARCH 101: The Use of ARCH/GARCH Models in Applied Econometrics",
+    "container-title": "Journal of Economic Perspectives",
+    "issued": {
+      "date-parts": [
+        [
+          "2001"
+        ]
+      ]
+    },
+    "volume": "15",
+    "issue": "4",
+    "page": "157-168",
+    "DOI": "10.1257/jep.15.4.157",
+    "ISSN": "0895-3309",
+    "URL": "https://doi.org/10.1257/jep.15.4.157",
     "language": "en"
   },
   {
@@ -1516,6 +1575,103 @@
     "page": "473",
     "DOI": "10.1086/296409",
     "URL": "https://doi.org/10.1086/296409",
+    "language": "en"
+  },
+  {
+    "id": "nist-ljungbox",
+    "type": "webpage",
+    "author": [
+      {
+        "literal": "NIST/SEMATECH"
+      }
+    ],
+    "title": "Box-Ljung test",
+    "container-title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+    "publisher": "National Institute of Standards and Technology",
+    "issued": {
+      "date-parts": [
+        [
+          "2022",
+          4,
+          27
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          12
+        ]
+      ]
+    },
+    "DOI": "10.18434/M32189",
+    "URL": "https://www.itl.nist.gov/div898/handbook/pmc/section4/pmc4481.htm",
+    "language": "en"
+  },
+  {
+    "id": "nobel2003ciencia",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Royal Swedish Academy of Sciences"
+      }
+    ],
+    "title": "Time-series Econometrics: Cointegration and Autoregressive Conditional Heteroskedasticity",
+    "collection-title": "Advanced information on the Bank of Sweden Prize in Economic Sciences in Memory of Alfred Nobel",
+    "publisher": "Royal Swedish Academy of Sciences",
+    "publisher-place": "Stockholm",
+    "issued": {
+      "date-parts": [
+        [
+          "2003",
+          10,
+          8
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          12
+        ]
+      ]
+    },
+    "URL": "https://www.nobelprize.org/uploads/2018/06/advanced-economicsciences2003.pdf",
+    "language": "en"
+  },
+  {
+    "id": "nobel2003prensa",
+    "type": "webpage",
+    "author": [
+      {
+        "literal": "Royal Swedish Academy of Sciences"
+      }
+    ],
+    "title": "Press release: The Prize in Economic Sciences 2003",
+    "container-title": "NobelPrize.org",
+    "issued": {
+      "date-parts": [
+        [
+          "2003",
+          10,
+          8
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          12
+        ]
+      ]
+    },
+    "URL": "https://www.nobelprize.org/prizes/economic-sciences/2003/press-release/",
     "language": "en"
   },
   {
