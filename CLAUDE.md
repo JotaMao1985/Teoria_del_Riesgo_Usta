@@ -28,6 +28,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 5 · Portal y Quarto | pendiente |
 | Gestión documental (F0–F4) | ✅ 2026-11-11 · vault, 69 referencias en Zotero, circuito de citas (reglas 18–24, tope 420 KB), línea base del capítulo 1 · PC1–PC4 aprobados |
 | Mejora del capítulo 1 | 🟡 2026-11-12 · fases 0–8 hechas: **40 afirmaciones citadas y verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF, R6 con las definiciones vigentes; ninguna afirmación de la línea base queda por revisar · **espera el PC5** · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
+| Mejora del capítulo 2 | 🟡 2026-11-12 · fases 0–8 hechas: **26 afirmaciones citadas y verificadas** (Nobel 2003, Engle 2001, RiskMetrics, Cont, FRTB, Basilea 1996, NIST, `arch`, `rugarch`), el porqué de `arch` contra `rugarch` corregido aquí y en los capítulos 1 y 7, la persistencia por tramos, la anatomía del GARCH y la derivación del pronóstico; ninguna afirmación de la línea base queda por revisar · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_02_CONTENIDO.md` |
 
 ## Gestión documental: vault y Zotero (desde el 2026-11-10)
 
@@ -50,6 +51,31 @@ Financiera ya probó (`Usta 2026II/Logica de programacion/`):
   cita como vigente solo con la fecha en que se contrastó su texto vigente.
 - Las **convenciones declaradas** del curso tienen nota propia en `Vault/Convenciones/`,
   transcritas de este archivo y pendientes de cotejar contra los capítulos.
+
+⚠️ **Lo que la mejora del capítulo 2 (2026-11-12) dejó dicho para los demás.**
+
+- **`arch` y `rugarch` no maximizan la misma verosimilitud**, y el capítulo, el 1, el 7 y el plan (D-B)
+  decían lo contrario. Cada paquete arranca la recursión de la varianza con un valor distinto: `rugarch`,
+  la media de todos los residuos al cuadrado (2,4841, `rec.init = 'all'`); `arch`, un promedio de los
+  cuadrados de las 75 primeras ruedas con pesos 0,94ⁱ (1,6524). Con el arranque de `rugarch`, `arch` da
+  persistencia 0,926398 y log-verosimilitud −3150,4955: **de los 0,28 de diferencia, 0,275 son el arranque y
+  0,005 el optimizador**. D-B (declarar la discrepancia) se sostiene; su porqué era otro. El bloque de la
+  sección 5 imprime la reconciliación.
+- **La persistencia depende de la ventana tanto como del portafolio**: 0,94 en 2018–2019, 0,93 en
+  2020–2021, 0,96 en 2022–2023 y **0,50 en 2024–2025** (0,53 sin el par de febrero), y α va de 0,02 a 0,26.
+  Con 250 ruedas que contengan marzo de 2020, `arch` para en α+β = 1 y `rugarch` en 0,999 (su opción de
+  estacionariedad): ω/(1−α−β) devuelve 34 982 263 % o 11,82 % diario. Es el R3 de la sección 5. Sin el par
+  de febrero, el panel completo da 0,9465 y ν = 4,27 (con él, 0,9248 y 3,98).
+- **Tres cifras de historia que el material repetía y las fuentes no dicen**: la motivación del Nobel de
+  2003 no menciona el riesgo (es «por métodos para analizar series de tiempo económicas con volatilidad
+  variable en el tiempo»); el FRTB no proyecta la volatilidad a h días, escala con raíces del tiempo un ES a
+  10 días (párr. 181(c)); y el λ = 0,94 de RiskMetrics **sí salió de optimizar**: es un promedio ponderado
+  de los λ óptimos de 480 series (pp. 99–100). Engle (2001, p. 160) imprime la «varianza» de largo plazo
+  bajo una raíz: es la desviación.
+- **El GARCH filtrado no tiende a σ∞ en la calma: queda debajo** (el 91,5 % de 2019, el 94,8 % de 2024) y
+  baja hacia su piso ω/(1−β), 0,94 %. La reversión es del pronóstico. Y ω no es «el suelo».
+- Pendiente fuera del capítulo: el capítulo 6 dice que el GARCH del 2 da «19 excepciones» al 99 % en una
+  pregunta, y el inventario contó 18 con un método que la pregunta no especifica.
 
 Los **doce** capítulos pasan hoy las reglas con `--con-salidas`, que desde el 2026-09-29 son
 **diecisiete**: la 13 se volvió simétrica, se le sumó la **15**, que exige que toda opción

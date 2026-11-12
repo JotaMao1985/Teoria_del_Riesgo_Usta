@@ -4497,7 +4497,8 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                         y el analista da el modelo por bueno. No lo ha validado: ha comprobado que el
                         programa terminó. La diferencia entre las dos cosas es un diagnóstico sobre los
                         residuos estandarizados, y hacerlo sobre los residuos crudos —que es el error
-                        que este apartado audita— da siempre el veredicto contrario al correcto.
+                        que este apartado audita— repite el veredicto de los datos sin modelar, y declara
+                        que el modelo falló aunque haya funcionado.
                     </Motivacion>
 
                     <h3>Qué se mira, y sobre qué</h3>
@@ -4538,7 +4539,10 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                         5,95, lo cual dice dos cosas a la vez —que el GARCH explica el grueso de las
                         colas pesadas del capítulo 1, y que <strong>no las explica todas</strong>—. Ese
                         resto es exactamente lo que justifica haber pedido innovaciones t y no normales,
-                        y ν ≈ 3,98 es la respuesta del modelo a esa misma pregunta.
+                        y ν ≈ 3,98 es la respuesta del modelo a esa misma pregunta. No es la de los
+                        momentos: una curtosis de 5,95 pediría ν = 5,01, como imprime el bloque, y con ν
+                        por debajo de 4 la curtosis de la t ni siquiera existe. Las dos cifras miden la
+                        cola de maneras distintas, y el capítulo 4 usa una tercera, 4,23.
                     </p>
 
                     <ChartFrame id="cap2-tres" height="chart-h-420" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado (datos/bvc_diario.csv); el GARCH, ajustado con arch como en la sección 5' }}
@@ -4571,7 +4575,7 @@ for (t in 2:length(rp)) {
   v <- lam * v + (1 - lam) * rp[t-1]^2
 }`,
                             },
-                            nota: 'Cero parámetros estimados. λ viene de una publicación de 1994.',
+                            nota: 'Ningún parámetro estimado sobre esta serie: λ viene de RiskMetrics. La semilla sí sale de los datos.',
                         }}
                         b={{
                             etiqueta: 'B · GARCH(1,1)-t',
@@ -4680,7 +4684,7 @@ sigma <- as.numeric(sigma(aj))`,
                                 porque: 'La ecuación del GARCH, tomando la esperanza con lo que se sabe hoy. Para k ≥ 1 la sorpresa del día t + k todavía no se observó.',
                             },
                             {
-                                eq: <Eq>{'$$E_t\\!\\left[\\sigma_{t+k+1}^2\\right] - \\sigma_\\infty^2 = (\\alpha+\\beta)\\left(E_t\\!\\left[\\sigma_{t+k}^2\\right] - \\sigma_\\infty^2\\right)$$'}</Eq>,
+                                eq: <Eq>{'$$\\begin{gathered} E_t\\!\\left[\\sigma_{t+k+1}^2\\right] - \\sigma_\\infty^2 \\\\[2pt] = (\\alpha+\\beta)\\left(E_t\\!\\left[\\sigma_{t+k}^2\\right] - \\sigma_\\infty^2\\right) \\end{gathered}$$'}</Eq>,
                                 porque: 'Como ε = σz con z independiente de varianza uno, E_t[ε²ₜ₊ₖ] = E_t[σ²ₜ₊ₖ]: los términos de α y β se funden en la persistencia. Restando a los dos lados σ∞² = ω + (α+β)σ∞², la constante desaparece.',
                             },
                             {
@@ -4786,7 +4790,7 @@ sigma <- as.numeric(sigma(aj))`,
                                     ? 'A sesenta ruedas todavía no ha entrado en el 5 % alrededor del nivel de largo plazo.'
                                     : `La curva entra en el 5 % alrededor del nivel de largo plazo en h = ${cerca + 1}.`);
                         }}
-                        pregunta="Lleve la persistencia a 0,995 y mire el pronóstico a sesenta ruedas: apenas se ha movido de donde salió. ¿Qué modelo de los de este capítulo está usted reproduciendo cuando la persistencia se acerca a uno, y por qué eso significa que ese modelo no puede pronosticar a más de un día?"
+                        pregunta="Lleve la persistencia a 0,995 y mire el pronóstico a sesenta ruedas: recorre apenas una cuarta parte de la distancia a la línea roja. ¿Qué modelo de los de este capítulo está usted reproduciendo cuando la persistencia se acerca a uno, y por qué eso significa que ese modelo no puede pronosticar a más de un día?"
                         nota="La recursión y el punto de partida son los del bloque de código. Con la persistencia en 0,925 el laboratorio devuelve 1,4369 % a diez ruedas, a una diezmilésima de la cifra que el bloque declara con su 0,924785: la diferencia es el redondeo del deslizador, no otra cosa."
                     />
 
@@ -4852,8 +4856,9 @@ sigma <- as.numeric(sigma(aj))`,
                                     se la busca. En las <strong>primeras veinte ruedas</strong> las dos
                                     series difieren hasta un 21 % —1,3048 % contra 1,5761 % en la
                                     primera— porque los dos paquetes arrancan la recursión con
-                                    convenciones distintas, no porque el optimizador pare en sitios
-                                    distintos. Si alguien evalúa el modelo sobre una muestra corta que
+                                    convenciones distintas. Es la misma causa que separa los
+                                    coeficientes, como mostró el recuadro de la sección 5: aquí se ve
+                                    en la serie y allá en los parámetros. Si alguien evalúa el modelo sobre una muestra corta que
                                     empiece justo ahí, la comparación entre paquetes medirá sobre todo
                                     esa convención de arranque. Lo que corresponde es descartar las
                                     primeras ruedas del diagnóstico y decir cuántas.
@@ -4939,7 +4944,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: 'Con α = 0,1146 y β = 0,8102, la persistencia es 0,9248. ¿Cómo se lee ese número?', justificacion: 'Media vida de ln(0,5)/ln(0,9248) ≈ 8,9 ruedas, con el modelo tendiendo a su nivel de reposo de 1,4951 % diario: un susto de mercado deja de importar en algo menos de dos semanas. Es el número que mueve el laboratorio de la sección 7, y el que decide si el pronóstico a veinte ruedas se parece más a hoy o a siempre.',
+                        pregunta: 'Con α = 0,1146 y β = 0,8102, la persistencia es 0,9248. ¿Cómo se lee ese número?', justificacion: 'La distancia del pronóstico a su nivel de reposo, 1,4951 % diario, se multiplica por 0,9248 cada rueda y se reduce a la mitad en ln(0,5)/ln(0,9248) ≈ 8,9 ruedas: a las dos semanas de un susto se espera que quede la mitad de su efecto sobre la varianza. Es el número que mueve el laboratorio de la sección 7, y el que decide si el pronóstico a veinte ruedas se parece más a hoy o a siempre.',
                         opciones: [
                             { texto: 'Como la velocidad a la que un choque de volatilidad se disipa.', correcta: true },
                             { texto: 'Como la proporción de la varianza total que el modelo consigue explicar, un 92,5 %.', correcta: false },
@@ -5003,7 +5008,7 @@ sigma <- as.numeric(sigma(aj))`,
                         <NivelIA nivel={2} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R4 y R7</span>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-white p-3">
-                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El taller Quarto de este capítulo</span>
+                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El R8 y el taller Quarto de este capítulo</span>
                     </div>
                 </div>
                 <Box type="info" label="Los dos R3 de este capítulo tienen algo en común">
@@ -5043,7 +5048,7 @@ sigma <- as.numeric(sigma(aj))`,
                         label: 'Validar, no convergir',
                         content: (
                             <ul>
-                                <li>El diagnóstico va sobre <strong>z = (r − μ)/σ_t</strong>, dividiendo por la σ de cada día. Sobre residuos crudos rechaza siempre.</li>
+                                <li>El diagnóstico va sobre <strong>z = (r − μ)/σ_t</strong>, dividiendo por la σ de cada día. Sobre residuos crudos rechaza siempre que haya agrupamiento, funcione o no el modelo.</li>
                                 <li>Ljung-Box en z² pasa de 567,5 a 11,1: el agrupamiento desapareció.</li>
                                 <li>La curtosis pasa de 25,77 a 5,95: queda cola, y por eso las innovaciones son t.</li>
                                 <li><strong>Dos paquetes no dan lo mismo</strong>, y lo que se documenta es cuál se usó. En la última rueda, la σ condicional difiere en la cuarta cifra.</li>
@@ -5277,8 +5282,8 @@ sigma <- as.numeric(sigma(aj))`,
     <script type="application/json" id="tr-referencias">
 {
   "v": 2,
-  "huella": "4115bd076c647dcdc4614aded91d0ec8f8f1783f29932297279b1329e795dfe4",
-  "sello": "a5094003d660e11c0545846cf8c03d0b29ac37f03faa6007ba6b52d749db311e",
+  "huella": "c4fa4fec189d4c869dc5b09d80a75da3123fb8c29af578deca4493d63e6b62fd",
+  "sello": "2623cb8b3dbabcc0dcebf216d35c5edaaca340e9aac5a35bb5dbb1602ae1f681",
   "orden": [
     "bcbs1996mercado",
     "bcbs2016frtb",
@@ -5303,8 +5308,8 @@ sigma <- as.numeric(sigma(aj))`,
     "bcbs2016frtb": {
       "autor": "Basel Committee on Banking Supervision",
       "anio": "2016",
-      "html": "Basel Committee on Banking Supervision. (2016). \u003cem>Minimum capital requirements for market risk\u003c/em> (Nos. 978-92-9197-416-0; Standards). Bank for International Settlements. \u003ca href=\"https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\">https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\u003c/a>",
-      "plano": "Basel Committee on Banking Supervision. (2016). Minimum capital requirements for market risk (Nos. 978-92-9197-416-0; Standards). Bank for International Settlements. https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf"
+      "html": "Basel Committee on Banking Supervision. (2016). \u003cem>Minimum capital requirements for market risk\u003c/em> (BCBS d352; Standards). Bank for International Settlements. \u003ca href=\"https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\">https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (2016). Minimum capital requirements for market risk (BCBS d352; Standards). Bank for International Settlements. https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf"
     },
     "bcbs2020mar33": {
       "autor": "Basel Committee on Banking Supervision",
