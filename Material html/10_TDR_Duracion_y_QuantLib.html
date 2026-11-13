@@ -5312,13 +5312,19 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
 
                     <Box type="tip" label="Lo que dice la norma, y por qué se midió primero">
                         La resolución del Ministerio de Hacienda que reglamenta la emisión de los TES
-                        —la 3609 de 2022, que el Banco de la República publica— fija la base de conteo en 365/365
-                        con febrero de 28 días «inclusive para años bisiestos», que es NL/365, y calcula el
-                        precio con la tasa efectiva anual. Coincide con lo que dijeron las 6 199 operaciones. El
-                        orden importa: el capítulo 9 aprendió que un documento puede no describir el dato que se
-                        tiene delante, y aquí primero se midió y después se buscó el texto. Ese texto, además, se
-                        ha reexpedido varias veces desde 2022: el precio del SEN de ayer es más fácil de
-                        comprobar que la vigencia de una resolución.
+                        —hoy la 1002 del 14 de mayo de 2026, que el Banco de la República publica— dice las tres
+                        cosas en su artículo 5: el título lo forman el principal al vencimiento y cupones de
+                        intereses anuales (numeral 3); los intereses se cuentan con base 365/365, «excepto para
+                        el mes de febrero, que corresponderá a veintiocho (28) días, inclusive para años
+                        bisiestos» (numeral 10), que es NL/365; y el precio es el valor presente descontado a
+                        una tasa de rendimiento efectiva anual, con tres decimales (numeral 11). Coincide con lo
+                        que dijeron las 6 199 operaciones. El orden importa: el capítulo 9 aprendió que un
+                        documento puede no describir el dato que se tiene delante, y aquí primero se midió y
+                        después se buscó el texto. Y el texto se reexpide a menudo: la 3609 de 2022, que es la
+                        que citaba la primera versión de esta sección, quedó derogada por la 3463 de 2023, y la
+                        propia 1002 deroga la 0946, de nueve días antes. Las tres convenciones dicen lo mismo
+                        que decía la de 2022; el número de la resolución, no. El precio del SEN de ayer es más
+                        fácil de comprobar que la vigencia de una resolución.
                     </Box>
 
                     <Ejercicio tipo="R8">
@@ -5421,7 +5427,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                 <FichaNorma
                     norma="Indicador de Riesgo de Liquidez (IRL) y Coeficiente de Fondeo Estable Neto (CFEN)"
                     emisor="Superintendencia Financiera de Colombia"
-                    referencia="IRL desde la Circular Externa 016 de 2008 · CFEN desde la 019 de 2019 · hoy en el SIAR de la Circular Básica Financiera, parte 1, capítulo 1"
+                    referencia="Circular Básica Financiera, parte 1, capítulo 1, sección 3 —el IRL en el párrafo 1.1.3.155 y su anexo 9; el CFEN en el 1.1.3.158 y su anexo 12—, comprobado el 13 de noviembre de 2026. El IRL nació en la Circular Externa 016 de 2008 y el CFEN en la 019 de 2019, y ninguna de las dos es ya el texto que rige."
                     exige="El IRL es la regla colombiana de corto plazo para los establecimientos de crédito, anterior al LCR y con su misma lógica: activos líquidos ajustados por liquidez de mercado menos el requerimiento neto de liquidez, a 7 y a 30 días. En monto tiene que ser mayor o igual a cero y en razón mayor o igual al 100 %, con el mismo tope del 75 % a las entradas que usa Basilea. Los TES cuentan como activos líquidos de alta calidad, con un descuento por liquidez de mercado que publica el Banco de la República para cada título. El CFEN es la versión colombiana del NSFR, a un año: al menos 100 % para el grupo de los bancos más grandes y 80 % para el segundo grupo; para el tercero es solo informativo."
                     enElCapitulo="Las dos piezas que el indicador necesita de cada TES son su valor de mercado y cuánto se mueve. La primera la calcula la sección 4 con las convenciones del SEN; la segunda es el DV01 de la sección 3. Un título de más duración pierde más con la misma subida de tasas, que es lo que un descuento quiere cubrir."
                     enlace="https://www.superfinanciera.gov.co/visualizadorCBJ/visualizadorCBF/inicio"
@@ -5430,7 +5436,7 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                 <FichaNorma
                     norma="Riesgo de liquidez de los fondos de pensiones"
                     emisor="Superintendencia Financiera de Colombia · Gobierno nacional"
-                    referencia="Sistema Integral de Administración de Riesgos (SIAR), Circular Básica Financiera, parte 1, capítulo 1 · Decreto 2555 de 2010, libro 6"
+                    referencia="Sistema Integral de Administración de Riesgos (SIAR), Circular Básica Financiera, parte 1, capítulo 1 —el modelo estándar de liquidez, párrafo 1.1.3.152, obliga a los establecimientos de crédito, las comisionistas y las administradoras de fondos abiertos sin pacto de permanencia, y no a las de fondos de pensiones— · Decreto 2555 de 2010, parte 2, libro 6"
                     exige="Ningún indicador estándar. El Sistema de Administración del Riesgo de Liquidez (SARL), que creó la Circular Externa 016 de 2008 y rigió hasta 2023, nunca cubrió los fondos de seguridad social, y su sucesor, el SIAR, pide a las administradoras gestionar el riesgo de liquidez de los fondos de pensiones voluntarias, de cesantías y de retiro programado con modelos internos, sin un límite fijado por el supervisor. A los fondos obligatorios de acumulación les queda la regla general del régimen de inversión —invertir con seguridad, rentabilidad y liquidez— y una restricción: solo pueden endeudarse con repos y simultáneas pasivas para atender retiros o gastos."
                     enElCapitulo={`El fondo del curso es de pensiones obligatorias: su modelo de liquidez es suyo, y este capítulo le da las piezas. Valorar el tramo con las convenciones del mercado —sección 4—, saber cuánto pierde por punto básico —sección 3— y cuánto puede perder en un mes malo: el VaR histórico mensual del tramo, ${miles(COB.desde03.var95)} millones al 95 %.`}
                     enlace="https://www.superfinanciera.gov.co/visualizadorCBJ/visualizadorCBF/inicio"
@@ -5442,10 +5448,14 @@ cambio <- sum((-dmod * dy + conv * dy^2 / 2) * valor)`,
                     SIAR (Circular Externa 018 de 2021), y la circular entera fue sustituida el 1 de junio de
                     2026 por la Circular Básica Financiera (Circular Externa 004 de 2026), que ordena su
                     contenido por temas: toda referencia a la circular vieja se entiende hecha a la nueva, en
-                    el tema que corresponda. Las fichas citan cada norma por su nombre, por la circular que la
-                    creó y por el lugar donde vive hoy. Antes de usar una referencia de este material en un documento que
-                    salga del aula, contraste el texto vigente en la página de la Superintendencia: verificar la
-                    fuente es la misma lección de la sección 5, aplicada a una norma.
+                    el tema que corresponda. El capítulo 1 de su parte 1 va en cinco secciones, y las dos que
+                    importan aquí son la segunda, que dice cómo se administra cada riesgo, y la tercera, donde
+                    están las mediciones y los reportes estándar: ahí viven hoy el IRL y el CFEN. Las fichas
+                    citan cada norma por el lugar donde vive hoy, con el párrafo, y nombran aparte la circular
+                    que la creó, que ya no es el texto que rige. Los párrafos se contrastaron contra el texto
+                    vigente el 13 de noviembre de 2026. Antes de usar una referencia de este material en un
+                    documento que salga del aula, vuelva a contrastarla en la página de la Superintendencia:
+                    verificar la fuente es la misma lección de la sección 5, aplicada a una norma.
                 </Box>
 
                 <Emparejamiento

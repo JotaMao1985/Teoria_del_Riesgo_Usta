@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Backtesting y marco regulatorio. Kupiec, Christoffersen y Acerbi-Székely sobre el VaR y el ES del fondo, la zona semáforo de Basilea y el SARM · U1 · Riesgo de mercado · Teoría del Riesgo, Universidad Santo Tomás.">
+        content="Backtesting y marco regulatorio. Kupiec, Christoffersen y Acerbi-Székely sobre el VaR y el ES del fondo, la zona semáforo de Basilea y el SIAR de la Superfinanciera · U1 · Riesgo de mercado · Teoría del Riesgo, Universidad Santo Tomás.">
     <title>Cap. 06 · Backtesting y marco regulatorio — Teoría del Riesgo</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2957,7 +2957,7 @@
             horas: 3,
             ra: 'RA2 · RA3',
             contenidoSyllabus: 'U1 · contenidos 6 y 8 — Backtesting (Kupiec, Christoffersen, Acerbi-Székely) y marco regulatorio',
-            temas: ['Validación', 'Kupiec', 'Christoffersen', 'Acerbi-Székely', 'Zona semáforo', 'SARM'],
+            temas: ['Validación', 'Kupiec', 'Christoffersen', 'Acerbi-Székely', 'Zona semáforo', 'SIAR'],
             nivelIA: 1,
             storageKey: 'tdr_cap06_backtesting',
             docente: 'Javier Mauricio Sierra',
@@ -4981,7 +4981,7 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
 
 
         /* ============================================================
-           SECCIÓN 6 — SARM: QUÉ EXIGE LA SUPERFINANCIERA
+           SECCIÓN 6 — SIAR: QUÉ EXIGE LA SUPERFINANCIERA
         ============================================================ */
         const Seccion6 = () => (
             <>
@@ -4990,27 +4990,36 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                     Un fondo de pensiones colombiano no reporta a Basilea. Reporta a la
                     Superintendencia Financiera, y lo que esta le exige no es un número sino un{' '}
                     <em>sistema</em>: políticas escritas, una estructura con responsables con nombre,
-                    y la obligación de que el modelo que se use esté autorizado y se valide. El
-                    backtesting deja de ser un ejercicio y pasa a ser un anexo con fechas.
+                    y la obligación de que el modelo en uso se contraste con lo ocurrido y quede a
+                    disposición del supervisor. El backtesting deja de ser un ejercicio y pasa a ser
+                    un anexo con fechas.
                 </Motivacion>
 
                 <FichaNorma
-                    norma="Sistema de Administración de Riesgo de Mercado (SARM)"
+                    norma="Sistema Integral de Administración de Riesgos (SIAR) · riesgo de mercado"
                     emisor="Superintendencia Financiera de Colombia"
-                    referencia="Circular Básica Contable y Financiera (Circular Externa 100 de 1995), Capítulo XXI"
-                    exige="Que la entidad vigilada adopte un sistema —no un cálculo— con cuatro etapas: identificación, medición, control y monitoreo del riesgo de mercado. El sistema debe apoyarse en ocho elementos: políticas aprobadas por la junta directiva, procedimientos, documentación, una estructura organizacional con responsabilidades asignadas, órganos de control, infraestructura tecnológica, divulgación de información y capacitación. La medición puede hacerse con el modelo estándar que la propia circular define o con un modelo interno, y este último requiere autorización previa de la Superintendencia y validación periódica, con pruebas retrospectivas y de tensión documentadas."
-                    enElCapitulo="El bloque de esta sección produce el anexo que sostiene la etapa de monitoreo: una fila por excepción de la ventana regulatoria, con la fecha, la pérdida, el VaR que se había reportado, el exceso en pesos y lo que hizo el índice ese día. La última columna no la pide la norma; la pide el sentido común, y es la que permite separar el fallo del modelo del dato defectuoso — que es la sección 7."
+                    referencia="Circular Básica Financiera (Circular Externa 004 de 2026), parte 1, capítulo 1, sección 2, párrafos 1.1.2.76 a 1.1.2.113 · hasta 2023, SARM: capítulo XXI de la Circular Básica Contable y Financiera"
+                    exige="Que la entidad vigilada administre el riesgo de mercado dentro de un sistema integral —no un cálculo— con cuatro etapas: identificación, medición, control y monitoreo. El sistema parte de un marco de apetito de riesgo que aprueba la junta directiva, y se apoya en políticas, una función de gestión de riesgos independiente de las áreas de negocio, infraestructura tecnológica y documentación, modelos incluidos. Una administradora de fondos de pensiones mide y reporta con el modelo estándar de la propia circular. Si además usa un modelo interno, como los de este capítulo, ese modelo tiene que calcular el VaR a diario con al menos un año de datos y pasar pruebas de desempeño: cada día contra la pérdida que de verdad hubo —la norma las llama sucias— y cada mes contra la que habría dado el portafolio sin tocarlo —limpias—. El modelo, sus pruebas y las de estrés, que van como mínimo cada trimestre, quedan a disposición de la Superintendencia."
+                    enElCapitulo="El backtest de las secciones 2 y 3 —el VaR de cada rueda contra la pérdida de la siguiente, con los pesos fijos— es lo que la norma llama una prueba de desempeño limpia. El bloque de esta sección produce el anexo que sostiene la etapa de monitoreo: una fila por excepción de la ventana regulatoria, con la fecha, la pérdida, el VaR que se había reportado, el exceso en pesos y lo que hizo el índice ese día. La última columna no la pide la norma; la pide el sentido común, y es la que permite separar el fallo del modelo del dato defectuoso — que es la sección 7."
+                    enlace="https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"
                 />
 
                 <Box type="info" label="Una advertencia sobre las citas normativas">
-                    La Circular Básica Contable y Financiera se modifica por circulares externas
-                    sucesivas, y con ellas cambian la numeración de los anexos y el detalle de los
-                    formatos. El capítulo cita la norma <strong>por su nombre y su capítulo</strong>,
-                    que son estables, y describe lo que exige en sustancia. Antes de usar una
-                    referencia de este material en un documento que salga del aula, contraste el texto
-                    consolidado vigente en la página de la Superintendencia: verificar la fuente es
-                    parte del oficio, y este capítulo trata precisamente de no firmar lo que no se ha
-                    comprobado.
+                    Una cita normativa envejece más rápido que una fórmula. El SARM fue el capítulo
+                    XXI de la Circular Básica Contable y Financiera hasta el 31 de mayo de 2023: la
+                    Circular Externa 018 de 2021 lo derogó y llevó la gestión de los riesgos de
+                    mercado, crédito, liquidez y operacional a un solo sistema, el SIAR, que fue el
+                    capítulo XXXI de esa misma circular. Después, la Circular Externa 004 de 2026
+                    sustituyó la circular entera por la <strong>Circular Básica Financiera</strong>,
+                    vigente desde el 1 de junio de 2026, donde el SIAR es la parte 1, capítulo 1, y
+                    cada párrafo lleva su propio número. Una cita que diga «CBCF, capítulo XXI» apunta
+                    hoy a un texto derogado desde 2023, y una que diga «CBCF, capítulo XXXI», a un
+                    capítulo que ya no existe. Lo que esta sección usa —un sistema y no un cálculo, un
+                    modelo contrastado con lo ocurrido— sigue en el texto vigente, en los párrafos que
+                    cita la ficha, comprobados el 13 de noviembre de 2026. Antes de usar una referencia de
+                    este material en un documento que salga del aula, contraste el texto vigente en la
+                    página de la Superintendencia: verificar la fuente es parte del oficio, y este
+                    capítulo trata precisamente de no firmar lo que no se ha comprobado.
                 </Box>
 
                 <CodeTabs titulo="El anexo de excepciones que va al expediente" bloques={EJ_INFORME}
@@ -5025,10 +5034,10 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                         'Prueba de Kupiec (LR_uc)',
                         'Prueba de Christoffersen (LR_ind)',
                         'Zona semáforo del Comité de Basilea',
-                        'Capítulo XXI de la CBCF (SARM)',
+                        'SIAR de la Circular Básica Financiera',
                     ]}
                     derecha={[
-                        'Que exista un sistema con políticas, estructura y responsables, y que el modelo interno esté autorizado y se valide con periodicidad documentada',
+                        'Que exista un sistema con políticas, estructura y responsables, y que el modelo interno se contraste con lo ocurrido y quede a disposición del supervisor',
                         'Que la frecuencia observada de excepciones sea compatible con la prometida, sin decir nada sobre cuándo ocurrieron ni cuánto costaron',
                         'Que el multiplicador de capital suba por tramos según cuántas excepciones hubo en las últimas 250 ruedas, sin mirar su magnitud',
                         'Que una excepción no aumente la probabilidad de la siguiente, sin decir nada sobre si el número total es el correcto',
@@ -5402,7 +5411,7 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
                                 <li><strong>Zona semáforo.</strong> 0–4 verde, 5–9 amarilla, 10 o más roja, sobre las últimas 250 ruedas. Recargo de 0,40 a 0,85 y de 1,00, sobre un multiplicador base de 3.</li>
                                 <li><strong>El costo, en pesos.</strong> El fondo está en amarilla con 7: m = 3,65 y 371 675 millones de capital, de los cuales 66 189 son sobrecosto por el historial de fallos.</li>
                                 <li><strong>La brecha.</strong> El semáforo cobra desde la quinta excepción, donde Kupiec da p = 0,1619; y absuelve el conteo cero, que Kupiec rechaza. Cuenta y no mide.</li>
-                                <li><strong>SARM.</strong> Capítulo XXI de la CBCF: cuatro etapas y ocho elementos. El modelo interno requiere autorización previa y validación periódica documentada.</li>
+                                <li><strong>SIAR.</strong> El sistema que desde 2023 sustituye al SARM; hoy, Circular Básica Financiera, parte 1, capítulo 1. Cuatro etapas, una función de riesgos independiente y pruebas de desempeño del modelo interno, a disposición del supervisor. Lo que una administradora de pensiones reporta sale del modelo estándar.</li>
                             </ul>
                         ),
                     },
@@ -5420,7 +5429,7 @@ pp <- (n01+n11)/(n00+n01+n10+n11)
             { id: 'sec3', title: '3. Christoffersen: independencia', icon: 'Activity', component: Seccion3 },
             { id: 'sec4', title: '4. Backtesting del ES: Acerbi-Székely', icon: 'Layers', component: Seccion4 },
             { id: 'sec5', title: '5. Zona semáforo y multiplicador', icon: 'Award', component: Seccion5 },
-            { id: 'sec6', title: '6. SARM: qué exige la Superintendencia', icon: 'Table', component: Seccion6 },
+            { id: 'sec6', title: '6. SIAR: qué exige la Superintendencia', icon: 'Table', component: Seccion6 },
             { id: 'sec7', title: '7. Qué hacer cuando el backtest falla', icon: 'Bug', component: Seccion7 },
             { id: 'eval', title: 'Evaluación', icon: 'HelpCircle', component: EvaluacionSection },
         ];

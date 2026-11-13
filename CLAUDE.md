@@ -279,9 +279,14 @@ con los pagos movidos al día hábil siguiente, el **29,7 %**: el precio no usa 
 plan decía en un R3 «la convención del papel es 30/360», y era falso** —se cambió por NL/365—. Sobre
 el tramo no se habría notado nunca: en aniversarios exactos 30/360 cuenta lo mismo que NL/365, y en
 la operación real que la sección 5 reproduce, también (73/365 = 72/360 = 0,2). La resolución del
-Ministerio de Hacienda que reglamenta los TES (la 3609 de 2022, artículo 5) dice lo mismo —base
-365/365 con febrero de 28 días también en bisiesto, tasa efectiva anual—, y se buscó **después** de
-medir: es la lección del 9 aplicada en el orden correcto.
+Ministerio de Hacienda que reglamenta los TES dice lo mismo en su artículo 5 —base 365/365 con
+febrero de 28 días también en bisiesto (numeral 10) y precio descontado a tasa efectiva anual
+(numeral 11)—, y se buscó **después** de medir: es la lección del 9 aplicada en el orden correcto.
+⚠️ **Pero el número de la resolución cambia cada pocos meses y el capítulo lo ha tenido que corregir
+dos veces**: la 3609 de 2022 quedó derogada por la 3463 de 2023, y hoy rige la **1002 del 14 de mayo
+de 2026**, que a su vez deroga la 0946, de nueve días antes (actualizado el 2026-11-13). Las tres
+convenciones dicen lo mismo en las tres; el número, no. Cite el artículo y el numeral, y contraste
+la vigencia antes de publicar.
 
 ⚠️ **El primer barrido del SEN dio 80,5 %, no 100 %, con la convención buena.** La TIR se publica
 truncada al tercer decimal —en las 6 199, no en 174 como se escribió primero; en 1 236 eso la separa
@@ -312,8 +317,11 @@ la capitalización y el cupón semestral.
 ⚠️ **La sección 6 encontró que la normativa que citan otros capítulos cambió de casa.** Según la
 investigación del 2026-10-01, la Circular Básica Contable y Financiera fue **sustituida por la
 Circular Básica Financiera** (Circular Externa 004 de 2026) desde el **1 de junio de 2026**, y el
-SARL y el SARM ya habían pasado al SIAR el 1/6/2023 (Circular Externa 018 de 2021). Los capítulos
-1, 3, 4 y 6 citan el «Capítulo XXI» de la circular vieja como vigente, y **no se han tocado**. Y
+SARL y el SARM ya habían pasado al SIAR el 1/6/2023 (Circular Externa 018 de 2021). ✅ **Corregido**: el 1 y el 2 en sus mejoras, el 4 el 2026-11-13 —con el localizador verificado
+1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y 1.1.2.93–1.1.2.98—, y el **6 y el 10 el 2026-11-13** en la
+rama `claude/keen-tu-3412fd`, de donde se trajeron solo esos dos (su capítulo 4 era anterior y
+quedó obsoleto). **Ningún capítulo la cita ya como vigente**, comprobado el 2026-11-13: los cuatro
+que la nombran —el 1, el 6, el 9 y el 10— la nombran como historia, con la fecha en que dejó de regir. Y
 **ninguna regla de liquidez —LCR, NSFR, IRL, CFEN— obliga al fondo del curso**: el SARL nunca cubrió
 los fondos de seguridad social, y el SIAR deja la liquidez de los fondos voluntarios y de cesantías
 a modelos internos, sin límite. Antes de citar cualquiera de esas normas, contraste el texto vigente.
