@@ -3410,7 +3410,11 @@ print(f"  VaR 99 % hist, muestra completa: {-np.quantile(rp, 0.01)*100:.3f} % ->
 #>   VaR 99 % hist, muestra completa: 4.077 % -> 4.037 %
 v250 = rp[-250:]
 print(f"  VaR 99 % hist, ultimas 250     : {-np.quantile(v250, 0.01)*100:.3f} % -> {-np.quantile(v250[sin[-250:]], 0.01)*100:.3f} %")
-#>   VaR 99 % hist, ultimas 250     : 4.294 % -> 3.858 %`,
+#>   VaR 99 % hist, ultimas 250     : 4.294 % -> 3.858 %
+from scipy.stats import norm
+vn = lambda x: -(x.mean() + norm.ppf(0.01) * x.std(ddof=1)) * 100
+print(f"  VaR 99 % normal, ultimas 250   : {vn(v250):.3f} % -> {vn(v250[sin[-250:]]):.3f} %")
+#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
@@ -3451,7 +3455,11 @@ cat(sprintf("  VaR 99 %% hist, muestra completa: %.3f %% -> %.3f %%\\n",
 n <- length(rp); v250 <- rp[(n - 249):n]; s250 <- sin[(n - 249):n]
 cat(sprintf("  VaR 99 %% hist, ultimas 250     : %.3f %% -> %.3f %%\\n",
             -quantile(v250, 0.01, names = FALSE) * 100, -quantile(v250[s250], 0.01, names = FALSE) * 100))
-#>   VaR 99 % hist, ultimas 250     : 4.294 % -> 3.858 %`,
+#>   VaR 99 % hist, ultimas 250     : 4.294 % -> 3.858 %
+vn <- function(x) -(mean(x) + qnorm(0.01) * sd(x)) * 100
+cat(sprintf("  VaR 99 %% normal, ultimas 250   : %.3f %% -> %.3f %%\\n",
+            vn(v250), vn(v250[sin[(length(sin) - 249):length(sin)]])))
+#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %`,
         };
 
         const EJ_MONTECARLO = {
@@ -3541,7 +3549,17 @@ for i, a in enumerate(acciones):
 print(f"{'suma':<14}{w.sum():>6.0%}{aislado.sum():>14,.0f}{componente.sum():>13,.0f}{1.0:>12.1%}")
 #> suma            100%        44,572       29,338      100.0%
 print(f"VaR del portafolio: {var_p:,.0f} millones  ·  diversificacion: {aislado.sum()-var_p:,.0f} millones")
-#> VaR del portafolio: 29,338 millones  ·  diversificacion: 15,234 millones`,
+#> VaR del portafolio: 29,338 millones  ·  diversificacion: 15,234 millones
+
+# El VaR incremental: lo que baja el total si la posicion se liquida entera.
+for i, a in enumerate(acciones):
+    w2 = w.copy(); w2[i] = 0
+    incremental = var_p - z * np.sqrt(w2 @ Sigma @ w2) * W
+    print(f"{a:<14} componente {componente[i]:>9,.0f}   incremental {incremental:>9,.0f}")
+#> ECOPETROL.CL   componente     9,918   incremental     7,808
+#> BOGOTA.CL      componente     3,936   incremental     3,067
+#> GRUPOSURA.CL   componente     8,474   incremental     6,552
+#> ISA.CL         componente     7,009   incremental     5,578`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
@@ -3576,7 +3594,20 @@ cat(sprintf("%-14s%5.0f%%%14s%13s%11.1f%%\\n", "suma", sum(w) * 100,
 cat(sprintf("VaR del portafolio: %s millones  ·  diversificacion: %s millones\\n",
             formatC(round(var_p), format = "d", big.mark = ","),
             formatC(round(sum(aislado) - var_p), format = "d", big.mark = ",")))
-#> VaR del portafolio: 29,338 millones  ·  diversificacion: 15,234 millones`,
+#> VaR del portafolio: 29,338 millones  ·  diversificacion: 15,234 millones
+
+# El VaR incremental: lo que baja el total si la posicion se liquida entera.
+for (i in seq_along(acciones)) {
+  w2 <- w; w2[i] <- 0
+  incremental <- var_p - z * sqrt(as.numeric(t(w2) %*% Sigma %*% w2)) * W
+  cat(sprintf("%-14s componente %9s   incremental %9s\\n", acciones[i],
+              formatC(round(componente[i]), format = "d", big.mark = ","),
+              formatC(round(incremental), format = "d", big.mark = ",")))
+}
+#> ECOPETROL.CL   componente     9,918   incremental     7,808
+#> BOGOTA.CL      componente     3,936   incremental     3,067
+#> GRUPOSURA.CL   componente     8,474   incremental     6,552
+#> ISA.CL         componente     7,009   incremental     5,578`,
         };
 
         const EJ_HORIZONTE = {
@@ -3745,10 +3776,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 <CalloutPro tema="info" titulo="Qué se lleva de aquí"
                     subtitulo="Cinco horas · RA1 · el capítulo con más consecuencias operativas de la unidad 1">
                     <p>
-                        Al terminar, usted sabrá calcular el valor en riesgo de este portafolio por los
-                        tres caminos que se usan en la industria, decir cuál de los tres eligió y por
-                        qué, repartir el número entre las cuatro posiciones y llevarlo del día al
-                        horizonte que exige el supervisor. Y sabrá, sobre todo, qué <strong>no</strong>{' '}
+                        Al terminar, usted sabrá calcular el valor en riesgo de este portafolio por los tres caminos que este capítulo compara, decir cuál de los tres eligió y por qué, repartir el número entre las cuatro posiciones y llevarlo del día a los diez días con que Basilea mide el capital de los bancos por modelos internos. Y sabrá, sobre todo, qué <strong>no</strong>{' '}
                         dice el número que va a firmar.
                     </p>
                 </CalloutPro>
@@ -3764,10 +3792,10 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 </Box>
 
                 <Timeline eventos={[
-                    { year: '1993', text: <>En julio, el Grupo de los Treinta recomienda que los operadores de derivados midan <strong>a diario</strong> el riesgo de mercado de sus posiciones con una medida consistente —el «value at risk»—, calculada con un intervalo de confianza y un horizonte comunes: reducir los riesgos a un denominador común facilita agregarlos, compararlos y controlarlos <Cita k="g30-1993-derivados" loc="pp. 10–11, Recomendación 5" />.</> },
+                    { year: '1993', text: <>En julio, el Grupo de los Treinta recomienda que los operadores de derivados midan <strong>a diario</strong> el riesgo de mercado de sus posiciones con una medida consistente —el «value at risk»—, calculada con un intervalo de confianza y un horizonte comunes: reducir los riesgos a un denominador común facilita agregarlos, compararlos y controlarlos <Cita k="g30-1993-derivados" loc="portada y pp. 10–11, Recomendación 5" />.</> },
                     { year: '1994', text: <>J. P. Morgan lanza RiskMetrics en octubre y pone la metodología y las series diarias de volatilidades y correlaciones en internet, sin costo, con el propósito declarado de «fijar una referencia» para medir el riesgo de mercado. Dos años después el propio documento escribe que medir riesgo de mercado se ha vuelto sinónimo de «Value-at-Risk» <Cita k="jpmorgan1996" loc="portada, pp. iii–iv y p. 5 de la 4.ª ed." />.</> },
                     { year: '1996', text: <>La enmienda de riesgos de mercado de Basilea permite calcular el capital con los modelos internos del banco, <strong>con la aprobación explícita del supervisor</strong>: VaR al 99 %, un período de tenencia mínimo de diez días hábiles y un multiplicador de al menos 3 <Cita k="bcbs1996mercado" loc="pp. 3 y 38, párr. 9–10 y B.1.1; pp. 44–45, B.4 (b), (c), (i) y (j)" />.</> },
-                    { year: '2016', text: <>El FRTB cambia la medida con que se calcula el capital por modelos internos: Expected Shortfall al 97,5 % en lugar del VaR al 99 % <Cita k="bcbs2016frtb" loc="resumen ejecutivo (3.ª viñeta); C.3 párr. 181(a)–(b); C.5 párr. 183(b); C.9 párr. 189; apéndice B, III(a)" />. El VaR no desaparece —sigue siendo la medida de la prueba retrospectiva y del «plus» del multiplicador, párrafos 183 y 189—, y en enero de 2019 salió una versión revisada del estándar. El capítulo 5 explica por qué el cambio; este, qué se estaba usando hasta entonces.</> },
+                    { year: '2016', text: <>El FRTB cambia la medida con que se calcula el capital por modelos internos: Expected Shortfall al 97,5 % en lugar del VaR del marco anterior, que el hito de 1996 fija en el 99 % <Cita k="bcbs2016frtb" loc="resumen ejecutivo (3.ª viñeta); C.3 párr. 181(a)–(b); C.5 párr. 183(b); C.9 párr. 189; apéndice B, III(a)" />. El VaR no desaparece —sigue siendo la medida de la prueba retrospectiva y del «plus» del multiplicador, párrafos 183 y 189—, y en enero de 2019 salió una versión revisada del estándar. El capítulo 5 explica por qué el cambio; este, qué se estaba usando hasta entonces.</> },
                 ]} />
             </>
         );
@@ -3812,7 +3840,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     titulo="La definición, pieza por pieza"
                     subtitulo="Qué es cada letra y cuánto vale en el número que el fondo acaba de reportar"
                     piezas={[
-                        { simbolo: '\\(L\\)', que: 'La pérdida del horizonte, en pesos y positiva: L = −W·r. Dar vuelta el signo es donde más se equivoca quien implementa, porque el código sigue corriendo y devuelve una ganancia con cara de riesgo.', vale: 'una variable aleatoria, no un número' },
+                        { simbolo: '\\(L\\)', que: 'La pérdida del horizonte, en pesos y positiva: L = −W·r. Dar vuelta el signo es fácil de olvidar, y no avisa: el código sigue corriendo y devuelve una ganancia con cara de riesgo.', vale: 'una variable aleatoria, no un número' },
                         { simbolo: '\\(\\alpha\\)', que: 'El nivel de confianza: la fracción de ruedas en que la pérdida NO supera el umbral.', vale: '0,99 · la sección compara también 0,95' },
                         { simbolo: '\\(1-\\alpha\\)', que: 'Lo que queda por encima. Es la frecuencia con que el umbral debería romperse si el modelo acierta, y es justo lo que el capítulo 6 sale a contar.', vale: '0,01 · una rueda de cada cien' },
                         { simbolo: '\\(h\\)', que: 'El horizonte en el que se acumula la pérdida. No aparece en la fórmula porque va escondido dentro de L, y por eso es el parámetro que más se omite al reportar.', vale: 'una rueda · la sección 6 lo lleva a diez' },
@@ -3874,7 +3902,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     },
                     {
                         titulo: '3. ¿Es este el peor escenario posible?',
-                        contenido: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es exactamente donde viven las quiebras. Presentarlo como pérdida máxima es el error de comunicación más caro del oficio, y es lo que el capítulo 15 aborda con la teoría de valores extremos.',
+                        contenido: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es justo donde caben las pérdidas que hunden a una entidad. Presentarlo como pérdida máxima es, a juicio de este curso, el error de comunicación que más caro sale, y es lo que el capítulo 15 aborda con la teoría de valores extremos.',
                     },
                 ]} />
 
@@ -3956,7 +3984,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         pasos={[
                             {
                                 eq: <Eq>{'$$L = -W\\,r \\quad\\Longrightarrow\\quad q_\\alpha(L) = -W\\,q_{1-\\alpha}(r)$$'}</Eq>,
-                                porque: 'La pérdida es el rendimiento cambiado de signo y multiplicado por el valor del portafolio. Cambiar el signo da vuelta la distribución, y por eso el cuantil α de la pérdida es el cuantil 1−α del rendimiento. Aquí se cuela el error de signo más frecuente del dominio: quien olvida el giro reporta el cuantil 99 % del rendimiento, que es una ganancia.',
+                                porque: 'La pérdida es el rendimiento cambiado de signo y multiplicado por el valor del portafolio. Cambiar el signo da vuelta la distribución, y por eso el cuantil α de la pérdida es el cuantil 1−α del rendimiento. Aquí se cuela un error de signo típico, y es de los que no avisan: quien olvida el giro reporta el cuantil 99 % del rendimiento, que es una ganancia.',
                             },
                             {
                                 eq: <Eq>{'$$\\begin{gathered} r \\sim \\mathcal{N}(\\mu, \\sigma^2) \\\\[4pt] \\Longrightarrow\\quad q_{1-\\alpha}(r) = \\mu + z_{1-\\alpha}\\,\\sigma \\end{gathered}$$'}</Eq>,
@@ -3964,7 +3992,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             },
                             {
                                 eq: <Eq>{'$$\\mathrm{VaR}_\\alpha = -\\left(\\mu + z_{1-\\alpha}\\,\\sigma\\right) W$$'}</Eq>,
-                                porque: 'La fórmula que se implementa. Como z al 1−α es negativo, el paréntesis suele ser negativo y el VaR positivo. En horizontes cortos μ pesa poco —0,03 % diario frente a 1,58 % de desviación— y muchas mesas lo fijan en cero; hacerlo es conservador y hay que declararlo, no omitirlo.',
+                                porque: 'La fórmula que se implementa. Como z al 1−α es negativo, el paréntesis suele ser negativo y el VaR positivo. En horizontes cortos μ pesa poco —0,03 % diario frente a 1,58 % de desviación— y fijarlo en cero es una decisión defendible: sube el VaR de 29 094 a 29 338 millones, o sea que es conservadora. Lo que no se puede es no declararla.',
                             },
                             {
                                 eq: <Eq>{'$$\\mathrm{VaR}^{t}_\\alpha = -\\left(\\mu + t_{1-\\alpha,\\nu}\\,\\sqrt{\\tfrac{\\nu-2}{\\nu}}\\;\\sigma\\right) W$$'}</Eq>,
@@ -4013,7 +4041,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     </CalloutPro>
 
                     <ChartFrame id="cap4-densidades" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), y las dos densidades ajustadas sobre esa misma serie' }}
-                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y en ese tramo sus barras son tan bajas que la línea roja pasa por encima de casi todas—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
+                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y de las trece barras de ese tramo la línea roja queda por debajo de diez: la brecha ya está, pero es pequeña—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
 
                     <h3>Qué tan firme es ese 4,23</h3>
                     <p>
@@ -4078,8 +4106,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     <Box type="tip" label="Por qué la t y no otra cosa">
                         La t de Student no es la única distribución de colas pesadas ni necesariamente la
                         mejor. Se usa aquí por tres razones prácticas: tiene un solo parámetro de forma,
-                        ese parámetro se lee directamente de la curtosis, y está implementada en todas
-                        las librerías del oficio. Su límite es que es simétrica, y las pérdidas de
+                        ese parámetro se lee directamente de la curtosis, y está en las dos librerías que el capítulo usa —<span className="inline-code">scipy.stats.t</span> y el <span className="inline-code">qt</span> de R—. Su límite es que es simétrica, y las pérdidas de
                         acciones no lo son. El capítulo 15 vuelve sobre esto sin suponer forma alguna
                         para el centro de la distribución.
                     </Box>
@@ -4118,8 +4145,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         gancho="Cuando el número depende de una decisión que nadie discutió, la decisión es el modelo.">
                         Dos analistas del mismo fondo calculan el VaR el mismo día con el mismo método
                         y los mismos datos. Uno usa 250 ruedas y obtiene 4,29 %; el otro usa 500 y
-                        obtiene 3,18 %. Sobre 800 000 millones son 8 900 millones de diferencia en el
-                        requerimiento. Ninguno de los dos se equivocó: eligieron ventanas distintas, y
+                        obtiene 3,18 %. Sobre 800 000 millones son 8 900 millones de diferencia en el número que cada uno lleva al comité. Ninguno de los dos se equivocó: eligieron ventanas distintas, y
                         esa elección no aparece en el informe.
                     </Motivacion>
 
@@ -4208,13 +4234,10 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             dato pesa siete veces y media más —y la cola al 99 % se queda con 2,5
                             observaciones en vez de 19—, el VaR histórico se desploma de 4,294 % a
                             3,858 %: un 10 %.{' '}
-                            <strong>El mismo dato malo tiene tres consecuencias distintas según el
-                            estimador y la ventana.</strong>
+                            <strong>El mismo dato malo mueve el VaR desde casi nada hasta un tercio según el estimador y la ventana</strong>: el histórico de la muestra completa un 1 %, la volatilidad —y con ella el paramétrico— un 5 %, y sobre 250 ruedas el histórico un 10 % y el paramétrico un 34 %.
                         </p>
                         <p>
-                            El material conserva el panel tal como está y lo declara. Corregirlo en
-                            silencio enseñaría que los datos llegan limpios, que es la creencia que más
-                            dinero cuesta en esta profesión.
+                            El material conserva el panel tal como está y lo declara. Corregirlo en silencio enseñaría que los datos llegan limpios, que es una creencia cara.
                         </p>
                     </CalloutPro>
 
@@ -4222,7 +4245,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         <MCQ
                             pregunta="Un analista decide excluir el 19 y el 20 de febrero de 2025 por tratarse de una cotización defectuosa, y calcula los dos VaR sobre la muestra completa. ¿Qué es lo que cambia más y por qué?"
                             opciones={[
-                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %, porque su corte al 99 % lo fija la observación número veinte y no la primera. Un solo defecto, tres sensibilidades distintas. Ojo con la ventana, que es lo que la pregunta fija: sobre las últimas 250 ruedas el orden se invierte y el histórico se derrumba un 10 %, de 4,294 % a 3,858 %, porque ahí el par sí está entre las peores —y el paramétrico cae todavía más, un 34 %—.' },
+                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %, porque su corte al 99 % lo fija la observación número veinte y no la primera. Un solo defecto, tres sensibilidades distintas. Ojo con la ventana, que es lo que la pregunta fija: el orden no cambia —el paramétrico es el más sensible en las dos— pero las magnitudes sí. Sobre las últimas 250 ruedas el histórico se derrumba un 10 %, de 4,294 % a 3,858 %, porque ahí el par sí está entre las peores, y el paramétrico cae un 34 %, de 4,146 % a 2,730 %. El bloque imprime las cuatro cifras.' },
                                 { texto: 'El VaR histórico, porque el dato excluido era justamente el que definía el cuantil al 99 % sobre la muestra completa.', correcta: false },
                                 { texto: 'Los dos por igual, porque ambos se calculan sobre la misma muestra y pierden las mismas dos observaciones.', correcta: false },
                                 { texto: 'Ninguno de forma apreciable: dos observaciones de 1 916 son el 0,1 % de la muestra y ningún estimador razonable depende de eso.', correcta: false },
@@ -4378,9 +4401,7 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                     <p>
                         El método de Montecarlo genera escenarios del vector de rendimientos de los
                         cuatro activos, valora el portafolio en cada uno y lee el cuantil de las
-                        pérdidas simuladas. Su ventaja real aparece con posiciones no lineales —una
-                        opción, en el capítulo 12— porque permite revaluar cada escenario en vez de
-                        aproximar. Su límite es inmediato:{' '}
+                        pérdidas simuladas. Su ventaja real aparece con posiciones no lineales —una opción como la que el capítulo 12 valora por Montecarlo— porque permite revaluar cada escenario en vez de aproximar. Su límite es inmediato:{' '}
                         <strong>la cola de la simulación es la que uno le puso al simulador</strong>.
                     </p>
                     <p>
@@ -4411,9 +4432,7 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                             0,006 en R, medidos sobre la dispersión de los veinte lotes—. Imprimirlo al
                             lado no es un adorno: es la <strong>sexta convención declarada del
                             curso</strong>, que pide que todo método aproximado reporte su aproximación
-                            junto a su resultado. El árbol del capítulo 11 reporta su amplitud, el capítulo 10 dice con qué paso revalora cuando mide un DV01 y un Montecarlo reporta esto. El VaR paramétrico normal
-                            —3,637 %— queda entre los dos, y tenía que quedar: le pedimos al simulador
-                            que simulara exactamente la distribución que el paramétrico supone.{' '}
+                            junto a su resultado. El árbol del capítulo 11 reporta su amplitud, el capítulo 10 dice con qué paso revalora cuando mide un DV01 y un Montecarlo reporta esto. El VaR paramétrico normal —3,637 %— queda entre los dos, lo que con dos estimaciones ruidosas ocurre la mitad de las veces; lo que sí se esperaba es que cada una cayera a pocos errores estándar de él, porque le pedimos al simulador que simulara exactamente la distribución que el paramétrico supone.{' '}
                             <strong>Montecarlo bajo normalidad no aporta información nueva sobre la
                             cola; reproduce, con ruido, lo que la fórmula ya daba exacto.</strong> Lo
                             que sí aporta es la segunda línea: con innovaciones t, el simulador llega a
@@ -4431,13 +4450,13 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                             { celdas: ['Paramétrico t (4,23 gl)', { v: '4,132', lee: 'Corrige la cola con un solo parámetro leído de la curtosis muestral. Que aterrice a cinco centésimas del cuantil empírico no es casualidad: se calibró con el cuarto momento de esos mismos datos.' }, '33 056', 'Rendimientos t simétricos; ν del método de los momentos'] },
                             { celdas: ['Histórico', { v: '4,077', lee: 'No supone forma alguna, pero se apoya en las veinte peores ruedas de la muestra. Cambiar la ventana lo mueve entre 3,18 % y 4,29 %, un rango más ancho que la distancia entre los tres métodos.' }, '32 617', 'El pasado reciente representa el mañana'] },
                             { celdas: ['Montecarlo normal', { v: '3,63 / 3,64', lee: 'Dos cifras porque son dos generadores, cada una con su error estándar al lado: 0,005 pp en Python y 0,006 en R. Convergen al paramétrico normal, que es la distribución que se les pidió simular. Reportar una sola de las dos sin su error estándar es el error que el ejercicio R3 del capítulo 12 audita.' }, '≈ 29 100', 'Lo mismo que el paramétrico normal, más ruido de simulación'] },
-                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Con errores estándar de 0,013 y 0,012 pp, dos y pico veces los de la fila de arriba: estimar un cuantil es más caro cuando la cola es más pesada, porque la misma cantidad de escenarios se reparte sobre un tramo más ancho. Aquí Montecarlo empieza a ganarse el costo. Lo que le da valor no es revaluar escenario a escenario —eso también lo hace la fila de arriba—, sino hacerlo con la distribución que de verdad hace falta: con posiciones no lineales, y con una cola que la normal no describe, estas dos filas son las únicas que se pueden calcular, y solo la segunda llega al nivel del cuantil empírico.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
+                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Con errores estándar de 0,013 y 0,012 pp, dos y pico veces los de la fila de arriba: estimar un cuantil es más caro cuando la cola es más pesada, porque la misma cantidad de escenarios se reparte sobre un tramo más ancho. Aquí Montecarlo empieza a ganarse el costo. Lo que le da valor no es revaluar escenario a escenario —eso también lo hace la fila de arriba—, sino hacerlo con la distribución que de verdad hace falta: con posiciones no lineales, y con una cola que la normal no describe, las dos fórmulas cerradas de arriba se quedan sin argumento, y de estas dos solo la segunda llega al nivel del cuantil empírico.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
                         ]}
                         nota="Los porcentajes salen de los bloques ejecutados; las dos filas de Montecarlo llevan el signo ≈ porque cada pestaña da el suyo. Las cifras en millones son el porcentaje por 800 000, que es la convención del capítulo y no la pérdida exacta: componer en vez de multiplicar las baja un 2 % —el histórico, de 32 617 a 31 961—, y sobre la serie exacta del fondo rebalanceado, otro 3 %. El recuadro de la sección 1 tiene la cuenta completa."
                     />
 
                     <ChartFrame id="cap4-cortes" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), con los tres cortes que calculan los bloques de las secciones 2 a 4' }}
-                        caption="Las 1 916 ruedas del portafolio y los tres cortes al 99 %. En rojo, las veinte ruedas que quedan más allá del corte histórico. La distancia entre la línea roja punteada y la rosada —cuatro décimas de punto porcentual— son 3 523 millones de pesos de requerimiento." />
+                        caption="Las 1 916 ruedas del portafolio y los tres cortes al 99 %. En rojo, las veinte ruedas que quedan más allá del corte histórico. La distancia entre la línea roja punteada y la rosada —cuatro décimas de punto porcentual— son 3 523 millones de pesos de diferencia en el número que se reporta." />
 
                     <Comparador
                         titulo="R4 · Dos formas de leer la misma cola"
@@ -4471,7 +4490,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
 
                     <Ejercicio tipo="R2">
                         <MCQ
-                            pregunta="El bloque simula un millón de escenarios y obtiene un error estándar de 0,005 puntos porcentuales. Si se quisiera reducirlo a la mitad, ¿cuántos escenarios harían falta?"
+                            pregunta="El bloque simula un millón de escenarios y obtiene un error estándar de 0,005 puntos porcentuales en la pestaña de Python (0,006 en la de R). Si se quisiera reducirlo a la mitad, ¿cuántos escenarios harían falta?"
                             opciones={[
                                 { texto: 'Cuatro millones: el error estándar cae con la raíz de las réplicas, así que dividirlo entre dos cuadruplica el esfuerzo.', correcta: true, justificacion: 'La ley de la raíz no perdona: bajar de 0,005 pp a 0,0025 exige cuatro millones de escenarios, y llegar a 0,00125 exige dieciséis. El capítulo 5 le añade la vuelta de tuerca que importa — con los mismos escenarios, estimar el ES cuesta el doble de error que el VaR—, de modo que la misma precisión sobre el ES sale cuatro veces más cara.' },
                                 { texto: 'Dos millones: el error estándar es inversamente proporcional al número de escenarios.', correcta: false },
@@ -4556,7 +4575,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
             return (
                 <>
                     <Motivacion icon="fa-chart-pie"
-                        gancho="El total no se reparte sumando las partes, y quien lo intenta pide un 52 % más de capital del que el portafolio necesita.">
+                        gancho="El total no se reparte sumando las partes, y quien lo intenta reporta un 52 % más de riesgo del que el portafolio tiene.">
                         El área de riesgo entrega cuatro números —el VaR de cada emisor— y el comité los
                         suma: 44 572 millones. El área de tesorería calcula el VaR del portafolio
                         completo con la misma fórmula: 29 338. Los 15 234 millones de diferencia no son un error de nadie:
@@ -4639,9 +4658,9 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                             { simbolo: 'VaR aislado', que: 'El VaR de una cartera que solo tuviera esta posición. No es un reparto: es otra cartera. Las cuatro no suman el total.', vale: '7 773 millones' },
                             { simbolo: '\\(\\partial\\mathrm{VaR}/\\partial w_i\\)', que: 'El VaR marginal: lo que cambia el total por cada unidad de peso que se añade. Va en pesos POR UNIDAD DE PESO de cartera, así que no se puede sumar con los demás ni comparar con ellos.', vale: '19 682 millones por unidad de peso' },
                             { simbolo: '\\(c_i = w_i\\,\\partial\\mathrm{VaR}/\\partial w_i\\)', que: 'El VaR componente: la parte del total que le corresponde a la posición entera. Es la única de las cuatro que suma el VaR del portafolio, por el teorema de Euler.', vale: '3 936 millones' },
-                            { simbolo: 'VaR incremental', que: 'Cuánto baja el VaR si la posición se liquida completa. No coincide con el componente salvo para posiciones pequeñas, porque al liquidar cambia Σw y con él σₚ.', vale: 'más que el componente, y hay que recalcular el VaR sin la posición para saberlo' },
+                            { simbolo: 'VaR incremental', que: 'Cuánto baja el VaR si la posición se liquida completa. Siempre es MENOR que el componente, y no por poco: al liquidar cambia Σw y con él σₚ, y como σₚ es convexa la derivada en la cartera entera exagera lo que se ahorra al quitar la posición completa.', vale: 'menos que el componente: 7 808 contra 9 918 en Ecopetrol' },
                         ]}
-                        nota="La confusión cara es tomar el marginal por el componente: en Banco de Bogotá se diferencian en un factor de cinco, que es exactamente 1/wᵢ. Y la confusión frecuente es sumar los aislados, que es lo que hace el comité de la motivación."
+                        nota="La confusión cara es tomar el marginal por el componente: en Banco de Bogotá se diferencian en un factor de cinco, que es exactamente 1/wᵢ. Y ojo con el incremental, que es la cifra que de verdad contesta «¿cuánto me ahorro si vendo esto?»: el bloque lo calcula y sale por debajo del componente en las cuatro posiciones —7 808 · 3 067 · 6 552 · 5 578 contra 9 918 · 3 936 · 8 474 · 7 009—, así que repartir el VaR y estimar lo que se ahorra liquidando no son la misma cuenta."
                     />
 
                     <CodeTabs titulo="El reparto del VaR entre las cuatro posiciones" bloques={EJ_COMPONENTE}
@@ -4692,7 +4711,7 @@ componente <- w * marginal`,
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.medida}
                         explicacion="El código calcula bien el VaR de cada posición por separado y después los suma. Esa suma es una magnitud real y con nombre propio —el VaR no diversificado, que es el valor que tomaría el VaR del portafolio si los cuatro activos cayeran siempre a la vez—, pero no es el VaR del portafolio. El cuantil de una suma no es la suma de los cuantiles: para obtenerlo hay que pasar por la matriz de covarianzas, con la forma cuadrática w'Σw. Que el resultado sea plausible y esté por el lado conservador es justamente lo que impide que nadie lo note."
-                        impacto="La suma da 44 572 millones y el VaR del portafolio es 29 338: la IA reporta un 52 % de más. Sobre ese exceso el fondo inmoviliza capital que podría estar invertido, y el comité concluye que la diversificación del portafolio no está funcionando cuando le está devolviendo 15 234 millones."
+                        impacto="La suma da 44 572 millones y el VaR del portafolio es 29 338: la IA reporta un 52 % de más. Con esa cifra el comité recorta posiciones que no hacía falta recortar, y concluye que la diversificación del portafolio no está funcionando cuando le está devolviendo 15 234 millones."
                     />
 
                     <Emparejamiento
@@ -4814,7 +4833,7 @@ componente <- w * marginal`,
                     />
 
                     <p>
-                        El corchete vale 1 exactamente cuando todas las autocorrelaciones son nulas. En
+                        El corchete vale 1 cuando todas las autocorrelaciones son nulas —y, en general, siempre que la suma ponderada Σ(1 − k/h)ρₖ se anule, que es lo que puede pasar si unas son positivas y otras negativas—. En
                         esta serie ρ₂ vale +0,075, lo bastante para que el factor real sea 3,3972 en vez
                         de 3,1623: un 7,4 % más. Aplicar la raíz del tiempo aquí <strong>subestima</strong>{' '}
                         la volatilidad a diez días. Fíjese en la palabra: lo que este factor escala es una
@@ -4862,7 +4881,7 @@ componente <- w * marginal`,
                         lineaCorrecta={{ python: 7, r: 5 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
-                        explicacion="La raíz del tiempo no es una identidad: es lo que queda de la fórmula de la varianza de una suma cuando las autocorrelaciones son todas nulas. Nadie comprobó esa condición, y en esta serie no se cumple —la autocorrelación de segundo orden vale +0,075—, así que el factor correcto es 3,3972 y no 3,1623. El defecto no está en la aritmética, que es impecable, sino en una hipótesis que el código da por cierta sin mirarla; por eso el error es de supuesto y no de estimador. Basta añadir el término de las autocorrelaciones, que el bloque de esta sección calcula en dos instrucciones."
+                        explicacion="La raíz del tiempo no es una identidad: es lo que queda de la fórmula de la varianza de una suma cuando las autocorrelaciones son todas nulas. Nadie comprobó esa condición, y en esta serie no se cumple —la autocorrelación de segundo orden vale +0,075—, así que el factor de la DESVIACIÓN de la suma es 3,3972 y no 3,1623. El defecto no está en la aritmética, que es impecable, sino en una hipótesis que el código da por cierta sin mirarla; por eso el error es de supuesto y no de estimador. Añadir el término de las autocorrelaciones —dos instrucciones del bloque de esta sección— corrige esa hipótesis, pero no basta: lo que se escaló es un cuantil, y el cuantil medido a diez días queda por debajo de los dos factores."
                         impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 772 millones con la raíz del tiempo a 99 664 con el factor de la varianza de la suma: la IA se queda corta en unos 6 900 millones. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
                     />
 
@@ -4884,7 +4903,7 @@ componente <- w * marginal`,
                         k="sfc2026cbf"
                         loc="1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y 1.1.2.93–1.1.2.98"
                         exige="Que una administradora de fondos de pensiones mida su riesgo de mercado con el MODELO ESTÁNDAR que la norma define, y que documente los modelos y las metodologías que usa. Las pruebas de desempeño —comparar el riesgo estimado contra las pérdidas realmente ocurridas— son una exigencia de los modelos internos, que otras entidades sí pueden usar con no objeción del supervisor."
-                        enElCapitulo="Conviene no confundir dos cosas que el capítulo hace a la vez. Nada de lo que se calcula aquí es el número regulatorio del fondo, que sale del modelo estándar: es la medición interna, la que el comité usa para decidir, y la que los ejercicios R7 y R8 le piden documentar. La prueba retrospectiva del capítulo 6 vale igual para una y para otra, pero la norma solo la exige para la segunda."
+                        enElCapitulo="Conviene no confundir dos cosas que el capítulo hace a la vez. Nada de lo que se calcula aquí es el número regulatorio del fondo, que sale del modelo estándar: es la medición interna, la que el comité usa para decidir, y la que los ejercicios R5 y R8 le piden documentar. La prueba retrospectiva del capítulo 6 vale igual para una y para otra, pero la norma solo la exige para la segunda."
                         enlace="https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"
                     />
 
@@ -4960,8 +4979,7 @@ componente <- w * marginal`,
             <>
                 <Motivacion icon="fa-award"
                     gancho="Descubrir a solas y sin costo cuál de las cosas que creía entendidas no lo estaba es más barato que descubrirlo en la defensa oral.">
-                    Calcular un VaR se aprende rápido: son tres líneas de código y un cuantil. Decir qué
-                    significa ese número para el capital del fondo, con qué ventana se obtuvo y qué pasa
+                    Calcular un VaR se aprende rápido: son tres líneas de código y un cuantil. Decir qué significa ese número para el fondo, con qué ventana se obtuvo y qué pasa
                     el día en que falla es lo que cuesta, y es lo que la defensa oral pregunta. Las diez
                     preguntas de abajo están escritas contra esa brecha: casi ninguna pide una cuenta.
                 </Motivacion>
@@ -4977,7 +4995,7 @@ componente <- w * marginal`,
                         ],
                     },
                     {
-                        pregunta: 'Sobre esta muestra, el VaR normal está por encima del histórico al 95 % y por debajo al 99 %. ¿Qué propiedad de los datos lo explica?', justificacion: 'Curtosis de exceso de 25,8 sobre 1 916 ruedas. El cruce no es un accidente de esta muestra: ocurre siempre que se ajusta una normal a datos con más masa en el centro y en los extremos y menos en los hombros.',
+                        pregunta: 'Sobre esta muestra, el VaR normal está por encima del histórico al 95 % y por debajo al 99 %. ¿Qué propiedad de los datos lo explica?', justificacion: 'Curtosis de exceso de 25,8 sobre 1 916 ruedas. El cruce no es un accidente de esta muestra: es lo esperable al ajustar una normal a datos con más masa en el centro y en los extremos y menos en los hombros, aunque el nivel en que se cruzan depende de cuánta cola haya.',
                         opciones: [
                             { texto: 'Colas más pesadas y hombros más ligeros que los de la normal.', correcta: true },
                             { texto: 'Que la media muestral sea positiva y pequeña.', correcta: false },
@@ -5031,7 +5049,7 @@ componente <- w * marginal`,
                         ],
                     },
                     {
-                        pregunta: 'Montecarlo con innovaciones normales devuelve prácticamente el mismo VaR que la fórmula paramétrica normal. ¿Qué muestra eso?', justificacion: 'Montecarlo no descubre colas: las reproduce. Bajo normalidad devuelve con ruido lo que la fórmula ya daba exacto, y la misma simulación con innovaciones t da 4,132 % en vez de 3,642 %: toda la diferencia es el supuesto, no el método.',
+                        pregunta: 'Montecarlo con innovaciones normales devuelve prácticamente el mismo VaR que la fórmula paramétrica normal. ¿Qué muestra eso?', justificacion: 'Montecarlo no descubre colas: las reproduce. Bajo normalidad devuelve con ruido lo que la fórmula ya daba exacto, y la misma simulación con innovaciones t da 4,132 % en vez de 3,642 % en la pestaña de R —4,111 % y 3,626 % en la de Python—: toda la diferencia es el supuesto, no el método.',
                         opciones: [
                             { texto: 'Que la cola de la simulación es la que se le puso al simulador, no una que el método descubra.', correcta: true },
                             { texto: 'Que la simulación está bien implementada y por tanto puede sustituir al método histórico.', correcta: false },
@@ -5081,9 +5099,7 @@ componente <- w * marginal`,
                     </div>
                 </div>
                 <Box type="info" label="Los dos R3 de este capítulo se resuelven sin IA, y no es una formalidad">
-                    Los dos bloques que auditó —la suma de los VaR y la raíz del tiempo— son errores que
-                    los modelos de lenguaje cometen con frecuencia, y los cometen precisamente porque el
-                    código resultante corre, no lanza ninguna excepción y devuelve una cifra plausible.
+                    Los dos bloques que auditó —la suma de los VaR y la raíz del tiempo— son errores que un modelo de lenguaje puede cometer sin que nada lo delate, precisamente porque el código resultante corre, no lanza ninguna excepción y devuelve una cifra plausible.
                     Pedirle a un modelo que audite a otro deja intacto el punto ciego. Lo que este
                     capítulo entrena es el criterio que después se usa <strong>con</strong> la IA en el
                     taller y <strong>sin</strong> ella en la defensa oral.
