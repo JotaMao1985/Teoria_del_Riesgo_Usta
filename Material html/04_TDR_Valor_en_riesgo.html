@@ -3231,7 +3231,22 @@ for etiqueta, x in tramos:
 
 # El estimador no puede devolver nu <= 4, por mucha cola que traiga la muestra.
 print(f"curtosis 100 -> nu {6/100 + 4:.3f}      curtosis 1000 -> nu {6/1000 + 4:.3f}")
-#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006`,
+#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006
+
+# El capitulo 6 reestima mu y sigma cada rueda con las 250 anteriores y deja nu
+# fijo en 4.23. Esto es lo que pasaria si tambien reestimara nu.
+ks = []
+for k in range(250, len(rp) + 1):
+    x = rp.values[k - 250:k]
+    ks.append(((x - x.mean()) ** 4).mean() / ((x - x.mean()) ** 2).mean() ** 2 - 3)
+ks  = np.array(ks)
+nus = 6 / ks + 4
+print(f"ventanas rodantes de 250        : {len(ks)}")
+print(f"con curtosis de exceso negativa : {(ks <= 0).sum()}  (la receta devuelve nu < 4, que no existe)")
+print(f"nu donde si se puede            : {nus[ks > 0].min():.2f} a {nus[ks > 0].max():.2f}, mediana {np.median(nus[ks > 0]):.2f}")
+#> ventanas rodantes de 250        : 1667
+#> con curtosis de exceso negativa : 12  (la receta devuelve nu < 4, que no existe)
+#> nu donde si se puede            : 4.12 a 2219.38, mediana 6.43`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w     <- c(0.30, 0.20, 0.25, 0.25)
@@ -3261,7 +3276,22 @@ for (etiqueta in names(tramos)) {
 
 # El estimador no puede devolver nu <= 4, por mucha cola que traiga la muestra.
 cat(sprintf("curtosis 100 -> nu %.3f      curtosis 1000 -> nu %.3f\\n", 6/100 + 4, 6/1000 + 4))
-#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006`,
+#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006
+
+# El capitulo 6 reestima mu y sigma cada rueda con las 250 anteriores y deja nu
+# fijo en 4.23. Esto es lo que pasaria si tambien reestimara nu.
+ks <- sapply(250:length(rp), function(k) {
+  x <- rp[(k - 249):k]
+  mean((x - mean(x))^4) / mean((x - mean(x))^2)^2 - 3
+})
+nus <- 6 / ks + 4
+cat(sprintf("ventanas rodantes de 250        : %d\\n", length(ks)))
+cat(sprintf("con curtosis de exceso negativa : %d  (la receta devuelve nu < 4, que no existe)\\n", sum(ks <= 0)))
+cat(sprintf("nu donde si se puede            : %.2f a %.2f, mediana %.2f\\n",
+            min(nus[ks > 0]), max(nus[ks > 0]), median(nus[ks > 0])))
+#> ventanas rodantes de 250        : 1667
+#> con curtosis de exceso negativa : 12  (la receta devuelve nu < 4, que no existe)
+#> nu donde si se puede            : 4.12 a 2219.38, mediana 6.43`,
         };
 
         const EJ_VENTANA = {
@@ -3774,7 +3804,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     },
                     {
                         titulo: '3. ¿Es este el peor escenario posible?',
-                        contenido: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es exactamente donde viven las quiebras. Presentarlo como pérdida máxima es el error de comunicación más caro del oficio, y el que la sección 6 del capítulo 15 aborda con la teoría de valores extremos.',
+                        contenido: 'No, y no pretende serlo. El VaR al 99 % ignora por construcción el 1 % de los casos, que es exactamente donde viven las quiebras. Presentarlo como pérdida máxima es el error de comunicación más caro del oficio, y es lo que el capítulo 15 aborda con la teoría de valores extremos.',
                     },
                 ]} />
 
@@ -3948,6 +3978,19 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             ventana se declara antes de estimar</strong>, y el capítulo declara la suya
                             —las 1 916 ruedas— en la portada.
                         </p>
+                        <p>
+                            Y hay una consecuencia que viaja al capítulo 6. Allí el backtest reestima μ y
+                            σ cada rueda con las 250 anteriores —es la tercera convención del curso— pero
+                            deja ν <strong>fijo en 4,23</strong>, tomado de aquí. Las tres últimas líneas
+                            del bloque dicen por qué no es un descuido: sobre las <strong>1 667</strong>{' '}
+                            ventanas rodantes de 250 ruedas, <strong>doce</strong> tienen curtosis de
+                            exceso <em>negativa</em> —todas en julio de 2023— y ahí la receta devuelve un
+                            ν por debajo de 4, que no corresponde a ninguna t; y donde sí funciona va de
+                            4,12 a 2 219 con mediana 6,43. Un parámetro de forma que se mueve en un
+                            factor de quinientos y a veces no existe no se puede reestimar cada rueda sin
+                            decidir antes qué hacer con esos casos. Fijarlo es una decisión declarada,
+                            no una omisión, y lo que cuesta lo tendría que medir el capítulo 6.
+                        </p>
                     </CalloutPro>
 
                     <Ejercicio tipo="R2">
@@ -3956,7 +3999,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             opciones={[
                                 { texto: 'Colas más pesadas y hombros más ligeros que la normal: el corte normal se pasa cerca del centro y se queda corto lejos de él.', correcta: true, justificacion: 'Las cuatro cifras del bloque: al 95 % el normal da 2,562 % contra 2,192 % del histórico, y al 99 % da 3,637 % contra 4,077 %. Existe entonces un nivel intermedio en el que los dos métodos coinciden, y ahí está la trampa — una normal que se valida al 95 % se queda un 11 % corta al 99 %, que es justo el nivel al que se reporta—. La t de Student con nu = 4,23 ordena bien los dos: 2,372 % y 4,132 %.' },
                                 { texto: 'El VaR normal siempre subestima el riesgo; al 95 % la diferencia se debe a un error de estimación de la media.', correcta: false },
-                                { texto: 'La muestra tiene asimetría positiva, y eso invierte el orden de los dos métodos al pasar del 95 % al 99 %.', correcta: false },
+                                { texto: 'La muestra tiene asimetría positiva: eso invierte el orden de los dos métodos al pasar del 95 % al 99 %.', correcta: false },
                                 { texto: 'Es una consecuencia de que el cuantil empírico se calcule por interpolación; con otro tipo de cuantil el orden sería el mismo en los dos niveles.', correcta: false },
                             ]}
                         />
@@ -4352,7 +4395,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         opciones={[
                             { texto: 'A subestima el corte al 99 %: la normal pone menos masa en la cola de la que hay. B no supone nada, pero se apoya en pocas ruedas.', correcta: true, justificacion: 'Las cifras de la tabla: 3,637 % contra 4,077 % al 99 %. A se queda corto porque la normal no tiene la curtosis de exceso de 25,77 que tiene esta muestra; B no supone nada, pero apoya su corte en la observación número veinte de 1 916, y por eso la sección 3 lo mueve entre 3,176 % y 4,294 % con solo cambiar la ventana. Ninguno es preferible sin decir a qué nivel y con cuánta cola detrás.' },
                             { texto: 'B es preferible siempre y sin condiciones, porque no impone ningún supuesto sobre la distribución.', correcta: false },
-                            { texto: 'A y B convergen al mismo número si se aumenta el tamaño de la muestra, porque el teorema central del límite se aplica a los cuantiles.', correcta: false },
+                            { texto: 'A y B convergen al mismo número si la muestra crece lo bastante: el teorema central del límite se aplica también a los cuantiles de la cola.', correcta: false },
                             { texto: 'A es preferible porque usa toda la información de la muestra, mientras que B descarta el 99 % de las observaciones.', correcta: false },
                         ]}
                     />
@@ -4932,7 +4975,7 @@ componente <- w * marginal`,
                         opciones: [
                             { texto: 'El beneficio de diversificación: lo que aportan los términos cruzados de w′Σw.', correcta: true },
                             { texto: 'Un error de redondeo acumulado al convertir porcentajes a millones de pesos.', correcta: false },
-                            { texto: 'El efecto de la media, que la fórmula del portafolio incluye y la de las posiciones individuales no.', correcta: false },
+                            { texto: 'El efecto de la media: la fórmula del portafolio la incluye y la de las posiciones individuales no.', correcta: false },
                             { texto: 'La parte del riesgo que corresponde al mercado y no a los emisores; es el riesgo sistemático del capítulo 3.', correcta: false },
                         ],
                     },
