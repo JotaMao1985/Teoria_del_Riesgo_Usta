@@ -3414,7 +3414,14 @@ print(f"  VaR 99 % hist, ultimas 250     : {-np.quantile(v250, 0.01)*100:.3f} % 
 from scipy.stats import norm
 vn = lambda x: -(x.mean() + norm.ppf(0.01) * x.std(ddof=1)) * 100
 print(f"  VaR 99 % normal, ultimas 250   : {vn(v250):.3f} % -> {vn(v250[sin[-250:]]):.3f} %")
-#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %`,
+#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %
+
+# El par, emisor por emisor, en variacion de precio (no en logaritmos).
+for d in ("2025-02-19", "2025-02-20"):
+    v = (precios.loc[d, acciones] / precios[acciones].shift(1).loc[d] - 1) * 100
+    print(f"  {d}: " + "  ".join(f"{a.split('.')[0]} {x:+.1f} %" for a, x in zip(acciones, v)))
+#>   2025-02-19: ECOPETROL -18.4 %  BOGOTA -10.2 %  GRUPOSURA -9.5 %  ISA -9.3 %
+#>   2025-02-20: ECOPETROL +22.8 %  BOGOTA +12.8 %  GRUPOSURA +22.5 %  ISA +16.2 %`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
@@ -3459,7 +3466,17 @@ cat(sprintf("  VaR 99 %% hist, ultimas 250     : %.3f %% -> %.3f %%\\n",
 vn <- function(x) -(mean(x) + qnorm(0.01) * sd(x)) * 100
 cat(sprintf("  VaR 99 %% normal, ultimas 250   : %.3f %% -> %.3f %%\\n",
             vn(v250), vn(v250[sin[(length(sin) - 249):length(sin)]])))
-#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %`,
+#>   VaR 99 % normal, ultimas 250   : 4.146 % -> 2.730 %
+
+# El par, emisor por emisor, en variacion de precio (no en logaritmos).
+for (d in c("2025-02-19", "2025-02-20")) {
+  k <- which(precios$fecha == d)
+  v <- (as.numeric(precios[k, acciones]) / as.numeric(precios[k - 1, acciones]) - 1) * 100
+  cat(sprintf("  %s: %s\\n", d,
+              paste(sprintf("%s %+.1f %%", sub(".CL", "", acciones, fixed = TRUE), v), collapse = "  ")))
+}
+#>   2025-02-19: ECOPETROL -18.4 %  BOGOTA -10.2 %  GRUPOSURA -9.5 %  ISA -9.3 %
+#>   2025-02-20: ECOPETROL +22.8 %  BOGOTA +12.8 %  GRUPOSURA +22.5 %  ISA +16.2 %`,
         };
 
         const EJ_MONTECARLO = {
@@ -3555,11 +3572,15 @@ print(f"VaR del portafolio: {var_p:,.0f} millones  ·  diversificacion: {aislado
 for i, a in enumerate(acciones):
     w2 = w.copy(); w2[i] = 0
     incremental = var_p - z * np.sqrt(w2 @ Sigma @ w2) * W
-    print(f"{a:<14} componente {componente[i]:>9,.0f}   incremental {incremental:>9,.0f}")
-#> ECOPETROL.CL   componente     9,918   incremental     7,808
-#> BOGOTA.CL      componente     3,936   incremental     3,067
-#> GRUPOSURA.CL   componente     8,474   incremental     6,552
-#> ISA.CL         componente     7,009   incremental     5,578`,
+    print(f"{a:<14} marginal {marginal[i]:>9,.0f}   componente {componente[i]:>9,.0f}   incremental {incremental:>9,.0f}")
+#> ECOPETROL.CL   marginal    33,059   componente     9,918   incremental     7,808
+#> BOGOTA.CL      marginal    19,682   componente     3,936   incremental     3,067
+#> GRUPOSURA.CL   marginal    33,896   componente     8,474   incremental     6,552
+#> ISA.CL         marginal    28,037   componente     7,009   incremental     5,578
+
+# La identidad de Euler, que es lo que hace que los componentes sumen el total.
+print(f"Euler: suma de w_i * dsigma_p/dw_i = {(w*(Sigma@w)/sigma_p).sum():.10f}   sigma_p = {sigma_p:.10f}")
+#> Euler: suma de w_i * dsigma_p/dw_i = 0.0157638416   sigma_p = 0.0157638416`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
@@ -3600,14 +3621,20 @@ cat(sprintf("VaR del portafolio: %s millones  ·  diversificacion: %s millones\\
 for (i in seq_along(acciones)) {
   w2 <- w; w2[i] <- 0
   incremental <- var_p - z * sqrt(as.numeric(t(w2) %*% Sigma %*% w2)) * W
-  cat(sprintf("%-14s componente %9s   incremental %9s\\n", acciones[i],
+  cat(sprintf("%-14s marginal %9s   componente %9s   incremental %9s\\n", acciones[i],
+              formatC(round(marginal[i]), format = "d", big.mark = ","),
               formatC(round(componente[i]), format = "d", big.mark = ","),
               formatC(round(incremental), format = "d", big.mark = ",")))
 }
-#> ECOPETROL.CL   componente     9,918   incremental     7,808
-#> BOGOTA.CL      componente     3,936   incremental     3,067
-#> GRUPOSURA.CL   componente     8,474   incremental     6,552
-#> ISA.CL         componente     7,009   incremental     5,578`,
+#> ECOPETROL.CL   marginal    33,059   componente     9,918   incremental     7,808
+#> BOGOTA.CL      marginal    19,682   componente     3,936   incremental     3,067
+#> GRUPOSURA.CL   marginal    33,896   componente     8,474   incremental     6,552
+#> ISA.CL         marginal    28,037   componente     7,009   incremental     5,578
+
+# La identidad de Euler, que es lo que hace que los componentes sumen el total.
+cat(sprintf("Euler: suma de w_i * dsigma_p/dw_i = %.10f   sigma_p = %.10f\\n",
+            sum(w * as.vector(Sigma %*% w) / sigma_p), sigma_p))
+#> Euler: suma de w_i * dsigma_p/dw_i = 0.0157638416   sigma_p = 0.0157638416`,
         };
 
         const EJ_HORIZONTE = {
@@ -3851,7 +3878,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 />
 
                 <CodeTabs titulo="El portafolio del fondo y su primer VaR" bloques={EJ_CARGA}
-                    nota="Las dos pestañas dan exactamente lo mismo porque los datos salen del CSV congelado y no de un simulador. Es la convención del curso, y la razón por la que datos/ está versionado. Las tres últimas líneas son la columna exacta, y el recuadro de abajo dice qué separan." />
+                    nota="Las dos pestañas dan exactamente lo mismo porque los datos salen del CSV congelado y no de un simulador. Es la convención del curso, y la razón por la que datos/ está versionado. El último tramo del bloque, el que empieza en rp_exacto, es la columna exacta, y el recuadro de abajo dice qué separan." />
                 <CalloutPro tema="warn" titulo="Todas las cifras de este capítulo salen de w′r, y eso tiene un precio medido"
                     subtitulo="La séptima convención del curso, aplicada por primera vez a dinero">
                     <p>
@@ -3868,7 +3895,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         pérdida logarítmica de 3,955 % no son 3,955 % del fondo: son{' '}
                         <span className="inline-code">1 − e<sup>−0,03955</sup></span> = 3,878 %, o{' '}
                         <strong>31 025 millones</strong>. Entre eso y los 32 617 del acta hay{' '}
-                        <strong>1 592 millones</strong>, un 5,1 %: 936 los pone la agregación y 656 el
+                        <strong>1 592 millones</strong>, un 5,1 % de esa cifra exacta: 936 los pone la agregación y 656 el
                         haber multiplicado en vez de compuesto.
                     </p>
                     <p>
@@ -3972,7 +3999,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         gancho="Si el modelo dice que un día así ocurre una vez cada 10²⁶ años, y usted lo vio, el problema no es la mala suerte.">
                         El 16 de marzo de 2020 el portafolio del fondo cayó 17,76 % en una sola rueda. Bajo
                         la normal ajustada a los ocho años de historia, un movimiento así está a 11,3
-                        desviaciones de la media: una vez cada 5 × 10²⁶ años, y el universo lleva
+                        desviaciones de la media: una vez cada 5 × 10²⁶ años de 252 ruedas, y el universo lleva
                         1,4 × 10¹⁰. No fue un caso aislado: ese mismo mes hubo otras cuatro ruedas con
                         pérdidas de más del 4 %. La distribución que produce esa afirmación es la que
                         el VaR paramétrico usa por omisión, y es la que esta sección pone a prueba.
@@ -4009,7 +4036,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             { simbolo: '\\(\\mu\\)', que: 'La media muestral del rendimiento diario. Pesa poco en un día y mucho en un año, y la sección 5 la fija en cero y lo declara.', vale: '0,0305 % diario' },
                             { simbolo: '\\(\\sigma\\)', que: 'La desviación muestral de la misma serie. Es el único ingrediente que las dos fórmulas comparten.', vale: '1,5764 % diario' },
                             { simbolo: '\\(z_{1-\\alpha} = \\Phi^{-1}(1-\\alpha)\\)', que: 'El cuantil de la normal ESTÁNDAR: el inverso de su función de distribución. No se estima de los datos —sale de una tabla, igual para todo el mundo—, y por eso toda la normalidad del método vive en él.', vale: '−2,3263 al 99 % · −1,6449 al 95 %' },
-                            { simbolo: '\\(t_{1-\\alpha,\\nu}\\)', que: 'El mismo cuantil para una t con ν grados de libertad, SIN estandarizar: su desviación no es uno sino √(ν/(ν−2)).', vale: '−3,6356 con ν = 4,23' },
+                            { simbolo: '\\(t_{1-\\alpha,\\nu}\\)', que: 'El mismo cuantil para una t con ν grados de libertad, SIN estandarizar: su desviación no es uno sino √(ν/(ν−2)).', vale: '−3,6356, con el ν sin redondear que calcula el bloque' },
                             { simbolo: '\\(\\sqrt{(\\nu-2)/\\nu}\\)', que: 'El factor que la estandariza, para que σ siga significando la desviación de los datos. Sin él la cifra sale un 38 % más alta y parece prudencia.', vale: '0,7263 · deja el cuantil en −2,6405' },
                             { simbolo: '\\(W\\)', que: 'El valor del portafolio, que convierte el cuantil del rendimiento en pesos.', vale: '800 000 millones' },
                         ]}
@@ -4041,7 +4068,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     </CalloutPro>
 
                     <ChartFrame id="cap4-densidades" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), y las dos densidades ajustadas sobre esa misma serie' }}
-                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y de las trece barras de ese tramo la línea roja queda por debajo de diez: la brecha ya está, pero es pequeña—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
+                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —menos del doble, y de las trece barras de ese tramo la línea roja queda por debajo de diez: la brecha ya está, pero es pequeña—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
 
                     <h3>Qué tan firme es ese 4,23</h3>
                     <p>
@@ -4054,12 +4081,12 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         en la cifra.
                     </p>
                     <CodeTabs titulo="La misma receta sobre cinco tramos del panel" bloques={EJ_NU}
-                        nota="La última línea no mira los datos: es la fórmula evaluada en dos curtosis inventadas, para ver a dónde va." />
+                        nota="La línea de las curtosis 100 y 1 000 no mira los datos: es la fórmula evaluada en dos valores inventados, para ver a dónde va. Las tres últimas sí: son las ventanas rodantes de 250 que el capítulo 6 usa." />
 
                     <CalloutPro tema="warn" titulo="El estimador no puede decir «aquí la curtosis no existe»"
                         subtitulo="ν = 6/κ̂ + 4 es mayor que 4 para toda curtosis positiva, por pesada que sea la cola">
                         <p>
-                            Mire la última línea del bloque: con una curtosis de 100 el método devuelve
+                            Mire la línea de las curtosis inventadas: con una curtosis de 100 el método devuelve
                             4,06, y con 1 000, 4,006. <strong>Cuanto más pesada es la cola, más se pega ν̂
                             a 4 por arriba</strong>, que es exactamente el valor en el que la curtosis
                             teórica deja de existir. El 4,23 del panel no es, entonces, una medida de
@@ -4073,8 +4100,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             sobre 2024, ν = 17,74 y <strong>2,514 %</strong>. Entre las dos hay un factor
                             de 2,7 —32 872 millones de pesos, compuestos como manda el recuadro de la
                             sección 1— y el parámetro de forma no es el que lo explica. Esa es la cuarta convención del curso aplicada aquí: <strong>la
-                            ventana se declara antes de estimar</strong>, y el capítulo declara la suya
-                            —las 1 916 ruedas— en la portada.
+                            ventana se declara antes de estimar</strong>, y el capítulo declara la suya —las 1 916 ruedas del panel congelado, de 2018 a 2025— desde la sección 1.
                         </p>
                         <p>
                             Y hay una consecuencia que viaja al capítulo 6. Allí el backtest reestima μ y
@@ -4591,9 +4617,9 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         filas={[
                             { celdas: ['Cuantil empírico de la muestra', '4,077', '32 617', { v: 'Secciones 1, 3 y 6, y la cifra del acta de la portada', lee: 'Es la que el capítulo firma, porque no supone ninguna forma de distribución. Medida sobre el fondo rebalanceado y compuesta a pesos son 31 025: la brecha de la convención que declara la sección 1.' }] },
                             { celdas: ['Paramétrico normal con la media muestral', '3,637', '29 094', { v: 'Sección 2 y la tabla de los cinco métodos', lee: 'Resta la media diaria observada, +0,0305 %. Es la única de las tres que usa la media, y por eso queda por debajo de la de abajo pese a venir de la misma distribución.' }] },
-                            { celdas: ['Paramétrico normal con media cero', '3,667', '29 338', { v: 'Sección 5 entera y el cuestionario', lee: 'La descomposición en VaR marginal y componente sale de la fórmula z·W·σₚ, sin media: por eso esta sección trabaja con 29 338 y no con 29 094. Fijar la media en cero sobre un horizonte de un día es la práctica habitual —a un día la media es dos órdenes de magnitud menor que la desviación—, pero es una decisión y aquí queda declarada.' }] },
+                            { celdas: ['Paramétrico normal con media cero', '3,667', '29 338', { v: 'Sección 5 entera y el cuestionario', lee: 'La descomposición en VaR marginal y componente sale de la fórmula z·W·σₚ, sin media: por eso esta sección trabaja con 29 338 y no con 29 094. Fijar la media en cero sobre un horizonte de un día es la práctica habitual —a un día la media es unas cincuenta veces menor que la desviación—, pero es una decisión y aquí queda declarada.' }] },
                         ]}
-                        nota="Las tres salen de bloques ejecutados de este capítulo. Lo que no se puede hacer es compararlas entre secciones sin decir cuál es cuál: entre la primera y la tercera hay 3 279 millones, más que la distancia entre dos métodos distintos."
+                        nota="Las tres salen de bloques ejecutados de este capítulo. Lo que no se puede hacer es compararlas entre secciones sin decir cuál es cuál: entre la primera y la tercera hay 3 279 millones, del mismo orden que lo que separa a dos métodos distintos —3 523 entre el histórico y el normal— y las tres se llaman «el VaR al 99 % a un día»."
                     />
 
                     <h3>La covarianza es el motor</h3>
@@ -4882,7 +4908,7 @@ componente <- w * marginal`,
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
                         explicacion="La raíz del tiempo no es una identidad: es lo que queda de la fórmula de la varianza de una suma cuando las autocorrelaciones son todas nulas. Nadie comprobó esa condición, y en esta serie no se cumple —la autocorrelación de segundo orden vale +0,075—, así que el factor de la DESVIACIÓN de la suma es 3,3972 y no 3,1623. El defecto no está en la aritmética, que es impecable, sino en una hipótesis que el código da por cierta sin mirarla; por eso el error es de supuesto y no de estimador. Añadir el término de las autocorrelaciones —dos instrucciones del bloque de esta sección— corrige esa hipótesis, pero no basta: lo que se escaló es un cuantil, y el cuantil medido a diez días queda por debajo de los dos factores."
-                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 772 millones con la raíz del tiempo a 99 664 con el factor de la varianza de la suma: la IA se queda corta en unos 6 900 millones. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
+                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 772 millones con la raíz del tiempo a 99 665 con el factor de la varianza de la suma: la IA se queda corta en unos 6 900 millones. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
                     />
 
                     <h3>Por qué diez días, y por qué el número acaba multiplicado por tres</h3>
