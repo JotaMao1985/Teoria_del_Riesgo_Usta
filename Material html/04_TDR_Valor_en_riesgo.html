@@ -4018,6 +4018,27 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         del mañana</strong>. Todo el peso del método recae en qué se cuenta como
                         «reciente».
                     </p>
+                    <p>
+                        La fórmula no tiene parámetros, pero sí tiene letra pequeña. Ordenados los
+                        rendimientos de menor a mayor —r₍₁₎ el peor, r₍ₙ₎ el mejor—, el cuantil al nivel
+                        p = 1 − α casi nunca cae sobre un dato: cae entre dos, y el método de{' '}
+                        <strong>tipo 7</strong> —el que usan <span className="inline-code">np.quantile</span> y{' '}
+                        <span className="inline-code">quantile()</span> por omisión— los interpola:
+                    </p>
+                    <Eq>{'$$\\begin{gathered} p = 1-\\alpha, \\qquad (n-1)\\,p = (j-1) + g \\\\[6pt] \\mathrm{VaR}_\\alpha = -\\left[(1-g)\\,r_{(j)} + g\\,r_{(j+1)}\\right] \\end{gathered}$$'}</Eq>
+                    <Anatomia
+                        titulo="El número que el fondo reporta son dos días y nada más"
+                        subtitulo="La cifra principal del capítulo, descompuesta en lo que de verdad la produce"
+                        piezas={[
+                            { simbolo: '\\(n\\)', que: 'El tamaño de la muestra: cuántas ruedas entran en el orden.', vale: '1 916' },
+                            { simbolo: '\\(p=1-\\alpha\\)', que: 'La cola que se deja fuera.', vale: '0,01' },
+                            { simbolo: '\\((n-1)p\\)', que: 'La posición exacta del corte dentro del orden, contando desde cero. Rara vez es un entero, y de ahí sale todo lo demás.', vale: '19,15' },
+                            { simbolo: '\\(j,\\;g\\)', que: 'La parte entera y la fracción de esa posición: j dice entre qué dos datos cae el corte y g dice cuánto pesa cada uno.', vale: 'j = 20 · g = 0,15' },
+                            { simbolo: '\\(r_{(20)},\\;r_{(21)}\\)', que: 'Las dos ruedas que lo deciden. No hay una tercera: las otras 1 914 solo sirven para ponerlas en su sitio.', vale: '−4,0785 % (8/6/2022) y −4,0692 % (11/3/2020)' },
+                            { simbolo: '\\(\\mathrm{VaR}_{0{,}99}\\)', que: '0,85 por la primera más 0,15 por la segunda, cambiado de signo.', vale: '4,0771 % · 32 617 millones' },
+                        ]}
+                        nota="Hay nueve definiciones de cuantil muestral en uso, y no dan lo mismo: quedarse con r₍₂₀₎ a secas da 4,0785 % y con r₍₂₁₎, 4,0692 %. Sobre 800 000 millones, la elección del método vale 74 millones de pesos — poco, pero es una decisión que nadie documenta."
+                    />
 
                     <CodeTabs titulo="El mismo cuantil, cuatro ventanas" bloques={EJ_VENTANA}
                         nota="La columna del peor día es la sorpresa: es el mismo en las tres ventanas cortas. Lo que cambia entre ellas no es qué datos hay, sino dónde cae el corte." />
@@ -4273,7 +4294,12 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                         </p>
                         <p>
                             Los dos números difieren en 0,016 puntos porcentuales, unas dos o tres veces
-                            el error estándar que el propio bloque calcula. El VaR paramétrico normal
+                            el error estándar que el propio bloque calcula —0,005 pp en Python y
+                            0,006 en R, medidos sobre la dispersión de los veinte lotes—. Imprimirlo al
+                            lado no es un adorno: es la <strong>sexta convención declarada del
+                            curso</strong>, que pide que todo método aproximado reporte su aproximación
+                            junto a su resultado. El árbol del capítulo 11 reporta su amplitud, la
+                            diferencia finita del 10 reporta su paso y un Montecarlo reporta esto. El VaR paramétrico normal
                             —3,637 %— queda entre los dos, y tenía que quedar: le pedimos al simulador
                             que simulara exactamente la distribución que el paramétrico supone.{' '}
                             <strong>Montecarlo bajo normalidad no aporta información nueva sobre la
@@ -4292,8 +4318,8 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                             { celdas: ['Paramétrico normal', { v: '3,637', lee: 'El más bajo de los cuatro. No es prudencia ni imprudencia: es la consecuencia aritmética de suponer una distribución cuya cola es más liviana que la observada. Sobre este portafolio subestima el corte en un 11 %.' }, '29 094', 'Rendimientos normales; μ y σ estables'] },
                             { celdas: ['Paramétrico t (4,23 gl)', { v: '4,132', lee: 'Corrige la cola con un solo parámetro leído de la curtosis muestral. Que aterrice a cinco centésimas del cuantil empírico no es casualidad: se calibró con el cuarto momento de esos mismos datos.' }, '33 056', 'Rendimientos t simétricos; ν del método de los momentos'] },
                             { celdas: ['Histórico', { v: '4,077', lee: 'No supone forma alguna, pero se apoya en las veinte peores ruedas de la muestra. Cambiar la ventana lo mueve entre 3,18 % y 4,29 %, un rango más ancho que la distancia entre los tres métodos.' }, '32 617', 'El pasado reciente representa el mañana'] },
-                            { celdas: ['Montecarlo normal', { v: '3,63 / 3,64', lee: 'Dos cifras porque son dos generadores. Convergen al paramétrico normal, que es la distribución que se les pidió simular. Reportar una sola de las dos sin su error estándar es el error que el ejercicio R3 del capítulo 12 audita.' }, '≈ 29 100', 'Lo mismo que el paramétrico normal, más ruido de simulación'] },
-                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Aquí Montecarlo empieza a ganarse el costo. Lo que le da valor no es revaluar escenario a escenario —eso también lo hace la fila de arriba—, sino hacerlo con la distribución que de verdad hace falta: con posiciones no lineales, y con una cola que la normal no describe, estas dos filas son las únicas que se pueden calcular, y solo la segunda llega al nivel del cuantil empírico.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
+                            { celdas: ['Montecarlo normal', { v: '3,63 / 3,64', lee: 'Dos cifras porque son dos generadores, cada una con su error estándar al lado: 0,005 pp en Python y 0,006 en R. Convergen al paramétrico normal, que es la distribución que se les pidió simular. Reportar una sola de las dos sin su error estándar es el error que el ejercicio R3 del capítulo 12 audita.' }, '≈ 29 100', 'Lo mismo que el paramétrico normal, más ruido de simulación'] },
+                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Con errores estándar de 0,013 y 0,012 pp, dos y pico veces los de la fila de arriba: estimar un cuantil es más caro cuando la cola es más pesada, porque la misma cantidad de escenarios se reparte sobre un tramo más ancho. Aquí Montecarlo empieza a ganarse el costo. Lo que le da valor no es revaluar escenario a escenario —eso también lo hace la fila de arriba—, sino hacerlo con la distribución que de verdad hace falta: con posiciones no lineales, y con una cola que la normal no describe, estas dos filas son las únicas que se pueden calcular, y solo la segunda llega al nivel del cuantil empírico.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
                         ]}
                         nota="Los porcentajes salen de los bloques ejecutados; las dos filas de Montecarlo llevan el signo ≈ porque cada pestaña da el suyo. Las cifras en millones son el porcentaje por 800 000, que es la convención del capítulo y no la pérdida exacta: componer en vez de multiplicar las baja un 2 % —el histórico, de 32 617 a 31 961—, y sobre la serie exacta del fondo rebalanceado, otro 3 %. El recuadro de la sección 1 tiene la cuenta completa."
                     />
@@ -4652,6 +4678,29 @@ componente <- w * marginal`,
                         lo son, aparecen los términos cruzados:
                     </p>
                     <Eq>{'$$\\mathrm{Var}\\!\\left(\\sum_{t=1}^{h} r_t\\right) = h\\,\\sigma^2\\left[1 + 2\\sum_{k=1}^{h-1}\\left(1-\\tfrac{k}{h}\\right)\\rho_k\\right]$$'}</Eq>
+                    <Derivacion
+                        titulo="De dónde sale ese (1 − k/h), que parece un descuento y es un conteo"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\mathrm{Var}\\!\\left(\\sum_{t=1}^{h} r_t\\right) = \\sum_{t=1}^{h}\\sum_{s=1}^{h} \\mathrm{Cov}(r_t, r_s)$$'}</Eq>,
+                                porque: 'La varianza de una suma no es la suma de las varianzas: es la suma de TODAS las covarianzas, h² términos y no h. Los h de la diagonal son las varianzas; los otros h² − h son los cruzados, y son exactamente los que la raíz del tiempo da por cero sin decirlo.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\mathrm{Cov}(r_t, r_s) = \\sigma^2\\,\\rho_{|t-s|}$$'}</Eq>,
+                                porque: 'El supuesto que sustituye a la independencia, y es más débil que ella: permite que la serie tenga memoria, pero exige que esa memoria dependa solo de la distancia entre dos ruedas y no de la fecha. Es estacionariedad, no independencia.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\begin{gathered} \\#\\{(t,s) : |t-s| = k\\} = 2\\,(h-k) \\\\[6pt] \\Longrightarrow\\quad \\mathrm{Var} = \\sigma^2\\left[h + 2\\sum_{k=1}^{h-1}(h-k)\\,\\rho_k\\right] \\end{gathered}$$'}</Eq>,
+                                porque: 'Aquí está todo. En la cuadrícula de h × h términos, la diagonal que está a distancia k tiene h − k celdas, y hay dos —una por encima y otra por debajo—. Con h = 10 eso son nueve parejas a distancia uno y una sola a distancia nueve: los rezagos lejanos pesan menos aunque su correlación fuera igual de grande, simplemente porque hay menos.',
+                            },
+                            {
+                                eq: <Eq>{'$$= h\\,\\sigma^2\\left[1 + 2\\sum_{k=1}^{h-1}\\left(1-\\tfrac{k}{h}\\right)\\rho_k\\right]$$'}</Eq>,
+                                porque: 'Sacar h de factor común convierte el conteo h − k en la fracción (h − k)/h = 1 − k/h. No es una ponderación elegida por nadie ni un descuento por antigüedad: es cuántas parejas hay a esa distancia, dividido por h.',
+                            },
+                        ]}
+                        cierre="Sobre esta serie el corchete vale 1,1541 y su raíz, 1,0743, es el 7,4 % de más que el bloque imprime. Y casi todo viene de dos rezagos: ρ₂ = +0,0754 aporta +0,1207 al corchete y ρ₄ = +0,0592 aporta +0,0711, mientras los cuatro rezagos negativos juntos restan 0,0734. Con todas las autocorrelaciones en cero el corchete vale 1 y el factor es √h: la raíz del tiempo es el caso particular, no la regla."
+                    />
+
                     <p>
                         El corchete vale 1 exactamente cuando todas las autocorrelaciones son nulas. En
                         esta serie ρ₂ vale +0,075, lo bastante para que el factor real sea 3,3972 en vez
