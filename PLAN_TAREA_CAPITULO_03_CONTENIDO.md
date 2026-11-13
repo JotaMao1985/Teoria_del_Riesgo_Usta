@@ -35,7 +35,8 @@ sesión maestra** sobre `datos/bvc_diario.csv` (`m_chk1.py`, `m_chk2.py`):
    que lleva la beta solo a **0,7333**: un quinto de la brecha, como dice `CLAUDE.md` y promete el capítulo 1 (`:3766`)
    sin que el 3 lo mida.
 2. **El fondo no rindió 7,69 %** (`:4057`, `:4162`, `:4198`, `:4765`, R7 de la sección 3, pregunta 10): es w′μ, la
-   convención, que no es el rendimiento de ninguna cartera. Rebalanceado cada rueda rindió 11,83 % y le ganó al índice;
+   convención, que no es el rendimiento de ninguna cartera. Rebalanceado cada rueda rindió 11,83 % (media logarítmica ×
+   252, como el 8,10 % del índice; compuesto, 12,56 % anual) y le ganó al índice;
    el alfa ronda +4,16 en vez de +0,02, y sigue sin distinguirse de cero. **La corrección ya existe**: el commit
    `ee8bfc3` (rama `claude/sweet-mclaren-0a350c`, sin fusionar), que además arregla el alfa de ISA (+5,20 → +5,29) y la
    pregunta del cuestionario. Se aplica limpio sobre la rama de trabajo.
@@ -80,10 +81,10 @@ dos emisores son prácticamente todo» (`:4282`).
 |---|---|---|
 | **C3-A** | ¿Se trae `ee8bfc3`? | **Sí, en la fase 0, tal cual** (cherry-pick sobre la rama; se aplica sin conflicto y pesa 4 KB). Es el mismo error que la línea base encontró en cuatro sitios, ya corregido, ejecutado y con las letras de la regla 14 vueltas a medir. Los otros dos commits de esa rama (capítulos 4, 6, 7, 9, 11 y 12) no son de este capítulo y siguen esperando su propia fusión. |
 | **C3-B** | ¿Cómo se reporta el error estándar de la beta? | **Las dos columnas, como la convención del curso**: el bloque de la sección 2 imprime el de MCO y el de Newey-West, escrito a mano en las dos pestañas (es una suma de autocovarianzas; así no hace falta declarar `sandwich` en el entorno de R), y la prosa dice que con heterocedasticidad —la del capítulo 2— el honesto es el segundo. «Catorce errores estándar» pasa a «casi cuatro»; ninguna conclusión cambia. |
-| **C3-C** | ¿Qué se hace con el mecanismo de la sección 5? | **Medirlo y decirlo.** El bloque añade la regresión con el mercado de un día antes y uno después (Dimson con adelanto, que es la forma de Scholes y Williams) y su suma, 0,94–1,00; la prosa cuenta que el que llega tarde es sobre todo el ETF y que Banco de Bogotá es el caso de la acción que no cotiza. Las betas semanal y mensual con el rango de sus fases (la regla del capítulo 7 para todo submuestreo) y las 101 ruedas medidas: un quinto. El R7 de cobertura se reescribe sobre esas cifras. |
+| **C3-C** | ¿Qué se hace con el mecanismo de la sección 5? | **Medirlo y decirlo.** El bloque añade la regresión con el mercado de un día antes y uno después y la suma de sus coeficientes (el estimador de Dimson; cómo se relaciona con el de Scholes y Williams se dice solo después de leer las dos fuentes): 0,9359 con un día a cada lado y 0,9983 con dos; la prosa cuenta que el que llega tarde es sobre todo el ETF y que Banco de Bogotá es el caso de la acción que no cotiza. Las betas semanal y mensual con el rango de sus fases (la regla del capítulo 7 para todo submuestreo) y las 101 ruedas medidas: un quinto. El R7 de cobertura se reescribe sobre esas cifras. |
 | **C3-D** | ¿Qué fórmula de diversificación? | **La exacta, con varianza media y covarianza media**: reproduce el equiponderado sin error, el laboratorio sigue igual de simple (dos deslizadores) y el «error de 0,0059» desaparece porque no era un error. El suelo se llama «la covarianza media» y no «el riesgo de que Colombia entera se mueva», y la pregunta 6 queda coherente con la tabla. |
 | **C3-E** | ¿Qué dice la portada de la tasa? | **D-D tal como quedó**: 7,00 % E.A. declarada, mantenida tras medirla contra `curva_tes.csv` en el capítulo 9 (0,21 pp sobre el promedio de la curva a un año en 2018–2025), con remisión al 9 y sin «cuando exista». La anualizada es **6,7668 % (diaria efectiva × 252)**, y ln(1,07) = 6,7659 se nombra como la otra convención, la que usa un capítulo en logaritmos puros, no como su explicación. La tasa de política con fuente (serie del Banco de la República) o fuera. |
-| **C3-F** | ¿Qué fuentes se leen? | Tanda 04 a Zotero, todas abiertas: **Fama y French (2004), «The Capital Asset Pricing Model: Theory and Evidence»** (*Journal of Economic Perspectives*), que cubre Sharpe, Lintner, Jensen, Roll y Fama-French 1992 con página; la **información científica de los Nobel de 1990** (Markowitz, Sharpe) **y de 2013** (Fama: pruebas del CAPM, tres factores); la **tasa de política monetaria** del Banco de la República (SUAMECA); y la ficha del **iShares MSCI COLCAP** para lo que es el ETF. Que el docente adjunte, si los tiene, Sharpe (1964), Jensen (1968), Roll (1977), Dimson (1979) y Scholes y Williams (1977): están en Wiley y Elsevier. Si Jensen no llega, «115 fondos» se dice por lo que diga la fuente leída o sale. |
+| **C3-F** | ¿Qué fuentes se leen? | Tanda 04 a Zotero, todas abiertas: **Fama y French (2004), «The Capital Asset Pricing Model: Theory and Evidence»** (*Journal of Economic Perspectives*), que según su resumen repasa la teoría y las pruebas del modelo —qué cubre de Sharpe, Lintner, Jensen, Roll y Fama-French 1992, y con qué página, se sabe al leerlo—; la **información científica de los Nobel de 1990** (Markowitz, Sharpe) **y de 2013** (Fama: pruebas del CAPM, tres factores); la **tasa de política monetaria** del Banco de la República (SUAMECA); y la ficha del **iShares MSCI COLCAP** para lo que es el ETF. Que el docente adjunte, si los tiene, Sharpe (1964), Jensen (1968), Roll (1977), Dimson (1979) y Scholes y Williams (1977): están en Wiley y Elsevier. Si Jensen no llega, «115 fondos» se dice por lo que diga la fuente leída o sale. |
 | **C3-G** | ¿Qué se hace con lo que la línea base encontró **fuera** del capítulo 3? | Lo que es **una línea** se corrige aquí en la fase 7: la remisión al capítulo 11 (la beta como razón de cobertura vive en el propio capítulo 3 y en el T3), la nota del `arch`/`rugarch` de `:3907` (el porqué que el capítulo 2 corrigió) y lo que el capítulo 1 promete del 3 (el «un quinto»). El **taller `TDR-03.qmd`** —no cubre la sección 3 y pide una beta de Dimson que el capítulo no enseña; con C3-C la enseñaría— se revisa en una sesión aparte, después de este capítulo. |
 
 ## Fases
@@ -152,6 +153,19 @@ Las 22 contradichas y los tres ejercicios altos, sin ampliar nada. Una lista cer
   barridos, las gráficas con su pie al lado, consola, 375 px).
 - Lectura independiente de cada pareja cita–pasaje, hasta que no quede ningún «no-respalda».
 - Las 168 afirmaciones en un estado final; `CLAUDE.md` con lo que el capítulo 3 deja dicho para los otros.
+
+## Auditoría del propio plan (2026-11-12)
+Antes de pedir la aprobación, la sesión maestra recalculó sobre el panel **todas** las cifras de este plan que venían
+de los inventarios (`m_chk3.py`, en la carpeta de la línea base del vault): la identidad exacta del equiponderado
+(1,5469 y el suelo 1,1361), las reducciones con 4, 40 y 400 emisores (35,19 · 50,39 · 52,18 %), el 44 % del suelo que
+el índice no explica, 8,1027, 6,766773, la beta del fondo rebalanceado (0,6756), la de Banco de Bogotá (0,3466 y
+0,6180 semanal), el alfa de Jensen sobre w′r (0,0176, EE 7,5040, t = 0,0023) y las dos líneas del R3 de ISA que
+llevan el mismo error. Todas se sostienen. Se corrigieron tres cosas del borrador: el 11,83 % iba sin su convención,
+el plan atribuía a Scholes y Williams una forma del estimador sin haberlo leído, y decía de memoria qué cubre Fama y
+French (2004). Dos limitaciones quedan dichas: el mecanismo por el que el ETF llega tarde **no está medido** (el plan
+mide el efecto, no su causa), y en el vault las afirmaciones ejecutadas y derivadas que un inventario dio por
+sostenidas quedaron en `verificada`, como en los capítulos 1 y 2, aunque el esquema reserva ese estado al verificador
+independiente de una cita: ninguna de ellas es una cita.
 
 ## Modelos y agentes
 | Trabajo | Quién |
