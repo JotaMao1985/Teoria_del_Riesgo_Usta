@@ -3161,18 +3161,28 @@ print(f"Intervalo de confianza al 95 % para la beta del portafolio: [{b - 1.96*e
 #> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]
 # El EE de arriba supone varianza constante e independencia; el capitulo 2 mostro que no.
 # Newey-West con 5 rezagos (una semana) no supone ninguna de las dos.
-e, xc = q.resid, rm - rm.mean()
-u = xc * e
-s = (u ** 2).sum()
-for k in range(1, 6):
-    s += 2 * (1 - k / 6) * (u[k:] * u[:-k]).sum()
-ee_nw = np.sqrt(s) / (xc ** 2).sum()
-print(f"EE de la beta del portafolio: MCO {ee:.4f} · Newey-West {ee_nw:.4f}")
+def ee_nw(resid, x, rezagos=5):
+    xc = x - x.mean()
+    u  = xc * resid
+    s  = (u ** 2).sum()
+    for k in range(1, rezagos + 1):
+        s += 2 * (1 - k / (rezagos + 1)) * (u[k:] * u[:-k]).sum()
+    return np.sqrt(s) / (xc ** 2).sum()
+
+nw = ee_nw(q.resid, rm)
+print(f"EE de la beta del portafolio: MCO {ee:.4f} · Newey-West {nw:.4f}")
 #> EE de la beta del portafolio: MCO 0.0228 · Newey-West 0.0849
-print(f"Intervalo al 95 % con Newey-West: [{b - 1.96*ee_nw:.4f}, {b + 1.96*ee_nw:.4f}]")
+print(f"Intervalo al 95 % con Newey-West: [{b - 1.96*nw:.4f}, {b + 1.96*nw:.4f}]")
 #> Intervalo al 95 % con Newey-West: [0.5115, 0.8444]
-print(f"El uno queda a {(1 - b)/ee:.1f} errores estandar con MCO y a {(1 - b)/ee_nw:.1f} con Newey-West")
-#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West`,
+print(f"El uno queda a {(1 - b)/ee:.1f} errores estandar con MCO y a {(1 - b)/nw:.1f} con Newey-West")
+#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West
+
+qb = sm.OLS(r["BOGOTA.CL"].values, X).fit()          # la beta mas baja de las cuatro
+bb, nwb = qb.params[1], ee_nw(qb.resid, rm)
+print(f"Banco de Bogota: beta {bb:.4f}   t de MCO {qb.tvalues[1]:.2f}   t de Newey-West {bb/nwb:.2f}")
+#> Banco de Bogota: beta 0.3466   t de MCO 9.73   t de Newey-West 4.26
+print(f"  intervalo al 95 % con Newey-West: [{bb - 1.96*nwb:.4f}, {bb + 1.96*nwb:.4f}]")
+#>   intervalo al 95 % con Newey-West: [0.1870, 0.5062]`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 
@@ -3205,17 +3215,28 @@ cat(sprintf("Intervalo de confianza al 95 %% para la beta del portafolio: [%.4f,
 #> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]
 # El EE de arriba supone varianza constante e independencia; el capitulo 2 mostro que no.
 # Newey-West con 5 rezagos (una semana) no supone ninguna de las dos.
-e  <- residuals(lm(rp ~ rm)); xc <- rm - mean(rm)
-u  <- xc * e; n <- length(u)
-s  <- sum(u^2)
-for (k in 1:5) s <- s + 2 * (1 - k / 6) * sum(u[(k + 1):n] * u[1:(n - k)])
-ee_nw <- sqrt(s) / sum(xc^2)
-cat(sprintf("EE de la beta del portafolio: MCO %.4f · Newey-West %.4f\\n", ee, ee_nw))
+ee_nw <- function(resid, x, rezagos = 5) {
+  xc <- x - mean(x); u <- xc * resid; n <- length(u)
+  s  <- sum(u^2)
+  for (k in 1:rezagos) s <- s + 2 * (1 - k / (rezagos + 1)) * sum(u[(k + 1):n] * u[1:(n - k)])
+  sqrt(s) / sum(xc^2)
+}
+
+nw <- ee_nw(residuals(lm(rp ~ rm)), rm)
+cat(sprintf("EE de la beta del portafolio: MCO %.4f · Newey-West %.4f\\n", ee, nw))
 #> EE de la beta del portafolio: MCO 0.0228 · Newey-West 0.0849
-cat(sprintf("Intervalo al 95 %% con Newey-West: [%.4f, %.4f]\\n", b - 1.96 * ee_nw, b + 1.96 * ee_nw))
+cat(sprintf("Intervalo al 95 %% con Newey-West: [%.4f, %.4f]\\n", b - 1.96 * nw, b + 1.96 * nw))
 #> Intervalo al 95 % con Newey-West: [0.5115, 0.8444]
-cat(sprintf("El uno queda a %.1f errores estandar con MCO y a %.1f con Newey-West\\n", (1 - b) / ee, (1 - b) / ee_nw))
-#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West`,
+cat(sprintf("El uno queda a %.1f errores estandar con MCO y a %.1f con Newey-West\\n", (1 - b) / ee, (1 - b) / nw))
+#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West
+
+qb  <- summary(lm(r[, "BOGOTA.CL"] ~ rm))            # la beta mas baja de las cuatro
+bb  <- qb$coefficients[2, 1]
+nwb <- ee_nw(residuals(lm(r[, "BOGOTA.CL"] ~ rm)), rm)
+cat(sprintf("Banco de Bogota: beta %.4f   t de MCO %.2f   t de Newey-West %.2f\\n", bb, qb$coefficients[2, 3], bb / nwb))
+#> Banco de Bogota: beta 0.3466   t de MCO 9.73   t de Newey-West 4.26
+cat(sprintf("  intervalo al 95 %% con Newey-West: [%.4f, %.4f]\\n", bb - 1.96 * nwb, bb + 1.96 * nwb))
+#>   intervalo al 95 % con Newey-West: [0.1870, 0.5062]`,
         };
 
         const EJ_SML = {
@@ -4566,7 +4587,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                 <FichaNorma
                     norma="Régimen de inversión de los fondos de pensiones obligatorias"
                     emisor="Gobierno nacional (Presidencia de la República y Ministerio de Hacienda y Crédito Público) · vigilancia de la Superintendencia Financiera"
-                    referencia="Decreto 2555 de 2010 (decreto único del sector financiero), parte 2, libro 6, título 12"
+                    referencia="Decreto 2555 de 2010 (decreto único del sector financiero), parte 2, libro 6, títulos 12 y 13"
                     k="decreto2555-2010"
                     loc="arts. 2.6.12.1.2, 2.6.12.1.4, 2.6.12.1.12, 2.6.12.1.15, 2.6.12.1.18 y 2.6.13.1.1"
                     exige="Que cada tipo de fondo de pensiones obligatorias se invierta dentro de límites por clase de activo —en títulos y valores participativos, que incluyen las acciones, hasta el 20, el 45 o el 70 % según el fondo—, por emisor con su grupo —10 %— y en entidades vinculadas a la propia administradora —10 %—, con una política de inversión que aprueba la junta directiva. Un exceso que causa la valorización y dura quince días se corrige con un plan que se somete a la Superintendencia Financiera, y uno que causa una inversión, de inmediato: la concentración no queda a criterio del gestor."
@@ -4819,7 +4840,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     <MCQ
                         pregunta="El comité pide cubrir el 100 % de la exposición del portafolio al mercado con futuros del índice. Con 800 000 millones invertidos, ¿qué nominal se vende?"
                         opciones={[
-                            { texto: 'Unos 750 000 millones: la beta diaria se sabe sesgada a la baja, y las corregidas del bloque de esta sección rondan 0,94.', correcta: true, justificacion: 'Los cerca de 200 000 millones de diferencia con la beta diaria no son una discrepancia de criterio sino un defecto medido: el ETF registra un día tarde lo que hacen Ecopetrol, Grupo Sura e ISA, Banco de Bogotá registra un día tarde lo que hace el ETF, y la covarianza del mismo día pierde los dos trozos. Sumando el mercado de ayer, de hoy y de mañana la beta del portafolio es 0,9359; medida por semanas va de 0,8651 a 0,9549 según la rueda en que empiece la semana. Recalcularla cada día con la ventana rodante de 250 ruedas tampoco lo arregla: la beta rodante de 250 ruedas del bloque de esta sección la mueve entre 0,3045 y 1,0060, que sobre 800 000 millones son coberturas de 244 000 a 805 000. La respuesta profesional no es un número sino un número con su frecuencia declarada, y eso es exactamente lo que evalúa el R8 de esta sección.' },
+                            { texto: 'Unos 750 000 millones: la beta diaria se sabe sesgada a la baja, y la de Dimson del bloque de esta sección es 0,9359.', correcta: true, justificacion: 'Los cerca de 200 000 millones de diferencia con la beta diaria no son una discrepancia de criterio sino un defecto medido: el ETF registra un día tarde lo que hacen Ecopetrol, Grupo Sura e ISA, Banco de Bogotá registra un día tarde lo que hace el ETF, y la covarianza del mismo día pierde los dos trozos. Sumando el mercado de ayer, de hoy y de mañana la beta del portafolio es 0,9359; medida por semanas va de 0,8651 a 0,9549 según la rueda en que empiece la semana. Recalcularla cada día con la ventana rodante de 250 ruedas tampoco lo arregla: la beta rodante de 250 ruedas del bloque de esta sección la mueve entre 0,3045 y 1,0060, que sobre 800 000 millones son coberturas de 244 000 a 805 000. La respuesta profesional no es un número sino un número con su frecuencia declarada, y eso es exactamente lo que evalúa el R8 de esta sección.' },
                             { texto: '542 000 millones, que es 0,6779 por 800 000: la beta del portafolio es la que estima la regresión sobre los datos disponibles, y usar otra es intervenir el dato.', correcta: false },
                             { texto: '800 000 millones, porque cubrir el 100 % de la exposición significa vender el nominal completo de la posición, y ahí la beta no interviene.', correcta: false },
                             { texto: '542 000 millones, pero revisando la cobertura cada día para recalcular la beta con la ventana rodante de 250 ruedas y ajustar el nominal.', correcta: false },

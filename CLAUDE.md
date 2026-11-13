@@ -77,6 +77,15 @@ Financiera ya probó (`Usta 2026II/Logica de programacion/`):
   coautor del CAPM: llegó a él por su cuenta. Jensen (1968), Roll (1977), Dimson (1979), Sharpe (1964) y Fama y
   French (2004) siguen sin leerse —Wiley, Elsevier y un desafío de Cloudflare—: los «115 fondos» y el hito de
   Dimson salieron del capítulo.
+- **La auditoría de cifras va sobre el diff del commit, no sobre un parche tomado antes.** El capítulo 3 se
+  auditó con un parche generado veinte minutos antes de cerrar, y **24 líneas del commit publicado nunca pasaron
+  por el auditor**: las redacciones de las rondas 3 a 7 del verificador de citas y las cinco correcciones que la
+  propia auditoría motivó. Una auditoría de cierre sobre esas líneas (2026-11-13) confirmó las 40 cifras sin un
+  error, pero dejó tres cosas que se corrigieron después de publicar: el error robusto de Banco de Bogotá (t 4,26,
+  intervalo [0,1870 · 0,5062]) **vivía solo en la prosa** y ahora lo imprime el bloque, «las corregidas rondan
+  0,94» decía más de lo que el bloque muestra —también imprime 0,85–1,04— y la ficha del Decreto 2555 acotaba al
+  título 12 un `loc` que incluye el 2.6.13.1.1. **Una cifra que ningún bloque imprime es una cifra que el
+  estudiante no puede rehacer**, aunque esté bien.
 - **Desde la pantalla bloqueada, Zotero se importa sin tocar la interfaz**: `connector/import?session=X` guarda
   en la colección seleccionada y `connector/updateSession {"sessionID": X, "target": "C26"}` mueve los ítems a
   la de TDR; se comprueba por la API que la colección de otro curso volvió a su conteo.
