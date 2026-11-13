@@ -4329,11 +4329,48 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         El <strong>VaR marginal</strong> es el efecto de la unidad siguiente de peso; el{' '}
                         <strong>VaR componente</strong> es lo que le corresponde a la posición entera, y
                         los cuatro suman exactamente el total. Que sumen no es una convención contable:
-                        es el teorema de Euler aplicado a una función homogénea de grado uno. Y el{' '}
+                        es el teorema de Euler aplicado a una función homogénea de grado uno, y la
+                        derivación de abajo lo muestra en cuatro pasos. Y el{' '}
                         <strong>VaR incremental</strong>, que es otra cosa, mide cuánto baja el VaR si
                         la posición se liquida completa —no coincide con el componente salvo para
                         posiciones pequeñas, porque al liquidar cambia Σw y con él todo lo demás—.
                     </p>
+
+                    
+                    <Derivacion
+                        titulo="Por qué los cuatro componentes suman exactamente el total"
+                        pasos={[
+                            {
+                                eq: <Eq>{'$$\\sigma_p^2 = w^{\\top}\\Sigma\\,w \\quad\\Longrightarrow\\quad \\frac{\\partial \\sigma_p^2}{\\partial w_i} = 2\\,(\\Sigma w)_i$$'}</Eq>,
+                                porque: 'La varianza del portafolio es una forma cuadrática, y su derivada respecto a un peso es dos veces la fila i de Σw. Aquí no hay nada de riesgo todavía: es cálculo de una función de varias variables.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\frac{\\partial \\sigma_p}{\\partial w_i} = \\frac{1}{2\\sigma_p}\\,\\frac{\\partial \\sigma_p^2}{\\partial w_i} = \\frac{(\\Sigma w)_i}{\\sigma_p}$$'}</Eq>,
+                                porque: 'La regla de la cadena sobre la raíz. El 2 se cancela, y queda la expresión que el bloque calcula: la covarianza de la posición con el portafolio, dividida por la volatilidad del portafolio. Multiplicada por z y por W es el VaR marginal.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\sigma_p(t\\,w) = \\sqrt{t^2\\,w^{\\top}\\Sigma w} = t\\,\\sigma_p(w)$$'}</Eq>,
+                                porque: 'Esta es la propiedad que lo decide todo, y es fácil de pasar por alto: doblar todas las posiciones dobla la volatilidad. En lenguaje técnico, σₚ es homogénea de grado uno en los pesos — y el VaR, que es σₚ por dos constantes, también lo es.',
+                            },
+                            {
+                                eq: <Eq>{'$$\\sum_i w_i\\,\\frac{\\partial \\sigma_p}{\\partial w_i} = \\sigma_p \\quad\\Longrightarrow\\quad \\sum_i c_i = \\mathrm{VaR}_\\alpha$$'}</Eq>,
+                                porque: 'El teorema de Euler: para una función homogénea de grado uno, la suma de cada variable por su derivada devuelve la función. Derive la identidad del paso anterior respecto a t y evalúela en t = 1 y lo tiene. Por eso los componentes suman el total exactamente, y no por redondeo: comprobado sobre este panel, Σ wᵢ ∂σₚ/∂wᵢ y σₚ coinciden en los diez decimales que imprime Python.',
+                            },
+                        ]}
+                        cierre="Y por eso mismo el VaR aislado no suma nada: no es una derivada evaluada en la cartera, es el VaR de otra cartera —una que solo tiene esa posición—. La diferencia entre las dos columnas del bloque es el precio de esa confusión: 15 234 millones."
+                    />
+
+                    <Anatomia
+                        titulo="Las cuatro medidas del reparto, con lo que vale cada una aquí"
+                        subtitulo="Banco de Bogotá, que es la posición donde más se separan · VaR del portafolio 29 338 millones"
+                        piezas={[
+                            { simbolo: 'VaR aislado', que: 'El VaR de una cartera que solo tuviera esta posición. No es un reparto: es otra cartera. Las cuatro no suman el total.', vale: '7 773 millones' },
+                            { simbolo: '\\(\\partial\\mathrm{VaR}/\\partial w_i\\)', que: 'El VaR marginal: lo que cambia el total por cada unidad de peso que se añade. Va en pesos POR UNIDAD DE PESO de cartera, así que no se puede sumar con los demás ni comparar con ellos.', vale: '19 682 millones por unidad de peso' },
+                            { simbolo: '\\(c_i = w_i\\,\\partial\\mathrm{VaR}/\\partial w_i\\)', que: 'El VaR componente: la parte del total que le corresponde a la posición entera. Es la única de las cuatro que suma el VaR del portafolio, por el teorema de Euler.', vale: '3 936 millones' },
+                            { simbolo: 'VaR incremental', que: 'Cuánto baja el VaR si la posición se liquida completa. No coincide con el componente salvo para posiciones pequeñas, porque al liquidar cambia Σw y con él σₚ.', vale: 'más que el componente, y hay que recalcular el VaR sin la posición para saberlo' },
+                        ]}
+                        nota="La confusión cara es tomar el marginal por el componente: en Banco de Bogotá se diferencian en un factor de cinco, que es exactamente 1/wᵢ. Y la confusión frecuente es sumar los aislados, que es lo que hace el comité de la motivación."
+                    />
 
                     <CodeTabs titulo="El reparto del VaR entre las cuatro posiciones" bloques={EJ_COMPONENTE}
                         nota="La fila de la suma es la comprobación: la columna del VaR aislado no suma el total, la del componente sí." />
@@ -4540,7 +4577,7 @@ componente <- w * marginal`,
                         emisor="Comité de Supervisión Bancaria de Basilea"
                         referencia="BCBS (1996), recogida después en el marco de Basilea II"
                         k="bcbs1996mercado"
-                        loc="p. 44, B.4 (b)–(d) y (j)"
+                        loc="pp. 44–45, B.4 (b)–(d), (i) y (j)"
                         exige="Para el cálculo de capital por modelos internos: nivel de confianza del 99 %, horizonte de tenencia de diez días hábiles, ventana histórica de al menos un año, y un requerimiento igual al mayor entre el VaR del día anterior y el promedio de los últimos sesenta días multiplicado por un factor de al menos 3, que sube según los resultados del backtesting."
                         enElCapitulo="El escalamiento de esta sección: el 99 % es el nivel de todos los bloques y los diez días son el horizonte que produce el 12,893 % de la regla de la raíz y el 13,851 % del factor exacto. De dónde sale el multiplicador y cómo se mueve entre 3 y 4 es el capítulo 6."
                         enlace="https://www.bis.org/publ/bcbs24.htm"
