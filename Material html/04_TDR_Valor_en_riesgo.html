@@ -3200,6 +3200,70 @@ for (alfa in c(0.95, 0.99)) {
 #> alfa 99 %  normal 3.637 %   t 4.132 %   historico 4.077 %`,
         };
 
+        const EJ_NU = {
+            python: `import numpy as np
+import pandas as pd
+from scipy.stats import t
+
+precios  = pd.read_csv("datos/bvc_diario.csv", parse_dates=["fecha"], index_col="fecha")
+acciones = ["ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL"]
+w   = np.array([0.30, 0.20, 0.25, 0.25])
+ret = np.log(precios[acciones]).diff().dropna()
+rp  = pd.Series(ret.values @ w, index=ret.index)
+
+def momentos(x):
+    mu, sd = x.mean(), x.std(ddof=1)
+    k  = ((x - mu) ** 4).mean() / ((x - mu) ** 2).mean() ** 2 - 3
+    nu = 6 / k + 4                      # metodo de los momentos
+    v  = -(mu + t.ppf(0.01, nu) * np.sqrt((nu - 2) / nu) * sd)
+    return k, nu, v
+
+tramos = [("panel entero", rp), ("ultimas 250", rp[-250:]), ("ultimas 500", rp[-500:]),
+          ("solo 2020", rp[rp.index.year == 2020]), ("solo 2024", rp[rp.index.year == 2024])]
+for etiqueta, x in tramos:
+    k, nu, v = momentos(x)
+    print(f"{etiqueta:13s} n {len(x):4d}   curtosis {k:6.2f}   nu {nu:5.2f}   VaR t 99 % {v*100:.3f} %")
+#> panel entero  n 1916   curtosis  25.77   nu  4.23   VaR t 99 % 4.132 %
+#> ultimas 250   n  250   curtosis  39.60   nu  4.15   VaR t 99 % 4.732 %
+#> ultimas 500   n  500   curtosis  46.51   nu  4.13   VaR t 99 % 3.874 %
+#> solo 2020     n  242   curtosis  15.54   nu  4.39   VaR t 99 % 6.819 %
+#> solo 2024     n  233   curtosis   0.44   nu 17.74   VaR t 99 % 2.514 %
+
+# El estimador no puede devolver nu <= 4, por mucha cola que traiga la muestra.
+print(f"curtosis 100 -> nu {6/100 + 4:.3f}      curtosis 1000 -> nu {6/1000 + 4:.3f}")
+#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006`,
+            r: `precios  <- read.csv("datos/bvc_diario.csv")
+acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
+w     <- c(0.30, 0.20, 0.25, 0.25)
+rp    <- as.vector(diff(log(as.matrix(precios[, acciones]))) %*% w)
+anios <- as.integer(substr(precios$fecha[-1], 1, 4))
+
+momentos <- function(x) {
+  mu <- mean(x); sd_ <- sd(x)
+  k  <- mean((x - mu)^4) / mean((x - mu)^2)^2 - 3
+  nu <- 6 / k + 4                      # metodo de los momentos
+  v  <- -(mu + qt(0.01, nu) * sqrt((nu - 2) / nu) * sd_)
+  c(k, nu, v)
+}
+
+tramos <- list("panel entero" = rp, "ultimas 250" = tail(rp, 250), "ultimas 500" = tail(rp, 500),
+               "solo 2020" = rp[anios == 2020], "solo 2024" = rp[anios == 2024])
+for (etiqueta in names(tramos)) {
+  x <- tramos[[etiqueta]]; m <- momentos(x)
+  cat(sprintf("%-13s n %4d   curtosis %6.2f   nu %5.2f   VaR t 99 %% %.3f %%\\n",
+              etiqueta, length(x), m[1], m[2], m[3] * 100))
+}
+#> panel entero  n 1916   curtosis  25.77   nu  4.23   VaR t 99 % 4.132 %
+#> ultimas 250   n  250   curtosis  39.60   nu  4.15   VaR t 99 % 4.732 %
+#> ultimas 500   n  500   curtosis  46.51   nu  4.13   VaR t 99 % 3.874 %
+#> solo 2020     n  242   curtosis  15.54   nu  4.39   VaR t 99 % 6.819 %
+#> solo 2024     n  233   curtosis   0.44   nu 17.74   VaR t 99 % 2.514 %
+
+# El estimador no puede devolver nu <= 4, por mucha cola que traiga la muestra.
+cat(sprintf("curtosis 100 -> nu %.3f      curtosis 1000 -> nu %.3f\\n", 6/100 + 4, 6/1000 + 4))
+#> curtosis 100 -> nu 4.060      curtosis 1000 -> nu 4.006`,
+        };
+
         const EJ_VENTANA = {
             python: `import numpy as np
 import pandas as pd
@@ -3636,6 +3700,27 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     diez?, ¿al 95 % o al 99 %? Un VaR sin sus tres parámetros es como una temperatura
                     sin escala.
                 </p>
+                <p>
+                    Y hay una convención de signo que conviene declarar antes de escribir una línea de
+                    código. Aquí la <strong>pérdida es positiva</strong> —es el rendimiento cambiado de
+                    signo y llevado al tamaño del fondo— y el VaR también, de modo que «32 617 millones»
+                    se lee como una pérdida de 32 617 millones. La otra convención, la de reportar el VaR
+                    con signo negativo porque es una posición del activo, también circula; lo que no se
+                    puede es mezclarlas dentro del mismo informe.
+                </p>
+                <Anatomia
+                    titulo="La definición, pieza por pieza"
+                    subtitulo="Qué es cada letra y cuánto vale en el número que el fondo acaba de reportar"
+                    piezas={[
+                        { simbolo: '\\(L\\)', que: 'La pérdida del horizonte, en pesos y positiva: L = −W·r. Dar vuelta el signo es donde más se equivoca quien implementa, porque el código sigue corriendo y devuelve una ganancia con cara de riesgo.', vale: 'una variable aleatoria, no un número' },
+                        { simbolo: '\\(\\alpha\\)', que: 'El nivel de confianza: la fracción de ruedas en que la pérdida NO supera el umbral.', vale: '0,99 · la sección compara también 0,95' },
+                        { simbolo: '\\(1-\\alpha\\)', que: 'Lo que queda por encima. Es la frecuencia con que el umbral debería romperse si el modelo acierta, y es justo lo que el capítulo 6 sale a contar.', vale: '0,01 · una rueda de cada cien' },
+                        { simbolo: '\\(h\\)', que: 'El horizonte en el que se acumula la pérdida. No aparece en la fórmula porque va escondido dentro de L, y por eso es el parámetro que más se omite al reportar.', vale: 'una rueda · la sección 6 lo lleva a diez' },
+                        { simbolo: '\\(W\\)', que: 'El valor del portafolio sobre el que se aplica el porcentaje. Convierte un cuantil en dinero, y arrastra la advertencia del recuadro de arriba.', vale: '800 000 millones' },
+                        { simbolo: '\\(\\inf\\{\\cdot\\}\\)', que: 'El menor umbral que cumple la condición. Con una muestra finita ese ínfimo se alcanza en un dato y no en un punto cualquiera, y de ahí que el VaR histórico sea un estadístico de orden.', vale: 'la sección 3 lo calcula entre las ruedas 20 y 21 de 1 916' },
+                    ]}
+                    nota="Las seis piezas son el contrato de la cifra. Un VaR al que le falte declarado el nivel, el horizonte o la moneda no se puede comparar con otro, ni auditar, ni poner a prueba en el capítulo 6."
+                />
 
                 <CodeTabs titulo="El portafolio del fondo y su primer VaR" bloques={EJ_CARGA}
                     nota="Las dos pestañas dan exactamente lo mismo porque los datos salen del CSV congelado y no de un simulador. Es la convención del curso, y la razón por la que datos/ está versionado. Las tres últimas líneas son la columna exacta, y el recuadro de abajo dice qué separan." />
@@ -3789,6 +3874,20 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         cierre="Los cuatro pasos son aritmética salvo el segundo. Todo el trabajo empírico del capítulo consiste en poner ese segundo paso a prueba: primero cambiándolo por una t, después quitándolo del todo con el método histórico."
                     />
 
+                    <Anatomia
+                        titulo="De dónde sale cada número de la fórmula"
+                        subtitulo="Los seis ingredientes del VaR paramétrico al 99 %, sobre el panel entero"
+                        piezas={[
+                            { simbolo: '\\(\\mu\\)', que: 'La media muestral del rendimiento diario. Pesa poco en un día y mucho en un año, y la sección 5 la fija en cero y lo declara.', vale: '0,0305 % diario' },
+                            { simbolo: '\\(\\sigma\\)', que: 'La desviación muestral de la misma serie. Es el único ingrediente que las dos fórmulas comparten.', vale: '1,5764 % diario' },
+                            { simbolo: '\\(z_{1-\\alpha} = \\Phi^{-1}(1-\\alpha)\\)', que: 'El cuantil de la normal ESTÁNDAR: el inverso de su función de distribución. No se estima de los datos —sale de una tabla, igual para todo el mundo—, y por eso toda la normalidad del método vive en él.', vale: '−2,3263 al 99 % · −1,6449 al 95 %' },
+                            { simbolo: '\\(t_{1-\\alpha,\\nu}\\)', que: 'El mismo cuantil para una t con ν grados de libertad, SIN estandarizar: su desviación no es uno sino √(ν/(ν−2)).', vale: '−3,6356 con ν = 4,23' },
+                            { simbolo: '\\(\\sqrt{(\\nu-2)/\\nu}\\)', que: 'El factor que la estandariza, para que σ siga significando la desviación de los datos. Sin él la cifra sale un 38 % más alta y parece prudencia.', vale: '0,7263 · deja el cuantil en −2,6405' },
+                            { simbolo: '\\(W\\)', que: 'El valor del portafolio, que convierte el cuantil del rendimiento en pesos.', vale: '800 000 millones' },
+                        ]}
+                        nota="−2,3263 contra −2,6405 es toda la diferencia entre las dos fórmulas al 99 %: la t corre el corte 0,3142 desviaciones más lejos, y sobre σ = 1,5764 % eso son 0,4952 pp, o 3 962 millones de pesos. Ninguna de las dos mira un solo dato de la cola; las dos leen la cola desde el centro."
+                    />
+
                     <h3>Los grados de libertad los fija la curtosis</h3>
                     <p>
                         Para una t estandarizada con ν grados de libertad, la curtosis de exceso vale
@@ -3815,6 +3914,41 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
 
                     <ChartFrame id="cap4-densidades" height="chart-h-400"
                         caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y en ese tramo sus barras son tan bajas que la línea roja pasa por encima de casi todas—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
+
+                    <h3>Qué tan firme es ese 4,23</h3>
+                    <p>
+                        La t de Student pide dos cosas a su ν, y las dos están escritas en los momentos de
+                        la distribución: la <strong>varianza existe si ν &gt; 2</strong> —sin eso, el
+                        factor que estandariza no significa nada— y la <strong>curtosis existe si
+                        ν &gt; 4</strong> —sin eso, el método de los momentos estima algo que no está
+                        definido—. Con ν̂ = 4,23 el capítulo trabaja a <strong>veintitrés centésimas</strong> de
+                        esa segunda frontera, y conviene ver de dónde sale esa cercanía antes de confiar
+                        en la cifra.
+                    </p>
+                    <CodeTabs titulo="La misma receta sobre cinco tramos del panel" bloques={EJ_NU}
+                        nota="La última línea no mira los datos: es la fórmula evaluada en dos curtosis inventadas, para ver a dónde va." />
+
+                    <CalloutPro tema="warn" titulo="El estimador no puede decir «aquí la curtosis no existe»"
+                        subtitulo="ν = 6/κ̂ + 4 es mayor que 4 para toda curtosis positiva, por pesada que sea la cola">
+                        <p>
+                            Mire la última línea del bloque: con una curtosis de 100 el método devuelve
+                            4,06, y con 1 000, 4,006. <strong>Cuanto más pesada es la cola, más se pega ν̂
+                            a 4 por arriba</strong>, que es exactamente el valor en el que la curtosis
+                            teórica deja de existir. El 4,23 del panel no es, entonces, una medida de
+                            «cuánta cola hay»: es la señal de que hay demasiada para que la receta
+                            distinga. Una estimación por máxima verosimilitud sí puede devolver ν ≤ 4; la
+                            de momentos, nunca.
+                        </p>
+                        <p>
+                            Lo que sí se mueve es el VaR que sale de ahí, y no por ν sino por σ. Sobre
+                            2020 la receta da ν = 4,39 y un VaR t al 99 % de <strong>6,819 %</strong>;
+                            sobre 2024, ν = 17,74 y <strong>2,514 %</strong>. Entre las dos hay un factor
+                            de 2,7 —32 872 millones de pesos, compuestos como manda el recuadro de la
+                            sección 1— y el parámetro de forma no es el que lo explica. Esa es la cuarta convención del curso aplicada aquí: <strong>la
+                            ventana se declara antes de estimar</strong>, y el capítulo declara la suya
+                            —las 1 916 ruedas— en la portada.
+                        </p>
+                    </CalloutPro>
 
                     <Ejercicio tipo="R2">
                         <MCQ
@@ -4578,7 +4712,7 @@ componente <- w * marginal`,
                         referencia="BCBS (1996), recogida después en el marco de Basilea II"
                         k="bcbs1996mercado"
                         loc="pp. 44–45, B.4 (b)–(d), (i) y (j)"
-                        exige="Para el cálculo de capital por modelos internos: nivel de confianza del 99 %, horizonte de tenencia de diez días hábiles, ventana histórica de al menos un año, y un requerimiento igual al mayor entre el VaR del día anterior y el promedio de los últimos sesenta días multiplicado por un factor de al menos 3, que sube según los resultados del backtesting."
+                        exige="Para el cálculo de capital por modelos internos: nivel de confianza del 99 %, horizonte de tenencia de diez días hábiles, ventana histórica de al menos un año, y un requerimiento igual al mayor entre el VaR del día anterior y el promedio de los últimos sesenta días hábiles multiplicado por un factor de al menos 3, al que el backtesting le suma un «plus» de entre 0 y 1."
                         enElCapitulo="El escalamiento de esta sección: el 99 % es el nivel de todos los bloques y los diez días son el horizonte que produce el 12,893 % de la regla de la raíz y el 13,851 % del factor exacto. De dónde sale el multiplicador y cómo se mueve entre 3 y 4 es el capítulo 6."
                         enlace="https://www.bis.org/publ/bcbs24.htm"
                     />
@@ -4587,7 +4721,7 @@ componente <- w * marginal`,
                         emisor="Superintendencia Financiera de Colombia"
                         referencia="Circular Básica Financiera (Circular Externa 004 de 2026), parte 1, capítulo 1"
                         k="sfc2026cbf"
-                        loc="1.1.1.63, 1.1.2.91 y 1.1.2.93–1.1.2.98"
+                        loc="1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y 1.1.2.93–1.1.2.98"
                         exige="Que una administradora de fondos de pensiones mida su riesgo de mercado con el MODELO ESTÁNDAR que la norma define, y que documente los modelos y las metodologías que usa. Las pruebas de desempeño —comparar el riesgo estimado contra las pérdidas realmente ocurridas— son una exigencia de los modelos internos, que otras entidades sí pueden usar con no objeción del supervisor."
                         enElCapitulo="Conviene no confundir dos cosas que el capítulo hace a la vez. Nada de lo que se calcula aquí es el número regulatorio del fondo, que sale del modelo estándar: es la medición interna, la que el comité usa para decidir, y la que los ejercicios R7 y R8 le piden documentar. La prueba retrospectiva del capítulo 6 vale igual para una y para otra, pero la norma solo la exige para la segunda."
                         enlace="https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"

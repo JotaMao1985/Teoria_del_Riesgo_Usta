@@ -1,14 +1,25 @@
 # Registro público de las afirmaciones citadas del capítulo 04.
 # Lo genera registrar_afirmaciones.py desde las notas del vault: no se edita a mano.
 # No lleva el extracto de la fuente, solo su sha256.
+- id: "c04-s6-a15"
+  seccion: "6. Escalamiento temporal"
+  ancla: "el promedio de los últimos sesenta días hábiles multiplicado por un factor de al menos 3"
+  clave: "bcbs1996mercado"
+  loc: "pp. 44–45, B.4 (b)–(d), (i) y (j)"
+  tema: "norma"
+  leido:
+    fecha: "2026-11-13"
+    medio: "acceso-abierto"
+    por: "Claude (verificador independiente, Opus, ronda 2)"
+  extracto_sha256: "ff9085b2417ae60573025f65f157fc14af28f3cdd2b06ea977248fa3543a9fb5"
 - id: "c04-s9-a60"
   seccion: "Evaluación"
   ancla: "mida su riesgo de mercado con el MODELO ESTÁNDAR que la norma define"
   clave: "sfc2026cbf"
-  loc: "1.1.1.63, 1.1.2.91 y 1.1.2.93–1.1.2.98"
+  loc: "1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y 1.1.2.93–1.1.2.98"
   tema: "norma"
   leido:
     fecha: "2026-11-11"
     medio: "acceso-abierto"
     por: "Claude (lector y verificador independiente, Opus)"
-  extracto_sha256: "f9a21931f880f70fe4cb0ee11b51858a6c141a974b2d438ed536746122de5175"
+  extracto_sha256: "c898273e471b1aa1fa77af99b42c60a317bd0a41a44d53b865f09228691e0e0f"
