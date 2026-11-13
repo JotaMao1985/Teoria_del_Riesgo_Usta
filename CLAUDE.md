@@ -29,7 +29,49 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | Gestión documental (F0–F4) | ✅ 2026-11-11 · vault, 69 referencias en Zotero, circuito de citas (reglas 18–24, tope 420 KB), línea base del capítulo 1 · PC1–PC4 aprobados |
 | Mejora del capítulo 1 | 🟡 2026-11-12 · fases 0–8 hechas: **40 afirmaciones citadas y verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF, R6 con las definiciones vigentes; ninguna afirmación de la línea base queda por revisar · **espera el PC5** · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
 | Mejora del capítulo 3 | 🟡 2026-11-13 · fases 0–8: **15 citas verificadas** (comunicado del Nobel de 1990, información científica del Nobel de 2013, tasa de política del Banco de la República, reglamento del ICOLCAP, Decreto 2555), `ee8bfc3` traído, el error estándar de Newey-West, el rezago del ETF medido, la diversificación exacta, la anatomía de la regresión y la derivación del suelo; ninguna afirmación de la línea base queda por revisar · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_03_CONTENIDO.md` |
+| Mejora del capítulo 4 | 🟡 2026-11-13 · fases 0–8: **6 citas verificadas** (Basilea 1996, SIAR/CBF y los cuatro hitos de la línea de tiempo, tres de ellos reescritos porque la fuente no decía lo que se les atribuía; el informe del Grupo de los Treinta de 1993 entró a Zotero), la séptima convención medida en dinero, el cuantil de tipo 7 descompuesto en las dos ruedas que lo deciden, la derivación de Euler y la del (1 − k/h), la fragilidad de ν y el error estándar del Montecarlo nombrado como convención · **las 153 afirmaciones en estado final** (146 resueltas, 6 verificadas, 1 eliminada) y 125 cifras del diff auditadas · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_04_CONTENIDO.md` |
 | Mejora del capítulo 2 | 🟡 2026-11-12 · fases 0–8 hechas: **26 afirmaciones citadas y verificadas** (Nobel 2003, Engle 2001, RiskMetrics, Cont, FRTB, Basilea 1996, NIST, `arch`, `rugarch`), el porqué de `arch` contra `rugarch` corregido aquí y en los capítulos 1 y 7, la persistencia por tramos, la anatomía del GARCH y la derivación del pronóstico; ninguna afirmación de la línea base queda por revisar · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_02_CONTENIDO.md` |
+
+⚠️ **Lo que la mejora del capítulo 4 (2026-11-13) dejó dicho para los demás.**
+
+- **La auditoría que faltaba no es de cifras: es de afirmaciones.** Al cerrar, un agente con contexto limpio
+  decidió nota por nota el estado final de las 69 afirmaciones que seguían abiertas, y encontró **doce falsas o
+  contradichas — una de ellas escrita por la propia mejora esa tarde**: una `Anatomia` nueva decía que el VaR
+  incremental vale MÁS que el componente, y es al revés (7 808 · 3 067 · 6 552 · 5 578 contra 9 918 · 3 936 ·
+  8 474 · 7 009), porque σₚ es convexa y la derivada en la cartera entera exagera lo que se ahorra al liquidar la
+  posición completa. Ni el verificador de citas ni la auditoría de cifras la habrían cazado: la cifra no la
+  imprimía ningún bloque y la afirmación no citaba a nadie. **Lo que la mejora escribe se audita como lo viejo.**
+- **`ν = 6/κ̂ + 4` no puede devolver nunca un ν ≤ 4**, por pesada que sea la cola: con curtosis 100 da 4,06 y con
+  1 000, 4,006. El 4,23 del panel no mide «cuánta cola hay», sino que hay demasiada para que la receta distinga.
+  Y sobre las **1 667** ventanas rodantes de 250 ruedas, **doce** —todas de julio de 2023— traen curtosis de
+  exceso **negativa**, donde la receta devuelve un ν por debajo de 4 que no corresponde a ninguna t; donde sí
+  funciona va de 4,12 a 2 219, con mediana 6,43. Por eso el capítulo 6 deja ν fijo en 4,23 mientras reestima μ y
+  σ cada rueda: es una decisión declarada y no un descuido, y lo que cuesta lo tendría que medir el 6.
+- **El VaR histórico son dos días y nada más.** Con n = 1 916 y p = 0,01, la posición (n−1)p = 19,15 cae entre
+  las ruedas 20 y 21 del orden, y el corte de tipo 7 es 0,85 × (−4,0785 %, el 8/6/2022) + 0,15 × (−4,0692 %, el
+  11/3/2020). Las otras 1 914 ruedas solo sirven para ponerlas en su sitio. Elegir otra de las nueve definiciones
+  de cuantil muestral mueve la cifra **74 millones**, y nadie documenta cuál usa.
+- **El (1 − k/h) de la raíz del tiempo es un conteo, no un descuento por antigüedad**: en la cuadrícula de h × h
+  covarianzas, la diagonal a distancia k tiene h − k celdas y hay dos. Sobre este panel el corchete vale 1,1541 y
+  casi todo lo ponen dos rezagos (ρ₂ aporta +0,1207 y ρ₄ +0,0711, contra los 0,0734 que restan los cuatro
+  negativos).
+- **Nada de lo que el capítulo calcula es el número regulatorio del fondo**, y el capítulo lo decía en su ficha
+  del SIAR mientras cuatro frases suyas hablaban de «requerimiento» y de «capital». La Circular Básica Financiera
+  manda a las AFP el **modelo estándar** (1.1.2.91 a.) y los modelos internos con no objeción son de otras
+  entidades (1.1.2.87 a.–b.). Todo capítulo que convierta un VaR en pesos revisa cómo lo llama.
+- **Tres de los cuatro hitos de la línea de tiempo no decían lo que sus fuentes dicen.** El Grupo de los Treinta
+  habla de comparar «across derivatives», no entre mesas, y de que el denominador común «makes aggregation,
+  comparison, and risk control **easier**» —facilita, no permite—. RiskMetrics nunca dice que el VaR se volviera
+  «el idioma común del sector», y su portada aclara que lo publicado «differs significantly from» la metodología
+  interna de J. P. Morgan. Y **el «VaR al 99 %» que el FRTB reemplaza no sale del FRTB**: ese 99 % es el de su
+  prueba retrospectiva y el del «plus» del multiplicador; el del régimen anterior está en la enmienda de 1996.
+- **Una expresión regular de R dentro de un template literal necesita CUATRO contrabarras**, porque JavaScript se
+  come dos: con `sub("\\..*", …)` en el archivo, R recibe `"\..*"` y aborta con «unrecognized escape». Es la
+  hermana de la trampa de la comilla invertida, y el verificador sí la caza, pero como «Execution halted» a secas.
+- La pista del «:» del capítulo 4 era la más alta del curso junto con la del 2: marcar la única opción con dos
+  puntos sacaba **6,08 de 15**, con el azar en 3,75, porque la correcta era la única marcada en tres preguntas.
+  Dándole dos puntos a un distractor de cada una quedó en **4,58** y en 0 de 15 preguntas delatadas. **El 2 sigue
+  en 6,08 y nadie lo ha tocado.**
 
 ## Gestión documental: vault y Zotero (desde el 2026-11-10)
 

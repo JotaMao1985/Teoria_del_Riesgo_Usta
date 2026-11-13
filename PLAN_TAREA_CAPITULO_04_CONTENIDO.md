@@ -185,3 +185,26 @@ mide al cerrar cada fase.
 - Ninguna afirmación de la línea base en `revisar`.
 - En pantalla: las seis secciones, los dos R3 en los dos lenguajes, el R1 de la sección 5 reproducible a mano, el
   cuestionario con la respuesta (10/10) y con la estrategia de la opción más corta y del «:» (3–4 de 10).
+
+## Registro de ejecución (2026-11-13)
+Las ocho fases están hechas en la rama `claude/course-content-improvement-4a310a`, de `3dd3869` a `d17240b`.
+El capítulo pasa las 24 reglas con `--con-salidas` **sin ningún aviso** y queda en **389 KB** (el presupuesto
+eran 45 KB sobre 340 y se usaron 49: cuatro de más, con el tope en 420).
+
+Lo que el cierre añadió y el plan no preveía:
+
+- **Una auditoría de afirmaciones, además de la de cifras.** Un agente con contexto limpio decidió nota por nota
+  el estado final de las 69 que seguían abiertas y encontró **doce falsas o contradichas, una de ellas escrita
+  por esta misma mejora** (el VaR incremental de la `Anatomia` de la sección 5, que es menor que el componente y
+  no mayor). Ninguna de las otras verificaciones la habría cazado. Queda como paso del cierre, en CLAUDE.md.
+- **La auditoría de cifras fue sobre el diff del commit**, como el capítulo 3 dejó dicho: 125 cifras, 112
+  exactas, siete discrepancias de redacción y ninguna conclusión movida.
+- **Tres cifras que la prosa afirmaba y ningún bloque imprimía** pasaron a imprimirse: la identidad de Euler en
+  sus diez decimales, el VaR marginal de las cuatro posiciones y las variaciones de febrero de 2025 emisor por
+  emisor.
+- **Las once afirmaciones sobre el mundo sin fuente** se bajaron a lo comprobable o a criterio declarado, porque
+  no hay nada leído en Zotero que las respalde. Quedan anotadas en `Vault/00 Inicio.md` como pendiente del
+  docente, con los candidatos (`hull2022`, `mcneil2015`).
+
+Lo que **no** se hizo aquí, a propósito: la ficha del SARM del capítulo 6 y las normas de los capítulos 9 y 10,
+que no son una línea y van en la tarea de normas vigentes; y el taller 4, que se revisa en una sesión aparte.
