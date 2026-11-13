@@ -3169,6 +3169,12 @@ nu = 6 / exceso + 4
 print(f"Curtosis de exceso : {exceso:.2f}   ->   nu = {nu:.2f}")
 #> Curtosis de exceso : 25.77   ->   nu = 4.23
 
+# Los seis ingredientes de las dos formulas, uno al lado del otro.
+print(f"mu {mu*100:.4f} %   sd {sd*100:.4f} %")
+#> mu 0.0305 %   sd 1.5764 %
+print(f"z 99 % {norm.ppf(0.01):.4f}    t 99 % {t.ppf(0.01, nu):.4f} x {np.sqrt((nu-2)/nu):.4f} = {t.ppf(0.01, nu)*np.sqrt((nu-2)/nu):.4f}")
+#> z 99 % -2.3263    t 99 % -3.6356 x 0.7263 = -2.6405
+
 for alfa in (0.95, 0.99):
     v_norm = -(mu + norm.ppf(1 - alfa) * sd)
     v_t    = -(mu + t.ppf(1 - alfa, nu) * np.sqrt((nu - 2) / nu) * sd)
@@ -3188,6 +3194,13 @@ exceso <- mean((rp - mu)^4) / mean((rp - mu)^2)^2 - 3
 nu <- 6 / exceso + 4
 cat(sprintf("Curtosis de exceso : %.2f   ->   nu = %.2f\\n", exceso, nu))
 #> Curtosis de exceso : 25.77   ->   nu = 4.23
+
+# Los seis ingredientes de las dos formulas, uno al lado del otro.
+cat(sprintf("mu %.4f %%   sd %.4f %%\\n", mu * 100, sd_ * 100))
+#> mu 0.0305 %   sd 1.5764 %
+cat(sprintf("z 99 %% %.4f    t 99 %% %.4f x %.4f = %.4f\\n",
+            qnorm(0.01), qt(0.01, nu), sqrt((nu - 2) / nu), qt(0.01, nu) * sqrt((nu - 2) / nu)))
+#> z 99 % -2.3263    t 99 % -3.6356 x 0.7263 = -2.6405
 
 for (alfa in c(0.95, 0.99)) {
   v_norm <- -(mu + qnorm(1 - alfa) * sd_)
@@ -3311,7 +3324,21 @@ for n in (250, 500, 1000, 1916):
 #> ventana  250 sesiones (desde 2024-12-20)  VaR 99 % = 4.294 %  ·  peor dia 13.17 %
 #> ventana  500 sesiones (desde 2023-11-21)  VaR 99 % = 3.176 %  ·  peor dia 13.17 %
 #> ventana 1000 sesiones (desde 2021-10-29)  VaR 99 % = 4.098 %  ·  peor dia 13.17 %
-#> ventana 1916 sesiones (desde 2018-01-03)  VaR 99 % = 4.077 %  ·  peor dia 17.76 %`,
+#> ventana 1916 sesiones (desde 2018-01-03)  VaR 99 % = 4.077 %  ·  peor dia 17.76 %
+
+# De donde sale el corte de la muestra completa: la posicion (n-1)*p y sus dos vecinos.
+n   = len(rp)
+pos = (n - 1) * 0.01
+j, g = int(pos) + 1, pos - int(pos)             # tipo 7: el dato j y el j+1, con peso g
+orden = np.argsort(rp)
+for k in (j, j + 1):
+    print(f"rueda {k:3d} del orden : {fechas[orden[k-1]].date()}   {rp[orden[k-1]]*100:+.4f} %")
+#> rueda  20 del orden : 2022-06-08   -4.0785 %
+#> rueda  21 del orden : 2020-03-11   -4.0692 %
+print(f"posicion (n-1)*p = {pos:.2f}  ->  j = {j}, g = {g:.2f}")
+#> posicion (n-1)*p = 19.15  ->  j = 20, g = 0.15
+print(f"corte = {1-g:.2f} x r({j}) + {g:.2f} x r({j+1}) = {-((1-g)*rp[orden[j-1]] + g*rp[orden[j]])*100:.4f} %")
+#> corte = 0.85 x r(20) + 0.15 x r(21) = 4.0771 %`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w   <- c(0.30, 0.20, 0.25, 0.25)
@@ -3328,7 +3355,22 @@ for (n in c(250, 500, 1000, 1916)) {
 #> ventana  250 sesiones (desde 2024-12-20)  VaR 99 % = 4.294 %  ·  peor dia 13.17 %
 #> ventana  500 sesiones (desde 2023-11-21)  VaR 99 % = 3.176 %  ·  peor dia 13.17 %
 #> ventana 1000 sesiones (desde 2021-10-29)  VaR 99 % = 4.098 %  ·  peor dia 13.17 %
-#> ventana 1916 sesiones (desde 2018-01-03)  VaR 99 % = 4.077 %  ·  peor dia 17.76 %`,
+#> ventana 1916 sesiones (desde 2018-01-03)  VaR 99 % = 4.077 %  ·  peor dia 17.76 %
+
+# De donde sale el corte de la muestra completa: la posicion (n-1)*p y sus dos vecinos.
+pos <- (n_tot - 1) * 0.01
+j <- floor(pos) + 1; g <- pos - floor(pos)      # tipo 7: el dato j y el j+1, con peso g
+orden <- order(rp)
+for (k in c(j, j + 1)) {
+  cat(sprintf("rueda %3d del orden : %s   %+.4f %%\\n", k, fechas[orden[k]], rp[orden[k]] * 100))
+}
+#> rueda  20 del orden : 2022-06-08   -4.0785 %
+#> rueda  21 del orden : 2020-03-11   -4.0692 %
+cat(sprintf("posicion (n-1)*p = %.2f  ->  j = %d, g = %.2f\\n", pos, j, g))
+#> posicion (n-1)*p = 19.15  ->  j = 20, g = 0.15
+cat(sprintf("corte = %.2f x r(%d) + %.2f x r(%d) = %.4f %%\\n", 1 - g, j, g, j + 1,
+            -((1 - g) * rp[orden[j]] + g * rp[orden[j + 1]]) * 100))
+#> corte = 0.85 x r(20) + 0.15 x r(21) = 4.0771 %`,
         };
 
         const EJ_HIGIENE = {
@@ -3559,6 +3601,19 @@ print(f"raiz de {h}   : {np.sqrt(h):.4f}")
 print(f"factor exacto : {factor:.4f}   (sobre la raiz del tiempo: {factor/np.sqrt(h)-1:+.1%})")
 #> factor exacto : 3.3972   (sobre la raiz del tiempo: +7.4%)
 
+# Quien pone ese 7,4 %: el corchete, rezago por rezago, con su conteo de parejas.
+corchete = 1 + 2 * sum((1 - k / h) * rho[k - 1] for k in range(1, h))
+aportes  = [(k, h - k, rho[k - 1], 2 * (1 - k / h) * rho[k - 1]) for k in range(1, h)]
+print(f"corchete {corchete:.4f}   su raiz {np.sqrt(corchete):.4f}")
+#> corchete 1.1541   su raiz 1.0743
+for k, parejas, rk, ap in sorted(aportes, key=lambda x: -abs(x[3]))[:3]:
+    print(f"  rezago {k}: {parejas} parejas de {h}, rho {rk:+.4f}  ->  aporta {ap:+.4f}")
+#>   rezago 2: 8 parejas de 10, rho +0.0754  ->  aporta +0.1207
+#>   rezago 4: 6 parejas de 10, rho +0.0592  ->  aporta +0.0711
+#>   rezago 6: 4 parejas de 10, rho -0.0457  ->  aporta -0.0366
+print(f"  los aportes negativos juntos restan {-sum(a for *_, a in aportes if a < 0):.4f}")
+#>   los aportes negativos juntos restan 0.0734
+
 var1 = -np.quantile(rp, 0.01)
 r10  = np.convolve(rp, np.ones(h), "valid")     # rendimientos solapados a 10 dias
 print(f"VaR 99 % a 1 dia          : {var1*100:.3f} %")
@@ -3587,6 +3642,21 @@ cat(sprintf("raiz de %d   : %.4f\\n", h, sqrt(h)))
 cat(sprintf("factor exacto : %.4f   (sobre la raiz del tiempo: %+.1f%%)\\n",
             factor, (factor / sqrt(h) - 1) * 100))
 #> factor exacto : 3.3972   (sobre la raiz del tiempo: +7.4%)
+
+# Quien pone ese 7,4 %: el corchete, rezago por rezago, con su conteo de parejas.
+corchete <- 1 + 2 * sum((1 - (1:(h - 1)) / h) * rho)
+aportes  <- 2 * (1 - (1:(h - 1)) / h) * rho
+cat(sprintf("corchete %.4f   su raiz %.4f\\n", corchete, sqrt(corchete)))
+#> corchete 1.1541   su raiz 1.0743
+for (k in order(-abs(aportes))[1:3]) {
+  cat(sprintf("  rezago %d: %d parejas de %d, rho %+.4f  ->  aporta %+.4f\\n",
+              k, h - k, h, rho[k], aportes[k]))
+}
+#>   rezago 2: 8 parejas de 10, rho +0.0754  ->  aporta +0.1207
+#>   rezago 4: 6 parejas de 10, rho +0.0592  ->  aporta +0.0711
+#>   rezago 6: 4 parejas de 10, rho -0.0457  ->  aporta -0.0366
+cat(sprintf("  los aportes negativos juntos restan %.4f\\n", -sum(aportes[aportes < 0])))
+#>   los aportes negativos juntos restan 0.0734
 
 var1 <- -quantile(rp, 0.01, names = FALSE)
 r10  <- filter(rp, rep(1, h), sides = 1)[h:n]   # rendimientos solapados a 10 dias
