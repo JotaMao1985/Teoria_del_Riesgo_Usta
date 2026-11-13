@@ -3228,9 +3228,13 @@ r  = np.log(precios).diff().dropna()
 rp = r[acciones].values @ w
 ix = r["ICOLCAP.CL"].values                       # el ETF que replica el indice
 
-quietas = (r[acciones].values == 0).all(axis=1)   # ni uno de los cuatro precios se movio
-print(f"Ruedas sin variacion en ningun precio: {quietas.sum()} de {len(rp)} ({quietas.mean()*100:.1f} %)")
-#> Ruedas sin variacion en ningun precio: 101 de 1916 (5.3 %)
+quietas = (r[acciones].values == 0).all(axis=1)   # ni uno de los cuatro EMISORES se movio
+print(f"Ruedas sin variacion en los cuatro emisores: {quietas.sum()} de {len(rp)} ({quietas.mean()*100:.1f} %)")
+#> Ruedas sin variacion en los cuatro emisores: 101 de 1916 (5.3 %)
+print(f"  de ellas, con el ETF tambien quieto: {(quietas & (ix == 0)).sum()}")
+#>   de ellas, con el ETF tambien quieto: 4
+print(f"  volatilidad del portafolio: {rp.std(ddof=1)*100:.4f} % con ellas, {rp[~quietas].std(ddof=1)*100:.4f} % sin ellas")
+#>   volatilidad del portafolio: 1.5764 % con ellas, 1.6197 % sin ellas
 
 brecha = rp - ix
 print("Mayores brechas entre el portafolio y el indice:")
@@ -3259,10 +3263,15 @@ rp <- as.vector(r[, acciones] %*% w)
 ix <- r[, "ICOLCAP.CL"]                           # el ETF que replica el indice
 fechas <- precios$fecha[-1]
 
-quietas <- apply(r[, acciones] == 0, 1, all)      # ni uno de los cuatro precios se movio
-cat(sprintf("Ruedas sin variacion en ningun precio: %d de %d (%.1f %%)\\n",
+quietas <- apply(r[, acciones] == 0, 1, all)      # ni uno de los cuatro EMISORES se movio
+cat(sprintf("Ruedas sin variacion en los cuatro emisores: %d de %d (%.1f %%)\\n",
             sum(quietas), length(rp), mean(quietas) * 100))
-#> Ruedas sin variacion en ningun precio: 101 de 1916 (5.3 %)
+#> Ruedas sin variacion en los cuatro emisores: 101 de 1916 (5.3 %)
+cat(sprintf("  de ellas, con el ETF tambien quieto: %d\\n", sum(quietas & ix == 0)))
+#>   de ellas, con el ETF tambien quieto: 4
+cat(sprintf("  volatilidad del portafolio: %.4f %% con ellas, %.4f %% sin ellas\\n",
+            sd(rp) * 100, sd(rp[!quietas]) * 100))
+#>   volatilidad del portafolio: 1.5764 % con ellas, 1.6197 % sin ellas
 
 brecha <- rp - ix
 cat("Mayores brechas entre el portafolio y el indice:\\n")
@@ -3697,13 +3706,13 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
             return (
                 <>
                     <Motivacion icon="fa-bell"
-                        gancho="Si el modelo dice que un día así ocurre una vez cada cien billones de años y ocurrió el mes pasado, el problema no es la mala suerte.">
-                        El 19 de febrero de 2025 el portafolio del fondo cayó 13,17 % en una sola rueda.
-                        Bajo la normal ajustada a los ocho años de historia, un movimiento así está a
-                        8,4 desviaciones de la media: menos de una vez cada cien billones de años. Sin
-                        embargo está en la muestra, y su rebote está en la rueda siguiente. La
-                        distribución que produce esa afirmación es la que se usa por omisión en media
-                        industria.
+                        gancho="Si el modelo dice que un día así ocurre una vez cada 10²⁶ años, y usted lo vio, el problema no es la mala suerte.">
+                        El 16 de marzo de 2020 el portafolio del fondo cayó 17,76 % en una sola rueda. Bajo
+                        la normal ajustada a los ocho años de historia, un movimiento así está a 11,3
+                        desviaciones de la media: una vez cada 5 × 10²⁶ años, y el universo lleva
+                        1,4 × 10¹⁰. No fue un caso aislado: ese mismo mes hubo otras cuatro ruedas con
+                        pérdidas de más del 4 %. La distribución que produce esa afirmación es la que
+                        el VaR paramétrico usa por omisión, y es la que esta sección pone a prueba.
                     </Motivacion>
 
                     <h3>De la definición a la fórmula</h3>
@@ -3755,7 +3764,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     </CalloutPro>
 
                     <ChartFrame id="cap4-densidades" height="chart-h-400"
-                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden; a partir de ±4 % la normal se desploma varios órdenes de magnitud por debajo de lo que el mercado hizo. Ocho ruedas se salen del rango de ±8 % y no se dibujan: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
+                        caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y en ese tramo sus barras son tan bajas que la línea roja pasa por encima de casi todas—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
 
                     <Ejercicio tipo="R2">
                         <MCQ
@@ -3862,13 +3871,14 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     </p>
 
                     <CodeTabs titulo="Dos diagnósticos sobre el panel congelado" bloques={EJ_HIGIENE}
-                        nota="El contraste con el ETF ICOLCAP es el diagnóstico decisivo: si los cuatro emisores caen 10 % o más y el índice que los replica sube 1,5 %, no fue el mercado." />
+                        nota="El contraste con el ETF ICOLCAP es el diagnóstico decisivo: si los cuatro emisores caen a la vez entre 9 % y 18 % y el índice que los replica sube 1,5 %, no fue el mercado." />
 
                     <CalloutPro tema="danger" titulo="El 19 y el 20 de febrero de 2025 no son días de mercado"
                         subtitulo="Son una cotización defectuosa y su corrección al día siguiente">
                         <p>
-                            Los cuatro precios caen entre 10 % y 20 % el 19 y recuperan exactamente lo
-                            mismo el 20, mientras el ETF que replica el índice sube 1,5 % y 2,0 %. Un
+                            Los cuatro precios caen entre 9,3 % y 18,4 % el 19 y al día siguiente suben entre
+                            12,8 % y 22,8 %, mientras el ETF que replica el índice sube 1,5 % y 2,0 %
+                            los dos días. Un
                             desplome real habría arrastrado al ETF. Es un dato erróneo de la fuente, y
                             está dentro del archivo congelado con el que trabaja todo el curso.
                         </p>
@@ -3876,8 +3886,9 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                             Lo interesante es lo que le hace a cada estimador. Sacar ese par de la
                             muestra completa mueve el VaR histórico de 4,077 % a 4,037 % —cuatro
                             centésimas, nada— pero mueve la volatilidad de 1,5764 % a 1,4963 %, un 5 %,
-                            y con ella todo el VaR paramétrico. Y sobre la ventana de 250 ruedas, donde
-                            un dato pesa cincuenta veces más, el VaR histórico se desploma de 4,294 % a
+                            y con ella todo el VaR paramétrico. Y sobre la ventana de 250 ruedas, donde cada
+                            dato pesa siete veces y media más —y la cola al 99 % se queda con 2,5
+                            observaciones en vez de 19—, el VaR histórico se desploma de 4,294 % a
                             3,858 %: un 10 %.{' '}
                             <strong>El mismo dato malo tiene tres consecuencias distintas según el
                             estimador y la ventana.</strong>
@@ -3891,9 +3902,9 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
 
                     <Ejercicio tipo="R2">
                         <MCQ
-                            pregunta="Un analista decide excluir el 19 y el 20 de febrero de 2025 por tratarse de una cotización defectuosa. ¿Qué es lo que cambia más y por qué?"
+                            pregunta="Un analista decide excluir el 19 y el 20 de febrero de 2025 por tratarse de una cotización defectuosa, y calcula los dos VaR sobre la muestra completa. ¿Qué es lo que cambia más y por qué?"
                             opciones={[
-                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %, porque su corte al 99 % lo fija la observación número veinte y no la primera. Un solo defecto, tres sensibilidades distintas. Y una cuarta que conviene mirar: sobre la ventana de 250 ruedas el histórico sí se derrumba, de 4,294 % a 3,858 %, porque ahí el par de febrero sí está entre las peores.' },
+                                { texto: 'El VaR paramétrico, porque depende de la desviación típica y un par de observaciones extremas pesa al cuadrado en ella.', correcta: true, justificacion: 'El bloque lo mide: la desviación cae de 1,5764 % a 1,4963 %, un 5 %, mientras el VaR histórico de la muestra completa apenas se mueve, de 4,077 % a 4,037 %, porque su corte al 99 % lo fija la observación número veinte y no la primera. Un solo defecto, tres sensibilidades distintas. Ojo con la ventana, que es lo que la pregunta fija: sobre las últimas 250 ruedas el orden se invierte y el histórico se derrumba un 10 %, de 4,294 % a 3,858 %, porque ahí el par sí está entre las peores —y el paramétrico cae todavía más, un 34 %—.' },
                                 { texto: 'El VaR histórico, porque el dato excluido era justamente el que definía el cuantil al 99 % sobre la muestra completa.', correcta: false },
                                 { texto: 'Los dos por igual, porque ambos se calculan sobre la misma muestra y pierden las mismas dos observaciones.', correcta: false },
                                 { texto: 'Ninguno de forma apreciable: dos observaciones de 1 916 son el 0,1 % de la muestra y ningún estimador razonable depende de eso.', correcta: false },
@@ -4163,8 +4174,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                                     modelo que la supone se equivoca en direcciones distintas según el
                                     nivel. Segundo, entre histórico y t la diferencia es de cinco
                                     centésimas de punto, así que la elección no se decide por la cifra
-                                    sino por lo que cada uno permite hacer después: el histórico no se
-                                    puede escalar a diez días sin volver a estimar y el paramétrico sí.
+                                    sino por lo que cada uno permite hacer después: el paramétrico se escala con una fórmula cerrada y el histórico, para hacerlo bien, exige volver a medir sobre rendimientos acumulados.
                                     Tercero, y decisivo, la ventana importa más que el método —de
                                     3,18 % a 4,29 % según se elija— de modo que la política de ventana
                                     debe fijarse por escrito y antes de mirar el resultado; elegirla
@@ -4412,7 +4422,9 @@ componente <- w * marginal`,
                         El corchete vale 1 exactamente cuando todas las autocorrelaciones son nulas. En
                         esta serie ρ₂ vale +0,075, lo bastante para que el factor real sea 3,3972 en vez
                         de 3,1623: un 7,4 % más. Aplicar la raíz del tiempo aquí <strong>subestima</strong>{' '}
-                        la volatilidad a diez días.
+                        la volatilidad a diez días. Fíjese en la palabra: lo que este factor escala es una
+                        <strong> desviación típica</strong>, y el VaR es un <strong>cuantil</strong>. El
+                        bloque de abajo hace las dos cosas y la diferencia no es pequeña.
                     </p>
 
                     <CodeTabs titulo="Tres respuestas para el mismo horizonte" bloques={EJ_HORIZONTE}
@@ -4425,33 +4437,38 @@ componente <- w * marginal`,
                             cuantil medido directamente sobre rendimientos de diez días da 11,409 %, por
                             debajo de los dos. La razón es que <strong>la raíz del tiempo se aplicó a un
                             cuantil, no a una volatilidad</strong>, y esas dos cosas no escalan igual
-                            cuando la distribución no es normal: al sumar diez días, el teorema central
-                            del límite hace su trabajo y la distribución acumulada tiene colas
-                            relativamente menos pesadas que la diaria. Escalar el cuantil diario supone,
-                            sin decirlo, que la forma de la distribución no cambia con el horizonte.
+                            cuando la distribución no es normal: en esta serie el VaR al
+                            99 % vale 2,59 desviaciones a un día y 2,13 a diez, así que escalar el
+                            cuantil diario supone, sin decirlo, que esa proporción no cambia con el
+                            horizonte. Y la explicación cómoda —que el teorema central del límite ya
+                            estaría normalizando la suma— <strong>no es la que sostienen los datos</strong>:
+                            la curtosis de exceso de los acumulados a diez días no baja, sube de 25,8 a
+                            29,7. Con ventanas que comparten nueve de cada diez ruedas, el teorema apenas
+                            ha empezado a actuar.
                         </p>
                         <p>
                             Hay una tercera advertencia, y es la que impide cerrar el asunto: esos
                             11,409 % salen de rendimientos <em>solapados</em>, así que 1 907
                             observaciones equivalen a unas 190 independientes y el cuantil al 99 % se
-                            apoya en dos de ellas. La gráfica de abajo muestra ese ruido con crudeza —a
-                            partir de h = 13 la línea morada salta y cruza a las otras dos—. Ninguna de
+                            apoya en dos de ellas. La gráfica de abajo muestra ese ruido con crudeza: la
+                            línea morada ya está por encima de las otras dos en h = 3, vuelve a caer en
+                            h = 4 y cruza varias veces más.{' '} Ninguna de
                             las tres cifras merece más de dos decimales.
                         </p>
                     </CalloutPro>
 
                     <ChartFrame id="cap4-horizonte" height="chart-h-400"
-                        caption="El VaR al 99 % según el horizonte, por los tres caminos. Hasta h = 12 el orden es estable; a partir de ahí la serie medida se vuelve errática, y no porque el riesgo cambie: porque quedan menos de 160 observaciones independientes detrás de cada punto." />
+                        caption="El VaR al 99 % según el horizonte, por los tres caminos. Las dos líneas que escalan van suaves por construcción —son el cuantil de un día multiplicado por un número—; la medida salta desde el principio: ya supera a las otras dos en h = 3, cae por debajo en h = 4 y vuelve a cruzarlas varias veces. No es que el riesgo cambie de un día para otro: es que detrás de cada punto quedan cada vez menos observaciones independientes, de 638 en h = 3 a menos de 160 pasado h = 12." />
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · el salto a diez días"
-                        enunciado="Se le pidió a un modelo de lenguaje el VaR paramétrico al 99 % a diez días del portafolio, con la advertencia de que la serie es de rendimientos diarios. El código corre y devuelve 11,50 %. Señale la línea defectuosa y clasifique el error."
+                        enunciado="Se le pidió a un modelo de lenguaje el VaR paramétrico al 99 % a diez días del portafolio, con la advertencia de que la serie es de rendimientos diarios. El código corre y devuelve 11,60 %. Señale la línea defectuosa y clasifique el error."
                         lineas={IA_RAIZ_T}
                         lineaCorrecta={{ python: 7, r: 5 }}
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
                         explicacion="La raíz del tiempo no es una identidad: es lo que queda de la fórmula de la varianza de una suma cuando las autocorrelaciones son todas nulas. Nadie comprobó esa condición, y en esta serie no se cumple —la autocorrelación de segundo orden vale +0,075—, así que el factor correcto es 3,3972 y no 3,1623. El defecto no está en la aritmética, que es impecable, sino en una hipótesis que el código da por cierta sin mirarla; por eso el error es de supuesto y no de estimador. Basta añadir el término de las autocorrelaciones, que el bloque de esta sección calcula en dos instrucciones."
-                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 002 millones con la raíz del tiempo a 98 838 millones con el factor correcto: la IA se queda corta en 6 836 millones. Bajo el régimen de modelos internos de Basilea ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante real ronda los 20 500 millones."
+                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 772 millones con la raíz del tiempo a 99 664 con el factor de la varianza de la suma: la IA se queda corta en unos 6 900 millones. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
                     />
 
                     <h3>Por qué diez días, y por qué el número acaba multiplicado por tres</h3>
@@ -4464,11 +4481,14 @@ componente <- w * marginal`,
                         enlace="https://www.bis.org/publ/bcbs24.htm"
                     />
                     <FichaNorma
-                        norma="SARM · Sistema de Administración de Riesgo de Mercado"
+                        norma="SIAR · riesgo de mercado de una administradora de fondos de pensiones"
                         emisor="Superintendencia Financiera de Colombia"
-                        referencia="Circular Básica Contable y Financiera, Capítulo XXI"
-                        exige="Que las entidades vigiladas —incluidas las administradoras de fondos de pensiones— midan, controlen y reporten su exposición al riesgo de mercado con una metodología documentada, sometida a pruebas retrospectivas periódicas y con los supuestos declarados por escrito."
-                        enElCapitulo="La documentación que los ejercicios R8 y R7 le piden redactar: qué método, qué ventana, qué se hizo con los datos anómalos y qué significa el número para el comité. La parte de pruebas retrospectivas es el capítulo 6."
+                        referencia="Circular Básica Financiera (Circular Externa 004 de 2026), parte 1, capítulo 1"
+                        k="sfc2026cbf"
+                        loc="1.1.1.63, 1.1.2.91 y 1.1.2.93–1.1.2.98"
+                        exige="Que una administradora de fondos de pensiones mida su riesgo de mercado con el MODELO ESTÁNDAR que la norma define, y que documente los modelos y las metodologías que usa. Las pruebas de desempeño —comparar el riesgo estimado contra las pérdidas realmente ocurridas— son una exigencia de los modelos internos, que otras entidades sí pueden usar con no objeción del supervisor."
+                        enElCapitulo="Conviene no confundir dos cosas que el capítulo hace a la vez. Nada de lo que se calcula aquí es el número regulatorio del fondo, que sale del modelo estándar: es la medición interna, la que el comité usa para decidir, y la que los ejercicios R7 y R8 le piden documentar. La prueba retrospectiva del capítulo 6 vale igual para una y para otra, pero la norma solo la exige para la segunda."
+                        enlace="https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"
                     />
 
                     <OrdenaPasos
@@ -4529,7 +4549,7 @@ componente <- w * marginal`,
                                 + `Detrás del cuantil medido quedan unas ${m.indep} observaciones independientes, `
                                 + `así que el 1 % de la cola se apoya en ${Math.max(1, Math.round(m.indep / 100))} de ellas.`;
                         }}
-                        pregunta="A partir de qué horizonte deja de tener sentido comparar la línea morada con las otras dos, y qué le diría usted al comité si le pidieran el VaR a veinte días con estos datos."
+                        pregunta="Mueva el horizonte y mire cuántas veces se cruzan las tres líneas, y con cuántas observaciones independientes queda cada punto. ¿A partir de qué horizonte diría usted que la línea medida ya no informa, y qué le contestaría al comité si le pidiera el VaR a veinte días con estos datos?"
                         nota="Los tres valores están precomputados en Python sobre una malla de h = 1 a 20: el cuantil de los rendimientos solapados no es aritmética que el navegador pueda rehacer al vuelo. El deslizador solo selecciona la fila."
                     />
                 </>
@@ -4564,7 +4584,7 @@ componente <- w * marginal`,
                         opciones: [
                             { texto: 'Colas más pesadas y hombros más ligeros que los de la normal.', correcta: true },
                             { texto: 'Que la media muestral sea positiva y pequeña.', correcta: false },
-                            { texto: 'Que la muestra contenga 101 ruedas sin variación de precios.', correcta: false },
+                            { texto: 'Que la muestra contenga 101 ruedas en que ninguno de los cuatro emisores cambió de precio.', correcta: false },
                             { texto: 'Que el cuantil empírico se calcule por interpolación de tipo 7.', correcta: false },
                         ],
                     },
@@ -4704,6 +4724,8 @@ componente <- w * marginal`,
                         ),
                     },
                 ]} />
+
+                <Referencias />
             </>
         );
 
@@ -4923,6 +4945,30 @@ componente <- w * marginal`,
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+    <!-- === TR-REFS INICIO — no editar a mano: se genera con estampar_referencias.py === -->
+    <script type="application/json" id="tr-referencias">
+{
+  "v": 2,
+  "huella": "47b2e46c9a512685a59772baee89107423f6637cefac21421e8f446fad60048c",
+  "sello": "6e753c2c26505ccd98d36c973225dad1ad813b0135316649e764ee45b7cbd873",
+  "orden": [
+    "sfc2026cbf"
+  ],
+  "entradas": {
+    "sfc2026cbf": {
+      "autor": "Superintendencia Financiera de Colombia",
+      "anio": "2026",
+      "html": "Superintendencia Financiera de Colombia. (2026). \u003cem>Circular Externa 004 de 2026: Circular Básica Financiera\u003c/em>. \u003ca href=\"https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/\">https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/\u003c/a>",
+      "plano": "Superintendencia Financiera de Colombia. (2026). Circular Externa 004 de 2026: Circular Básica Financiera. https://www.superfinanciera.gov.co/publicaciones/10116084/circular-basica-financiera-circular-externa-004-de-2026/"
+    }
+  },
+  "profundizar": {
+    "orden": [],
+    "entradas": {}
+  }
+}
+    </script>
+    <!-- === TR-REFS FIN === -->
 </body>
 
 </html>

@@ -1,0 +1,14 @@
+# Registro público de las afirmaciones citadas del capítulo 04.
+# Lo genera registrar_afirmaciones.py desde las notas del vault: no se edita a mano.
+# No lleva el extracto de la fuente, solo su sha256.
+- id: "c04-s9-a60"
+  seccion: "Evaluación"
+  ancla: "mida su riesgo de mercado con el MODELO ESTÁNDAR que la norma define"
+  clave: "sfc2026cbf"
+  loc: "1.1.1.63, 1.1.2.91 y 1.1.2.93–1.1.2.98"
+  tema: "norma"
+  leido:
+    fecha: "2026-11-11"
+    medio: "acceso-abierto"
+    por: "Claude (lector y verificador independiente, Opus)"
+  extracto_sha256: "f9a21931f880f70fe4cb0ee11b51858a6c141a974b2d438ed536746122de5175"
