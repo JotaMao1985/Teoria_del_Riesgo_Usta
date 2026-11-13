@@ -3942,7 +3942,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         </p>
                     </CalloutPro>
 
-                    <ChartFrame id="cap4-densidades" height="chart-h-400"
+                    <ChartFrame id="cap4-densidades" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), y las dos densidades ajustadas sobre esa misma serie' }}
                         caption="Densidad de los rendimientos diarios en escala logarítmica. Las barras son los datos; la línea roja, la normal ajustada; la punteada, la t. En el centro las tres coinciden, y el desplome de la normal empieza más lejos de lo que se suele decir: más allá de ±4 % el mercado tiene 36 ruedas donde ella esperaba 21 —apenas el doble, y en ese tramo sus barras son tan bajas que la línea roja pasa por encima de casi todas—, pero más allá de ±6 % son 11 contra 0,27, cuarenta veces, y más allá de ±8 %, ocho contra siete diezmilésimas. Esas ocho se salen del rango dibujado y no aparecen: amontonarlas en la barra del extremo fabricaría un pico que no existe, justo donde el capítulo afirma que la normal se queda corta." />
 
                     <h3>Qué tan firme es ese 4,23</h3>
@@ -4097,7 +4097,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         corte hacia adentro de la cola.
                     </p>
 
-                    <ChartFrame id="cap4-rodante" height="chart-h-400"
+                    <ChartFrame id="cap4-rodante" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), recalculando el cuantil rueda a rueda' }}
                         caption="VaR histórico al 99 % recalculado cada rueda con las 250 anteriores. El 23 de marzo de 2021 cae de 10,43 % a 7,04 %, y tres ruedas después a 4,36 %. Ese día no pasó nada en el mercado: marzo de 2020 acababa de cumplir 250 ruedas y salió de la ventana." />
 
                     <Box type="warn" label="El efecto fantasma">
@@ -4367,7 +4367,7 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                         nota="Los porcentajes salen de los bloques ejecutados; las dos filas de Montecarlo llevan el signo ≈ porque cada pestaña da el suyo. Las cifras en millones son el porcentaje por 800 000, que es la convención del capítulo y no la pérdida exacta: componer en vez de multiplicar las baja un 2 % —el histórico, de 32 617 a 31 961—, y sobre la serie exacta del fondo rebalanceado, otro 3 %. El recuadro de la sección 1 tiene la cuenta completa."
                     />
 
-                    <ChartFrame id="cap4-cortes" height="chart-h-400"
+                    <ChartFrame id="cap4-cortes" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), con los tres cortes que calculan los bloques de las secciones 2 a 4' }}
                         caption="Las 1 916 ruedas del portafolio y los tres cortes al 99 %. En rojo, las veinte ruedas que quedan más allá del corte histórico. La distancia entre la línea roja punteada y la rosada —cuatro décimas de punto porcentual— son 3 523 millones de pesos de requerimiento." />
 
                     <Comparador
@@ -4578,7 +4578,7 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                     <CodeTabs titulo="El reparto del VaR entre las cuatro posiciones" bloques={EJ_COMPONENTE}
                         nota="La fila de la suma es la comprobación: la columna del VaR aislado no suma el total, la del componente sí." />
 
-                    <ChartFrame id="cap4-componente" height="chart-h-360"
+                    <ChartFrame id="cap4-componente" height="chart-h-360" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), con la matriz de covarianzas de las 1 916 ruedas' }}
                         caption="Para cada emisor, el VaR que tendría la posición por separado y el que realmente aporta dentro del portafolio. La diferencia entre las dos barras es lo que la diversificación le devuelve a esa posición: en Banco de Bogotá, la mitad." />
 
                     <TablaTraza
@@ -4783,7 +4783,7 @@ componente <- w * marginal`,
                         </p>
                     </CalloutPro>
 
-                    <ChartFrame id="cap4-horizonte" height="chart-h-400"
+                    <ChartFrame id="cap4-horizonte" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), acumulando rendimientos a cada horizonte' }}
                         caption="El VaR al 99 % según el horizonte, por los tres caminos. Las dos líneas que escalan van suaves por construcción —son el cuantil de un día multiplicado por un número—; la medida salta desde el principio: ya supera a las otras dos en h = 3, cae por debajo en h = 4 y vuelve a cruzarlas varias veces. No es que el riesgo cambie de un día para otro: es que detrás de cada punto quedan cada vez menos observaciones independientes, de 638 en h = 3 a menos de 160 pasado h = 12." />
 
                     <DetectaError
