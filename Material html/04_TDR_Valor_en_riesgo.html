@@ -4159,9 +4159,9 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                             { celdas: ['Paramétrico t (4,23 gl)', { v: '4,132', lee: 'Corrige la cola con un solo parámetro leído de la curtosis muestral. Que aterrice a cinco centésimas del cuantil empírico no es casualidad: se calibró con el cuarto momento de esos mismos datos.' }, '33 056', 'Rendimientos t simétricos; ν del método de los momentos'] },
                             { celdas: ['Histórico', { v: '4,077', lee: 'No supone forma alguna, pero se apoya en las veinte peores ruedas de la muestra. Cambiar la ventana lo mueve entre 3,18 % y 4,29 %, un rango más ancho que la distancia entre los tres métodos.' }, '32 617', 'El pasado reciente representa el mañana'] },
                             { celdas: ['Montecarlo normal', { v: '3,63 / 3,64', lee: 'Dos cifras porque son dos generadores. Convergen al paramétrico normal, que es la distribución que se les pidió simular. Reportar una sola de las dos sin su error estándar es el error que el ejercicio R3 del capítulo 12 audita.' }, '≈ 29 100', 'Lo mismo que el paramétrico normal, más ruido de simulación'] },
-                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Aquí Montecarlo empieza a ganarse el costo: con posiciones no lineales esta es la única de las cinco filas que se puede calcular, porque revalúa el portafolio escenario a escenario en vez de suponer que la pérdida es lineal en los rendimientos.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
+                            { celdas: ['Montecarlo t (4,23 gl)', { v: '4,11 / 4,13', lee: 'Aquí Montecarlo empieza a ganarse el costo. Lo que le da valor no es revaluar escenario a escenario —eso también lo hace la fila de arriba—, sino hacerlo con la distribución que de verdad hace falta: con posiciones no lineales, y con una cola que la normal no describe, estas dos filas son las únicas que se pueden calcular, y solo la segunda llega al nivel del cuantil empírico.' }, '≈ 33 000', 'Innovaciones t multivariantes con la misma Σ'] },
                         ]}
-                        nota="Las cifras en millones se obtienen multiplicando el porcentaje por 800 000. Todas salen de los bloques ejecutados de este capítulo."
+                        nota="Los porcentajes salen de los bloques ejecutados; las dos filas de Montecarlo llevan el signo ≈ porque cada pestaña da el suyo. Las cifras en millones son el porcentaje por 800 000, que es la convención del capítulo y no la pérdida exacta: componer en vez de multiplicar las baja un 2 % —el histórico, de 32 617 a 31 961—, y sobre la serie exacta del fondo rebalanceado, otro 3 %. El recuadro de la sección 1 tiene la cuenta completa."
                     />
 
                     <ChartFrame id="cap4-cortes" height="chart-h-400"
@@ -4287,10 +4287,23 @@ var <- -(mu + qnorm(0.01) * sd_)`,
                         gancho="El total no se reparte sumando las partes, y quien lo intenta pide un 52 % más de capital del que el portafolio necesita.">
                         El área de riesgo entrega cuatro números —el VaR de cada emisor— y el comité los
                         suma: 44 572 millones. El área de tesorería calcula el VaR del portafolio
-                        completo: 29 338. Los 15 234 millones de diferencia no son un error de nadie:
+                        completo con la misma fórmula: 29 338. Los 15 234 millones de diferencia no son un error de nadie:
                         son la diversificación, y el problema es que la suma parece la respuesta obvia y
                         no lo es.
                     </Motivacion>
+
+                    
+                    <TablaResultados
+                        titulo="Tres cifras circulan como «el VaR al 99 % a un día del fondo», y no son la misma"
+                        subtitulo="Mismo portafolio, misma muestra, mismo nivel · lo que cambia es el método y lo que se supone de la media"
+                        columnas={['De dónde sale', 'VaR (%)', 'En pesos (convención)', 'Dónde se usa en el capítulo']}
+                        filas={[
+                            { celdas: ['Cuantil empírico de la muestra', '4,077', '32 617', { v: 'Secciones 1, 3 y 6, y la cifra del acta de la portada', lee: 'Es la que el capítulo firma, porque no supone ninguna forma de distribución. Medida sobre el fondo rebalanceado y compuesta a pesos son 31 025: la brecha de la convención que declara la sección 1.' }] },
+                            { celdas: ['Paramétrico normal con la media muestral', '3,637', '29 094', { v: 'Sección 2 y la tabla de los cinco métodos', lee: 'Resta la media diaria observada, +0,0305 %. Es la única de las tres que usa la media, y por eso queda por debajo de la de abajo pese a venir de la misma distribución.' }] },
+                            { celdas: ['Paramétrico normal con media cero', '3,667', '29 338', { v: 'Sección 5 entera y el cuestionario', lee: 'La descomposición en VaR marginal y componente sale de la fórmula z·W·σₚ, sin media: por eso esta sección trabaja con 29 338 y no con 29 094. Fijar la media en cero sobre un horizonte de un día es la práctica habitual —a un día la media es dos órdenes de magnitud menor que la desviación—, pero es una decisión y aquí queda declarada.' }] },
+                        ]}
+                        nota="Las tres salen de bloques ejecutados de este capítulo. Lo que no se puede hacer es compararlas entre secciones sin decir cuál es cuál: entre la primera y la tercera hay 3 279 millones, más que la distancia entre dos métodos distintos."
+                    />
 
                     <h3>La covarianza es el motor</h3>
                     <p>
@@ -4352,14 +4365,14 @@ componente <- w * marginal`,
                             { clave: 'comp', titulo: 'VaR componente (millones)' },
                         ]}
                         filas={[
-                            { activo: 'Ecopetrol', peso: '0.30', sw: '2.8002', comp: '9918' },
-                            { activo: 'Banco de Bogotá', peso: '0.20', sw: '1.6672', comp: '3936' },
-                            { activo: 'Grupo Sura', peso: '0.25', sw: '2.8711', comp: '8474' },
-                            { activo: 'ISA', peso: '0.25', sw: '2.3748', comp: '7009' },
+                            { activo: 'Ecopetrol', peso: '0.30', sw: '2.80022', comp: '9918' },
+                            { activo: 'Banco de Bogotá', peso: '0.20', sw: '1.66715', comp: '3936' },
+                            { activo: 'Grupo Sura', peso: '0.25', sw: '2.87112', comp: '8474' },
+                            { activo: 'ISA', peso: '0.25', sw: '2.37485', comp: '7009' },
                             { activo: 'Suma', peso: '1.00', sw: '—', comp: '29337' },
                         ]}
                         ocultas={['comp']}
-                        pista="El factor z · W / σₚ es común a las cuatro filas y vale 11 806 si se trabaja con la columna tal como está, es decir con (Σw)ᵢ multiplicada por diez mil; después basta con multiplicar por wᵢ y por esa columna. La última fila es la suma de las cuatro anteriores tal como quedaron redondeadas: el cálculo directo da 29 338, y ese peso de diferencia es el redondeo de las partes."
+                        pista="El factor z · W / σₚ es común a las cuatro filas y vale 11 806 si se trabaja con la columna tal como está, es decir con (Σw)ᵢ multiplicada por diez mil; después basta con multiplicar por wᵢ y por esa columna. La columna va con cinco decimales a propósito: con cuatro, la fila de Banco de Bogotá sale 3 937 y el bloque imprime 3 936. La última fila es la suma de las cuatro anteriores tal como quedaron redondeadas: el cálculo directo da 29 338, y ese peso de diferencia es el redondeo de las partes."
                     />
 
                     <DetectaError
@@ -4375,7 +4388,7 @@ componente <- w * marginal`,
 
                     <Emparejamiento
                         titulo="R6 · Cada medida con la pregunta que responde"
-                        enunciado="Las cuatro primeras son descomposiciones del VaR de un portafolio y se confunden con facilidad, porque las tres primeras se miden en pesos y las dos primeras suelen tener valores parecidos."
+                        enunciado="Las cuatro primeras son descomposiciones del VaR de un portafolio y se confunden con facilidad: todas acaban en pesos, pero la marginal son pesos POR UNIDAD DE PESO de cartera, no pesos, y por eso sus cifras no se pueden poner en la misma columna que las otras."
                         etiquetaIzq="Medida"
                         etiquetaDer="Qué responde"
                         izquierda={[
@@ -4526,6 +4539,8 @@ componente <- w * marginal`,
                         norma="Enmienda para incorporar los riesgos de mercado"
                         emisor="Comité de Supervisión Bancaria de Basilea"
                         referencia="BCBS (1996), recogida después en el marco de Basilea II"
+                        k="bcbs1996mercado"
+                        loc="p. 44, B.4 (b)–(d) y (j)"
                         exige="Para el cálculo de capital por modelos internos: nivel de confianza del 99 %, horizonte de tenencia de diez días hábiles, ventana histórica de al menos un año, y un requerimiento igual al mayor entre el VaR del día anterior y el promedio de los últimos sesenta días multiplicado por un factor de al menos 3, que sube según los resultados del backtesting."
                         enElCapitulo="El escalamiento de esta sección: el 99 % es el nivel de todos los bloques y los diez días son el horizonte que produce el 12,893 % de la regla de la raíz y el 13,851 % del factor exacto. De dónde sale el multiplicador y cómo se mueve entre 3 y 4 es el capítulo 6."
                         enlace="https://www.bis.org/publ/bcbs24.htm"
@@ -4613,10 +4628,10 @@ componente <- w * marginal`,
             <>
                 <Motivacion icon="fa-award"
                     gancho="Descubrir a solas y sin costo cuál de las cosas que creía entendidas no lo estaba es más barato que descubrirlo en la defensa oral.">
-                    En la evaluación del año pasado, cuatro de cada cinco estudiantes calcularon bien el
-                    VaR y menos de uno de cada tres supo decir qué significaba para el capital del fondo.
-                    El cálculo no era el problema. Las diez preguntas de abajo están escritas contra esa
-                    brecha: casi ninguna pide una cuenta.
+                    Calcular un VaR se aprende rápido: son tres líneas de código y un cuantil. Decir qué
+                    significa ese número para el capital del fondo, con qué ventana se obtuvo y qué pasa
+                    el día en que falla es lo que cuesta, y es lo que la defensa oral pregunta. Las diez
+                    preguntas de abajo están escritas contra esa brecha: casi ninguna pide una cuenta.
                 </Motivacion>
 
                 <Quiz titulo="Cuestionario integrador del capítulo 4" preguntas={[
@@ -4693,7 +4708,7 @@ componente <- w * marginal`,
                         ],
                     },
                     {
-                        pregunta: 'La suma de los VaR individuales del fondo da 44 572 millones y el VaR del portafolio 29 338. ¿Qué es la diferencia?', justificacion: 'Los 15 234 millones de diversificación son el 34 % de la suma de los VaR individuales, y solo desaparecerían si las cuatro acciones estuvieran perfectamente correlacionadas. Es el número que el capítulo 7 va a intentar maximizar y el que el capítulo 5 comprueba que el ES también respeta — allí vale 21 886 millones—.',
+                        pregunta: 'La suma de los VaR individuales del fondo da 44 572 millones y el VaR del portafolio 29 338. ¿Qué es la diferencia?', justificacion: 'Los 15 234 millones de diversificación son el 34 % de la suma de los VaR individuales, y solo desaparecerían si las cuatro acciones estuvieran perfectamente correlacionadas. El capítulo 7 no va a maximizar ese número: minimiza la varianza de la cartera, que es otra cosa y que mueve los pesos; lo que este capítulo deja medido es cuánto vale la diversificación con los pesos declarados. El capítulo 5 vuelve sobre la misma cola con otra medida, el ES, y otro nivel.',
                         opciones: [
                             { texto: 'El beneficio de diversificación: lo que aportan los términos cruzados de w′Σw.', correcta: true },
                             { texto: 'Un error de redondeo acumulado al convertir porcentajes a millones de pesos.', correcta: false },
@@ -4730,7 +4745,7 @@ componente <- w * marginal`,
                         <NivelIA nivel={2} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R4 y R7</span>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-white p-3">
-                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El taller Quarto de este capítulo</span>
+                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El R8 y el taller Quarto de este capítulo</span>
                     </div>
                 </div>
                 <Box type="info" label="Los dos R3 de este capítulo se resuelven sin IA, y no es una formalidad">
@@ -4999,12 +5014,19 @@ componente <- w * marginal`,
     <script type="application/json" id="tr-referencias">
 {
   "v": 2,
-  "huella": "47b2e46c9a512685a59772baee89107423f6637cefac21421e8f446fad60048c",
-  "sello": "6e753c2c26505ccd98d36c973225dad1ad813b0135316649e764ee45b7cbd873",
+  "huella": "c23352345d4dd74c71ee131e2ba658d05328ecff6f2a5dbc8204b05174ad43b4",
+  "sello": "3dc39a7aeb4b9542f58b4870d183edb3ff65b49b38c4c550aca5a824a910518d",
   "orden": [
+    "bcbs1996mercado",
     "sfc2026cbf"
   ],
   "entradas": {
+    "bcbs1996mercado": {
+      "autor": "Basel Committee on Banking Supervision",
+      "anio": "1996",
+      "html": "Basel Committee on Banking Supervision. (1996). \u003cem>Amendment to the capital accord to incorporate market risks\u003c/em> (BCBS 24). \u003ca href=\"https://www.bis.org/publ/bcbs24.htm\">https://www.bis.org/publ/bcbs24.htm\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (1996). Amendment to the capital accord to incorporate market risks (BCBS 24). https://www.bis.org/publ/bcbs24.htm"
+    },
     "sfc2026cbf": {
       "autor": "Superintendencia Financiera de Colombia",
       "anio": "2026",
