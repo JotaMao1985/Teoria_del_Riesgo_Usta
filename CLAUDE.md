@@ -58,7 +58,7 @@ Financiera ya probó (`Usta 2026II/Logica de programacion/`):
   decían lo contrario. Cada paquete arranca la recursión de la varianza con un valor distinto: `rugarch`,
   la media de todos los residuos al cuadrado (2,4841, `rec.init = 'all'`); `arch`, un promedio de los
   cuadrados de las 75 primeras ruedas con pesos 0,94ⁱ (1,6524). Con el arranque de `rugarch`, `arch` da
-  persistencia 0,926398 y log-verosimilitud −3150,4955: **de los 0,28 de diferencia, 0,275 son el arranque y
+  persistencia 0,926398 y log-verosimilitud −3150,4955: **de los 0,28 de diferencia, 0,279 son el arranque y
   0,005 el optimizador**. D-B (declarar la discrepancia) se sostiene; su porqué era otro. El bloque de la
   sección 5 imprime la reconciliación.
 - **La persistencia depende de la ventana tanto como del portafolio**: 0,94 en 2018–2019, 0,93 en
@@ -74,6 +74,16 @@ Financiera ya probó (`Usta 2026II/Logica de programacion/`):
   bajo una raíz: es la desviación.
 - **El GARCH filtrado no tiende a σ∞ en la calma: queda debajo** (el 91,5 % de 2019, el 94,8 % de 2024) y
   baja hacia su piso ω/(1−β), 0,94 %. La reversión es del pronóstico. Y ω no es «el suelo».
+- **El cierre de los capítulos 1 y 2 se auditó después contra sus propios criterios (2026-11-12), y no los
+  cumplía del todo.** El 2 se había publicado con 10 citas corregidas sin que volvieran al verificador
+  independiente; la segunda y la tercera ronda las dejaron en «respalda» con la redacción mínima del verificador
+  (los «días anteriores» de ARCH eran «períodos», el «GARCH sin varianza de largo plazo» era «proceso no
+  estacionario», Engle pide media y varianza constantes, no «ni autocorrelación ni agrupamiento»). Un agente
+  con contexto limpio auditó las cifras nuevas de los dos: 5 discrepancias en el 1 y 3 en el 2, ninguna de
+  fondo (10²⁶ por 5 × 10²⁶, 0,275 por 0,279, 187 por 188 %, un crítico del 5 % donde el capítulo usa el 1 %).
+  **El método queda así para los que siguen**: toda cita corregida vuelve al verificador hasta «respalda»;
+  `verificada` en el vault es solo para citas; y al cerrar, la auditoría de las cifras nuevas del diff es parte
+  del cierre, no un extra.
 - Pendiente fuera del capítulo: el capítulo 6 dice que el GARCH del 2 da «19 excepciones» al 99 % en una
   pregunta, y el inventario contó 18 con un método que la pregunta no especifica.
 

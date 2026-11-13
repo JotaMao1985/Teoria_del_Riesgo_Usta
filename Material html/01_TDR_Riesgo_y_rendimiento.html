@@ -3549,7 +3549,7 @@ for (nombre in names(declarado)) {
                     frase debajo. Nadie discute la frase, porque el número que la acompaña salió de un
                     cálculo que nadie mira. Este capítulo es sobre esa cadena: qué se midió, con qué
                     definición de rendimiento, sobre qué archivo, y quién firma cuando el número falla.
-                    La escena es inventada; las cifras de los capítulos, no.
+                    La escena y las dos cifras del informe son inventadas; las de los capítulos, no.
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
@@ -3714,7 +3714,7 @@ for (nombre in names(declarado)) {
                         { num: 'L', title: 'Liquidez', desc: <>No poder cumplir a tiempo los pagos esperados e inesperados: porque falta fondeo, o porque el activo no se puede vender al precio que dice la pantalla, que miente justo cuando importa. La norma cuenta las dos <Cita k="sfc2026cbf" loc="1.1.2.140–1.1.2.142" />. Capítulo 10.</> },
                     ]} />
 
-                    <CodeTabs titulo="El panel congelado con el que trabajan los quince capítulos" bloques={EJ_PANEL}
+                    <CodeTabs titulo="El panel congelado del curso" bloques={EJ_PANEL}
                         nota="Las dos pestañas dan exactamente lo mismo porque leen el mismo archivo y este capítulo no simula nada. Es la convención del curso, y la razón por la que la carpeta datos/ está versionada en el repositorio." />
 
                     <p>
@@ -4301,7 +4301,7 @@ acumulado <- exp(sum(r)) - 1`,
                         de 2020 el fondo perdió 16,12 % en una rueda, unos 129 000 millones: en la escala
                         logarítmica con que el curso mide la dispersión, <strong>once desviaciones
                         típicas</strong>. Bajo el modelo que produjo el informe, eso ocurre una vez cada
-                        10²⁶ años. El universo tiene unos 1,38 × 10¹⁰ años <Cita k="planck2020" loc="tabla 2" />.
+                        unos 5 × 10²⁶ años. El universo tiene unos 1,38 × 10¹⁰ años <Cita k="planck2020" loc="tabla 2" />.
                     </Motivacion>
 
                     <h3>Los cuatro momentos</h3>
@@ -4377,7 +4377,7 @@ acumulado <- exp(sum(r)) - 1`,
                             apreciable a eventos que ocurrieron ocho veces en ocho años. Bajo la normal, una rueda
                             a z desviaciones por debajo de la media tiene probabilidad Φ(z), y con 252 ruedas al
                             año el tiempo esperado entre dos es 1/(252 · Φ(z)) años: con las once desviaciones del
-                            16 de marzo de 2020, del orden de 10²⁶. Y las ocho no
+                            16 de marzo de 2020, unos 5 × 10²⁶. Y las ocho no
                             están repartidas: se concentran en marzo de 2020 y en el par defectuoso de
                             febrero de 2025.
                         </p>
@@ -4727,8 +4727,8 @@ curtosis <- mean(z^4) - 3`,
                         <p>
                             Usted es responsable de la serie con la que el fondo mide su riesgo de
                             mercado. El panel trae dos ruedas en las que los cuatro emisores caen entre
-                            10 % y 20 % y recuperan lo mismo al día siguiente, mientras el ETF que los
-                            replica sube. Excluirlas baja la volatilidad estimada un 5 % y el VaR al 99 % de la ventana corta un 10 %.
+                            9 % y 18 % y al día siguiente suben entre 13 % y 23 %, mientras el ETF que los
+                            replica sube los dos días. Excluirlas baja la volatilidad estimada un 5 % y el VaR al 99 % de la ventana corta un 10 %.
                         </p>
                         <p>
                             Argumente su decisión en un párrafo. La respuesta tiene que decir qué
@@ -4884,12 +4884,15 @@ curtosis <- mean(z^4) - 3`,
                     {
                         label: 'Los cuatro riesgos',
                         content: (
+                            <>
                             <ul>
-                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2. SIAR.</li>
-                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14. SIAR.</li>
-                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15. SIAR.</li>
-                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10. SIAR.</li>
+                                <li><strong>Mercado.</strong> El único que vive en una serie de precios. Unidades 1 y 2.</li>
+                                <li><strong>Crédito.</strong> Necesita datos del deudor, no cotizaciones. Capítulos 13 y 14.</li>
+                                <li><strong>Operativo.</strong> Registros internos de eventos y colas muy pesadas. Capítulo 15.</li>
+                                <li><strong>Liquidez.</strong> El precio de pantalla miente justo cuando hay que vender. Capítulo 10.</li>
                             </ul>
+                            <p>Los cuatro viven en el mismo sistema, el SIAR, que pide límites y reportes, y en él define cada riesgo por separado <Cita k="sfc2026cbf" loc="1.1.1.2, 1.1.1.37, 1.1.1.59, 1.1.1.63, 1.1.2.4, 1.1.2.76, 1.1.2.84, 1.1.2.114 y 1.1.2.140" />.</p>
+                            </>
                         ),
                     },
                     {
@@ -4916,8 +4919,8 @@ curtosis <- mean(z^4) - 3`,
                 ]} />
 
                 <Box type="info" label="Antes de cerrar el capítulo">
-                    Las quince preguntas y ejercicios de este capítulo se pueden responder con lo que
-                    imprimen sus siete bloques y lo que devuelven sus dos laboratorios. Si alguna cifra de
+                    Las preguntas y los ejercicios de este capítulo se responden con lo que imprimen sus
+                    siete bloques, lo que devuelven sus dos laboratorios y las cuentas que la prosa muestra. Si alguna cifra de
                     la prosa no le cuadra con la del bloque, el bloque manda: es el que se ejecuta en cada
                     auditoría del material, en Python y en R, y compara su salida con la que aquí está
                     escrita. Y cuando una frase cita una fuente, la cita respalda lo que va antes de ella

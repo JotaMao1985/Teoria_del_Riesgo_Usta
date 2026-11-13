@@ -151,7 +151,9 @@ Las 22 contradichas y los tres ejercicios altos, sin ampliar nada. Una lista cer
 ### Fase 8 · Cierre
 - `verificar.py --con-salidas` con las 24 reglas; recorrido en el navegador (las cinco secciones, los laboratorios
   barridos, las gráficas con su pie al lado, consola, 375 px).
-- Lectura independiente de cada pareja cita–pasaje, hasta que no quede ningún «no-respalda».
+- Lectura independiente de cada pareja cita–pasaje, y cada una corregida vuelve al verificador hasta quedar en
+  «respalda» (no basta con que no quede ningún «no-respalda»).
+- Un agente con contexto limpio audita todas las cifras nuevas del diff que no sean salidas `#>`.
 - Las 168 afirmaciones en un estado final; `CLAUDE.md` con lo que el capítulo 3 deja dicho para los otros.
 
 ## Auditoría del propio plan (2026-11-12)

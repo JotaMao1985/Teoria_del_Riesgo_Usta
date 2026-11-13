@@ -3486,8 +3486,8 @@ print(f"  estandarizados      z      {ljung_box(z, 10):7.1f}          {curtosis(
 #>   estandarizados      z          9.3             5.95
 print(f"  al cuadrado         z^2    {ljung_box(z**2, 10):7.1f}")
 #>   al cuadrado         z^2       11.1
-print("Critico de una chi-cuadrado con 10 grados al 5 % : 18.3")
-#> Critico de una chi-cuadrado con 10 grados al 5 % : 18.3
+print("Critico de una chi-cuadrado con 10 grados al 1 % : 23.2")
+#> Critico de una chi-cuadrado con 10 grados al 1 % : 23.2
 print(f"  media de z {z.mean():+.4f}   desviacion {z.std(ddof=1):.4f}")
 #>   media de z -0.0160   desviacion 0.9845
 print(f"  grados de libertad que pediria esa curtosis: {6/curtosis(z) + 4:.2f}")
@@ -3526,8 +3526,8 @@ cat(sprintf("  estandarizados      z      %7.1f          %7.2f\\n", ljung_box(z,
 #>   estandarizados      z          9.4             6.00
 cat(sprintf("  al cuadrado         z^2    %7.1f\\n", ljung_box(z^2, 10)))
 #>   al cuadrado         z^2       11.6
-cat("Critico de una chi-cuadrado con 10 grados al 5 % : 18.3\\n")
-#> Critico de una chi-cuadrado con 10 grados al 5 % : 18.3
+cat("Critico de una chi-cuadrado con 10 grados al 1 % : 23.2\\n")
+#> Critico de una chi-cuadrado con 10 grados al 1 % : 23.2
 cat(sprintf("  media de z %+.4f   desviacion %.4f\\n", mean(z), sd(z)))
 #>   media de z -0.0161   desviacion 0.9846
 cat(sprintf("  grados de libertad que pediria esa curtosis: %.2f\\n", 6 / curtosis(z) + 4))
@@ -3734,11 +3734,11 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                 </Box>
 
                 <Timeline eventos={[
-                    { year: '1982', text: <>Robert Engle publica ARCH: la varianza condicional de hoy depende de los errores al cuadrado de los días anteriores <Cita k="nobel2003ciencia" loc="pp. 14–15" />. Antes de ARCH casi no había métodos para pronosticar la varianza <Cita k="engle2001" loc="p. 159" />.</> },
-                    { year: '1986', text: <>Tim Bollerslev, estudiante de posgrado de Engle, añade la varianza de ayer a la ecuación y obtiene GARCH: con tres parámetros hace lo que ARCH necesitaba en muchos rezagos <Cita k="nobel2003ciencia" loc="p. 15" />.</> },
-                    { year: '1994', text: <>J. P. Morgan lanza RiskMetrics <Cita k="jpmorgan1996" loc="p. iii" />. Su documento técnico usa λ = 0,94 para datos diarios: un IGARCH sin constante —un GARCH sin varianza de largo plazo— y sin nada que estimar sobre la serie propia <Cita k="jpmorgan1996" loc="p. 87, nota 4, y pp. 99–100" />.</> },
-                    { year: '2003', text: <>Engle recibe el Nobel de Economía, compartido con Clive Granger, «por métodos para analizar series de tiempo económicas con volatilidad variable en el tiempo (ARCH)». El comunicado añade que los analistas los usan para evaluar el riesgo de las carteras <Cita k="nobel2003prensa" />.</> },
-                    { year: '2016', text: <>El FRTB mide el ES con horizontes de liquidez de 10 a 120 días según el factor de riesgo, y llega a ellos desde un ES calculado a 10 días, escalando con raíces del tiempo —√((LHⱼ − LHⱼ₋₁)/10) por grupo de factores— <Cita k="bcbs2016frtb" loc="párr. 181(c)" />: la regla que la sección 7 pone a prueba. Una versión revisada lo reemplazó en 2019 <Cita k="bcbs2016frtb" loc="aviso de cada página" />, y hoy rige consolidado en MAR33 <Cita k="bcbs2020mar33" loc="MAR33.4" />.</> },
+                    { year: '1982', text: <>Robert Engle publica ARCH: la varianza condicional depende de los errores al cuadrado de los períodos anteriores <Cita k="nobel2003ciencia" loc="pp. 14–15" />. Antes de ARCH casi no había métodos para pronosticar la varianza <Cita k="engle2001" loc="p. 159" />.</> },
+                    { year: '1986', text: <>Tim Bollerslev, estudiante de posgrado de Engle, añade a la ecuación rezagos de la varianza condicional —suele bastar el del período anterior— y obtiene GARCH: el de primer orden, con tres parámetros, reproduce la autocorrelación lenta de los cuadrados para la que ARCH necesitaba muchos rezagos <Cita k="nobel2003ciencia" loc="p. 15" />.</> },
+                    { year: '1994', text: <>J. P. Morgan lanza RiskMetrics <Cita k="jpmorgan1996" loc="p. iii" />. Su documento técnico usa λ = 0,94 para datos diarios: un IGARCH sin constante —un proceso de varianza no estacionario— y sin nada que estimar sobre la serie propia <Cita k="jpmorgan1996" loc="p. 87, nota 4, y pp. 99–100" />.</> },
+                    { year: '2003', text: <>Engle recibe el Nobel de Economía, compartido con Clive Granger, «por métodos para analizar series de tiempo económicas con volatilidad variable en el tiempo (ARCH)». El comunicado añade que los analistas los usan para evaluar el riesgo de las carteras <Cita k="nobel2003prensa" loc="«Statistical Methods for Economic Time Series», 2.º párr." />.</> },
+                    { year: '2016', text: <>El FRTB mide el ES con horizontes de liquidez de 10 a 120 días según el factor de riesgo, y llega a ellos desde un ES calculado a 10 días, escalando con raíces del tiempo —√((LHⱼ − LHⱼ₋₁)/10) por grupo de factores— <Cita k="bcbs2016frtb" loc="párr. 181(c)" />: la regla que la sección 7 pone a prueba. En enero de 2019 se publicó una versión revisada <Cita k="bcbs2016frtb" loc="aviso de cada página" />, y la regla rige hoy en el marco consolidado de Basilea, en MAR33.4 <Cita k="bcbs2020mar33" loc="MAR33.4, versión con fecha efectiva 1/1/2023" />.</> },
                 ]} />
             </>
         );
@@ -3831,7 +3831,7 @@ cat(sprintf("Ruedas hasta cerrar la mitad de la distancia: %.1f\\n", log(0.5) / 
                     </p>
 
                     <ChartFrame id="cap2-abs" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
-                        caption="Valor absoluto del rendimiento diario del portafolio en la serie de la convención del capítulo 1 (por eso el 16/3/2020 marca 17,76 % donde el fondo perdió 16,12 %). La línea roja es la desviación de toda la muestra, 1,5764 %. Marzo de 2020 se ve desde lejos y dura meses; en 2019 y 2024 solo una de cada siete u ocho ruedas pasa la línea. Los dos círculos son el par defectuoso de febrero de 2025, que no es volatilidad sino un error de cotización. Para no pasar de 958 puntos se dibuja la mayor de cada par de ruedas: ningún pico se pierde." />
+                        caption="Valor absoluto del rendimiento diario del portafolio en la serie de la convención del capítulo 1 (por eso el 16/3/2020 marca 17,76 % donde el fondo perdió 16,12 %). La línea roja es la desviación de toda la muestra, 1,5764 %. Marzo de 2020 se ve desde lejos y dura meses; en 2019 y 2024 solo una de cada siete u ocho ruedas pasa la línea. Los dos círculos son el par defectuoso de febrero de 2025, que no es volatilidad sino un error de cotización. Para no pasar de 958 puntos se dibuja la mayor de cada par de ruedas: ningún par pierde su pico, aunque el 12/3/2020 (9,59 %) comparte par con el 16/3 y no se ve." />
 
                     <h3>La prueba: r casi no se autocorrelaciona; |r| y r², mucho</h3>
                     <p>
@@ -4171,9 +4171,9 @@ for (x in r) {
                     es lo único que depende del pasado y lo único que el modelo predice.{' '}
                     <span className="inline-code">z<sub>t</sub></span> —la{' '}
                     <Termino def="El factor aleatorio de la ecuación: una extracción independiente e idénticamente distribuida en cada rueda, con media cero y varianza uno. Su contrapartida empírica es el residuo estandarizado (r − μ̂) / σ̂, que es lo que diagnostica la sección 6.">innovación estandarizada</Termino>—
-                    pone el <strong>signo y la forma de la cola</strong>: una extracción nueva cada
-                    rueda, independiente de las anteriores, con media cero y varianza uno, y de la que
-                    el modelo no predice nada <Cita k="nobel2003ciencia" loc="p. 14" />.
+                    pone el <strong>signo y la forma de la cola</strong>. Es una extracción nueva cada
+                    rueda, independiente de las anteriores,
+                    con media cero y varianza uno, y el modelo no predice nada de ella <Cita k="nobel2003ciencia" loc="p. 14" />.
                 </p>
                 <p>
                     Esa división es la asimetría de la sección 1 escrita en una línea —el tamaño se
@@ -4316,16 +4316,16 @@ for (x in r) {
                         <span className="inline-code">rugarch</span> no maximizan exactamente la misma
                         verosimilitud. La recursión necesita un σ₀² para la primera rueda y cada
                         paquete pone el suyo: <span className="inline-code">rugarch</span>, la varianza calculada
-                        con todos los datos <Cita k="galanos-rugarch" loc="ugarchfit, fit.control, p. 73" />,
-                        que es la media de todos los residuos al cuadrado, 2,4841;{' '}
-                        <span className="inline-code">arch</span>, un promedio de los cuadrados de las 75
-                        primeras ruedas con pesos 0,94ⁱ, 1,6524{' '}
-                        <Cita k="sheppard-arch" loc="GARCH.backcast y ARCHModel.fit, v. 8.0.0" />. Con otro arranque cambia la
+                        con todos los datos <Cita k="galanos-rugarch" loc="ugarchfit, fit.control, p. 73" />
+                        —en su código, la media de todos los residuos al cuadrado, que en este panel es 2,4841—;{' '}
+                        <span className="inline-code">arch</span>,
+                        un promedio de los cuadrados de los 75 primeros residuos con pesos 0,94ⁱ{' '}
+                        <Cita k="sheppard-arch" loc="GARCH.backcast y ARCHModel.fit, v. 8.0.0" />, que en este panel da 1,6524. Con otro arranque cambia la
                         función que se maximiza, y por eso −3150,4906 y −3150,7748 no se comparan como
                         si R hubiera encontrado un punto mejor. La prueba es la última línea de la
                         pestaña de Python: con el arranque de <span className="inline-code">rugarch</span>,{' '}
                         <span className="inline-code">arch</span> da persistencia 0,926398 y
-                        log-verosimilitud −3150,4955. <strong>De los 0,28 de diferencia, 0,275 son el
+                        log-verosimilitud −3150,4955. <strong>De los 0,28 de diferencia, 0,279 son el
                         arranque y 0,005 el optimizador.</strong>
                     </p>
                     <p>
@@ -4427,7 +4427,7 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                     lineaCorrecta={{ python: 11, r: 11 }}
                     tipos={TIPOS_ERROR_RIESGO}
                     tipoCorrecto={IDX_ERROR.supuesto}
-                    explicacion="La fórmula de la varianza de largo plazo, ω/(1−α−β), solo vale si α+β es menor que uno: es la condición que hace que la varianza incondicional exista. Esas 250 ruedas tienen dentro marzo de 2020, y los dos paquetes se detienen en el borde de lo que permiten: arch en α+β = 1 hasta la decimosexta cifra, con lo que la fórmula divide por casi cero y devuelve 34 982 263 % diario; rugarch en 0,999, el límite de su opción de estacionariedad, y devuelve 11,82 % diario, un 187 % anual. Con ventanas vecinas sale un NaN o un infinito. El código imprime la persistencia una línea antes, redondeada a 1.000 o a 0.999, así que la información estaba a la vista: lo que faltó fue la comprobación. Una persistencia en el borde no es un error de estimación; con una ventana que contiene un cambio de régimen es lo esperable, y lo que corresponde es decirlo y no anclar nada en σ∞: pasar a un IGARCH o cambiar la ventana."
+                    explicacion="La fórmula de la varianza de largo plazo, ω/(1−α−β), solo vale si α+β es menor que uno: es la condición que hace que la varianza incondicional exista. Esas 250 ruedas tienen dentro marzo de 2020, y los dos paquetes se detienen en el borde de lo que permiten: arch en α+β = 1 hasta la decimosexta cifra, con lo que la fórmula divide por casi cero y devuelve 34 982 263 % diario; rugarch en 0,999, el límite de su opción de estacionariedad, y devuelve 11,82 % diario, un 188 % anual. Con ventanas vecinas, en Python sale un NaN o un infinito, y en R, entre 11,0 y 13,1 % diario. El código imprime la persistencia una línea antes, redondeada a 1.000 o a 0.999, así que la información estaba a la vista: lo que faltó fue la comprobación. Una persistencia en el borde no es un error de estimación; con una ventana que contiene un cambio de régimen es lo esperable, y lo que corresponde es decirlo y no anclar nada en σ∞: pasar a un IGARCH o cambiar la ventana."
                     impacto="El fondo se queda sin nivel de reposo al que anclar sus pronósticos a más de un día. La cifra de Python salta a la vista; la de R es la peligrosa, porque 11,82 % parece una volatilidad y puede acabar fijando el límite del portafolio. Con un NaN, el informe sale con una celda vacía y alguien la rellena a mano. En los dos casos el defecto no está en la aritmética —que es correcta— sino en una condición que la fórmula exige y que el código nunca miró."
                 />
 
@@ -4506,9 +4506,9 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                         El modelo dice que <span className="inline-code">r = μ + σ·z</span> con{' '}
                         <span className="inline-code">z</span> independientes de varianza uno. Si eso es
                         cierto, la serie <strong>estandarizada</strong> —dividida por la σ que el propio
-                        modelo estimó para cada día— no debe tener ni autocorrelación ni agrupamiento, y una prueba de autocorrelación de
+                        modelo estimó para cada día— debe tener media y varianza constantes, y una prueba de autocorrelación de
                         sus cuadrados —a menudo un Ljung-Box— es una forma de detectar que el modelo falló{' '}
-                        <Cita k="engle2001" loc="p. 161" />:
+                        <Cita k="engle2001" loc="pp. 160–161" />; por eso no debe quedarle agrupamiento:
                     </p>
                     <Eq>{'$$\\hat z_t = \\frac{r_t - \\hat\\mu}{\\hat\\sigma_t} \\qquad\\Longrightarrow\\qquad \\hat z_t \\ \\text{y} \\ \\hat z_t^2 \\ \\text{sin estructura}$$'}</Eq>
                     <p>
@@ -4546,7 +4546,7 @@ lp <- om / (1 - al - be)           # varianza de largo plazo`,
                     </p>
 
                     <ChartFrame id="cap2-tres" height="chart-h-420" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado (datos/bvc_diario.csv); el GARCH, ajustado con arch como en la sección 5' }}
-                        caption="Las tres estimaciones sobre las mismas 1 916 ruedas, más el nivel de largo plazo del GARCH. La gris llega tarde y se va tarde —los escalones de marzo de 2021 son el efecto fantasma—. La azul y la morada reaccionan a la rueda siguiente, porque las dos usan el rendimiento de ayer: el 16/3/2020 marcan 3,99 % y 4,90 %, y saltan el 17. En los sustos la morada se parece a la azul; en la calma queda por debajo de la línea roja —el 91,5 % de las ruedas de 2019 y el 94,8 % de las de 2024— y baja hacia su piso de 0,94 %. Lo que la línea roja ancla no es esta serie sino el pronóstico de la sección 7, y ese anclaje es lo único que EWMA no tiene." />
+                        caption="Las tres estimaciones sobre las mismas 1 916 ruedas, más el nivel de largo plazo del GARCH. La gris llega tarde y se va tarde —los escalones de marzo de 2021 son el efecto fantasma—. La azul y la morada reaccionan a la rueda siguiente, porque las dos usan el rendimiento de ayer: el 16/3/2020 marcan 3,99 % y 4,90 %, y saltan el 17 (la gráfica va diezmada y pasa del 12 al 17; las dos cifras son de la serie completa). En los sustos la morada se parece a la azul; en la calma queda por debajo de la línea roja —el 91,5 % de las ruedas de 2019 y el 94,8 % de las de 2024— y baja hacia su piso de 0,94 %. Lo que la línea roja ancla no es esta serie sino el pronóstico de la sección 7, y ese anclaje es lo único que EWMA no tiene." />
 
                     <DetectaError
                         titulo="R3 · Audita a la IA · el diagnóstico sobre los residuos equivocados"
@@ -4953,7 +4953,7 @@ sigma <- as.numeric(sigma(aj))`,
                         ],
                     },
                     {
-                        pregunta: '`arch` reporta una persistencia de 0,924785 y `rugarch`, de 0,926259, sobre los mismos datos. ¿Cuál es la lectura correcta?', justificacion: 'Cada paquete pone un σ₀² distinto en la primera rueda —2,4841 en rugarch, 1,6524 en arch— y con el de rugarch, arch da 0,926398 y una log-verosimilitud de −3150,4955: de los 0,28 que separan las dos columnas, 0,275 son el arranque y 0,005 el optimizador. Es una de las excepciones declaradas a la regla de que las dos pestañas coinciden. Y lo que se decide con el modelo no cambia: las dos series de σ condicional correlacionan 0,9998 y la última rueda difiere en la cuarta cifra, 1,2922 % contra 1,2923 %.',
+                        pregunta: '`arch` reporta una persistencia de 0,924785 y `rugarch`, de 0,926259, sobre los mismos datos. ¿Cuál es la lectura correcta?', justificacion: 'Cada paquete pone un σ₀² distinto en la primera rueda —2,4841 en rugarch, 1,6524 en arch— y con el de rugarch, arch da 0,926398 y una log-verosimilitud de −3150,4955: de los 0,28 que separan las dos columnas, 0,279 son el arranque y 0,005 el optimizador. Es una de las excepciones declaradas a la regla de que las dos pestañas coinciden. Y lo que se decide con el modelo no cambia: las dos series de σ condicional correlacionan 0,9998 y la última rueda difiere en la cuarta cifra, 1,2922 % contra 1,2923 %.',
                         opciones: [
                             { texto: 'Cada uno arranca la recursión de la varianza con un valor distinto y maximiza otra función; ninguno está mal y hay que documentar cuál se usó.', correcta: true },
                             { texto: 'Uno de los dos paquetes tiene un defecto de implementación y hay que reportarlo a sus mantenedores.', correcta: false },
