@@ -3109,7 +3109,16 @@ print(f"Desviacion diaria : {rp.std(ddof=1) * 100:.4f} %")
 
 var99 = -np.quantile(rp, 0.01)                   # el peor 1 % de las sesiones
 print(f"VaR 99 % a un dia : {var99 * 100:.3f} %  =  {var99 * W:,.0f} millones")
-#> VaR 99 % a un dia : 4.077 %  =  32,617 millones`,
+#> VaR 99 % a un dia : 4.077 %  =  32,617 millones
+
+# rp es w'r, la convencion del capitulo 1: NO es el rendimiento de ninguna cartera,
+# y arriba se paso a pesos multiplicando. Las dos cosas se pueden medir.
+rp_exacto = np.log(1 + (np.exp(r.values) - 1) @ w)   # el fondo rebalanceado cada rueda
+var99e    = -np.quantile(rp_exacto, 0.01)
+print(f"  serie exacta      : {var99e * 100:.3f} %  =  {(1 - np.exp(-var99e)) * W:,.0f} millones")
+#>   serie exacta      : 3.955 %  =  31,025 millones
+print(f"  brecha con el acta: {var99 * W - (1 - np.exp(-var99e)) * W:,.0f} millones")
+#>   brecha con el acta: 1,592 millones`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)                   # pesos del fondo, fijos todo el capitulo
@@ -3128,7 +3137,18 @@ cat(sprintf("Desviacion diaria : %.4f %%\\n", sd(rp) * 100))
 var99 <- -quantile(rp, 0.01, names = FALSE)      # el peor 1 % de las sesiones
 cat(sprintf("VaR 99 %% a un dia : %.3f %%  =  %s millones\\n", var99 * 100,
             formatC(round(var99 * W), format = "d", big.mark = ",")))
-#> VaR 99 % a un dia : 4.077 %  =  32,617 millones`,
+#> VaR 99 % a un dia : 4.077 %  =  32,617 millones
+
+# rp es w'r, la convencion del capitulo 1: NO es el rendimiento de ninguna cartera,
+# y arriba se paso a pesos multiplicando. Las dos cosas se pueden medir.
+rp_exacto <- as.vector(log(1 + (exp(r) - 1) %*% w))  # el fondo rebalanceado cada rueda
+var99e    <- -quantile(rp_exacto, 0.01, names = FALSE)
+cat(sprintf("  serie exacta      : %.3f %%  =  %s millones\\n", var99e * 100,
+            formatC(round((1 - exp(-var99e)) * W), format = "d", big.mark = ",")))
+#>   serie exacta      : 3.955 %  =  31,025 millones
+cat(sprintf("  brecha con el acta: %s millones\\n",
+            formatC(round(var99 * W - (1 - exp(-var99e)) * W), format = "d", big.mark = ",")))
+#>   brecha con el acta: 1,592 millones`,
         };
 
         const EJ_PARAMETRICO = {
@@ -3551,7 +3571,8 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                     a un día: 32 617 millones». Cuatro personas la firman. Ninguna pregunta qué pasa el
                     día en que el número se rompe, cuántas veces se ha roto ya, ni con qué ventana de
                     historia se calculó. Las tres preguntas tienen respuesta, y las tres cambian la
-                    cifra.
+                    cifra. Una cuarta la cambia antes de empezar: de qué serie salió. Esa misma pérdida,
+                    medida sobre el fondo tal como se rebalancea, son 31 025 millones.
                 </Motivacion>
 
                 <NivelIA nivel={CONFIG.nivelIA}
@@ -3617,14 +3638,43 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 </p>
 
                 <CodeTabs titulo="El portafolio del fondo y su primer VaR" bloques={EJ_CARGA}
-                    nota="Las dos pestañas dan exactamente lo mismo porque los datos salen del CSV congelado y no de un simulador. Es la convención del curso, y la razón por la que datos/ está versionado." />
+                    nota="Las dos pestañas dan exactamente lo mismo porque los datos salen del CSV congelado y no de un simulador. Es la convención del curso, y la razón por la que datos/ está versionado. Las tres últimas líneas son la columna exacta, y el recuadro de abajo dice qué separan." />
+                <CalloutPro tema="warn" titulo="Todas las cifras de este capítulo salen de w′r, y eso tiene un precio medido"
+                    subtitulo="La séptima convención del curso, aplicada por primera vez a dinero">
+                    <p>
+                        La serie del portafolio es <span className="inline-code">r @ w</span>: la suma
+                        ponderada de los rendimientos <strong>logarítmicos</strong> de los cuatro
+                        emisores. Es la convención que el capítulo 1 declara, y el capítulo 7 añade la
+                        parte incómoda: <strong>no es el rendimiento de ninguna cartera</strong>, porque
+                        los logarítmicos no se agregan entre activos. El fondo de verdad —el que se
+                        rebalancea a 30/20/25/25 cada rueda— compone los aritméticos, y su cuantil al
+                        99 % es <strong>3,955 %</strong> y no 4,077 %.
+                    </p>
+                    <p>
+                        Y hay una segunda capa encima, que es la que convierte porcentajes en pesos. Una
+                        pérdida logarítmica de 3,955 % no son 3,955 % del fondo: son{' '}
+                        <span className="inline-code">1 − e<sup>−0,03955</sup></span> = 3,878 %, o{' '}
+                        <strong>31 025 millones</strong>. Entre eso y los 32 617 del acta hay{' '}
+                        <strong>1 592 millones</strong>, un 5,1 %: 936 los pone la agregación y 656 el
+                        haber multiplicado en vez de compuesto.
+                    </p>
+                    <p>
+                        El capítulo <strong>conserva la convención</strong> —como el 1, el 7 y el 8— para
+                        que sus cifras sigan siendo comparables con las de los demás, y el bloque de
+                        arriba imprime la columna exacta al lado. Lo que no se puede hacer es firmar un
+                        acta con la primera cifra creyendo que es la segunda, y por eso todo lo que este
+                        capítulo lleva a pesos arrastra esa advertencia.
+                    </p>
+                </CalloutPro>
+
 
                 <p>
                     Ese 4,077 % es un cuantil empírico: el corte por debajo del cual quedan las veinte
-                    peores ruedas de 1 916. En pesos, 32 617 millones sobre un portafolio de 800 000.
-                    La frase completa —la única que se puede firmar— es:{' '}
+                    peores ruedas de 1 916. En pesos de la convención, 32 617 millones sobre un
+                    portafolio de 800 000; medidos sobre el fondo rebalanceado, 31 025. La frase
+                    completa —la única que se puede firmar— es:{' '}
                     <strong>«en 99 de cada 100 ruedas, la pérdida de un día no superará 32 617
-                    millones de pesos»</strong>.
+                    millones de pesos»</strong>, con la convención declarada al lado.
                 </p>
 
                 <h3>Las tres preguntas que el VaR no responde</h3>

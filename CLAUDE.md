@@ -1455,6 +1455,13 @@ tabla guarda 0,4995— y **mostrar u con seis decimales no lo salva**. La salida
 magnitudes estables y **mostrar p\* en vez de pedirla**. Regla: antes de esconder una casilla,
 compruebe que se recupera desde lo mostrado; si no, muéstrela.
 
+⚠️ **Una comilla invertida dentro de un bloque de código cierra la plantilla de JavaScript.** Los bloques
+viven en *template literals* —`python: \`…\``—, así que escribir `` `rp` `` en un comentario del código parte la
+cadena en dos y el JSX deja de ser analizable. Pasó el 2026-11-13 al añadir la columna exacta al capítulo 4. Cómo se
+detecta: `verificar.py` NO falla, solo avisa «no se pudieron comprobar las reglas 22 y 24: NO-ANALIZABLE … Unexpected
+token» con la línea del JSX extraído, que se traduce a la del archivo sumando la del `<script type="text/babel">`.
+Conviene mirar ese aviso: es de la familia de la zona ciega 1 y puede dejar la página en blanco.
+
 ⚠️ **Una contrabarra sola en una fórmula la rompe en silencio, y ninguna regla lo ve.** Las
 fórmulas viajan dentro de cadenas de JavaScript, así que **todo mandato de TeX se escribe con
 DOS contrabarras**: `\\;`, `\\sum`, `\\top`. Con una sola, JavaScript no reconoce el escape, se
