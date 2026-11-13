@@ -3694,10 +3694,10 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                 </Box>
 
                 <Timeline eventos={[
-                    { year: '1993', text: 'El informe del Grupo de los Treinta recomienda una medida única de riesgo de mercado, comparable entre mesas y entre productos.' },
-                    { year: '1994', text: 'J. P. Morgan publica RiskMetrics y regala la metodología. El VaR deja de ser un modelo interno y se vuelve el idioma común del sector.' },
-                    { year: '1996', text: 'La enmienda de riesgos de mercado de Basilea permite calcular el capital con modelos internos: VaR al 99 %, diez días de tenencia, multiplicador de al menos 3.' },
-                    { year: '2016', text: 'El FRTB sustituye el VaR al 99 % por el Expected Shortfall al 97,5 %. El capítulo 5 explica por qué; este explica qué se estaba usando hasta entonces.' },
+                    { year: '1993', text: <>En julio, el Grupo de los Treinta recomienda que los operadores de derivados midan <strong>a diario</strong> el riesgo de mercado de sus posiciones con una medida consistente —el «value at risk»—, calculada con un intervalo de confianza y un horizonte comunes: reducir los riesgos a un denominador común es lo que permite agregarlos y compararlos <Cita k="g30-1993-derivados" loc="pp. 10–11, Recomendación 5" />.</> },
+                    { year: '1994', text: <>J. P. Morgan lanza RiskMetrics en octubre y pone la metodología y las series diarias de volatilidades y correlaciones en internet, sin costo, con el propósito declarado de «fijar una referencia» para medir el riesgo de mercado. Dos años después el propio documento escribe que medir riesgo de mercado se ha vuelto sinónimo de «Value-at-Risk» <Cita k="jpmorgan1996" loc="portada, pp. iii–iv y p. 5 de la 4.ª ed." />.</> },
+                    { year: '1996', text: <>La enmienda de riesgos de mercado de Basilea permite calcular el capital con los modelos internos del banco, <strong>con la aprobación explícita del supervisor</strong>: VaR al 99 %, diez días hábiles de tenencia y un multiplicador de al menos 3 <Cita k="bcbs1996mercado" loc="pp. 3 y 38, párr. 9–10 y B.1.1; pp. 44–45, B.4 (b)–(d), (i) y (j)" />.</> },
+                    { year: '2016', text: <>El FRTB cambia la medida con que se calcula el capital por modelos internos: Expected Shortfall al 97,5 % en lugar del VaR al 99 % <Cita k="bcbs2016frtb" loc="resumen ejecutivo y párr. 181(a)–(b)" />. El VaR no desaparece —sigue siendo la medida de la prueba retrospectiva y del «plus» del multiplicador, párrafos 183 y 189—, y en enero de 2019 salió una versión revisada del estándar. El capítulo 5 explica por qué el cambio; este, qué se estaba usando hasta entonces.</> },
                 ]} />
             </>
         );
@@ -5277,10 +5277,13 @@ componente <- w * marginal`,
     <script type="application/json" id="tr-referencias">
 {
   "v": 2,
-  "huella": "c23352345d4dd74c71ee131e2ba658d05328ecff6f2a5dbc8204b05174ad43b4",
-  "sello": "3dc39a7aeb4b9542f58b4870d183edb3ff65b49b38c4c550aca5a824a910518d",
+  "huella": "a9fcc41f7a207a59c83b50115e8e8832db8f01cbd27b6823fd155e819ede4105",
+  "sello": "f577809fe8a4c77dd3414b24b9597b8885777e83ce9ccd68e25330ded323b710",
   "orden": [
     "bcbs1996mercado",
+    "bcbs2016frtb",
+    "g30-1993-derivados",
+    "jpmorgan1996",
     "sfc2026cbf"
   ],
   "entradas": {
@@ -5289,6 +5292,24 @@ componente <- w * marginal`,
       "anio": "1996",
       "html": "Basel Committee on Banking Supervision. (1996). \u003cem>Amendment to the capital accord to incorporate market risks\u003c/em> (BCBS 24). \u003ca href=\"https://www.bis.org/publ/bcbs24.htm\">https://www.bis.org/publ/bcbs24.htm\u003c/a>",
       "plano": "Basel Committee on Banking Supervision. (1996). Amendment to the capital accord to incorporate market risks (BCBS 24). https://www.bis.org/publ/bcbs24.htm"
+    },
+    "bcbs2016frtb": {
+      "autor": "Basel Committee on Banking Supervision",
+      "anio": "2016",
+      "html": "Basel Committee on Banking Supervision. (2016). \u003cem>Minimum capital requirements for market risk\u003c/em> (BCBS d352; Standards). Bank for International Settlements. \u003ca href=\"https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\">https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf\u003c/a>",
+      "plano": "Basel Committee on Banking Supervision. (2016). Minimum capital requirements for market risk (BCBS d352; Standards). Bank for International Settlements. https://www.bis.org/publications/201601-standards-minimum-capital-requirements-market-risk.pdf"
+    },
+    "g30-1993-derivados": {
+      "autor": "Global Derivatives Study Group",
+      "anio": "1993",
+      "html": "Global Derivatives Study Group. (1993). \u003cem>Derivatives: Practices and Principles\u003c/em> [Special Report]. Group of Thirty. \u003ca href=\"https://group30.org/publications/detail/183\">https://group30.org/publications/detail/183\u003c/a>",
+      "plano": "Global Derivatives Study Group. (1993). Derivatives: Practices and Principles [Special Report]. Group of Thirty. https://group30.org/publications/detail/183"
+    },
+    "jpmorgan1996": {
+      "autor": "J.P. Morgan y Reuters",
+      "anio": "1996",
+      "html": "J.P. Morgan, y Reuters. (1996). \u003cem>RiskMetrics: Technical document\u003c/em>. Morgan Guaranty Trust Company. \u003ca href=\"https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document\">https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document\u003c/a>",
+      "plano": "J.P. Morgan, y Reuters. (1996). RiskMetrics: Technical document. Morgan Guaranty Trust Company. https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document"
     },
     "sfc2026cbf": {
       "autor": "Superintendencia Financiera de Colombia",

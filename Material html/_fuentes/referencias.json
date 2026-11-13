@@ -1052,6 +1052,39 @@
     "language": "en"
   },
   {
+    "id": "g30-1993-derivados",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Global Derivatives Study Group"
+      }
+    ],
+    "title": "Derivatives: Practices and Principles",
+    "publisher": "Group of Thirty",
+    "publisher-place": "Washington, DC",
+    "issued": {
+      "date-parts": [
+        [
+          "1993",
+          7
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          13
+        ]
+      ]
+    },
+    "genre": "Special Report",
+    "ISBN": "1-56708-901-1",
+    "URL": "https://group30.org/publications/detail/183",
+    "language": "en"
+  },
+  {
     "id": "galanos-rugarch",
     "type": "software",
     "author": [
