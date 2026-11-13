@@ -3044,7 +3044,7 @@
            a cuatro decimales, esa resta daba 4,5381 donde el bloque de la
            sección 1 declara 4,5379, y el hover de la gráfica habría
            contradicho al código que la acompaña por dos diezmilésimas. */
-        /* 8,1026 y no 8,10: es RF_ANUAL + PRIMA, de modo que la SML pase
+        /* 8,1027 y no 8,10: es RF_ANUAL + PRIMA, de modo que la SML pase
            exactamente por el punto del mercado en β = 1, que es lo que el pie
            de la gráfica afirma. Redondeado a dos decimales —que es como lo
            muestra el hover— sigue siendo el 8,10 % del bloque. */
@@ -3053,17 +3053,18 @@
            cada rueda, componiendo los aritméticos: la última fila del bloque
            de la sección 3. */
         const PORT_EXACTO = { beta: 0.6756, anual: 11.83 };
-        const MERCADO = { beta: 1, anual: 8.1026, sd: 1.3085, nombre: 'ICOLCAP (mercado)', color: '#6B7280' };
+        const MERCADO = { beta: 1, anual: 8.1027, sd: 1.3085, nombre: 'ICOLCAP (mercado)', color: '#6B7280' };
 
         /* Las tres constantes de la SML van en la convención del curso:
            rendimientos logarítmicos anualizados multiplicando por 252.
-           El 7,00 % EFECTIVO anual declarado equivale a 6,7667 % en esa
-           convención —es la misma tasa dicha de dos maneras, como los
-           aritméticos y los logarítmicos del capítulo 1— y es la cifra
-           con la que trabaja el bloque de la sección 3. Mezclarlas movía
+           El 7,00 % EFECTIVO anual declarado se pasa a diario,
+           (1,07)^(1/252) − 1 = 2,6852 pb, y se anualiza por 252 como los
+           rendimientos: 6,766773, que redondea a 6,7668. Es la cifra con la
+           que trabaja el bloque de la sección 3. La otra convención,
+           ln(1,07) = 6,7659, es la del capítulo 7; aquí no se mezcla. Mezclarlas movía
            el rendimiento exigido de ISA de 7,59 % a 7,68 %. */
-        const RF_ANUAL = 6.7667;              // el 7,00 % E.A. declarado, en convención logarítmica
-        const PRIMA = 1.3359;                 // 8,0987 − 6,7667, la del bloque de la sección 3
+        const RF_ANUAL = 6.7668;              // el 7,00 % E.A. declarado, diario efectivo × 252
+        const PRIMA = 1.3359;                 // 8,1027 − 6,7668, la del bloque de la sección 3
         const EE_PRIMA = 7.53;                // pp anuales — el número que sostiene la sección 5
 
         /* ============================================================
@@ -3157,7 +3158,21 @@ print(f"{'PORTAFOLIO':14s} {q.params[0]*1e4:+7.2f}   {q.params[1]:6.4f}     {q.b
 
 b, ee = q.params[1], q.bse[1]
 print(f"Intervalo de confianza al 95 % para la beta del portafolio: [{b - 1.96*ee:.4f}, {b + 1.96*ee:.4f}]")
-#> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]`,
+#> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]
+# El EE de arriba supone varianza constante e independencia; el capitulo 2 mostro que no.
+# Newey-West con 5 rezagos (una semana) no supone ninguna de las dos.
+e, xc = q.resid, rm - rm.mean()
+u = xc * e
+s = (u ** 2).sum()
+for k in range(1, 6):
+    s += 2 * (1 - k / 6) * (u[k:] * u[:-k]).sum()
+ee_nw = np.sqrt(s) / (xc ** 2).sum()
+print(f"EE de la beta del portafolio: MCO {ee:.4f} · Newey-West {ee_nw:.4f}")
+#> EE de la beta del portafolio: MCO 0.0228 · Newey-West 0.0849
+print(f"Intervalo al 95 % con Newey-West: [{b - 1.96*ee_nw:.4f}, {b + 1.96*ee_nw:.4f}]")
+#> Intervalo al 95 % con Newey-West: [0.5115, 0.8444]
+print(f"El uno queda a {(1 - b)/ee:.1f} errores estandar con MCO y a {(1 - b)/ee_nw:.1f} con Newey-West")
+#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 
@@ -3187,7 +3202,20 @@ cat(sprintf("%-14s %+7.2f   %6.4f     %.4f   %6.2f   %.4f\\n", "PORTAFOLIO",
 b  <- q$coefficients[2, 1]; ee <- q$coefficients[2, 2]
 cat(sprintf("Intervalo de confianza al 95 %% para la beta del portafolio: [%.4f, %.4f]\\n",
             b - 1.96 * ee, b + 1.96 * ee))
-#> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]`,
+#> Intervalo de confianza al 95 % para la beta del portafolio: [0.6333, 0.7226]
+# El EE de arriba supone varianza constante e independencia; el capitulo 2 mostro que no.
+# Newey-West con 5 rezagos (una semana) no supone ninguna de las dos.
+e  <- residuals(lm(rp ~ rm)); xc <- rm - mean(rm)
+u  <- xc * e; n <- length(u)
+s  <- sum(u^2)
+for (k in 1:5) s <- s + 2 * (1 - k / 6) * sum(u[(k + 1):n] * u[1:(n - k)])
+ee_nw <- sqrt(s) / sum(xc^2)
+cat(sprintf("EE de la beta del portafolio: MCO %.4f · Newey-West %.4f\\n", ee, ee_nw))
+#> EE de la beta del portafolio: MCO 0.0228 · Newey-West 0.0849
+cat(sprintf("Intervalo al 95 %% con Newey-West: [%.4f, %.4f]\\n", b - 1.96 * ee_nw, b + 1.96 * ee_nw))
+#> Intervalo al 95 % con Newey-West: [0.5115, 0.8444]
+cat(sprintf("El uno queda a %.1f errores estandar con MCO y a %.1f con Newey-West\\n", (1 - b) / ee, (1 - b) / ee_nw))
+#> El uno queda a 14.1 errores estandar con MCO y a 3.8 con Newey-West`,
         };
 
         const EJ_SML = {
@@ -3364,36 +3392,39 @@ acciones = ["ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL"]
 r = np.log(precios[acciones]).diff().dropna()
 n = len(acciones)
 
-sd_bar  = r.std(ddof=1).values.mean() * 100        # desviacion media de un activo suelto
-rho_bar = (r.corr().values.sum() - n) / (n * (n - 1))
+cv    = r.cov().values * 1e4                          # matriz de covarianzas, en %^2
+v_bar = np.diag(cv).mean()                            # varianza media de un emisor
+c_bar = (cv.sum() - np.trace(cv)) / (n * (n - 1))     # covarianza media entre dos emisores
+sd_bar, rho_bar = np.sqrt(v_bar), c_bar / v_bar       # las dos perillas del laboratorio
 
-print(f"Desviacion diaria media de un emisor  : {sd_bar:.4f} %")
-#> Desviacion diaria media de un emisor  : 2.3776 %
-print(f"Correlacion media entre los cuatro    : {rho_bar:.4f}")
-#> Correlacion media entre los cuatro    : 0.2268
+print(f"Volatilidad media (raiz de la varianza media): {sd_bar:.4f} %")
+#> Volatilidad media (raiz de la varianza media): 2.3873 %
+print(f"Correlacion media (covarianza / varianza)    : {rho_bar:.4f}")
+#> Correlacion media (covarianza / varianza)    : 0.2265
 
-# sd de un portafolio equiponderado de N activos con esa sd media y esa correlacion media
-riesgo = lambda N: sd_bar * np.sqrt(1 / N + (1 - 1 / N) * rho_bar)
+# Exacta para el equiponderado de estos cuatro; para otro N supone emisores con las mismas medias
+riesgo = lambda N: np.sqrt(v_bar / N + (1 - 1 / N) * c_bar)
 
 print("N activos equiponderados    sd diaria    cuanto queda del riesgo de uno solo")
 #> N activos equiponderados    sd diaria    cuanto queda del riesgo de uno solo
-for N in (1, 2, 4, 8, 16, 32, 100):
+for N in (1, 2, 4, 8, 16, 32, 100, 400):
     print(f"        {N:4d}                {riesgo(N):.4f} %              {riesgo(N)/sd_bar*100:5.1f} %")
-#>            1                2.3776 %              100.0 %
-#>            2                1.8621 %               78.3 %
-#>            4                1.5410 %               64.8 %
-#>            8                1.3522 %               56.9 %
-#>           16                1.2471 %               52.4 %
-#>           32                1.1910 %               50.1 %
-#>          100                1.1514 %               48.4 %
-limite = sd_bar * np.sqrt(rho_bar)
+#>            1                2.3873 %              100.0 %
+#>            2                1.8695 %               78.3 %
+#>            4                1.5469 %               64.8 %
+#>            8                1.3571 %               56.8 %
+#>           16                1.2515 %               52.4 %
+#>           32                1.1952 %               50.1 %
+#>          100                1.1553 %               48.4 %
+#>          400                1.1409 %               47.8 %
+limite = np.sqrt(c_bar)
 print(f"Limite cuando N tiende a infinito: {limite:.4f} %   ({limite/sd_bar*100:.1f} % del riesgo de uno solo)")
-#> Limite cuando N tiende a infinito: 1.1322 %   (47.6 % del riesgo de uno solo)
+#> Limite cuando N tiende a infinito: 1.1361 %   (47.6 % del riesgo de uno solo)
 
 print("Contraste de la formula con los datos reales:")
 #> Contraste de la formula con los datos reales:
 print(f"  formula con N = 4                     : {riesgo(4):.4f} %")
-#>   formula con N = 4                     : 1.5410 %
+#>   formula con N = 4                     : 1.5469 %
 print(f"  equiponderado real de los cuatro      : {(r.values @ np.repeat(0.25, 4)).std(ddof=1)*100:.4f} %")
 #>   equiponderado real de los cuatro      : 1.5469 %
 print(f"  el portafolio del fondo, 30/20/25/25  : {(r.values @ np.array([0.30, 0.20, 0.25, 0.25])).std(ddof=1)*100:.4f} %")
@@ -3404,39 +3435,42 @@ acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 r <- diff(log(as.matrix(precios[, acciones])))
 n <- length(acciones)
 
-sd_bar  <- mean(apply(r, 2, sd)) * 100             # desviacion media de un activo suelto
-rho_bar <- (sum(cor(r)) - n) / (n * (n - 1))
+cv    <- cov(r) * 1e4                                 # matriz de covarianzas, en %^2
+v_bar <- mean(diag(cv))                               # varianza media de un emisor
+c_bar <- (sum(cv) - sum(diag(cv))) / (n * (n - 1))    # covarianza media entre dos emisores
+sd_bar <- sqrt(v_bar); rho_bar <- c_bar / v_bar       # las dos perillas del laboratorio
 
-cat(sprintf("Desviacion diaria media de un emisor  : %.4f %%\\n", sd_bar))
-#> Desviacion diaria media de un emisor  : 2.3776 %
-cat(sprintf("Correlacion media entre los cuatro    : %.4f\\n", rho_bar))
-#> Correlacion media entre los cuatro    : 0.2268
+cat(sprintf("Volatilidad media (raiz de la varianza media): %.4f %%\\n", sd_bar))
+#> Volatilidad media (raiz de la varianza media): 2.3873 %
+cat(sprintf("Correlacion media (covarianza / varianza)    : %.4f\\n", rho_bar))
+#> Correlacion media (covarianza / varianza)    : 0.2265
 
-# sd de un portafolio equiponderado de N activos con esa sd media y esa correlacion media
-riesgo <- function(N) sd_bar * sqrt(1 / N + (1 - 1 / N) * rho_bar)
+# Exacta para el equiponderado de estos cuatro; para otro N supone emisores con las mismas medias
+riesgo <- function(N) sqrt(v_bar / N + (1 - 1 / N) * c_bar)
 
 cat("N activos equiponderados    sd diaria    cuanto queda del riesgo de uno solo\\n")
 #> N activos equiponderados    sd diaria    cuanto queda del riesgo de uno solo
-for (N in c(1, 2, 4, 8, 16, 32, 100)) {
+for (N in c(1, 2, 4, 8, 16, 32, 100, 400)) {
   cat(sprintf("        %4d                %.4f %%              %5.1f %%\\n",
               N, riesgo(N), riesgo(N) / sd_bar * 100))
 }
-#>            1                2.3776 %              100.0 %
-#>            2                1.8621 %               78.3 %
-#>            4                1.5410 %               64.8 %
-#>            8                1.3522 %               56.9 %
-#>           16                1.2471 %               52.4 %
-#>           32                1.1910 %               50.1 %
-#>          100                1.1514 %               48.4 %
-limite <- sd_bar * sqrt(rho_bar)
+#>            1                2.3873 %              100.0 %
+#>            2                1.8695 %               78.3 %
+#>            4                1.5469 %               64.8 %
+#>            8                1.3571 %               56.8 %
+#>           16                1.2515 %               52.4 %
+#>           32                1.1952 %               50.1 %
+#>          100                1.1553 %               48.4 %
+#>          400                1.1409 %               47.8 %
+limite <- sqrt(c_bar)
 cat(sprintf("Limite cuando N tiende a infinito: %.4f %%   (%.1f %% del riesgo de uno solo)\\n",
             limite, limite / sd_bar * 100))
-#> Limite cuando N tiende a infinito: 1.1322 %   (47.6 % del riesgo de uno solo)
+#> Limite cuando N tiende a infinito: 1.1361 %   (47.6 % del riesgo de uno solo)
 
 cat("Contraste de la formula con los datos reales:\\n")
 #> Contraste de la formula con los datos reales:
 cat(sprintf("  formula con N = 4                     : %.4f %%\\n", riesgo(4)))
-#>   formula con N = 4                     : 1.5410 %
+#>   formula con N = 4                     : 1.5469 %
 cat(sprintf("  equiponderado real de los cuatro      : %.4f %%\\n", sd(as.vector(r %*% rep(0.25, 4))) * 100))
 #>   equiponderado real de los cuatro      : 1.5469 %
 cat(sprintf("  el portafolio del fondo, 30/20/25/25  : %.4f %%\\n", sd(as.vector(r %*% c(0.30, 0.20, 0.25, 0.25))) * 100))
@@ -3548,18 +3582,37 @@ for c in precios.columns:
 
 beta = lambda y, x: np.cov(y, x, ddof=1)[0, 1] / x.var(ddof=1)
 
-print("Beta del portafolio segun cada cuantas ruedas se mide el rendimiento:")
-#> Beta del portafolio segun cada cuantas ruedas se mide el rendimiento:
+# Sumar k ruedas depende de en cual se empiece: se reportan todas las fases
+print("Beta del portafolio segun cada cuantas ruedas se mide, y el rango de sus fases:")
+#> Beta del portafolio segun cada cuantas ruedas se mide, y el rango de sus fases:
 for etiqueta, k in (("1 dia    ", 1), ("2 dias   ", 2), ("1 semana ", 5), ("2 semanas", 10), ("1 mes    ", 21)):
-    n = (len(rp) // k) * k
-    yk = rp[:n].reshape(-1, k).sum(axis=1)
-    mk = rm[:n].reshape(-1, k).sum(axis=1)
-    print(f"  {etiqueta}  n = {len(yk):4d}   beta = {beta(yk, mk):.4f}")
-#>   1 dia      n = 1916   beta = 0.6779
-#>   2 dias     n =  958   beta = 0.8368
-#>   1 semana   n =  383   beta = 0.9486
-#>   2 semanas  n =  191   beta = 0.8522
-#>   1 mes      n =   91   beta = 0.9984`,
+    bs = []
+    for f in range(k):
+        n = ((len(rp) - f) // k) * k
+        bs.append(beta(rp[f:f + n].reshape(-1, k).sum(axis=1), rm[f:f + n].reshape(-1, k).sum(axis=1)))
+    print(f"  {etiqueta}  n = {len(rp) // k:4d}   desde la primera {bs[0]:.4f}   fases {min(bs):.4f} a {max(bs):.4f}")
+#>   1 dia      n = 1916   desde la primera 0.6779   fases 0.6779 a 0.6779
+#>   2 dias     n =  958   desde la primera 0.8368   fases 0.8063 a 0.8368
+#>   1 semana   n =  383   desde la primera 0.9486   fases 0.8651 a 0.9549
+#>   2 semanas  n =  191   desde la primera 0.8522   fases 0.8522 a 1.0430
+#>   1 mes      n =   91   desde la primera 0.9984   fases 0.8736 a 1.0175
+
+# Quien llega tarde: cada serie contra el mercado de ayer, de hoy y de manana
+X = np.column_stack([np.ones(len(rm) - 2), rm[:-2], rm[1:-1], rm[2:]])
+print("                 m(t-1)    m(t)  m(t+1)     suma")
+#>                  m(t-1)    m(t)  m(t+1)     suma
+for nombre, y in [(a, r[a].values) for a in acciones] + [("PORTAFOLIO", rp)]:
+    c = np.linalg.lstsq(X, y[1:-1], rcond=None)[0]
+    print(f"  {nombre:13s} {c[1]:+.3f}  {c[2]:+.3f}  {c[3]:+.3f}   {c[1:].sum():.4f}")
+#>   ECOPETROL.CL  +0.026  +0.879  +0.267   1.1717
+#>   BOGOTA.CL     +0.194  +0.331  -0.020   0.5055
+#>   GRUPOSURA.CL  +0.034  +0.705  +0.269   1.0084
+#>   ISA.CL        +0.073  +0.584  +0.268   0.9248
+#>   PORTAFOLIO    +0.074  +0.652  +0.210   0.9359
+
+quietas = (np.diff(precios[acciones].values, axis=0) == 0).all(axis=1)
+print(f"Sin las {quietas.sum()} ruedas en que ningun emisor cambio de precio: beta = {beta(rp[~quietas], rm[~quietas]):.4f}")
+#> Sin las 101 ruedas en que ningun emisor cambio de precio: beta = 0.7333`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w <- c(0.30, 0.20, 0.25, 0.25)
@@ -3582,21 +3635,45 @@ for (c in names(precios)[-1]) {
 
 beta <- function(y, x) cov(y, x) / var(x)
 
-cat("Beta del portafolio segun cada cuantas ruedas se mide el rendimiento:\\n")
-#> Beta del portafolio segun cada cuantas ruedas se mide el rendimiento:
+# Sumar k ruedas depende de en cual se empiece: se reportan todas las fases
+cat("Beta del portafolio segun cada cuantas ruedas se mide, y el rango de sus fases:\\n")
+#> Beta del portafolio segun cada cuantas ruedas se mide, y el rango de sus fases:
 for (i in 1:5) {
   etiqueta <- c("1 dia    ", "2 dias   ", "1 semana ", "2 semanas", "1 mes    ")[i]
-  k <- c(1, 2, 5, 10, 21)[i]
-  n <- (length(rp) %/% k) * k
-  yk <- colSums(matrix(rp[1:n], nrow = k))
-  mk <- colSums(matrix(rm[1:n], nrow = k))
-  cat(sprintf("  %s  n = %4d   beta = %.4f\\n", etiqueta, length(yk), beta(yk, mk)))
+  k  <- c(1, 2, 5, 10, 21)[i]
+  bs <- sapply(0:(k - 1), function(f) {
+    n <- ((length(rp) - f) %/% k) * k
+    beta(colSums(matrix(rp[f + 1:n], nrow = k)), colSums(matrix(rm[f + 1:n], nrow = k)))
+  })
+  cat(sprintf("  %s  n = %4d   desde la primera %.4f   fases %.4f a %.4f\\n",
+              etiqueta, length(rp) %/% k, bs[1], min(bs), max(bs)))
 }
-#>   1 dia      n = 1916   beta = 0.6779
-#>   2 dias     n =  958   beta = 0.8368
-#>   1 semana   n =  383   beta = 0.9486
-#>   2 semanas  n =  191   beta = 0.8522
-#>   1 mes      n =   91   beta = 0.9984`,
+#>   1 dia      n = 1916   desde la primera 0.6779   fases 0.6779 a 0.6779
+#>   2 dias     n =  958   desde la primera 0.8368   fases 0.8063 a 0.8368
+#>   1 semana   n =  383   desde la primera 0.9486   fases 0.8651 a 0.9549
+#>   2 semanas  n =  191   desde la primera 0.8522   fases 0.8522 a 1.0430
+#>   1 mes      n =   91   desde la primera 0.9984   fases 0.8736 a 1.0175
+
+# Quien llega tarde: cada serie contra el mercado de ayer, de hoy y de manana
+N <- length(rm)
+X <- cbind(rm[1:(N - 2)], rm[2:(N - 1)], rm[3:N])
+cat("                 m(t-1)    m(t)  m(t+1)     suma\\n")
+#>                  m(t-1)    m(t)  m(t+1)     suma
+for (nombre in c(acciones, "PORTAFOLIO")) {
+  y  <- if (nombre == "PORTAFOLIO") rp else r[, nombre]
+  co <- coef(lm(y[2:(N - 1)] ~ X))[-1]
+  cat(sprintf("  %-13s %+.3f  %+.3f  %+.3f   %.4f\\n", nombre, co[1], co[2], co[3], sum(co)))
+}
+#>   ECOPETROL.CL  +0.026  +0.879  +0.267   1.1717
+#>   BOGOTA.CL     +0.194  +0.331  -0.020   0.5055
+#>   GRUPOSURA.CL  +0.034  +0.705  +0.269   1.0084
+#>   ISA.CL        +0.073  +0.584  +0.268   0.9248
+#>   PORTAFOLIO    +0.074  +0.652  +0.210   0.9359
+
+quietas <- apply(diff(as.matrix(precios[, acciones])) == 0, 1, all)
+cat(sprintf("Sin las %d ruedas en que ningun emisor cambio de precio: beta = %.4f\\n",
+            sum(quietas), beta(rp[!quietas], rm[!quietas])))
+#> Sin las 101 ruedas en que ningun emisor cambio de precio: beta = 0.7333`,
         };
 
         /* Los dos bloques que audita el estudiante en los ejercicios R3:
@@ -3640,7 +3717,7 @@ for (i in 1:5) {
                 'q = sm.OLS(r["ISA.CL"], sm.add_constant(r["ICOLCAP.CL"])).fit()',
                 '',
                 '# El R2 de 0,12 confirma que el modelo describe bien a ISA y su beta sirve para proyectarla.',
-                'print(f"R2 = {q.rsquared:.4f}  ->  ajuste adecuado")',
+                'print(f"beta = {q.params.iloc[1]:.4f}   R2 = {q.rsquared:.4f}")',
             ],
             r: [
                 'precios <- read.csv("datos/bvc_diario.csv")',
@@ -3649,7 +3726,7 @@ for (i in 1:5) {
                 'q <- summary(lm(r[, "ISA.CL"] ~ r[, "ICOLCAP.CL"]))',
                 '',
                 '# El R2 de 0,12 confirma que el modelo describe bien a ISA y su beta sirve para proyectarla.',
-                'cat(sprintf("R2 = %.4f  ->  ajuste adecuado\\n", q$r.squared))',
+                'cat(sprintf("beta = %.4f   R2 = %.4f\\n", q$coefficients[2, 1], q$r.squared))',
             ],
         };
 
@@ -3660,7 +3737,7 @@ for (i in 1:5) {
         const PortadaSection = () => (
             <>
                 <Motivacion icon="fa-code-branch"
-                    gancho="Dos acciones cayeron lo mismo el mismo día. Una arrastró al mercado entero; la otra tuvo un mal día. Cobrar prima por el segundo riesgo es regalar dinero.">
+                    gancho="Dos caídas de la misma acción no valen lo mismo: una vino con el mercado entero; la otra fue un mal día suyo. Cobrar prima por el segundo riesgo es regalar dinero.">
                     El comité pregunta por qué el fondo tiene Banco de Bogotá, que en ocho años rindió
                     2,4 % mientras ISA rendía 166 %. La respuesta que se espera habla de rendimiento. La
                     que corresponde habla de otra cosa: de cuánto de lo que se mueve cada acción se mueve
@@ -3676,10 +3753,11 @@ for (i in 1:5) {
                     <p>
                         Al terminar, usted sabrá partir la varianza de un activo en la parte que explica
                         el mercado y la que no, y decir cuál de las dos desaparece al diversificar;
-                        estimar una beta por regresión y —lo que casi nadie hace— reportarla con su error
-                        estándar; leer una línea de mercado de valores sabiendo qué se puede afirmar con
+                        estimar una beta por regresión y reportarla, como este curso exige, con su error
+                    estándar; leer una línea de mercado de valores sabiendo qué se puede afirmar con
                         ocho años de datos y qué no; y reconocer cuándo una beta baja mide el riesgo de un
-                        emisor y cuándo mide que ese emisor no se negoció.
+                        emisor y cuándo mide que su precio y el del índice no registran los mismos
+                        movimientos el mismo día.
                     </p>
                 </CalloutPro>
 
@@ -3694,12 +3772,14 @@ for (i in 1:5) {
                 <CalloutPro tema="warn" titulo="La tasa libre de riesgo de este curso es 7,00 % E.A., y es una decisión declarada"
                     subtitulo="Como los pesos del portafolio: no se estimó de ninguna parte, se fijó y se dice">
                     <p>
-                        El CAPM necesita una tasa libre de riesgo, y el archivo con la curva de los TES
-                        todavía no está en el repositorio —bloquea los capítulos 9 y 10—. Mientras tanto
-                        este capítulo declara <strong>7,00 % efectivo anual</strong>, del orden de
-                        magnitud de la tasa de política monetaria del Banco de la República promediada
-                        sobre 2018–2025, un periodo que empieza en 4,25 %, baja a 1,75 % en la pandemia y
-                        llega a 13,25 % en 2023. Se convierte a diaria como{' '}
+                        El CAPM necesita una tasa libre de riesgo, y el curso declara{' '}
+                        <strong>7,00 % efectivo anual</strong>. Es del orden de la tasa de política
+                        monetaria del Banco de la República en 2018–2025, que empezó en 4,75 %, estuvo en
+                        1,75 % de septiembre de 2020 a septiembre de 2021 y en 13,25 % de mayo a diciembre
+                        de 2023, y cuyo promedio diario en esos ocho años es 6,79 %{' '}
+                        <Cita k="banrep-tpm" loc="serie 59, 2018–2025" />. Y el capítulo 9 la contrastó con la curva de los TES:
+                        como promedio de 2018–2025 queda 0,21 puntos sobre la curva a un año, y el curso la
+                        mantuvo. Se convierte a diaria como{' '}
                         <span className="inline-code">(1 + 0,07)<sup>1/252</sup> − 1</span>, que son
                         2,6852 puntos básicos.
                     </p>
@@ -3708,19 +3788,17 @@ for (i in 1:5) {
                         número</strong>, y la sección 5 lo demuestra con la cifra en la mano: la prima de
                         mercado estimada con ocho años trae un error estándar de 7,53 puntos
                         porcentuales, así que mover la tasa dos puntos arriba o abajo desplaza la prima
-                        mucho menos de lo que la propia estimación se mueve por azar. Cuando exista{' '}
-                        <span className="inline-code">curva_tes.csv</span>, esta constante se sustituye
-                        por el TES del plazo que corresponda y el capítulo se recalcula: son dos bloques.
+                        mucho menos de lo que la propia estimación se mueve por azar.
                     </p>
                 </CalloutPro>
 
                 <Timeline eventos={[
-                    { year: '1952', text: 'Markowitz publica «Portfolio Selection»: el riesgo de una posición no es su varianza, es lo que le añade a la cartera. La unidad 2 lo convierte en un programa cuadrático.' },
-                    { year: '1964', text: 'Sharpe deriva el CAPM y con él una idea incómoda: el mercado no paga por el riesgo que usted podía haber diversificado y no diversificó.' },
-                    { year: '1968', text: 'Jensen mide el alfa de 115 fondos mutuos con el CAPM y encuentra que, después de comisiones, la mayoría no vence al mercado. Es el primer uso del modelo como vara de medir gestores.' },
-                    { year: '1977', text: 'Roll publica su crítica: el CAPM no se puede probar, porque el verdadero portafolio de mercado —que incluye inmuebles, capital humano y todo lo demás— no es observable. Lo que se prueba siempre es un índice que hace de sustituto.' },
-                    { year: '1979', text: 'Dimson formaliza el ajuste por negociación no simultánea: cuando una acción no se negocia todos los días, su beta contemporánea sale sesgada hacia abajo. La sección 5 encuentra ese sesgo en el panel de este curso.' },
-                    { year: '1992', text: 'Fama y French muestran que la beta sola no explica los rendimientos de la sección cruzada y añaden tamaño y valor. El CAPM sobrevive como lenguaje común y como primer término de modelos más grandes.' },
+                    { year: '1952', text: <>Markowitz publica «Portfolio Selection»: lo que cuenta del riesgo de un activo no es su riesgo aislado sino lo que le aporta al de la cartera <Cita k="nobel1990prensa" loc="apartado «Harry M. Markowitz»" />. La unidad 2 lo convierte en un programa cuadrático.</> },
+                    { year: '1964', text: <>Sharpe deriva el CAPM —Lintner y Mossin lo desarrollan también en 1965 y 1966 <Cita k="nobel2013ciencia" loc="p. 35" />—: la prima de riesgo de un activo, y con ella su rendimiento esperado, crece en proporción a su beta <Cita k="nobel1990prensa" loc="apartado «William F. Sharpe»" />. Con él toma forma una idea que venía del modelo de cartera de Markowitz: solo debería remunerarse el riesgo que no se elimina diversificando <Cita k="nobel2013ciencia" loc="pp. 35–36" />.</> },
+                    { year: '1968', text: <>Jensen propone medir a los gestores por su alfa, que es en esencia la constante de la regresión de su exceso de rendimiento sobre el del mercado <Cita k="nobel2013ciencia" loc="p. 43 y nota 40" />.</> },
+                    { year: '1977', text: <>Roll critica las pruebas del CAPM: toda prueba válida supone conocer el portafolio de mercado, que contiene todos los activos de la economía, incluido el capital humano, y no es observable; usar un índice bursátil como sustituto sesga las pruebas <Cita k="nobel2013ciencia" loc="p. 38" />.</> },
+                    
+                    { year: '1992', text: <>Fama y French muestran que, controlados el tamaño y el valor en libros sobre el de mercado, la beta casi no añade poder explicativo en la sección cruzada; en 1993 lo sintetizan en su modelo de tres factores, y la beta del mercado se queda en ellos <Cita k="nobel2013ciencia" loc="p. 39 y nota 33" />.</> },
                 ]} />
             </>
         );
@@ -3761,10 +3839,11 @@ for (i in 1:5) {
                 <>
                     <Motivacion icon="fa-layer-group"
                         gancho="El mismo −4 % de dos acciones distintas no vale lo mismo: uno se puede cancelar dentro del portafolio y el otro no.">
-                        El 12 de marzo de 2020 todo cayó a la vez, y no había dónde esconderse. Un mes
-                        antes, Grupo Sura había caído sola un día en que el índice subió. Un gestor que
-                        mire solo la desviación típica ve dos números parecidos y trata las dos caídas
-                        igual. Son riesgos de naturaleza distinta, y solo uno de los dos sobrevive a
+                        El 12 de marzo de 2020 todo cayó a la vez: el índice 9,17 %, Grupo Sura 13,30 %,
+                        Ecopetrol 12,96 %, y no había dónde esconderse. Un mes después, el 13 de abril,
+                        Ecopetrol cayó 4,71 % sola: el índice subió 1,50 % y ninguno de los otros tres
+                        emisores perdió. Un gestor que mire solo la desviación típica ve dos caídas de la
+                        misma acción y las trata igual. Son riesgos de naturaleza distinta, y solo uno de los dos sobrevive a
                         tener otras posiciones al lado.
                     </Motivacion>
 
@@ -3776,7 +3855,10 @@ for (i in 1:5) {
                     </p>
                     <Eq>{'$$r_{i,t} = \\alpha_i + \\beta_i\\, r_{M,t} + \\varepsilon_{i,t}, \\qquad \\mathrm{Cov}(r_{M,t},\\,\\varepsilon_{i,t}) = 0$$'}</Eq>
                     <p>
-                        La condición de la derecha no es un supuesto que haya que creerse: es una{' '}
+                        El mercado del curso es el ETF del Fondo Bursátil iShares MSCI COLCAP, que busca
+                        replicar el índice MSCI COLCAP <Cita k="citivalores2026icolcap" loc="pp. 15 y 25" />
+                        —en el panel, la serie ICOLCAP—: un sustituto del mercado, no el mercado, y la sección 5 vuelve sobre eso. La condición de la derecha no es
+                        un supuesto que haya que creerse: es una{' '}
                         <strong>consecuencia aritmética</strong> de estimar por mínimos cuadrados. El
                         residuo de una regresión es, por construcción, ortogonal al regresor. Y de ahí
                         sale toda la sección.
@@ -3813,17 +3895,17 @@ for (i in 1:5) {
                         subtitulo="1 916 sesiones · 2018-01 a 2025-12 · mercado = ETF ICOLCAP, σM = 1,3085 % diario"
                         columnas={['Posición', 'σ diaria', '% sistemático', 'Lectura']}
                         filas={[
-                            { celdas: ['Ecopetrol', '2,4347 %', { v: '23,4 %', lee: 'La más expuesta al mercado de las cuatro, y aun así tres cuartas partes de su riesgo son suyas: el precio del crudo, las decisiones de la Nación como accionista mayoritario y su plan de inversión no están en el índice.' }, 'Beta 0,9009 — casi se mueve con el mercado'] },
-                            { celdas: ['Banco de Bogotá', '2,0883 %', { v: '4,7 %', lee: 'El caso extremo. Sobre veinte partes de riesgo, diecinueve son idiosincrásicas. Una beta de 0,35 sugeriría un activo defensivo, pero la sección 5 muestra que buena parte de esa cifra la explica que la acción no se negocia el 16,2 % de las ruedas.' }, 'Beta 0,3466 — la más baja, y la más sospechosa'] },
-                            { celdas: ['Grupo Sura', '2,6818 %', { v: '12,9 %', lee: 'La posición más volátil del fondo en términos absolutos, y casi todo ese movimiento es suyo. Es una holding: lo que le pasa depende de sus participadas, y esa es exactamente la clase de riesgo que otra posición puede compensar.' }, 'Beta 0,7369 — la volatilidad más alta del fondo'] },
-                            { celdas: ['ISA', '2,3057 %', { v: '12,2 %', lee: 'Un regulado de infraestructura: sus ingresos vienen de tarifas y no del ciclo bursátil. Que solo el 12 % de su riesgo sea sistemático es coherente con el negocio, y por eso entra en el portafolio.' }, 'Beta 0,6165'] },
-                            { celdas: ['Portafolio del fondo', '1,5764 %', { v: '31,7 %', lee: 'La cifra que resume el capítulo. Juntar los cuatro no cambió la parte sistemática —la beta del portafolio es el promedio ponderado de las betas— pero canceló buena parte de la residual, así que la que queda pesa MÁS en proporción. Diversificar no reduce el riesgo sistemático: lo deja como el que manda.' }, 'Beta 0,6779 — σ menor que la de cualquiera de sus partes'] },
+                            { celdas: ['Ecopetrol', '2,4347 %', { v: '23,4 %', lee: 'La más expuesta al mercado de las cuatro, y aun así tres cuartas partes de su riesgo son suyas: lo que la mueve a ella y no al resto del índice.' }, 'Beta 0,9009 — casi se mueve con el mercado'] },
+                            { celdas: ['Banco de Bogotá', '2,0883 %', { v: '4,7 %', lee: 'El caso extremo. Sobre veinte partes de riesgo, diecinueve son idiosincrásicas. Una beta de 0,35 sugeriría un activo defensivo, pero la sección 5 muestra que buena parte de esa cifra es desfase: su precio no cambia el 16,2 % de las ruedas, registra un día tarde lo que hace el ETF, y sumando el mercado de ayer, de hoy y de mañana su beta sube a 0,51.' }, 'Beta 0,3466 — la más baja, y la más sospechosa'] },
+                            { celdas: ['Grupo Sura', '2,6818 %', { v: '12,9 %', lee: 'La posición más volátil del fondo en términos absolutos, y casi todo ese movimiento es suyo. Esa es exactamente la clase de riesgo que otra posición puede compensar.' }, 'Beta 0,7369 — la volatilidad más alta del fondo'] },
+                            { celdas: ['ISA', '2,3057 %', { v: '12,2 %', lee: 'Solo el 12 % de su riesgo es sistemático: casi todo lo que la mueve se cancela al juntarla con las otras. De su alfa de Jensen, el más alto de las cuatro, se ocupa la sección 3.' }, 'Beta 0,6165'] },
+                            { celdas: ['Portafolio del fondo', '1,5764 %', { v: '31,7 %', lee: 'La cifra que resume el capítulo. Juntar los cuatro no cambió la exposición al mercado —la beta del portafolio es el promedio ponderado de las betas— pero canceló buena parte de la residual, así que la que queda pesa MÁS en proporción. Diversificar no reduce el riesgo sistemático: lo deja como el que manda.' }, 'Beta 0,6779 — σ menor que la de cualquiera de sus partes'] },
                         ]}
                         nota="La columna del medio no es el R² de un ajuste bien hecho: es la fracción de la varianza que el mercado explica. Un 4,7 % no dice que la regresión esté mal estimada; dice que Banco de Bogotá se mueve por sus propias razones."
                     />
 
-                    <ChartFrame id="cap3-descomposicion" height="chart-h-400"
-                        caption="Varianza diaria de cada posición, en porcentaje al cuadrado, partida en su parte sistemática y su parte residual. La barra del portafolio es menos de la mitad de alto que la de sus partes, y su segmento morado es casi el mismo que el de ellas: eso es la diversificación en una imagen. Lo que se encoge es el trozo naranja." />
+                    <ChartFrame id="cap3-descomposicion" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
+                        caption="Varianza diaria de cada posición, en porcentaje al cuadrado, partida en su parte sistemática y su parte residual. La barra del portafolio es la más baja —2,48 %² contra 4,36 a 7,19 de sus partes— y lo que perdió es casi todo ámbar: su parte residual, 1,70, no llega a la mitad de la menor de las cuatro (4,16), mientras la morada, 0,79, queda dentro del rango de las de sus partes (0,21 a 1,39). Eso es la diversificación en una imagen: lo que se encoge es el trozo ámbar." />
 
                     <Box type="tip" label="Por qué la varianza se parte y la desviación típica no">
                         La descomposición es aditiva en <strong>varianzas</strong>, no en desviaciones
@@ -3836,14 +3918,14 @@ for (i in 1:5) {
 
                     <Emparejamiento
                         titulo="R6 · Cada magnitud con lo que de verdad mide"
-                        enunciado="Cinco cantidades que aparecen en la misma salida de regresión y que se confunden con frecuencia, sobre todo cuando el que las lee no fue quien las calculó. Empareje cada una con lo que afirma."
+                        enunciado="Cinco cantidades que aparecen en la misma salida de regresión y que es fácil confundir, sobre todo cuando el que las lee no fue quien las calculó. Empareje cada una con lo que afirma."
                         etiquetaIzq="Magnitud"
                         etiquetaDer="Qué mide"
                         izquierda={['β', 'R²', 'σ²ε', 'EE(β)', 'α']}
                         derecha={[
                             'Cuánto se mueve el activo, en promedio, cuando el mercado se mueve un punto',
                             'La parte de la varianza del activo que el mercado no explica, y que la diversificación puede cancelar',
-                            'El rendimiento medio que el activo obtuvo por encima de lo que le correspondía por su exposición al mercado',
+                            'Lo que la recta le atribuye al activo en un día en que el mercado no se mueve: la constante de la regresión, en puntos básicos diarios',
                             'La fracción del riesgo del activo que es sistemática, y que coincide con el cuadrado de su correlación con el mercado',
                             'La imprecisión con la que se conoce la sensibilidad estimada: cuánto se movería al cambiar de muestra',
                         ]}
@@ -3854,7 +3936,7 @@ for (i in 1:5) {
                         <MCQ
                             pregunta="Un analista compara dos posiciones del fondo: Grupo Sura tiene σ = 2,6818 % y R² = 0,1293; Ecopetrol tiene σ = 2,4347 % y R² = 0,2344. Concluye que Grupo Sura aporta más riesgo de mercado al portafolio porque es más volátil. ¿Resiste?"
                             opciones={[
-                                { texto: 'No. Lo que cada posición aporta al riesgo del portafolio es su parte sistemática, β²σ²M, y en esa medida Grupo Sura queda por debajo de Ecopetrol.', correcta: true, justificacion: 'Las dos cifras del bloque: 0,9297 %² de varianza sistemática para Grupo Sura contra 1,3897 %² para Ecopetrol, un 49 % más, siendo Ecopetrol la menos volátil de las dos en total. Lo que ordena el aporte a un portafolio diversificado es β²σ²M y no σ: la volatilidad extra de Grupo Sura es suya y se cancela contra las otras posiciones. El resto es riesgo residual, y el capítulo 4 lo vuelve a encontrar como la diferencia entre el VaR aislado de cada posición y su componente.' },
+                                { texto: 'No. El riesgo de mercado de cada posición es su parte sistemática, β²σ²M, y en esa medida Grupo Sura queda por debajo de Ecopetrol.', correcta: true, justificacion: 'Las dos cifras del bloque: 0,9297 %² de varianza sistemática para Grupo Sura contra 1,3897 %² para Ecopetrol, un 49 % más, siendo Ecopetrol la menos volátil de las dos en total. Lo que ordena el riesgo de mercado es β²σ²M —o la beta— y no σ: la volatilidad extra de Grupo Sura es suya y se cancela contra las otras posiciones. El resto es riesgo residual, y el capítulo 4 lo vuelve a encontrar como la diferencia entre el VaR aislado de cada posición y su componente.' },
                                 { texto: 'Sí. La desviación típica es la medida de riesgo del capítulo 1, y 2,6818 % es mayor que 2,4347 %: la posición más volátil aporta más riesgo por cualquier vía.', correcta: false },
                                 { texto: 'No, pero por otra razón: lo que decide el aporte de una posición es su peso en el portafolio, y Grupo Sura pesa 25 % contra el 30 % de Ecopetrol.', correcta: false },
                                 { texto: 'Sí, siempre que las dos betas sean menores que uno, que es el caso: con β < 1 la volatilidad total y la sistemática se ordenan igual.', correcta: false },
@@ -3901,7 +3983,7 @@ for (i in 1:5) {
             return (
                 <>
                     <Motivacion icon="fa-chart-line"
-                        gancho="La beta se reporta con cuatro decimales y se discute como si fuera un dato. Es una estimación, y tiene un error estándar que casi nunca aparece en la diapositiva.">
+                        gancho="Una beta con cuatro decimales parece un dato. Es una estimación, y su error estándar tiene que ir en la misma diapositiva.">
                         En la reunión de asignación de activos alguien afirma que Ecopetrol «tiene beta
                         0,90». Nadie pregunta desde cuándo, con qué frecuencia ni con qué precisión. Con
                         los datos de este fondo, esa beta es 1,6219 si se estima con las 250 ruedas que
@@ -3927,24 +4009,43 @@ for (i in 1:5) {
                     </p>
 
                     <CodeTabs titulo="Las cinco regresiones de mercado, con su error estándar" bloques={EJ_BETA}
-                        nota="Las dos pestañas dan exactamente lo mismo: mínimos cuadrados ordinarios es un cálculo cerrado, sin optimización numérica, así que aquí no aparece la discrepancia entre paquetes que el capítulo 2 tuvo que declarar entre `arch` y `rugarch`." />
+                        nota="Las dos pestañas dan exactamente lo mismo: mínimos cuadrados ordinarios es un cálculo cerrado, sin un valor de arranque que cada paquete elija a su manera, así que aquí no aparece una discrepancia como la que el capítulo 2 declaró entre `arch` y `rugarch`, que venía de cómo arranca cada uno la recursión de la varianza. Las líneas que siguen al intervalo calculan a mano el error estándar de Newey-West, y las tres últimas lo imprimen." />
 
                     <p>
-                        La columna del alfa está en puntos básicos diarios y ninguna pasa de 3,13 —ISA—,
-                        que anualizada son unos 8 puntos porcentuales. La columna del error estándar es
-                        la que casi nunca se reporta y es la que dice si la beta significa algo: la del
-                        portafolio, 0,0228, da un intervalo de confianza al 95 % de{' '}
-                        <strong>[0,6333 · 0,7226]</strong>. Es estrecho. Guarde esa impresión: en la
-                        sección 3 se estima otra cantidad del mismo modelo —la prima de mercado— y el
-                        intervalo tendrá treinta puntos porcentuales de ancho.
+                        La columna del alfa —la constante de esta regresión, no el alfa de Jensen de la
+                        sección 3— está en puntos básicos diarios y ninguna pasa de 3,13 —ISA—, que
+                        anualizada son unos 8 puntos porcentuales. La columna del error estándar es la que dice si la beta significa algo: la del
+                        portafolio, 0,0228, da un intervalo de confianza al 95 % de [0,6333 · 0,7226].
+                        Pero ese error estándar supone que la varianza del residuo es constante y que un
+                        día no se parece al anterior, y el capítulo 2 mostró que en este panel ninguna de
+                        las dos cosas es cierta. El de{' '}
+                        <Termino def="Error estándar que no supone varianza constante ni independencia entre días: suma, además de los cuadrados, las autocovarianzas de los primeros rezagos con pesos que decrecen. Aquí con cinco rezagos, una semana de ruedas.">Newey-West</Termino>,
+                        que no supone ninguna, sale <strong>0,0849</strong>, casi cuatro veces más, y el
+                        intervalo pasa a <strong>[0,5115 · 0,8444]</strong>. El uno sigue fuera —a 3,8
+                        errores estándar y no a 14,1—, y el intervalo sigue siendo estrecho al lado del
+                        que viene: en la sección 3 se estima otra cantidad que el CAPM necesita —la prima de
+                        mercado— y su intervalo tendrá treinta puntos porcentuales de ancho.
                     </p>
+                    <Anatomia
+                        titulo="Las piezas de la regresión del portafolio contra el mercado"
+                        subtitulo="Las cifras son las de la fila PORTAFOLIO del bloque de arriba, sobre las 1 916 ruedas"
+                        piezas={[
+                            { simbolo: '\\(\\hat\\alpha\\)', que: 'La constante: lo que la recta le atribuye al portafolio un día en que el mercado no se mueve. No es el alfa de Jensen de la sección 3, que resta la tasa libre de riesgo.', vale: '+0,87 pb diarios · t = 0,29' },
+                            { simbolo: '\\(\\hat\\beta\\)', que: 'La pendiente: cuánto se mueve el portafolio, en promedio, por cada punto del mercado.', vale: '0,6779' },
+                            { simbolo: '\\(\\mathrm{EE}(\\hat\\beta)\\)', que: 'Cuánto se movería la pendiente con otra muestra. La de mínimos cuadrados supone varianza constante; la de Newey-West, no.', vale: '0,0228 · Newey-West 0,0849' },
+                            { simbolo: '\\(\\sigma_\\varepsilon\\)', que: 'La desviación del residuo: el riesgo que el mercado no explica y que otra posición puede cancelar.', vale: '1,3031 % diario' },
+                            { simbolo: '\\(R^2 = \\rho^2\\)', que: 'La fracción de la varianza que es sistemática; su raíz es la correlación con el mercado.', vale: '0,3167 · ρ = 0,5627' },
+                        ]}
+                        nota="Las cinco salen de la misma regresión y responden preguntas distintas: β dice cuánta exposición, R² qué parte del riesgo es de mercado y EE(β) con qué precisión se conoce la primera. Un R² bajo no hace imprecisa a la beta, ni una beta precisa hace alto al R²."
+                    />
 
-                    <ChartFrame id="cap3-dispersion" height="chart-h-420"
-                        caption="Las 1 916 ruedas de Ecopetrol contra el mercado. La recta rosada es la ajustada; la gris punteada sería β = 1. La nube es ancha —el R² es 0,2344— y esa anchura no es ruido de medición: es el riesgo propio de la empresa, que es exactamente lo que la sección 4 va a diversificar. Fíjese en los puntos pegados al eje horizontal: son las 189 ruedas en que Ecopetrol no se movió y el mercado sí." />
+
+                    <ChartFrame id="cap3-dispersion" height="chart-h-420" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
+                        caption="Las 1 916 ruedas de Ecopetrol contra el mercado. La recta rosada es la ajustada; la gris punteada sería β = 1. La nube es ancha —el R² es 0,2344— y esa anchura no es ruido de medición: es el riesgo propio de la empresa, que es exactamente lo que la sección 4 va a diversificar. Fíjese en los puntos pegados al eje horizontal: son las 179 ruedas en que Ecopetrol no se movió y el mercado sí." />
 
                     <TablaTraza
                         titulo="R1 · Una beta con seis observaciones, a mano"
-                        enunciado={<>Estas son las <strong>seis primeras ruedas</strong> del panel, en porcentaje: los rendimientos logarítmicos de Ecopetrol y los del mercado. Complete las columnas de los productos cruzados y de los cuadrados, y con sus sumas calcule la beta. Los valores son los mismos en los dos lenguajes: eso es justamente lo que el ejercicio quiere que se vea.</>}
+                        enunciado={<>Estas son las <strong>seis primeras ruedas</strong> del panel, en porcentaje: los rendimientos logarítmicos de Ecopetrol y los del mercado. Complete los productos cruzados, la suma de los dx² y la beta. Los valores son los mismos en los dos lenguajes: eso es justamente lo que el ejercicio quiere que se vea.</>}
                         codigo={{
                             python: `import numpy as np
 
@@ -3982,7 +4083,7 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                             { paso: '—', instruccion: 'beta = 11.4397 / 2.6548', valor: '4.3091' },
                         ]}
                         ocultas={['valor']}
-                        pista="Cada casilla es exactamente lo que sale de multiplicar los dos números que tiene al lado, redondeando a cuatro decimales en cada paso: la cadena entera se puede rehacer con una calculadora y sin arrastrar más precisión. El divisor n − 1 aparece en el numerador y en el denominador, así que se cancela, y por eso la beta se calcula con sumas y sin dividir por nada. Cuando llegue al final, compare: la beta de Ecopetrol sobre las 1 916 ruedas es 0,9009 y aquí sale 4,3091. No se equivocó. Mire la rueda 6: ella sola aporta 7,5539 de los 11,4397 del numerador, un 66 %. Seis observaciones no estiman una beta; estiman la última observación."
+                        pista="Cada casilla es exactamente lo que sale de multiplicar los dos números que tiene al lado, redondeando a cuatro decimales en cada paso: la cadena entera se puede rehacer con una calculadora y sin arrastrar más precisión. El divisor n − 1 aparece en el numerador y en el denominador, así que se cancela, y por eso la beta se calcula con sumas y sin dividir por nada. Cuando llegue al final, compare su beta con la de las 1 916 ruedas, 0,9009. Si sale muy distinta, no se equivocó: mire qué parte del numerador pone una sola rueda."
                     />
 
                     <Box type="warn" label="Lo que acaba de pasar en ese ejercicio">
@@ -4011,7 +4112,7 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                         <MCQ
                             pregunta="La beta de Banco de Bogotá es 0,3466 con un error estándar de 0,0356. ¿Cuál de estas afirmaciones se puede sostener?"
                             opciones={[
-                                { texto: 'Que la beta es distinta de cero y también de 1, pero no que el 0,3466 mida exposición al mercado y no iliquidez: eso necesita otro dato.', correcta: true, justificacion: 'Las tres afirmaciones son ciertas a la vez y conviene no mezclarlas: t = 9,73 dice que la estimación es precisa, el intervalo [0,28 · 0,42] dice que no es 1, y el R² de 0,0472 dice que el mercado explica menos del 5 % de la varianza de esta acción. Precisión no es poder explicativo. La sección 5 añade la cuarta: con 101 ruedas sin variación en el panel, parte de ese 0,3466 es iliquidez y no exposición.' },
+                                { texto: 'Que la beta es distinta de cero y también de 1, pero no que el 0,3466 mida exposición al mercado y no iliquidez: eso necesita otro dato.', correcta: true, justificacion: 'Las tres afirmaciones son ciertas a la vez y conviene no mezclarlas: t = 9,73 —4,26 con Newey-West— dice que la estimación es precisa, el intervalo [0,28 · 0,42] —[0,19 · 0,51] con Newey-West— dice que no es 1, y el R² de 0,0472 dice que el mercado explica menos del 5 % de la varianza de esta acción. Precisión no es poder explicativo. La sección 5 añade la cuarta: Banco de Bogotá registra un día tarde lo que hace el ETF, y con el mercado de ayer, de hoy y de mañana en la regresión su beta suma 0,51.' },
                                 { texto: 'Que el modelo está mal especificado, porque un R² de 0,0472 indica que la regresión no es válida y sus coeficientes no se pueden interpretar.', correcta: false },
                                 { texto: 'Que la beta no es significativa: con un R² tan bajo, el error estándar de 0,0356 no permite descartar que la verdadera beta sea cero.', correcta: false },
                                 { texto: 'Que Banco de Bogotá es un activo defensivo y por tanto una buena cobertura frente a caídas del mercado, ya que su beta es mucho menor que uno.', correcta: false },
@@ -4076,7 +4177,7 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                     separators: ',.',
                     margin: { t: 34, r: 20, b: 48, l: 58 },
                     xaxis: { title: 'Beta', range: [0, 1.15] },
-                    yaxis: { title: 'Rendimiento medio anualizado, 2018–2025 (%)', range: [-2, 16] },
+                    yaxis: { title: 'Rendimiento medio anualizado, 2018–2025 (%)', range: [-2, 18] },
                     legend: { orientation: 'h', y: 1.16, x: 0, font: { size: 10 } },
                 }), []);
 
@@ -4096,10 +4197,12 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                     <p>
                         La sección 1 ajustó una regresión, que describe. El{' '}
                         <Termino def="Capital Asset Pricing Model. Modelo de equilibrio que afirma que, en un mercado donde todos diversifican, el rendimiento esperado de un activo depende únicamente de su riesgo sistemático medido por beta.">CAPM</Termino>{' '}
-                        afirma algo mucho más fuerte, y por eso es una teoría y no un ajuste: en un
-                        mercado donde todo el mundo diversifica, <strong>nadie paga por el riesgo
-                        residual</strong>, porque es gratis quitárselo. Solo se remunera lo que no se
-                        puede eliminar:
+                        afirma algo mucho más fuerte, y por eso es una teoría y no un ajuste. Parte de una
+                        idea que se remonta al modelo de cartera de Markowitz: solo debería remunerarse el
+                        riesgo sistemático, el que no se puede eliminar con una cartera bien diversificada;
+                        el residual, que la diversificación sí elimina, <strong>no debería pagarse</strong>,
+                        y en el CAPM la beta es la medida del riesgo que se compensa{' '}
+                        <Cita k="nobel2013ciencia" loc="pp. 35–36" />:
                     </p>
                     <Eq>{'$$E[R_i] = R_f + \\beta_i\\left(E[R_M] - R_f\\right)$$'}</Eq>
                     <p>
@@ -4109,11 +4212,13 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                         más es residual y el inversionista se la quita diversificando. Grupo Sura es la
                         posición más volátil del fondo —2,6818 % diario— y el CAPM le asigna un
                         rendimiento exigido <em>menor</em> que a Ecopetrol, que es menos volátil pero más
-                        sistemática.
+                        sistemática. En esta ecuación las R son rendimientos esperados en la escala del
+                        capítulo —medias de logarítmicos por 252—, no los aritméticos que la R mayúscula
+                        nombraba en el capítulo 1.
                     </p>
 
                     <Box type="warn" label="Modelo de mercado y CAPM no son la misma ecuación">
-                        Se parecen y se confunden todo el tiempo. El <strong>modelo de mercado</strong> es
+                        Se parecen y es fácil confundirlos. El <strong>modelo de mercado</strong> es
                         <span className="inline-code">r_i = α + β r_M + ε</span>: una regresión sobre
                         rendimientos <em>realizados</em>, que siempre se puede ajustar y que no afirma
                         nada. El <strong>CAPM</strong> es una afirmación sobre rendimientos{' '}
@@ -4130,21 +4235,31 @@ beta <- sum(dy * dx) / sum(dx^2)`,
                         cuando β = 1. Es la <Termino def="Representación gráfica del CAPM: la recta que relaciona el rendimiento esperado de un activo con su beta. Todo activo correctamente valorado debería estar sobre ella.">línea de mercado de valores</Termino>{' '}
                         (SML). Un activo por encima rindió más de lo que le correspondía por su
                         exposición; esa distancia vertical es el{' '}
-                        <Termino def="Diferencia entre el rendimiento medio observado de un activo y el que el CAPM le asigna por su beta. Se usa para evaluar gestión activa: un alfa positivo sugiere valor añadido, siempre que la beta y la prima estén bien estimadas.">alfa de Jensen</Termino>.
+                        <Termino def="Diferencia entre el rendimiento medio observado de un activo y el que el CAPM le asigna por su beta. Se usa para evaluar gestión activa: un alfa positivo sugiere valor añadido, siempre que la beta y la prima estén bien estimadas.">alfa de Jensen</Termino>:
+                    </p>
+                    <Eq>{'$$\\alpha_i^{J} = \\bar R_i - \\left[R_f + \\hat\\beta_i\\left(\\bar R_M - R_f\\right)\\right]$$'}</Eq>
+                    <p>
+                        Es la última columna del bloque, y es también, en esencia, la constante de una regresión del
+                        exceso de rendimiento sobre factores de riesgo; en el estudio original de Jensen,
+                        el alfa se midió frente al modelo de mercado, es decir, controlando por la beta del
+                        CAPM <Cita k="nobel2013ciencia" loc="p. 43 y nota 40" />.
+                        Aquí, regresar r − r_f sobre r_M − r_f: con la tasa constante la pendiente no
+                        cambia. No es la α de la regresión de la sección 1, que no resta la tasa y va en
+                        puntos básicos diarios; esta la resta y va en puntos porcentuales anuales.
                     </p>
 
                     <CodeTabs titulo="La SML sobre el portafolio del fondo, con la tasa declarada" bloques={EJ_SML}
                         nota="Las tres últimas líneas son las que cambian el capítulo: estiman con qué precisión se conoce la prima de mercado que las diez líneas anteriores acaban de usar. Léalas antes de sacar conclusiones de la tabla." />
 
-                    <ChartFrame id="cap3-sml" height="chart-h-420"
-                        caption="Cada punto es una posición del fondo: su beta contra lo que rindió de verdad entre 2018 y 2025. El portafolio sale dos veces: el rombo lleno es w′μ, la convención con que se estima su beta, y el hueco es lo que rindió el fondo rebalanceado cada rueda, 11,83 %. La recta morada es la SML con la prima estimada; las punteadas grises son la misma recta con la prima movida un solo error estándar. Que las tres quepan en la gráfica y que ISA quede cinco puntos por encima y Banco de Bogotá siete por debajo es todo lo que hay que ver: con ocho años, la banda es más ancha que la dispersión que pretende explicar." />
+                    <ChartFrame id="cap3-sml" height="chart-h-420" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv)' }}
+                        caption="Cada punto es una posición del fondo: su beta contra lo que rindió de verdad entre 2018 y 2025. El portafolio sale dos veces: el rombo lleno es w′μ, la convención con que se estima su beta, y el hueco es lo que rindió el fondo rebalanceado cada rueda, 11,83 %. La recta morada es la SML con la prima estimada; las punteadas grises son la misma recta con la prima movida un solo error estándar. ISA queda cinco puntos por encima de la recta y Banco de Bogotá siete por debajo, y ni con la prima movida un error estándar la SML los alcanza: a la beta de ISA la recta alta llega a 12,23 %, y a la de Banco de Bogotá la baja se queda en 4,62 %. Con ocho años la recta se conoce mal, y aun así no ordena a los cuatro." />
 
                     <TablaTraza
                         titulo="R1 · De la beta al rendimiento exigido, y de ahí al alfa"
-                        enunciado={<>Con la tasa libre de riesgo del curso y el rendimiento medio del mercado, complete el cálculo del CAPM para <strong>ISA</strong>, cuya beta es 0,6165 y cuyo rendimiento medio observado fue 12,88 % anual. Las dos tasas van en la convención del curso —logarítmicas anualizadas—, así que el 7,00 % efectivo declarado entra como 6,77 %. Trabaje en porcentaje anual y con dos decimales.</>}
+                        enunciado={<>Con la tasa libre de riesgo del curso y el rendimiento medio del mercado, complete el cálculo del CAPM para <strong>ISA</strong>, cuya beta es 0,6165 y cuyo rendimiento medio observado fue 12,88 % anual. Las dos tasas van en la escala del curso —diarias multiplicadas por 252—, así que el 7,00 % efectivo declarado entra como 6,77 %. Trabaje en porcentaje anual y con dos decimales.</>}
                         codigo={{
                             python: `beta_isa  = 0.6165
-rf_anual  = 6.77       # el 7,00 % E.A. declarado, en convencion logaritmica
+rf_anual  = 6.77       # el 7,00 % E.A. declarado, diario efectivo x 252
 rm_anual  = 8.10       # media observada del mercado, en %
 obs_isa   = 12.88      # media observada de ISA, en %
 
@@ -4152,7 +4267,7 @@ prima   = rm_anual - rf_anual
 exigido = rf_anual + beta_isa * prima
 alfa    = obs_isa - exigido`,
                             r: `beta_isa  <- 0.6165
-rf_anual  <- 6.77      # el 7,00 % E.A. declarado, en convencion logaritmica
+rf_anual  <- 6.77      # el 7,00 % E.A. declarado, diario efectivo x 252
 rm_anual  <- 8.10      # media observada del mercado, en %
 obs_isa   <- 12.88     # media observada de ISA, en %
 
@@ -4174,19 +4289,19 @@ alfa    <- obs_isa - exigido`,
                             { paso: '6', instruccion: 'alfa del portafolio en la convención w′μ = 7,69 − 7,67', valor: '0.02' },
                         ]}
                         ocultas={['valor']}
-                        pista="Los seis valores tienen que coincidir con los del bloque de código de esta sección, y coinciden. Si le sale 7,68 en el paso 3 es porque metió el 7,00 % efectivo en vez del 6,77 % logarítmico: son la misma tasa en las dos convenciones del capítulo 1, y confundirlas cuesta nueve centésimas de punto. Guárdelas, porque la sección 5 muestra que el error estándar de la prima que acaba de usar es ochenta veces mayor que esas nueve centésimas."
+                        pista="Los seis valores salen de las cifras redondeadas a dos decimales, así que pueden diferir del bloque de esta sección en la última cifra: la prima da aquí 1,33 y el bloque, que no redondea antes de restar, imprime 1,34. Si le sale 7,68 en el paso 3 es porque metió el 7,00 % efectivo en vez del 6,77 %: son la misma tasa en dos escalas, y confundirlas cuesta nueve centésimas de punto. Guárdelas, porque la sección 5 muestra que el error estándar de la prima que acaba de usar es ochenta veces mayor que esas nueve centésimas."
                     />
 
                     <Box type="tip" label="Por qué el 7,00 % declarado entra como 6,77 %">
                         Son la misma tasa en las dos convenciones del capítulo 1. El 7,00 % es{' '}
                         <strong>efectivo</strong>: un peso se convierte en 1,07 al cabo del año. Su
                         equivalente diario es <span className="inline-code">(1,07)<sup>1/252</sup> − 1</span> =
-                        2,6852 puntos básicos, y el curso anualiza los rendimientos logarítmicos
-                        multiplicando por 252, que da 6,7667 %. La diferencia es{' '}
-                        <span className="inline-code">ln(1,07) ≈ 0,0677</span> frente a 0,07: la brecha
-                        entre aritméticos y logarítmicos que el capítulo 1 midió sobre el panel, aplicada
-                        ahora a una tasa. Todas las cifras de esta sección van en la segunda convención,
-                        que es la de los rendimientos con los que se estimó la beta.
+                        2,6852 puntos básicos, y el capítulo lo anualiza como anualiza los rendimientos,
+                        multiplicando por 252: <strong>6,7668 %</strong>. Hay otra forma de llevarlo a la
+                        escala de los logarítmicos, <span className="inline-code">ln(1,07)</span> = 6,7659 %,
+                        que es la que usa el capítulo 7; las dos difieren en nueve diezmilésimas de punto
+                        y ninguna conclusión depende de cuál se use, pero un mismo cálculo no las mezcla.
+                        Todas las cifras de esta sección van en la primera, que es la del bloque.
                     </Box>
 
                     <p>
@@ -4198,7 +4313,9 @@ alfa    <- obs_isa - exigido`,
                         dispersión— y no para decir cuánto rindió el fondo, que es un nivel. La última
                         fila del bloque hace lo que el capítulo 1 manda para un nivel, componer los
                         aritméticos: el fondo rebalanceado cada rueda a 30/20/25/25 rindió{' '}
-                        <strong>11,83 %</strong> anual —el +145,82 % de los ocho años—, con beta
+                        <strong>11,83 %</strong> anual —la media de sus logarítmicos por 252, la misma
+                        escala del 8,10 % del índice; en los ocho años son +145,82 %, que compuesto da
+                        11,90 % por año calendario—, con beta
                         0,6756, y su alfa es <strong>+4,16 puntos</strong>.
                     </p>
                     <p>
@@ -4209,8 +4326,8 @@ alfa    <- obs_isa - exigido`,
                         supone, no la elección de los emisores: con los mismos pesos comprados el primer
                         día y sin tocarlos, la cartera habría rendido 8,34 %. Cuál de las dos
                         comparaciones es la pertinente —el índice o la exposición— depende de si el
-                        mandato fijaba la beta, y esa es una pregunta de gobernanza —capítulo 1— y no de
-                        estadística.
+                        mandato fijaba la beta, y esa es una pregunta de gobernanza —quién la contesta es
+                        la sección 2 del capítulo 1— y no de estadística.
                     </p>
 
                     <Box type="danger" label="Un alfa de +5,29 no significa que ISA fuera una buena inversión">
@@ -4219,7 +4336,7 @@ alfa    <- obs_isa - exigido`,
                         salen de este capítulo: que la beta esté mal estimada por no sincronía —sección
                         5—; que la prima de mercado esté mal estimada, que es lo que su error estándar de
                         7,53 puntos sugiere; que el modelo de un solo factor no baste, que es lo que
-                        Fama y French mostraron en 1992; o que ocho años sean simplemente ocho años. El
+                        Fama y French mostraron en 1992 <Cita k="nobel2013ciencia" loc="p. 39" />; o que ocho años sean simplemente ocho años. El
                         alfa es un residuo, y un residuo recoge todo lo que el modelo no puso.
                     </Box>
 
@@ -4268,7 +4385,7 @@ alfa    <- obs_isa - exigido`,
         const Seccion4 = () => (
             <>
                 <Motivacion icon="fa-shapes"
-                    gancho="Con cuatro emisores el fondo ya eliminó un tercio del riesgo de un activo suelto. Con cuarenta eliminaría la mitad. Con cuatrocientos, exactamente lo mismo que con cuarenta.">
+                    gancho="Con cuatro emisores el fondo ya eliminó un tercio del riesgo de un activo suelto. Con cuarenta eliminaría la mitad. Con cuatrocientos, apenas dos puntos más que con cuarenta.">
                     Un asesor le propone al fondo pasar de cuatro emisores a treinta «para diversificar
                     mejor». La propuesta tiene un costo operativo concreto —custodia, seguimiento,
                     límites por emisor— y un beneficio que se puede calcular antes de firmarla. Sale de
@@ -4280,8 +4397,10 @@ alfa    <- obs_isa - exigido`,
                 <p>
                     Aquí aparece un contraste con el capítulo 1 que conviene no dejar pasar. Allí el
                     rendimiento logarítmico <strong>no</strong> era lineal en los pesos y hubo que medir
-                    el costo de tratarlo como si lo fuera. La beta sí lo es, y de forma exacta: es una
-                    covarianza dividida por una constante, y la covarianza es bilineal.
+                    el costo de tratarlo como si lo fuera. La beta de la serie w′r sí lo es, y de forma exacta: es
+                    una covarianza dividida por una constante, y la covarianza es bilineal. (El fondo
+                    rebalanceado de la sección 3, cuyo rendimiento no es lineal en los pesos, tiene beta
+                    0,6756.)
                 </p>
                 <Eq>{'$$\\begin{aligned} \\beta_p &= \\frac{\\mathrm{Cov}\\left(\\sum_i w_i r_i,\\; r_M\\right)}{\\mathrm{Var}(r_M)} \\\\[4pt] &= \\sum_i w_i\\,\\frac{\\mathrm{Cov}(r_i, r_M)}{\\mathrm{Var}(r_M)} = \\sum_i w_i\\beta_i \\end{aligned}$$'}</Eq>
 
@@ -4300,36 +4419,61 @@ alfa    <- obs_isa - exigido`,
 
                 <h3>Cuántos activos hacen falta</h3>
                 <p>
-                    Si se reparte por igual entre N activos cuya desviación típica vale en promedio
-                    <em>sigma media</em> y cuya correlación entre sí vale en promedio <em>rho media</em>, la varianza del portafolio tiene una forma
-                    cerrada que separa lo que se va de lo que se queda:
+                    Si se reparte por igual entre N activos y se llama σ̄² a su varianza media y ρ̄σ̄² a
+                    la covarianza media entre dos de ellos —así que ρ̄, la covarianza media dividida por
+                    la varianza media, hace de correlación promedio—, la varianza del portafolio tiene
+                    una forma cerrada, y exacta, que separa lo que se va de lo que se queda:
                 </p>
                 <Eq>{'$$\\sigma_p^2 = \\frac{\\bar{\\sigma}^2}{N} + \\left(1 - \\frac{1}{N}\\right)\\bar{\\rho}\\,\\bar{\\sigma}^2 \\qquad\\xrightarrow[N\\to\\infty]{}\\qquad \\bar{\\rho}\\,\\bar{\\sigma}^2$$'}</Eq>
+                <Derivacion
+                    titulo="De la varianza de cualquier cartera al suelo de la diversificación"
+                    pasos={[
+                        {
+                            eq: <Eq>{'$$\\sigma_p^2 = \\sum_{i}\\sum_{j} w_i\\,w_j\\,\\sigma_{ij}$$'}</Eq>,
+                            porque: 'La varianza de una suma, la misma de la sección 1 con más de dos sumandos: cada par de activos aporta su covarianza, y cada activo, su varianza (σᵢᵢ = σᵢ²).',
+                        },
+                        {
+                            eq: <Eq>{'$$\\begin{gathered} w_i = \\tfrac{1}{N} \\;\\Longrightarrow \\\\[4pt] \\sigma_p^2 = \\frac{1}{N^2}\\sum_i \\sigma_i^2 + \\frac{1}{N^2}\\sum_{i\\neq j} \\sigma_{ij} \\\\[4pt] = \\frac{\\bar v}{N} + \\frac{N-1}{N}\\,\\bar c \\end{gathered}$$'}</Eq>,
+                            porque: 'Con pesos iguales, la primera suma tiene N términos y la segunda N(N − 1). Escribirlas como N veces la varianza media v̄ y N(N − 1) veces la covarianza media c̄ no aproxima nada: es la definición de un promedio.',
+                        },
+                        {
+                            eq: <Eq>{'$$\\begin{gathered} \\bar\\sigma^2 \\equiv \\bar v, \\quad \\bar\\rho \\equiv \\bar c / \\bar v \\\\[4pt] \\Longrightarrow\\; \\sigma_p^2 = \\frac{\\bar\\sigma^2}{N} + \\Big(1-\\frac{1}{N}\\Big)\\bar\\rho\\,\\bar\\sigma^2 \\end{gathered}$$'}</Eq>,
+                            porque: 'Es la fórmula de arriba. Por eso la volatilidad media del capítulo es la raíz de la varianza media y no la media de las desviaciones, y la correlación media es un cociente de promedios y no el promedio de las correlaciones: con esas definiciones la fórmula reproduce exacto el equiponderado de estos cuatro, 1,5469 %.',
+                        },
+                        {
+                            eq: <Eq>{'$$N \\to \\infty \\;\\Longrightarrow\\; \\sigma_p^2 \\to \\bar\\rho\\,\\bar\\sigma^2 = \\bar c$$'}</Eq>,
+                            porque: 'Al crecer N el primer término se va y el segundo tiende a la covarianza media. Llevarlo más allá de cuatro emisores sí es un supuesto: que los nuevos tengan, en promedio, la misma varianza y la misma covarianza que estos.',
+                        },
+                    ]}
+                    cierre="El suelo es la raíz de la covarianza media, 1,1361 % diario. Lo que la diversificación elimina es lo que cada activo no comparte con los demás; lo que comparten se queda."
+                />
+
                 <p>
-                    El primer término es el riesgo propio y se va como 1/N. El segundo es la covarianza
-                    media y <strong>no se va nunca</strong>: por muchos activos que se añadan, el riesgo
-                    del portafolio no baja de la <strong>sigma media multiplicada por la raíz de la rho
-                    media</strong> — 1,1322 % en este panel. La
+                    Reordenada dice lo mismo con más claridad: σ²ₚ = ρ̄σ̄² + (1 − ρ̄)σ̄²/N. Lo que se va
+                    como 1/N es la parte de la varianza de cada activo que no comparte con los demás; la
+                    covarianza media <strong>no se va nunca</strong>: por muchos activos que se añadan,
+                    el riesgo del portafolio no baja de su raíz, σ̄√ρ̄ — <strong>1,1361 %</strong> en
+                    este panel. La
                     diversificación no es una cuestión de cantidad sino de correlación, y por eso el
                     capítulo 7 optimiza sobre la matriz de covarianzas y no sobre el número de emisores.
                 </p>
 
                 <CodeTabs titulo="El límite de la diversificación, con los parámetros de este panel" bloques={EJ_DIVERSIFICACION}
-                    nota="Las tres últimas líneas son la comprobación que hace honesta a la fórmula: predice 1,5410 % para cuatro activos equiponderados y el cálculo directo sobre los datos da 1,5469 %. Seis milésimas de punto de diferencia sobre una fórmula que solo usa dos números resumen." />
+                    nota="Las tres últimas líneas son la comprobación, y sale exacta: con la varianza media y la covarianza media, la fórmula es una identidad para el equiponderado de estos cuatro, 1,5469 %. Armada con la media de las desviaciones y la media de las correlaciones (2,3776 % y 0,2268) daría 1,5410 %, seis milésimas abajo. Para otro N supone emisores nuevos con las mismas medias, y eso sí es un supuesto." />
 
                 <TablaResultados
                     titulo="Qué compra cada emisor que se añade"
-                    subtitulo="sigma media = 2,3776 % · rho media = 0,2268 · reparto por partes iguales"
+                    subtitulo="σ̄ = 2,3873 % (raíz de la varianza media) · ρ̄ = 0,2265 · reparto por partes iguales"
                     columnas={['Emisores', 'σ del portafolio', 'Queda', 'Lo que aporta el siguiente tramo']}
                     filas={[
-                        { celdas: ['1', '2,3776 %', '100,0 %', 'Punto de partida: un solo emisor, todo su riesgo propio dentro'] },
-                        { celdas: ['4', { v: '1,5410 %', lee: 'Donde está el fondo hoy. Pasar de uno a cuatro emisores elimina el 35 % del riesgo, y es con diferencia el tramo más rentable de toda la curva. La comprobación con los datos reales da 1,5469 %, así que la fórmula no está mintiendo.' }, '64,8 %', 'De 1 a 4 se elimina el 35 % del riesgo'] },
-                        { celdas: ['8', '1,3522 %', '56,9 %', 'Duplicar de 4 a 8 elimina 8 puntos más'] },
-                        { celdas: ['16', '1,2471 %', '52,4 %', 'Duplicar otra vez: 4 puntos más'] },
-                        { celdas: ['32', { v: '1,1910 %', lee: 'Treinta y dos emisores en la Bolsa de Valores de Colombia son prácticamente todos los que tienen liquidez suficiente para un fondo institucional. Y el riesgo apenas ha bajado de 1,2471 % a 1,1910 %: cinco centésimas de punto por dieciséis emisores nuevos.' }, '50,1 %', 'Duplicar otra vez: 2 puntos más'] },
-                        { celdas: ['∞', { v: '1,1322 %', lee: 'El suelo. Ningún portafolio de acciones colombianas construido con estos parámetros baja de aquí, porque lo que queda es la covarianza media entre ellas: el riesgo de que Colombia entera se mueva. Para pasar de este punto hay que salir del país o salir de la renta variable, y eso es la unidad 2.' }, '47,6 %', 'Añadir emisores ya no compra nada'] },
+                        { celdas: ['1', '2,3873 %', '100,0 %', 'Punto de partida: un solo emisor, todo su riesgo propio dentro'] },
+                        { celdas: ['4', { v: '1,5469 %', lee: 'Donde está el fondo hoy, en número de emisores. Pasar de uno a cuatro elimina el 35 % del riesgo, y es con diferencia el tramo más rentable de toda la curva. Es exactamente la desviación del equiponderado real de los cuatro: aquí la fórmula no aproxima.' }, '64,8 %', 'De 1 a 4 se elimina el 35 % del riesgo'] },
+                        { celdas: ['8', '1,3571 %', '56,8 %', 'Duplicar de 4 a 8 elimina 8 puntos más'] },
+                        { celdas: ['16', '1,2515 %', '52,4 %', 'Duplicar otra vez: 4 puntos más'] },
+                        { celdas: ['32', { v: '1,1952 %', lee: 'El riesgo apenas ha bajado de 1,2515 % a 1,1952 %: seis centésimas de punto por dieciséis emisores nuevos, cada uno con su costo de custodia, de seguimiento y de límite.' }, '50,1 %', 'Duplicar otra vez: 2 puntos más'] },
+                        { celdas: ['∞', { v: '1,1361 %', lee: 'El suelo. Ningún equiponderado de emisores con estas medias baja de aquí, porque lo que queda es la covarianza media entre ellos: lo que tienen en común. Una parte la explica el índice y otra no —los residuos también se mueven juntos, y la pregunta 6 del cuestionario lo mide—. Para bajar de ahí hay que añadir activos que se muevan menos con estos, como el tramo de TES que el capítulo 9 le pone al fondo.' }, '47,6 %', 'Añadir emisores ya no compra nada'] },
                     ]}
-                    nota="Los rendimientos decrecientes son brutales. Todo lo que la diversificación puede dar sobre este panel son 1,2454 puntos de volatilidad diaria —de 2,3776 % a 1,1322 %—: el primer tramo, de uno a cuatro emisores, entrega el 67 % de eso, y pasar de treinta y dos a infinitos emisores entrega el 5 % restante."
+                    nota="Los rendimientos decrecientes son brutales. Todo lo que la diversificación puede dar sobre este panel son 1,2512 puntos de volatilidad diaria —de 2,3873 % a 1,1361 %—: el primer tramo, de uno a cuatro emisores, entrega el 67 % de eso, y pasar de treinta y dos a infinitos emisores entrega el 5 % restante."
                 />
 
                 <Laboratorio
@@ -4383,8 +4527,8 @@ alfa    <- obs_isa - exigido`,
                             + `Pasar de 4 a 30 emisores ahorra ${dec(r(4) - r(30), 4)} puntos de volatilidad diaria, `
                             + `que sobre ${miles(VALOR)} millones son ${miles((r(4) - r(30)) / 100 * VALOR)} millones de pesos de desviación diaria menos.`;
                     }}
-                    pregunta="Ponga la correlación en 0 y mire la curva: ahora sí baja hasta cerca de cero, pero hace falta un N enorme. Ponga 0,60 —que es lo normal entre acciones de un mismo sector— y mire el suelo. ¿Qué le dice eso a un fondo que tiene los cuatro emisores más grandes de una sola bolsa? Y una segunda: si tuviera que elegir entre añadir veinte emisores locales o cuatro extranjeros con correlación 0,3 contra los suyos, ¿qué le dice la fórmula?"
-                    nota="Todo se calcula en el navegador con la fórmula de arriba, sin ninguna cifra precomputada. Los deslizadores se mueven en pasos redondos para que se puedan fijar a mano, así que sus valores iniciales —0,23 y 2,40 %— no son exactamente los del panel, que son 0,2268 y 2,3776 %: con los redondos, N = 4 da 1,5600 % contra los 1,5410 % del bloque. La diferencia está en los deslizadores, no en la fórmula."
+                    pregunta="Ponga la correlación en 0 y mire la curva: ahora sí baja hasta cerca de cero, pero hace falta un N enorme. Ponga 0,60 y mire el suelo. ¿Qué le dice eso a un fondo cuyos cuatro emisores se mueven mucho juntos? Y una segunda: si el fondo quisiera bajar de su suelo, ¿le sirve más añadir emisores o añadir activos menos correlacionados con los que ya tiene? Mire cuál de los dos deslizadores mueve la línea roja."
+                    nota="Todo se calcula en el navegador con la fórmula de arriba, sin ninguna cifra precomputada. Los deslizadores se mueven en pasos redondos para que se puedan fijar a mano, así que sus valores iniciales —0,23 y 2,40 %— no son exactamente los del panel, que son 0,2265 y 2,3873 %: con los redondos, N = 4 da 1,5600 % contra los 1,5469 % del bloque. La diferencia está en los deslizadores, no en la fórmula."
                 />
 
                 <Comparador
@@ -4421,10 +4565,12 @@ sd <- sd(as.vector(r %*% w)) * 100`,
 
                 <FichaNorma
                     norma="Régimen de inversión de los fondos de pensiones obligatorias"
-                    emisor="Ministerio de Hacienda y Crédito Público · vigilancia de la Superintendencia Financiera"
-                    referencia="Decreto 2555 de 2010 (decreto único del sector financiero), régimen de inversiones de las AFP"
-                    exige="Que los recursos de los fondos de pensiones se inviertan dentro de límites cuantitativos por clase de activo, por emisor y por vinculación económica, y que la administradora cuente con políticas de inversión aprobadas y con medición periódica del riesgo de las posiciones. La concentración no queda a criterio del gestor: es un límite verificable por el supervisor."
-                    enElCapitulo="Esta sección da la razón económica de esos límites, y también su techo. Repartir entre más emisores elimina riesgo propio, y por eso la norma lo impone; pero la fórmula muestra que a partir de treinta emisores locales el beneficio marginal es de centésimas, porque lo que queda es covarianza. Un régimen de inversión bien diseñado tiene que fijar límites de concentración Y permitir salir de la clase de activo, porque lo segundo es lo único que baja el suelo."
+                    emisor="Gobierno nacional (Presidencia de la República y Ministerio de Hacienda y Crédito Público) · vigilancia de la Superintendencia Financiera"
+                    referencia="Decreto 2555 de 2010 (decreto único del sector financiero), parte 2, libro 6, título 12"
+                    k="decreto2555-2010"
+                    loc="arts. 2.6.12.1.2, 2.6.12.1.4, 2.6.12.1.12, 2.6.12.1.15, 2.6.12.1.18 y 2.6.13.1.1"
+                    exige="Que cada tipo de fondo de pensiones obligatorias se invierta dentro de límites por clase de activo —en títulos y valores participativos, que incluyen las acciones, hasta el 20, el 45 o el 70 % según el fondo—, por emisor con su grupo —10 %— y en entidades vinculadas a la propia administradora —10 %—, con una política de inversión que aprueba la junta directiva. Un exceso que causa la valorización y dura quince días se corrige con un plan que se somete a la Superintendencia Financiera, y uno que causa una inversión, de inmediato: la concentración no queda a criterio del gestor."
+                    enElCapitulo="Esta sección da la razón económica de esos límites, y también su techo. Repartir entre más emisores elimina riesgo propio, y la norma lo impone con sus límites por emisor; pero la fórmula muestra que a partir de treinta emisores locales el beneficio marginal es de centésimas, porque lo que queda es covarianza. Un régimen de inversión bien diseñado tiene que fijar límites de concentración Y permitir salir de la clase de activo, porque lo segundo es lo único que baja el suelo."
                 />
 
                 <OrdenaPasos
@@ -4432,12 +4578,12 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     enunciado="Reordene el procedimiento, desde el archivo hasta el número que va a la ficha del activo. Hay pasos que no se pueden hacer después de otros sin invalidar el resultado, y por lo menos uno que si se hace tarde convierte la estimación en la que más convenía."
                     pasos={[
                         'Fijar la referencia de mercado y declarar que es un sustituto del portafolio de mercado, no el portafolio de mercado',
-                        'Fijar la ventana y la frecuencia de estimación antes de ver ninguna beta, y dejar por escrito por qué esas',
+                        'Con esa referencia fijada, fijar la ventana y la frecuencia de estimación antes de ver ninguna beta, y dejar por escrito por qué esas',
                         'Cruzar las series por fechas comunes y contar cuántas ruedas sin variación tiene cada una',
-                        'Convertir precios a rendimientos logarítmicos, que es la magnitud sobre la que la beta está definida',
+                        'Convertir precios a rendimientos logarítmicos, que es la convención con que el curso estima la beta',
                         'Estimar la regresión y guardar el coeficiente junto con su error estándar',
                         'Comprobar si la frecuencia diaria sesga la beta, reestimando a frecuencia semanal y comparando',
-                        'Contrastar la estabilidad del coeficiente entre subperiodos o con una ventana rodante',
+                        'Con la frecuencia ya decidida, contrastar la estabilidad del coeficiente entre subperiodos o con una ventana rodante',
                         'Decidir qué beta se reporta y documentar la ventana, la frecuencia y el sustituto de mercado usados',
                     ]}
                     pista="Dos trampas. La ventana se fija antes de ver los resultados: elegirla después es elegir la beta, y con un rango rodante de 0,40 a 1,62 en el mismo activo hay donde escoger. Y contar las ruedas sin variación va antes de estimar, no después de que el número salga raro: es el dato que decide si la beta que va a obtener mide exposición o mide iliquidez."
@@ -4452,11 +4598,11 @@ sd <- sd(as.vector(r %*% w)) * 100`,
         const Seccion5 = () => (
             <>
                 <Motivacion icon="fa-triangle-exclamation"
-                    gancho="El portafolio del fondo está dentro del índice contra el que se mide, y su beta sale 0,68. Eso no puede ser, y descubrir por qué es lo mejor que da este capítulo.">
-                    Cuatro emisores grandes de la Bolsa de Valores de Colombia, pesados casi como los
-                    pesa el índice, tendrían que moverse aproximadamente como él: beta cercana a uno. La
-                    regresión dice 0,6779 con un error estándar de 0,0228, así que el uno queda a
-                    catorce errores estándar de distancia. O la teoría está mal, o el índice está mal, o
+                    gancho="El portafolio del fondo son emisores grandes de la misma bolsa que replica el ETF contra el que se mide, y su beta sale 0,68. Algo no cuadra, y descubrir qué es lo mejor que da este capítulo.">
+                    Cuatro emisores grandes de la Bolsa de Valores de Colombia tendrían que moverse
+                    aproximadamente como el ETF que replica esa bolsa: beta cercana a uno. La regresión
+                    dice 0,6779, y aun con el error estándar robusto de la sección 2 el uno queda a casi
+                    cuatro errores estándar de distancia. O la teoría está mal, o el índice está mal, o
                     hay algo en los datos que nadie miró.
                 </Motivacion>
 
@@ -4473,8 +4619,9 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                 <p>
                     Grupo Sura merece un párrafo aparte: su beta pasó de 0,8851 en 2018–2021 a 0,4762 en
                     2022–2025, una caída del 46 %. Con betas estimadas sobre subperiodos de cuatro años
-                    y errores estándar de 0,04 y 0,09, esa diferencia no es ruido de estimación: es que
-                    la relación entre el activo y el mercado cambió. Un fondo que en 2025 use la beta de
+                    y errores estándar de Newey-West de 0,13 y 0,10, la diferencia son 2,5 errores
+                    estándar: es difícil atribuirla solo al ruido de estimación, y lo más probable es que
+                    la relación entre el activo y el mercado haya cambiado. Un fondo que en 2025 use la beta de
                     la muestra completa —0,7369— para cubrir esa posición está usando un promedio de dos
                     regímenes que ya no existe.
                 </p>
@@ -4555,63 +4702,82 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     confundirlo en las dos direcciones cuesta dinero: el R² del modelo de mercado{' '}
                     <strong>es</strong> la fracción sistemática del riesgo, así que un R² bajo es un
                     resultado sustantivo sobre el activo —se mueve por razones suyas— y no un diagnóstico
-                    sobre la regresión. Lo que un R² bajo sí impide es usar el modelo para{' '}
-                    <em>predecir</em> el rendimiento del activo: explica el 12 % de su varianza.
+                    sobre la regresión. Lo que un R² bajo sí impide es usar el índice para{' '}
+                        <em>anticipar</em> el rendimiento del activo aun sabiendo lo que hizo el mercado: en
+                        ISA, el índice explica el 12 % de la varianza.
                 </p>
 
                 <DetectaError
                     titulo="R3 · Audita a la IA · el R² de ISA"
-                    enunciado="Un modelo de lenguaje entregó esta regresión de ISA contra el mercado junto con su lectura del ajuste. El cálculo no tiene ningún defecto: la beta y el R² son los correctos. Lo que falla es la línea de comentario, que es la conclusión que el modelo escribió. Señale la línea defectuosa y clasifique el error."
+                    enunciado="Un modelo de lenguaje entregó esta regresión de ISA contra el mercado, con su lectura del resultado. Hay una línea defectuosa: señálela y clasifique el error."
                     lineas={IA_R_CUADRADO}
                     lineaCorrecta={{ python: 10, r: 6 }}
                     tipos={TIPOS_ERROR_RIESGO}
                     tipoCorrecto={IDX_ERROR.interpretacion}
                     explicacion="El R² de 0,1224 es correcto y la beta de 0,6165 también. Lo que no se sostiene es el salto: «explica el 12 % de la varianza» y «describe bien a ISA» son afirmaciones incompatibles. Un R² de 0,12 dice que casi el 88 % del riesgo de ISA es idiosincrásico, y eso tiene dos consecuencias, no una. La primera es favorable y el modelo no la menciona: ese 88 % es precisamente la parte que se diversifica, así que la beta sigue siendo la magnitud correcta para agregar la posición al riesgo del portafolio. La segunda es la que invalida la conclusión escrita: con un R² de 0,12 el modelo no sirve para proyectar el rendimiento de ISA, que es exactamente el uso que la línea propone. La misma cifra habilita un uso e inhabilita el otro, y el comentario los mezcla."
-                    impacto="El daño no está en el número sino en para qué se usa. Un analista que acepte «describe bien a ISA» proyectará el rendimiento de la acción a partir del índice y presentará un intervalo de confianza que ignora el 88 % de la varianza: sobre una posición de 200 000 millones, la desviación residual diaria es de 2,1605 % —unos 4 300 millones al día— que su proyección no contempla. Y en la dirección contraria, un analista que descarte la beta por el R² bajo se queda sin la única magnitud que permite agregar posiciones, que es lo que la sección 4 acaba de usar."
+                    impacto="El daño no está en el número sino en para qué se usa. Un analista que acepte «describe bien a ISA» proyectará el rendimiento de la acción a partir del índice y presentará un intervalo de confianza que ignora el 88 % de la varianza: sobre una posición de 200 000 millones, la desviación residual diaria es de 2,16 % —unos 4 300 millones al día— que su proyección no contempla. Y en la dirección contraria, un analista que descarte la beta por el R² bajo se queda sin la única magnitud que permite agregar posiciones, que es lo que la sección 4 acaba de usar."
                 />
 
                 <h3>Tercer límite, y el que cambia este capítulo: la beta de 0,68 es un artefacto</h3>
                 <p>
                     Vuelva a la pregunta de la motivación. El portafolio del fondo son cuatro de los
                     emisores más grandes de la bolsa, y su beta contra el ETF que replica esa misma bolsa
-                    es 0,6779. La explicación no está en la teoría: está en cuántas veces se negoció cada
-                    cosa.
+                    es 0,6779. La explicación no está en la teoría: está en cuándo registra cada serie lo que
+                    pasa en el mercado.
                 </p>
 
-                <CodeTabs titulo="Cuántas ruedas no se negoció cada serie, y qué le pasa a la beta al espaciarla" bloques={EJ_FRECUENCIA}
-                    nota="Las dos mitades del bloque hay que leerlas juntas: la primera cuenta el problema y la segunda lo mide. El ETF se mueve casi todos los días —solo el 4,9 % de las ruedas queda quieto— y los emisores, no." />
+                <CodeTabs titulo="Cuántas ruedas no cambió de precio cada serie, y qué le pasa a la beta al espaciarla" bloques={EJ_FRECUENCIA}
+                    nota="Cuatro partes que se leen juntas: cuántas ruedas no se movió cada serie; la beta del portafolio sumando 2, 5, 10 y 21 ruedas, desde la primera y desde cada una de las otras (sumar ruedas depende de en cuál se empiece); cada serie contra el mercado de ayer, de hoy y de mañana; y la beta sin las ruedas en que ningún emisor cambió de precio." />
 
-                <CalloutPro tema="danger" titulo="Negociación no simultánea: el sesgo que se llevó un tercio de la beta"
-                    subtitulo="El mismo defecto del panel que el capítulo 4 declaró, midiendo su tercera consecuencia">
+                <CalloutPro tema="danger" titulo="Negociación no simultánea: el sesgo que se llevó entre un cuarto y un tercio de la beta"
+                    subtitulo="Y no es sobre todo el defecto que el capítulo 4 declaró: las ruedas quietas explican un quinto">
                     <p>
                         Banco de Bogotá no cambia de precio el <strong>16,2 %</strong> de las ruedas y
                         Grupo Sura el 15,1 %, mientras el ETF solo el 4,9 %. Cuando el mercado se mueve
-                        un día y la acción no se negoció, ese movimiento aparece en el precio de la
-                        acción al día siguiente, no ese día. La covarianza contemporánea —que es el
-                        numerador de la beta— se pierde ese trozo, y la beta sale{' '}
-                        <strong>sesgada hacia abajo</strong>. Es el efecto que Dimson formalizó en 1979 y
-                        que en mercados poco líquidos no es un detalle.
+                        un día y una serie no lo registra hasta el día siguiente, la covarianza
+                        contemporánea —que es el numerador de la beta— pierde ese trozo, y la beta sale{' '}
+                        <strong>sesgada hacia abajo</strong>, y en un mercado poco líquido no es un
+                        detalle.
                     </p>
                     <p>
                         La segunda mitad del bloque lo demuestra sin ninguna teoría: si el rendimiento se
-                        mide cada dos ruedas, la beta del portafolio sube de 0,6779 a 0,8368; cada
-                        semana, a <strong>0,9486</strong>; cada mes, a <strong>0,9984</strong>. Espaciar
-                        el intervalo le da tiempo a la acción a incorporar el movimiento del mercado, y
-                        la beta converge a donde la teoría decía que tenía que estar: cerca de uno, como
-                        corresponde a una cartera que está dentro del índice.
+                        mide cada dos ruedas, la beta del portafolio sube de 0,6779 a entre 0,81 y 0,84
+                        según la rueda en que se empiece a sumar; cada semana, a entre{' '}
+                        <strong>0,87 y 0,95</strong>; cada mes, a entre <strong>0,87 y 1,02</strong>.
+                        Espaciar el intervalo les da tiempo a las series para ponerse al día, y la beta
+                        se acerca a donde la intuición la ponía: cerca de uno.
+                    </p>
+                    <p>
+                        La tercera parte dice <strong>quién llega tarde</strong>, y no es quien el capítulo
+                        esperaba. Si las acciones fueran las lentas, su rendimiento de hoy cargaría sobre
+                        el mercado de ayer, y eso solo le pasa a Banco de Bogotá (+0,194). Ecopetrol, Grupo
+                        Sura e ISA cargan sobre el mercado de <em>mañana</em>, +0,27 cada una: el que
+                        registra un día tarde lo que ellas hacen hoy es el ETF. Sea cuál sea la serie lenta,
+                        la covarianza del mismo día se pierde, y sumando los tres coeficientes —el ajuste
+                        de Dimson con un día a cada lado— la beta del portafolio sube a{' '}
+                        <strong>0,9359</strong> sin espaciar nada. Por qué el ETF va un día atrás el panel
+                        no lo dice: lo que aquí se mide es el efecto, no su causa.
+                    </p>
+                    <p>
+                        Y no es, sobre todo, el defecto que declaró el capítulo 4: quitar las 101 ruedas en
+                        que ningún emisor cambió de precio lleva la beta a 0,7333, un quinto del camino
+                        hasta la semanal. El resto es el desfase entre series en días en que sí cotizaron.
                     </p>
                     <p>
                         La lectura correcta de la beta diaria de 0,6779, entonces, <strong>no</strong> es
                         «el portafolio del fondo es defensivo». Es «con datos diarios de un mercado
-                        ilíquido, un tercio de la exposición al mercado no se ve». Un fondo que cubra su
-                        posición con futuros usando 0,6779 se quedará corto de cobertura en cerca de un
-                        tercio del nominal justo cuando el mercado se mueva de verdad — y sobre 800 000
-                        millones eso son unos 217 000 millones sin cubrir.
+                        ilíquido, entre un cuarto y un tercio de la exposición al mercado no se ve» —contra
+                        la beta de Dimson, 0,9359, falta el 28 %—. Un fondo que cubra su posición con
+                        futuros usando 0,6779 se quedará corto de cobertura en más de un cuarto del nominal
+                        justo cuando el mercado se mueva de verdad — y sobre 800 000
+                        millones, con la beta de Dimson, eso son unos 206 000 millones sin cubrir.
                     </p>
                     <p>
-                        Fíjese en el 0,8522 de la fila quincenal, que rompe la progresión. Con 191
-                        observaciones el error de estimación ya es grande y una fila suelta no dice nada:
-                        la evidencia es la tendencia de las cinco, no cualquiera de ellas.
+                        Fíjese en la fila quincenal: empezando en la primera rueda da 0,8522 y rompe la
+                        progresión; empezando en otra llega a 1,0430. Con 191 o 91 observaciones una fila
+                        suelta no prueba nada. Lo que prueba es que todas las fases de todas las
+                        frecuencias quedan por encima de 0,80, y que la regresión con el mercado de ayer y
+                        de mañana llega al mismo sitio con los datos diarios.
                     </p>
                 </CalloutPro>
 
@@ -4620,10 +4786,11 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     cuadro ya está completo. Excluir el par defectuoso del 19 y 20 de febrero de 2025
                     mueve el VaR histórico de la muestra completa un 1 %, la volatilidad un 5 %, el VaR
                     de la ventana de 250 ruedas un 10 % — y la beta, un 0,5 %. La beta es el estimador
-                    más robusto de los cuatro frente a ese defecto, porque es un cociente en el que la
-                    observación anómala entra arriba y abajo. Pero es el <strong>único</strong> de los
+                    más robusto de los cuatro frente a ese defecto, porque la anomalía está solo en los
+                    emisores —el ETF subió esos dos días 1,55 % y 2,02 %— y en el numerador sus dos
+                    productos cruzados tienen signos opuestos y se compensan en parte. Pero es el <strong>único</strong> de los
                     cuatro al que le hace daño el otro defecto, el de las ruedas sin variación, que a los
-                    otros tres no les hace casi nada. No hay un dato limpio: hay estimadores sensibles a
+                    otros tres apenas los mueve —la volatilidad, un 2,7 %—. No hay un dato limpio: hay estimadores sensibles a
                     cosas distintas.
                 </Box>
 
@@ -4636,22 +4803,24 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                 </p>
                 <Eq>{'$$\\mathrm{EE}\\left(\\bar{r}\\right) = \\frac{\\sigma}{\\sqrt{n}} \\qquad\\Longrightarrow\\qquad n = \\left(\\frac{\\sigma}{\\mathrm{EE}}\\right)^2$$'}</Eq>
                 <p>
-                    La última línea del bloque de la sección 3 despeja esa n: para conocer la prima con
+                    La última línea del bloque de la sección 3 despeja esa n, en años porque σ y el
+                    error estándar van anuales: para conocer la prima con
                     un error de un punto porcentual harían falta <strong>431 años</strong> de datos. Y no
                     hay atajo, porque el error estándar de una media baja con la raíz de n y la
                     volatilidad anual del mercado es del 20,8 %. Compárelo con lo que pasa con la beta,
-                    que se estima con esos mismos 1 916 datos y da un intervalo de 0,09 de ancho: la beta
-                    es un cociente de <em>segundos</em> momentos y se estima bien con muestras que no
-                    alcanzan ni de lejos para el <em>primero</em>. Por eso el CAPM se usa a diario para
-                    medir riesgo y casi nunca para predecir rendimientos, aunque la ecuación sea la misma.
+                    que se estima con esos mismos 1 916 datos y da un intervalo de 0,09 de ancho —0,33
+                    con Newey-West—: la beta
+                    es un cociente de <em>segundos</em> momentos y se estima con un error pequeño frente a su valor con
+                    muestras que no alcanzan ni de lejos para el <em>primero</em>. Por eso tiene sentido usar el CAPM
+                    para medir riesgo y no para predecir rendimientos, aunque la ecuación sea la misma.
                 </p>
 
                 <Ejercicio tipo="R7">
                     <MCQ
                         pregunta="El comité pide cubrir el 100 % de la exposición del portafolio al mercado con futuros del índice. Con 800 000 millones invertidos, ¿qué nominal se vende?"
                         opciones={[
-                            { texto: 'Ni 0,6779 ni 1 sin decir por qué: la beta diaria da 542 000 millones y la semanal 759 000, y la diaria se sabe sesgada a la baja por la negociación no simultánea.', correcta: true, justificacion: 'Los 217 000 millones de diferencia no son una discrepancia de criterio sino un defecto medido: cada emisor deja de cotizar por su cuenta —Banco de Bogotá el 16,2 % de las ruedas, Grupo Sura el 15,1 %— mientras el ETF solo el 4,9 %, y esa asimetría se come la covarianza contemporánea, que es el numerador de la beta. Medido por semanas, el sesgo se deshace y la beta pasa de 0,6779 a 0,9486. Recalcularla cada día con la ventana rodante de 250 ruedas tampoco lo arregla: el R9 de esta sección la mueve entre 0,3045 y 1,0060, que sobre 800 000 millones son coberturas de 244 000 a 805 000. La respuesta profesional no es un número sino un número con su frecuencia declarada, y eso es exactamente lo que evalúa el R8 de esta sección.' },
-                            { texto: '542 000 millones, que es 0,6779 por 800 000. La beta del portafolio es la que estima la regresión sobre los datos disponibles, y usar otra cosa es intervenir el dato.', correcta: false },
+                            { texto: 'Unos 750 000 millones: la beta diaria se sabe sesgada a la baja, y las corregidas del bloque de esta sección rondan 0,94.', correcta: true, justificacion: 'Los cerca de 200 000 millones de diferencia con la beta diaria no son una discrepancia de criterio sino un defecto medido: el ETF registra un día tarde lo que hacen Ecopetrol, Grupo Sura e ISA, Banco de Bogotá registra un día tarde lo que hace el ETF, y la covarianza del mismo día pierde los dos trozos. Sumando el mercado de ayer, de hoy y de mañana la beta del portafolio es 0,9359; medida por semanas va de 0,8651 a 0,9549 según la rueda en que empiece la semana. Recalcularla cada día con la ventana rodante de 250 ruedas tampoco lo arregla: la beta rodante de 250 ruedas del bloque de esta sección la mueve entre 0,3045 y 1,0060, que sobre 800 000 millones son coberturas de 244 000 a 805 000. La respuesta profesional no es un número sino un número con su frecuencia declarada, y eso es exactamente lo que evalúa el R8 de esta sección.' },
+                            { texto: '542 000 millones, que es 0,6779 por 800 000: la beta del portafolio es la que estima la regresión sobre los datos disponibles, y usar otra es intervenir el dato.', correcta: false },
                             { texto: '800 000 millones, porque cubrir el 100 % de la exposición significa vender el nominal completo de la posición, y ahí la beta no interviene.', correcta: false },
                             { texto: '542 000 millones, pero revisando la cobertura cada día para recalcular la beta con la ventana rodante de 250 ruedas y ajustar el nominal.', correcta: false },
                         ]}
@@ -4689,7 +4858,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                                 la que más se parece a lo que se esperaba; usar la beta diaria para una
                                 cobertura sin mencionar el sesgo; o presentar una beta sin decir contra qué
                                 sustituto de mercado se estimó. Esto último es la crítica de Roll de 1977 en
-                                versión práctica: el ICOLCAP no es el portafolio de mercado, es un ETF con su
+                                versión práctica <Cita k="nobel2013ciencia" loc="p. 38" />: el ICOLCAP no es el portafolio de mercado, es un ETF con su
                                 propia liquidez, y toda beta de este capítulo es beta <em>contra ese ETF</em>.
                             </p>
                         </>}>
@@ -4697,8 +4866,8 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                             Usted responde por la ficha de riesgo de mercado del fondo, y en ella va una
                             beta por posición. Los datos son los de este capítulo: la beta rodante de
                             Ecopetrol va de 0,3977 a 1,6219 según la ventana de 250 ruedas que se tome;
-                            la del portafolio sube de 0,6779 a 0,9486 al pasar de frecuencia diaria a
-                            semanal; y Grupo Sura cambió de 0,8851 a 0,4762 entre las dos mitades de la
+                            la del portafolio sube de 0,6779 a entre 0,87 y 0,95 al pasar de frecuencia diaria
+                            a semanal, según la rueda en que empiece la semana; y Grupo Sura cambió de 0,8851 a 0,4762 entre las dos mitades de la
                             muestra.
                         </p>
                         <p>
@@ -4722,8 +4891,8 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     gancho="La pregunta de la defensa oral no va a ser cuánto vale la beta. Va a ser por qué esa y no otra, y qué pasa si se equivoca.">
                     Las diez preguntas de abajo no piden ninguna cuenta que no se pueda hacer de cabeza.
                     Piden decir qué significa un número, con qué precisión se conoce y qué decisión
-                    cambiaría si estuviera mal. Es la clase de pregunta que el examen final presencial
-                    hace, y la que más barato sale descubrir a solas.
+                    cambiaría si estuviera mal. Es la clase de pregunta de la sustentación oral, y la
+                    que más barato sale descubrir a solas.
                 </Motivacion>
 
                 <Quiz titulo="Cuestionario integrador del capítulo 3" preguntas={[
@@ -4737,7 +4906,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Grupo Sura es la posición más volátil del fondo (σ = 2,6818 %) y el CAPM le asigna un rendimiento exigido menor que a Ecopetrol (σ = 2,4347 %). ¿Por qué?', justificacion: 'La volatilidad extra de Grupo Sura es residual —6,2625 de sus 7,1922 unidades de varianza—, y en un mercado donde todos diversifican nadie paga por lo que se elimina gratis. Es el resultado del CAPM que más incomoda la primera vez que se ve, y el que hace falta para leer el capítulo 7: lo que entra en la frontera eficiente es la covarianza, no la varianza.',
+                        pregunta: 'Grupo Sura es la posición más volátil del fondo (σ = 2,6818 %) y el CAPM le asigna un rendimiento exigido menor que a Ecopetrol (σ = 2,4347 %). ¿Por qué?', justificacion: 'La volatilidad extra de Grupo Sura es residual —6,2625 de sus 7,1921 unidades de varianza—, y el CAPM no remunera lo que la diversificación elimina. Es el resultado del CAPM que más incomoda la primera vez que se ve, y el que hace falta para leer el capítulo 7: lo que entra en la frontera eficiente es la covarianza, no la varianza.',
                         opciones: [
                             { texto: 'Porque el CAPM remunera solo el riesgo sistemático y la beta de Grupo Sura (0,7369) es menor que la de Ecopetrol (0,9009).', correcta: true },
                             { texto: 'Porque Grupo Sura es una holding y el CAPM aplica un descuento por diversificación interna del emisor.', correcta: false },
@@ -4764,7 +4933,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Un analista regresa el precio de Grupo Sura contra el precio del ETF y obtiene beta 2,8996 con R² 0,6207. ¿Cómo se clasifica el error?', justificacion: 'Es el error de IA más frecuente del capítulo, y engaña porque el resultado luce mejor: 2,8996 con un R² de 0,6207 parece un ajuste superior a 0,7369 con 0,1293. Ese es justamente el problema —dos series con tendencia se parecen aunque sus rendimientos no, y el R² alto es el síntoma de la regresión espuria, no su garantía—.',
+                        pregunta: 'Un analista regresa el precio de Grupo Sura contra el precio del ETF y obtiene beta 2,8996 con R² 0,6207. ¿Cómo se clasifica el error?', justificacion: 'Es el error que audita el R3 de la sección 2, y engaña porque el resultado luce mejor: 2,8996 con un R² de 0,6207 parece un ajuste superior a 0,7369 con 0,1293. Ese es justamente el problema —dos series con tendencia se parecen aunque sus rendimientos no, y el R² alto es el síntoma de la regresión espuria, no su garantía—.',
                         opciones: [
                             { texto: 'Estimador inconsistente: una pendiente entre precios no estima el cociente entre momentos de rendimientos que define la beta.', correcta: true },
                             { texto: 'Convención equivocada: se usó la periodicidad diaria donde correspondía la mensual, y por eso la cifra sale multiplicada.', correcta: false },
@@ -4773,7 +4942,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Con una volatilidad media de 2,3776 % y una correlación media de 0,2268, el riesgo de un portafolio equiponderado tiende a 1,1322 % al crecer N. ¿Qué es esa cifra?', justificacion: 'No es solo riesgo de mercado, y por eso la respuesta no es β̄σM: eso vale 0,8508 % y el suelo está un 33 % más arriba, porque los residuos de los cuatro están correlacionados 0,1216 y el 44 % de la varianza del suelo no la explica el índice. Sobre 800 000 millones son unos 9 058 millones diarios que ningún número de emisores locales elimina. La única salida es cambiar de clase de activo o de mercado, y ahí es donde empieza el capítulo 7.',
+                        pregunta: 'Con una volatilidad media de 2,3873 % y una correlación media de 0,2265, el riesgo de un portafolio equiponderado tiende a 1,1361 % al crecer N. ¿Qué es esa cifra?', justificacion: 'No es solo riesgo de mercado, y por eso la respuesta no es β̄σM: eso vale 0,8508 % y el suelo está un 34 % más arriba, porque los residuos de los cuatro están correlacionados 0,1216 y el 44 % de la varianza del suelo no la explica el índice. Sobre 800 000 millones son unos 9 089 millones diarios que ningún número de emisores parecidos elimina. La salida es añadir activos que se muevan menos con estos, y es lo que hace el tramo de TES del capítulo 9.',
                         opciones: [
                             { texto: 'La volatilidad media por la raíz de la correlación media: el piso que queda por muchos emisores que se añadan.', correcta: true },
                             { texto: 'El riesgo del ETF ICOLCAP, que es el portafolio equiponderado límite de ese mercado.', correcta: false },
@@ -4782,11 +4951,11 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'La beta del portafolio del fondo contra el ETF que replica su propia bolsa es 0,6779, con un error estándar de 0,0228. ¿Cuál es la explicación que sostienen los datos?', justificacion: 'Una beta de 0,6779 contra el índice que replica su propio portafolio es imposible como economía y perfectamente posible como estadística de un panel ilíquido. El ETF, en cambio, solo se queda quieto el 4,9 % de las ruedas. Medida por semanas la beta sube a 0,9486 y por meses a 0,9984, que es donde la teoría decía que debía estar, y esa diferencia son 217 000 millones de nominal en la cobertura.',
+                        pregunta: 'La beta del portafolio del fondo contra el ETF que replica su propia bolsa es 0,6779, con un error estándar de 0,0228. ¿Cuál es la explicación que sostienen los datos?', justificacion: 'Una beta de 0,6779 contra el ETF que replica la bolsa de sus emisores no la explica la economía sino el calendario de los datos: el ETF registra un día tarde lo que hacen Ecopetrol, Grupo Sura e ISA, y Banco de Bogotá registra un día tarde lo que hace el ETF. Sumando el mercado de ayer, de hoy y de mañana la beta sube a 0,9359, y medida por semanas, a entre 0,87 y 0,95. No es un problema de la varianza del ETF, que se mide bien: lo que se pierde es la covarianza del mismo día. Con la beta de Dimson, la diferencia son unos 206 000 millones de nominal en la cobertura.',
                         opciones: [
                             { texto: 'Que el portafolio está bien diversificado y por eso su beta es menor que uno: la diversificación reduce la exposición al mercado.', correcta: false },
                             { texto: 'Que los pesos del fondo, 30/20/25/25, no coinciden con los del índice, y esa diferencia de composición explica los 32 puntos que faltan.', correcta: false },
-                            { texto: 'Negociación no simultánea: los emisores no se mueven entre el 9,9 % y el 16,2 % de las ruedas y la covarianza contemporánea lo pierde.', correcta: true },
+                            { texto: 'Negociación no simultánea: las series registran los mismos movimientos en días distintos, y la covarianza del mismo día lo pierde.', correcta: true },
                             { texto: 'Que el ETF no cotiza a la par de la canasta que replica, y esa prima o descuento añade varianza al denominador de la beta.', correcta: false },
                         ],
                     },
@@ -4809,7 +4978,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         ],
                     },
                     {
-                        pregunta: 'Con la convención w′μ del capítulo 1, el alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?', justificacion: 'El alfa tiene error estándar propio, y no es el 7,53 de la prima: son parámetros distintos, de regresiones distintas, y confundirlos es el error que la sección 5 desmonta. La regresión de Jensen deja el alfa en +0,0176 pp anuales con un error estándar de 7,5040 pp, t = 0,0024 y un intervalo al 95 % que va de −14,69 % a +14,73 %. Presentar ese +0,02 como valor añadido es exactamente lo que el R7 de esta sección pide desmontar ante la junta. Y son cifras de la convención: con el fondo rebalanceado de verdad, el alfa sube a +4,16 pp con un error estándar de 7,50, t = 0,55, y es el índice el que queda 3,73 puntos por debajo. La cifra cambia y la respuesta a la junta no, porque ninguno de los dos alfas se distingue de cero.',
+                        pregunta: 'Con la convención w′μ del capítulo 1, el alfa de Jensen del portafolio es +0,02 puntos porcentuales anuales frente al índice, que rindió 41 puntos básicos más. ¿Qué se le dice a la junta?', justificacion: 'El alfa tiene error estándar propio, y no es el 7,53 de la prima: son parámetros distintos, de regresiones distintas, y confundirlos es el error que la sección 5 desmonta. La regresión de Jensen deja el alfa en +0,0176 pp anuales con un error estándar de 7,5040 pp, t = 0,0023 y un intervalo al 95 % que va de −14,69 % a +14,73 %. Presentar ese +0,02 como valor añadido es exactamente lo que el R7 de la sección 3 pide desmontar ante la junta. Y son cifras de la convención: con el fondo rebalanceado de verdad, el alfa sube a +4,16 pp con un error estándar de 7,50, t = 0,55, y es el índice el que queda 3,73 puntos por debajo. La cifra cambia y la respuesta a la junta no, porque ninguno de los dos alfas se distingue de cero.',
                         opciones: [
                             { texto: 'Que medido contra su exposición al mercado el portafolio empató, y que el contraste pertinente depende de si el mandato fijaba una beta objetivo.', correcta: true },
                             { texto: 'Que el gestor añadió valor, porque un alfa positivo es rendimiento que la exposición al mercado no explica.', correcta: false },
@@ -4824,7 +4993,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                     { num: 1, title: 'Cap. 3 · Aquí', desc: 'El riesgo se parte en dos y solo una parte se paga' },
                     { num: 2, title: 'Cap. 4 · VaR', desc: 'La cola del portafolio, resumida en un número' },
                     { num: 3, title: 'Cap. 7 · Portafolio', desc: 'Los pesos dejan de ser una decisión y pasan a ser la solución de un problema' },
-                    { num: 4, title: 'Cap. 11 · Derivados', desc: 'La beta vuelve, ahora como razón de cobertura' },
+                    { num: 4, title: 'Cap. 9 · Bonos', desc: 'El tramo de TES: un activo que baja el suelo de la sección 4' },
                 ]} />
 
                 <h3>Nivel de uso de IA por tipo de ejercicio</h3>
@@ -4836,13 +5005,13 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         <NivelIA nivel={2} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">R4 y R7</span>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-white p-3">
-                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El taller Quarto de este capítulo</span>
+                        <NivelIA nivel={3} compacto /> <span className="text-[0.82rem] text-gray-600 ml-1">El R8 y el taller Quarto de este capítulo</span>
                     </div>
                 </div>
                 <Box type="info" label="Los dos R3 de este capítulo se resuelven sin IA, y no es una formalidad">
                     Los dos casos que auditó —regresar precios en vez de rendimientos y leer un R² de
-                    0,12 como buen ajuste— son de los que un modelo de lenguaje comete con más
-                    frecuencia, y los comete porque el resultado <em>parece mejor</em>: la regresión
+                    0,12 como buen ajuste— son errores que un modelo de lenguaje puede cometer sin
+                    que nada le avise, porque el resultado <em>parece mejor</em>: la regresión
                     espuria devuelve un R² más alto que cualquiera de los ajustes correctos del capítulo,
                     y «el modelo explica el 12 % de la varianza» suena a hallazgo. Pedirle a un modelo
                     que audite a otro deja intacto el punto ciego. Lo que este capítulo entrena es el
@@ -4857,7 +5026,7 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                             <ul>
                                 <li><strong>σ² = β²σ²M + σ²ε.</strong> Aditiva en varianzas, nunca en desviaciones típicas.</li>
                                 <li><strong>R² = fracción sistemática.</strong> No es una nota del ajuste: es un resultado sobre el activo.</li>
-                                <li><strong>La beta se suma con los pesos</strong> de forma exacta; el riesgo propio se suma con los pesos al cuadrado, y por eso se encoge.</li>
+                                <li><strong>La beta se suma con los pesos</strong> de forma exacta sobre w′r; el riesgo propio se suma con los pesos al cuadrado, y por eso se encoge.</li>
                                 <li><strong>El portafolio del fondo:</strong> 31,7 % sistemático, más que cualquiera de sus partes. Diversificar no baja el riesgo sistemático: lo deja mandando.</li>
                             </ul>
                         ),
@@ -4867,9 +5036,9 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                         content: (
                             <ul>
                                 <li><strong>Betas:</strong> Ecopetrol 0,9009 · Banco de Bogotá 0,3466 · Grupo Sura 0,7369 · ISA 0,6165 · portafolio 0,6779.</li>
-                                <li><strong>Precisión:</strong> la beta del portafolio con IC de 0,09 de ancho; la prima de mercado con uno de 29,5 puntos.</li>
-                                <li><strong>Diversificación:</strong> volatilidad media 2,3776 % · correlación media 0,2268 · suelo 1,1322 %, el 47,6 % del riesgo de un activo suelto.</li>
-                                <li><strong>Frecuencia:</strong> beta del portafolio 0,6779 diaria · 0,9486 semanal · 0,9984 mensual.</li>
+                                <li><strong>Precisión:</strong> la beta del portafolio con IC de 0,09 de ancho con mínimos cuadrados y 0,33 con Newey-West; la prima de mercado con uno de 29,5 puntos.</li>
+                                <li><strong>Diversificación:</strong> volatilidad media 2,3873 % · correlación media 0,2265 · suelo 1,1361 %, el 47,6 % del riesgo de un activo suelto.</li>
+                                <li><strong>Frecuencia:</strong> beta del portafolio 0,6779 diaria · 0,87–0,95 semanal según la fase · 0,9359 con el mercado de ayer y de mañana.</li>
                             </ul>
                         ),
                     },
@@ -4879,12 +5048,14 @@ sd <- sd(as.vector(r %*% w)) * 100`,
                             <ul>
                                 <li><strong>Una beta estable.</strong> Rango rodante de 0,3977 a 1,6219 en el mismo activo.</li>
                                 <li><strong>Una prima estimable.</strong> 431 años de datos para un error de un punto porcentual.</li>
-                                <li><strong>Un portafolio de mercado.</strong> Solo un sustituto —aquí un ETF— que es la crítica de Roll.</li>
-                                <li><strong>Una beta limpia de microestructura.</strong> Un tercio de la del portafolio se lo lleva la negociación no simultánea.</li>
+                                <li><strong>Un portafolio de mercado.</strong> Solo un sustituto —aquí un ETF—, que es la crítica de Roll <Cita k="nobel2013ciencia" loc="p. 38" />.</li>
+                                <li><strong>Una beta limpia de microestructura.</strong> Entre un cuarto y un tercio de la del portafolio se lo lleva la negociación no simultánea.</li>
                             </ul>
                         ),
                     },
                 ]} />
+
+                <Referencias />
             </>
         );
 
@@ -5103,6 +5274,58 @@ sd <- sd(as.vector(r %*% w)) * 100`,
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+    <!-- === TR-REFS INICIO — no editar a mano: se genera con estampar_referencias.py === -->
+    <script type="application/json" id="tr-referencias">
+{
+  "v": 2,
+  "huella": "d56a2f7993e7fab848332984a05289f184360ccd50ef574acc106f5d784c1816",
+  "sello": "805778c36e57661b9ed5863d08327dc0e41bef6f929677cec1e930369fd39631",
+  "orden": [
+    "banrep-tpm",
+    "citivalores2026icolcap",
+    "decreto2555-2010",
+    "nobel1990prensa",
+    "nobel2013ciencia"
+  ],
+  "entradas": {
+    "banrep-tpm": {
+      "autor": "Banco de la República",
+      "anio": "2026",
+      "html": "Banco de la República. (2026). \u003cem>Tasa de política monetaria (serie 59)\u003c/em> [Dataset]. Banco de la República, SUAMECA. \u003ca href=\"https://suameca.banrep.gov.co/graficador-interactivo/grafica/59\">https://suameca.banrep.gov.co/graficador-interactivo/grafica/59\u003c/a>",
+      "plano": "Banco de la República. (2026). Tasa de política monetaria (serie 59) [Dataset]. Banco de la República, SUAMECA. https://suameca.banrep.gov.co/graficador-interactivo/grafica/59"
+    },
+    "citivalores2026icolcap": {
+      "autor": "Citivalores S.A. Comisionista de Bolsa",
+      "anio": "2026",
+      "html": "Citivalores S.A. Comisionista de Bolsa. (2026). \u003cem>Reglamento del fondo bursátil iShares MSCI COLCAP\u003c/em>. \u003ca href=\"https://www.citibank.com/icg/sa/latam/colombia/citivalores/assets/docs/Reglamento-ETF-Colcap.pdf\">https://www.citibank.com/icg/sa/latam/colombia/citivalores/assets/docs/Reglamento-ETF-Colcap.pdf\u003c/a>",
+      "plano": "Citivalores S.A. Comisionista de Bolsa. (2026). Reglamento del fondo bursátil iShares MSCI COLCAP. https://www.citibank.com/icg/sa/latam/colombia/citivalores/assets/docs/Reglamento-ETF-Colcap.pdf"
+    },
+    "decreto2555-2010": {
+      "autor": "Presidencia de la República de Colombia",
+      "anio": "2010",
+      "html": "Presidencia de la República de Colombia. (2010). \u003cem>Decreto 2555 de 2010\u003c/em>. \u003ca href=\"https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=40032\">https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=40032\u003c/a>",
+      "plano": "Presidencia de la República de Colombia. (2010). Decreto 2555 de 2010. https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=40032"
+    },
+    "nobel1990prensa": {
+      "autor": "Royal Swedish Academy of Sciences",
+      "anio": "1990",
+      "html": "Royal Swedish Academy of Sciences. (1990, octubre 16). \u003cem>Press release: The Prize in Economics 1990\u003c/em>. NobelPrize.org. \u003ca href=\"https://www.nobelprize.org/prizes/economic-sciences/1990/press-release/\">https://www.nobelprize.org/prizes/economic-sciences/1990/press-release/\u003c/a>",
+      "plano": "Royal Swedish Academy of Sciences. (1990, octubre 16). Press release: The Prize in Economics 1990. NobelPrize.org. https://www.nobelprize.org/prizes/economic-sciences/1990/press-release/"
+    },
+    "nobel2013ciencia": {
+      "autor": "Royal Swedish Academy of Sciences",
+      "anio": "2013",
+      "html": "Royal Swedish Academy of Sciences. (2013). \u003cem>Understanding asset prices\u003c/em> (Scientific Background on the Sveriges Riksbank Prize in Economic Sciences in Memory of Alfred Nobel 2013). Royal Swedish Academy of Sciences. \u003ca href=\"https://www.nobelprize.org/uploads/2013/10/advanced-economicsciences2013.pdf\">https://www.nobelprize.org/uploads/2013/10/advanced-economicsciences2013.pdf\u003c/a>",
+      "plano": "Royal Swedish Academy of Sciences. (2013). Understanding asset prices (Scientific Background on the Sveriges Riksbank Prize in Economic Sciences in Memory of Alfred Nobel 2013). Royal Swedish Academy of Sciences. https://www.nobelprize.org/uploads/2013/10/advanced-economicsciences2013.pdf"
+    }
+  },
+  "profundizar": {
+    "orden": [],
+    "entradas": {}
+  }
+}
+    </script>
+    <!-- === TR-REFS FIN === -->
 </body>
 
 </html>

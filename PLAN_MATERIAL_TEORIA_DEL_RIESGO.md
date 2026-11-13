@@ -1626,7 +1626,7 @@ sustituye por el TES del plazo que corresponda. **Afecta a C7 (Sharpe) y a C11�
 
 **Una trampa de convención que costó cuadrar dos veces.** El 7,00 % es *efectivo*, y el
 curso anualiza rendimientos logarítmicos multiplicando por 252, con lo que la misma tasa
-vale 6,7667 %. Mezclarlas movía el rendimiento exigido de ISA de 7,59 % a 7,68 %. Todas las
+vale 6,7668 % (corregido el 2026-11-13; el capítulo imprimía 6,7667). Mezclarlas movía el rendimiento exigido de ISA de 7,59 % a 7,68 %. Todas las
 cifras de la sección 3 van en la convención logarítmica, la conversión está explicada en una
 `Box` y el R1 de esa sección la usa como parte del ejercicio — es la brecha entre
 aritméticos y logarítmicos del capítulo 1, aplicada ahora a una tasa.

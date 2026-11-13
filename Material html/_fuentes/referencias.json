@@ -305,6 +305,35 @@
     "language": "es"
   },
   {
+    "id": "banrep-tpm",
+    "type": "dataset",
+    "author": [
+      {
+        "literal": "Banco de la República"
+      }
+    ],
+    "title": "Tasa de política monetaria (serie 59)",
+    "publisher": "Banco de la República, SUAMECA",
+    "issued": {
+      "date-parts": [
+        [
+          "2026"
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          13
+        ]
+      ]
+    },
+    "URL": "https://suameca.banrep.gov.co/graficador-interactivo/grafica/59",
+    "language": "es"
+  },
+  {
     "id": "bcbs1996backtesting",
     "type": "report",
     "author": [
@@ -681,6 +710,35 @@
     "language": "en"
   },
   {
+    "id": "citivalores2026icolcap",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Citivalores S.A. Comisionista de Bolsa"
+      }
+    ],
+    "title": "Reglamento del fondo bursátil iShares MSCI COLCAP",
+    "issued": {
+      "date-parts": [
+        [
+          "2026",
+          6
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          13
+        ]
+      ]
+    },
+    "URL": "https://www.citibank.com/icg/sa/latam/colombia/citivalores/assets/docs/Reglamento-ETF-Colcap.pdf",
+    "language": "es"
+  },
+  {
     "id": "cont2001",
     "type": "article-journal",
     "author": [
@@ -931,6 +989,36 @@
     "DOI": "10.1257/jep.15.4.157",
     "ISSN": "0895-3309",
     "URL": "https://doi.org/10.1257/jep.15.4.157",
+    "language": "en"
+  },
+  {
+    "id": "famafrench2004",
+    "type": "article-journal",
+    "author": [
+      {
+        "family": "Fama",
+        "given": "Eugene F."
+      },
+      {
+        "family": "French",
+        "given": "Kenneth R."
+      }
+    ],
+    "title": "The capital asset pricing model: Theory and evidence",
+    "container-title": "Journal of Economic Perspectives",
+    "issued": {
+      "date-parts": [
+        [
+          "2004"
+        ]
+      ]
+    },
+    "volume": "18",
+    "issue": "3",
+    "page": "25-46",
+    "DOI": "10.1257/0895330042162430",
+    "ISSN": "0895-3309",
+    "URL": "https://doi.org/10.1257/0895330042162430",
     "language": "en"
   },
   {
@@ -1611,6 +1699,37 @@
     "language": "en"
   },
   {
+    "id": "nobel1990prensa",
+    "type": "webpage",
+    "author": [
+      {
+        "literal": "Royal Swedish Academy of Sciences"
+      }
+    ],
+    "title": "Press release: The Prize in Economics 1990",
+    "container-title": "NobelPrize.org",
+    "issued": {
+      "date-parts": [
+        [
+          "1990",
+          10,
+          16
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          13
+        ]
+      ]
+    },
+    "URL": "https://www.nobelprize.org/prizes/economic-sciences/1990/press-release/",
+    "language": "en"
+  },
+  {
     "id": "nobel2003ciencia",
     "type": "report",
     "author": [
@@ -1672,6 +1791,39 @@
       ]
     },
     "URL": "https://www.nobelprize.org/prizes/economic-sciences/2003/press-release/",
+    "language": "en"
+  },
+  {
+    "id": "nobel2013ciencia",
+    "type": "report",
+    "author": [
+      {
+        "literal": "Royal Swedish Academy of Sciences"
+      }
+    ],
+    "title": "Understanding asset prices",
+    "collection-title": "Scientific background on the Sveriges Riksbank Prize in Economic Sciences in Memory of Alfred Nobel 2013",
+    "publisher": "Royal Swedish Academy of Sciences",
+    "publisher-place": "Stockholm",
+    "issued": {
+      "date-parts": [
+        [
+          "2013",
+          10,
+          14
+        ]
+      ]
+    },
+    "accessed": {
+      "date-parts": [
+        [
+          "2026",
+          11,
+          13
+        ]
+      ]
+    },
+    "URL": "https://www.nobelprize.org/uploads/2013/10/advanced-economicsciences2013.pdf",
     "language": "en"
   },
   {

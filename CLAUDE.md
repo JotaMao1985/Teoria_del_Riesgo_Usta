@@ -28,6 +28,7 @@ Las convenciones de autoría están en [`Material html/README.md`](Material%20ht
 | 5 · Portal y Quarto | pendiente |
 | Gestión documental (F0–F4) | ✅ 2026-11-11 · vault, 69 referencias en Zotero, circuito de citas (reglas 18–24, tope 420 KB), línea base del capítulo 1 · PC1–PC4 aprobados |
 | Mejora del capítulo 1 | 🟡 2026-11-12 · fases 0–8 hechas: **40 afirmaciones citadas y verificadas** por un lector independiente, rebalanceo diario y cinco convenciones declaradas, derivación de la brecha por Jensen, normas en la CBF, R6 con las definiciones vigentes; ninguna afirmación de la línea base queda por revisar · **espera el PC5** · `PLAN_TAREA_CAPITULO_01_CONTENIDO.md` |
+| Mejora del capítulo 3 | 🟡 2026-11-13 · fases 0–8: **15 citas verificadas** (comunicado del Nobel de 1990, información científica del Nobel de 2013, tasa de política del Banco de la República, reglamento del ICOLCAP, Decreto 2555), `ee8bfc3` traído, el error estándar de Newey-West, el rezago del ETF medido, la diversificación exacta, la anatomía de la regresión y la derivación del suelo; ninguna afirmación de la línea base queda por revisar · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_03_CONTENIDO.md` |
 | Mejora del capítulo 2 | 🟡 2026-11-12 · fases 0–8 hechas: **26 afirmaciones citadas y verificadas** (Nobel 2003, Engle 2001, RiskMetrics, Cont, FRTB, Basilea 1996, NIST, `arch`, `rugarch`), el porqué de `arch` contra `rugarch` corregido aquí y en los capítulos 1 y 7, la persistencia por tramos, la anatomía del GARCH y la derivación del pronóstico; ninguna afirmación de la línea base queda por revisar · **espera la revisión del docente** · `PLAN_TAREA_CAPITULO_02_CONTENIDO.md` |
 
 ## Gestión documental: vault y Zotero (desde el 2026-11-10)
@@ -51,6 +52,34 @@ Financiera ya probó (`Usta 2026II/Logica de programacion/`):
   cita como vigente solo con la fecha en que se contrastó su texto vigente.
 - Las **convenciones declaradas** del curso tienen nota propia en `Vault/Convenciones/`,
   transcritas de este archivo y pendientes de cotejar contra los capítulos.
+
+⚠️ **Lo que la mejora del capítulo 3 (2026-11-13) dejó dicho para los demás.**
+
+- **El que llega tarde es sobre todo el ETF, no las acciones.** Regresando cada serie sobre el ICOLCAP de
+  ayer, de hoy y de mañana, Ecopetrol, Grupo Sura e ISA cargan +0,27 sobre el mercado de *mañana* y casi nada
+  sobre el de ayer; solo Banco de Bogotá va detrás (+0,194 sobre el de ayer, y su beta sube de 0,3466 a 0,51).
+  La suma de los tres coeficientes del portafolio —el ajuste de Dimson con un día a cada lado— da **0,9359**.
+  La causa no está medida. Las 101 ruedas quietas explican un quinto de la brecha (0,7333). Todo capítulo que
+  use una covarianza diaria contra el ETF hereda esto; las covarianzas entre emisores del capítulo 7 no se
+  midieron así.
+- **Las betas semanal y mensual dependen de la fase**: 0,8651–0,9549 y 0,8736–1,0175; el 0,9486 que citan el 1,
+  el 7 y el 12 es la fase que empieza en la primera rueda. El bloque de la sección 5 imprime el rango.
+- **El error estándar de MCO de la beta subestima por casi cuatro**: 0,0228 contra **0,0849** de Newey-West con
+  cinco rezagos (escrito a mano en las dos pestañas, sin `sandwich`). El uno queda a 3,8 errores estándar y no a
+  14,1. Las betas de Grupo Sura por mitades siguen separadas, pero a 2,5 errores estándar y no a 4.
+- **La fórmula del equiponderado es exacta con varianza media y covarianza media** (σ̄ = 2,3873 %, ρ̄ = 0,2265,
+  suelo 1,1361 %), no con la media de las desviaciones y de las correlaciones (2,3776 %, 0,2268, 1,1322 %), que
+  daba 1,5410 % donde el dato es 1,5469 %. El 0,2268 que cita el capítulo 7 es la media simple de las
+  correlaciones y sigue siendo cierto.
+- **Tres cosas del mundo que el material repetía y las fuentes no dicen**: la tasa de política empezó 2018 en
+  **4,75 %**, no 4,25 % (serie 59 de SUAMECA; promedio diario 2018–2025, 6,79 %); el Decreto 2555 no habla de
+  «vinculación económica» sino del grupo del emisor y de las entidades vinculadas a la AFP; y Lintner no es
+  coautor del CAPM: llegó a él por su cuenta. Jensen (1968), Roll (1977), Dimson (1979), Sharpe (1964) y Fama y
+  French (2004) siguen sin leerse —Wiley, Elsevier y un desafío de Cloudflare—: los «115 fondos» y el hito de
+  Dimson salieron del capítulo.
+- **Desde la pantalla bloqueada, Zotero se importa sin tocar la interfaz**: `connector/import?session=X` guarda
+  en la colección seleccionada y `connector/updateSession {"sessionID": X, "target": "C26"}` mueve los ítems a
+  la de TDR; se comprueba por la API que la colección de otro curso volvió a su conteo.
 
 ⚠️ **Lo que la mejora del capítulo 2 (2026-11-12) dejó dicho para los demás.**
 
@@ -324,9 +353,9 @@ mueve ninguna conclusión, pero **el capítulo que use la tasa declara cuál de 
 y no las mezcla dentro de una misma cifra.
 
 ⚠️ Y ojo con la aritmética al citarla: `ln(1,07)` = 6,7659 % **no** es «la versión correcta»
-de 6,7667 %, sino otra convención. El 6,7667 que aparece tres veces en el capítulo 3 es la
+de 6,7667 %, sino otra convención. El 6,7667 que aparecía tres veces en el capítulo 3 era la
 primera de las dos, bien calculada y mal redondeada en el cuarto decimal —6,766773 redondea
-a 6,7668—. Es una diezmilésima y no se ha tocado.
+a 6,7668—; se corrigió el 2026-11-13 en la mejora del capítulo.
 
 El instrumento calificado de la unidad 1 es **`Material html/T1_TDR_Taller_unidad_1.html`**
 —HTML interactivo, individualizado por número de documento, 7 bloques y 23 preguntas—, y está

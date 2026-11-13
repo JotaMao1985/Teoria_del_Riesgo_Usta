@@ -3963,8 +3963,7 @@ for (a in 2018:2025) linea(as.character(a), r[substr(fechas, 1, 4) == as.charact
                     en su versión logarítmica,{' '}
                     <span className="inline-code">ln(1,07) = 6,7659 %</span>. El capítulo 3 usa la otra
                     conversión de la misma tasa —la baja a diaria efectiva y la anualiza por 252, lo que
-                    da 6,7668 %, que el capítulo 3 imprime redondeado a 6,7667— porque allí encaja con su
-                    regresión. Las separan 0,0009 puntos
+                    da 6,7668 %— porque allí encaja con su regresión. Las separan 0,0009 puntos
                     porcentuales al año y ninguna conclusión de ninguno de los dos capítulos se mueve
                     con eso; lo que no se puede es mezclarlas dentro de una misma cifra.
                     <br /><br />
@@ -5398,7 +5397,7 @@ solve.QP(2 * S, rep(0, 4), A, c(1, 0.124454), meq = 2)
                     },
                     {
                         pregunta: 'Midiendo el retorno cada quinta rueda en lugar de cada rueda, la correlación media del panel sube de 0,227 a 0,339 y el peso de Ecopetrol en la mínima varianza baja del 20,76 % al 12,79 %. ¿Qué está pasando?',
-                        justificacion: 'Es el sesgo de negociación no simultánea, y es el mismo que la sección 5 del capítulo 3 mide sobre la beta —0,6779 con datos diarios contra 0,9486 con datos semanales—. Que cada emisor deje de cotizar por su cuenta diluye las covarianzas diarias, el optimizador se cree esa dilución y reparte más de lo que debería. Ojo con el 0,339, que es una fase de cinco: empezando en otra rueda sale entre 0,226 y 0,325, pero el peso de Ecopetrol baja en las cinco, a entre el 11,28 % y el 13,76 %. Los dos defectos del panel están declarados en el manifiesto y no se corrigen: lo que se hace es medir cuánto mueven cada conclusión.',
+                        justificacion: 'Es el sesgo de negociación no simultánea, y es el mismo que la sección 5 del capítulo 3 mide sobre la beta —0,6779 con datos diarios contra 0,87 a 0,95 con datos semanales, según la fase—. Que cada emisor deje de cotizar por su cuenta diluye las covarianzas diarias, el optimizador se cree esa dilución y reparte más de lo que debería. Ojo con el 0,339, que es una fase de cinco: empezando en otra rueda sale entre 0,226 y 0,325, pero el peso de Ecopetrol baja en las cinco, a entre el 11,28 % y el 13,76 %. Los dos defectos del panel están declarados en el manifiesto y no se corrigen: lo que se hace es medir cuánto mueven cada conclusión.',
                         opciones: [
                             { texto: 'Que parte de la diversificación que muestran los datos diarios es un artefacto de medición: los emisores no cotizan a la vez y eso diluye las covarianzas medidas día a día.', correcta: true },
                             { texto: 'Que al usar una de cada cinco ruedas la muestra se reduce a 383 observaciones: con tan pocos datos la matriz de covarianzas queda mal condicionada y sus correlaciones se inflan.', correcta: false },

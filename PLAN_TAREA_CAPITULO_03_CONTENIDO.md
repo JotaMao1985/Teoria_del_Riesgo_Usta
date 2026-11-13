@@ -36,7 +36,7 @@ sesión maestra** sobre `datos/bvc_diario.csv` (`m_chk1.py`, `m_chk2.py`):
    sin que el 3 lo mida.
 2. **El fondo no rindió 7,69 %** (`:4057`, `:4162`, `:4198`, `:4765`, R7 de la sección 3, pregunta 10): es w′μ, la
    convención, que no es el rendimiento de ninguna cartera. Rebalanceado cada rueda rindió 11,83 % (media logarítmica ×
-   252, como el 8,10 % del índice; compuesto, 12,56 % anual) y le ganó al índice;
+   252, como el 8,10 % del índice; +145,82 % en ocho años, 11,90 % compuesto por año calendario) y le ganó al índice;
    el alfa ronda +4,16 en vez de +0,02, y sigue sin distinguirse de cero. **La corrección ya existe**: el commit
    `ee8bfc3` (rama `claude/sweet-mclaren-0a350c`, sin fusionar), que además arregla el alfa de ISA (+5,20 → +5,29) y la
    pregunta del cuestionario. Se aplica limpio sobre la rama de trabajo.
