@@ -279,9 +279,13 @@ con los pagos movidos al día hábil siguiente, el **29,7 %**: el precio no usa 
 plan decía en un R3 «la convención del papel es 30/360», y era falso** —se cambió por NL/365—. Sobre
 el tramo no se habría notado nunca: en aniversarios exactos 30/360 cuenta lo mismo que NL/365, y en
 la operación real que la sección 5 reproduce, también (73/365 = 72/360 = 0,2). La resolución del
-Ministerio de Hacienda que reglamenta los TES dice lo mismo en su artículo 5 —base 365/365 con
-febrero de 28 días también en bisiesto (numeral 10) y precio descontado a tasa efectiva anual
-(numeral 11)—, y se buscó **después** de medir: es la lección del 9 aplicada en el orden correcto.
+Ministerio de Hacienda que reglamenta los TES dice lo mismo en su artículo 5 —cupones de intereses
+**anuales** y principal al vencimiento (numeral 3), base 365/365 con febrero de 28 días también en
+bisiesto (numeral 10) y precio descontado a tasa efectiva anual, con tres decimales (numeral 11)—, y
+se buscó **después** de medir: es la lección del 9 aplicada en el orden correcto. ⚠️ **Ese numeral 11
+es además la norma diciendo lo que el barrido ya había medido**: la TIR y el precio del SEN vienen
+con tres decimales, que es justo por lo que la prueba tiene que ser de consistencia y no de
+coincidencia exacta (el párrafo siguiente).
 ⚠️ **Pero el número de la resolución cambia cada pocos meses y el capítulo lo ha tenido que corregir
 dos veces**: la 3609 de 2022 quedó derogada por la 3463 de 2023, y hoy rige la **1002 del 14 de mayo
 de 2026**, que a su vez deroga la 0946, de nueve días antes (actualizado el 2026-11-13). Las tres
@@ -317,14 +321,48 @@ la capitalización y el cupón semestral.
 ⚠️ **La sección 6 encontró que la normativa que citan otros capítulos cambió de casa.** Según la
 investigación del 2026-10-01, la Circular Básica Contable y Financiera fue **sustituida por la
 Circular Básica Financiera** (Circular Externa 004 de 2026) desde el **1 de junio de 2026**, y el
-SARL y el SARM ya habían pasado al SIAR el 1/6/2023 (Circular Externa 018 de 2021). ✅ **Corregido**: el 1 y el 2 en sus mejoras, el 4 el 2026-11-13 —con el localizador verificado
-1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y 1.1.2.93–1.1.2.98—, y el **6 y el 10 el 2026-11-13** en la
-rama `claude/keen-tu-3412fd`, de donde se trajeron solo esos dos (su capítulo 4 era anterior y
-quedó obsoleto). **Ningún capítulo la cita ya como vigente**, comprobado el 2026-11-13: los cuatro
-que la nombran —el 1, el 6, el 9 y el 10— la nombran como historia, con la fecha en que dejó de regir. Y
+SARL y el SARM ya habían pasado al SIAR el 1/6/2023 (Circular Externa 018 de 2021), que fue el
+capítulo XXXI de la circular vieja. Así que **«CBCF, capítulo XXI» apunta a un texto derogado desde
+2023 y «CBCF, capítulo XXXI» a un capítulo que ya no existe**. ✅ **Corregido**: el 1 y el 2 en sus
+mejoras, el 4 el 2026-11-13 —con el localizador verificado 1.1.1.63, 1.1.2.87 a.–b., 1.1.2.91 y
+1.1.2.93–1.1.2.98—, y el **6 y el 10 el 2026-11-13**, traídos de la rama `claude/keen-tu-3412fd` sin
+su capítulo 4, que era anterior a la mejora. El **3** no cita la circular sino el Decreto 2555, que
+sigue vigente. **Ningún capítulo la cita ya como vigente**, comprobado el 2026-11-13 sobre los doce
+capítulos y los doce talleres: los cuatro que la nombran —el 1, el 6, el 9 y el 10— la nombran como
+historia, con la fecha en que dejó de regir. Y
 **ninguna regla de liquidez —LCR, NSFR, IRL, CFEN— obliga al fondo del curso**: el SARL nunca cubrió
-los fondos de seguridad social, y el SIAR deja la liquidez de los fondos voluntarios y de cesantías
-a modelos internos, sin límite. Antes de citar cualquiera de esas normas, contraste el texto vigente.
+los fondos de seguridad social, y hoy el párrafo **1.1.3.152** dice a quién obliga el modelo estándar
+de liquidez —establecimientos de crédito, organismos cooperativos de grado superior, Bancóldex,
+Findeter, Finagro, comisionistas y administradoras de fondos abiertos sin pacto de permanencia— y las
+administradoras de fondos de pensiones **no están en la lista**.
+
+⚠️ **Y de ahí sale un aviso de método que ya se cobró tres veces:** una corrección de citas escrita
+en un worktree y sin commit **envejece mientras espera**. El parche de `cool-euclid-5c3617` cubría
+los capítulos 1, 2, 4, 6 y 9, y cuando se fue a traer, el **2**, el **9** y el **4** ya estaban
+arreglados en `main` por la mejora de contenido de cada uno —y mejor, porque esa mejora los ata al
+vault con `<Cita>` y el parche solo cambiaba la prosa de la ficha—. Antes de aplicar un parche
+guardado, mire qué le pasó a esos archivos desde su base: lo que sobrevive es lo que `main` no haya
+tocado.
+
+**El localizador, para no volver a buscarlo.** El SIAR es la **CBF, parte 1, capítulo 1**, y ese
+capítulo va en cinco secciones: la 1, generalidades (marco de apetito 1.1.1.8, etapas 1.1.1.11,
+función de riesgos independiente 1.1.1.43, documentación 1.1.1.63, cuyo literal d son «los modelos de
+riesgos»); la **2, administración por riesgo** —crédito desde 1.1.2.4, **mercado 1.1.2.76 a
+1.1.2.113**, operacional desde 1.1.2.114, liquidez desde 1.1.2.140—; la **3, medición y reporte
+estándar** —**IRL 1.1.3.155** y anexo 9, **CFEN 1.1.3.158** y anexo 12, a quién obliga el estándar de
+liquidez 1.1.3.152—; la 4, agregación de datos (lo de BCBS 239), que **solo aplica a quien consolida
+en dos o más industrias** (1.1.4.2); y la 5, definiciones. ⚠️ Una **AFP mide y reporta riesgo de
+mercado con el MODELO ESTÁNDAR** (1.1.2.91); todo modelo interno pide VaR diario con ≥1 año de datos
+(1.1.2.93), pruebas de desempeño sucias diarias y limpias mensuales (1.1.2.95–98) y quedar a
+disposición de la SFC. La valoración con proveedor de precios está en la **parte 3, capítulo 4**, y el
+SARLAFT sigue aparte, en la Circular Básica Jurídica.
+
+⚠️ **Antes de citar cualquiera de esas normas, contraste el texto vigente, y escriba la fecha en que
+lo hizo** —es lo que llevan hoy las fichas del 4, el 6 y el 10—. El visor oficial es Angular y su API
+pide clave, así que a `curl` le devuelve 401; lo que funciona es abrirlo en el navegador, pulsar el
+botón **sin rótulo** de la fila de la parte (el título no hace nada), mover el `mat-select` de Sección
+por su `ref` y leer: **cada sección se carga entera en el DOM**, así que un solo `innerText.indexOf()`
+saca todos los párrafos que hagan falta. Los de arriba se contrastaron así el 2026-11-13.
 
 ⚠️ **Tres cosas de TR-CORE que el 10 pagó y que valen para el siguiente:**
 
