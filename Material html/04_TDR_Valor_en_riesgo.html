@@ -3681,7 +3681,18 @@ print(f"    escalado con raiz(10) : {var1*np.sqrt(h)*100:.3f} %")
 print(f"    escalado con el factor: {var1*factor*100:.3f} %")
 #>     escalado con el factor: 13.851 %
 print(f"    medido a 10 dias      : {-np.quantile(r10, 0.01)*100:.3f} %")
-#>     medido a 10 dias      : 11.409 %`,
+#>     medido a 10 dias      : 11.409 %
+
+# El VaR PARAMETRICO con media cero a diez dias, que es lo que audita el R3 de abajo.
+from scipy.stats import norm
+W = 800_000
+par1 = norm.ppf(0.99) * rp.std(ddof=1)
+print(f"parametrico 1 dia      : {par1*100:.3f} %  =  {par1*W:,.0f} millones")
+#> parametrico 1 dia      : 3.667 %  =  29,338 millones
+print(f"  con raiz(10)         : {par1*np.sqrt(h)*100:.3f} %  =  {par1*np.sqrt(h)*W:,.0f} millones")
+#>   con raiz(10)         : 11.597 %  =  92,774 millones
+print(f"  con el factor exacto : {par1*factor*100:.3f} %  =  {par1*factor*W:,.0f} millones")
+#>   con el factor exacto : 12.458 %  =  99,667 millones`,
             r: `precios  <- read.csv("datos/bvc_diario.csv")
 acciones <- c("ECOPETROL.CL", "BOGOTA.CL", "GRUPOSURA.CL", "ISA.CL")
 w  <- c(0.30, 0.20, 0.25, 0.25)
@@ -3725,7 +3736,18 @@ cat(sprintf("    escalado con raiz(10) : %.3f %%\\n", var1 * sqrt(h) * 100))
 cat(sprintf("    escalado con el factor: %.3f %%\\n", var1 * factor * 100))
 #>     escalado con el factor: 13.851 %
 cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names = FALSE) * 100))
-#>     medido a 10 dias      : 11.409 %`,
+#>     medido a 10 dias      : 11.409 %
+
+# El VaR PARAMETRICO con media cero a diez dias, que es lo que audita el R3 de abajo.
+W <- 800000
+par1 <- qnorm(0.99) * sd(rp)
+m <- function(x) formatC(round(x), format = "d", big.mark = ",")
+cat(sprintf("parametrico 1 dia      : %.3f %%  =  %s millones\\n", par1 * 100, m(par1 * W)))
+#> parametrico 1 dia      : 3.667 %  =  29,338 millones
+cat(sprintf("  con raiz(10)         : %.3f %%  =  %s millones\\n", par1 * sqrt(h) * 100, m(par1 * sqrt(h) * W)))
+#>   con raiz(10)         : 11.597 %  =  92,774 millones
+cat(sprintf("  con el factor exacto : %.3f %%  =  %s millones\\n", par1 * factor * 100, m(par1 * factor * W)))
+#>   con el factor exacto : 12.458 %  =  99,667 millones`,
         };
 
         /* Los dos bloques que audita el estudiante en los ejercicios R3: los
@@ -3895,8 +3917,7 @@ cat(sprintf("    medido a 10 dias      : %.3f %%\\n", -quantile(r10, 0.01, names
                         pérdida logarítmica de 3,955 % no son 3,955 % del fondo: son{' '}
                         <span className="inline-code">1 − e<sup>−0,03955</sup></span> = 3,878 %, o{' '}
                         <strong>31 025 millones</strong>. Entre eso y los 32 617 del acta hay{' '}
-                        <strong>1 592 millones</strong>, un 5,1 % de esa cifra exacta: 936 los pone la agregación y 656 el
-                        haber multiplicado en vez de compuesto.
+                        <strong>1 592 millones</strong>, un 5,1 % de esa cifra exacta. Se reparten en <strong>656 y 936</strong> si se compone primero y se agrega después, y en 974 y 618 al revés: la suma es la misma y el reparto no, así que el capítulo declara el orden en que lo cuenta —componer, y después agregar— en vez de atribuirle a cada paso una cifra sin decirlo.
                     </p>
                     <p>
                         El capítulo <strong>conserva la convención</strong> —como el 1, el 7 y el 8— para
@@ -4482,7 +4503,7 @@ var <- s[k] + (h - k + 1) * (s[k + 1] - s[k])`,
                     />
 
                     <ChartFrame id="cap4-cortes" height="chart-h-400" fuente={{ propia: true, children: 'con los cierres ajustados del panel congelado del curso (datos/bvc_diario.csv), con los tres cortes que calculan los bloques de las secciones 2 a 4' }}
-                        caption="Las 1 916 ruedas del portafolio y los tres cortes al 99 %. En rojo, las veinte ruedas que quedan más allá del corte histórico. La distancia entre la línea roja punteada y la rosada —cuatro décimas de punto porcentual— son 3 523 millones de pesos de diferencia en el número que se reporta." />
+                        caption="Las 1 916 ruedas del portafolio y los tres cortes al 99 %. En rojo, las veinte ruedas que quedan más allá del corte histórico. La distancia entre la línea roja punteada y la rosada son 3 523 millones de pesos de diferencia en el número que se reporta; las etiquetas van redondeadas a dos decimales y con ellas salen 3 520, porque la brecha sin redondear es de 0,4404 pp y no de 0,44." />
 
                     <Comparador
                         titulo="R4 · Dos formas de leer la misma cola"
@@ -4908,7 +4929,7 @@ componente <- w * marginal`,
                         tipos={TIPOS_ERROR_RIESGO}
                         tipoCorrecto={IDX_ERROR.supuesto}
                         explicacion="La raíz del tiempo no es una identidad: es lo que queda de la fórmula de la varianza de una suma cuando las autocorrelaciones son todas nulas. Nadie comprobó esa condición, y en esta serie no se cumple —la autocorrelación de segundo orden vale +0,075—, así que el factor de la DESVIACIÓN de la suma es 3,3972 y no 3,1623. El defecto no está en la aritmética, que es impecable, sino en una hipótesis que el código da por cierta sin mirarla; por eso el error es de supuesto y no de estimador. Añadir el término de las autocorrelaciones —dos instrucciones del bloque de esta sección— corrige esa hipótesis, pero no basta: lo que se escaló es un cuantil, y el cuantil medido a diez días queda por debajo de los dos factores."
-                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 772 millones con la raíz del tiempo a 99 665 con el factor de la varianza de la suma: la IA se queda corta en unos 6 900 millones. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
+                        impacto="Con la volatilidad de la muestra, el VaR paramétrico a diez días pasa de 92 774 millones con la raíz del tiempo a 99 667 con el factor de la varianza de la suma —las dos cifras las imprime el bloque de esta sección—: la IA se queda corta en 6 893. Bajo un régimen de modelos internos ese número se multiplica por un factor de al menos 3 para fijar el capital, así que el faltante rondaría los 20 700. Ojo con el otro lado de la cuenta, que la sección acaba de medir: el cuantil que de verdad se observa a diez días es 11,409 %, por debajo incluso del 11,60 % de la IA. Corregir el factor arregla la hipótesis, no garantiza acercarse al dato."
                     />
 
                     <h3>Por qué diez días, y por qué el número acaba multiplicado por tres</h3>
